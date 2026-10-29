@@ -86,6 +86,8 @@ const N=(k,l,c,w)=>({k,l,t:'num',corr:!!c,when:w}), S=(k,l,o,w)=>({k,l,t:'sel',o
 const INST_W=['Verwarming','Tapwater','Ventilatie','Koeling','Zonnepanelen (PV)','Zonneboiler','Overig'];
 const INST_U=['Verwarming','Tapwater','Ventilatie','Luchtbehandeling','Koeling','Bevochtiging','Verlichting','Zonnepanelen (PV)','Zonneboiler','Overig'];
 const IS=(...l)=>it=>l.includes(it.soort||'Verwarming');
+const MG=it=>it.soort==='Met glas';
+function glasOpp(it){if(it.type!=='deur'||!MG(it))return null;const d=num(it.gm2);if(d!=null)return d;const b=num(it.gb),h=num(it.gh);return b!=null&&h!=null?b*h:null}
 const opts=f=>typeof f.o==='function'?f.o():f.o;
 const zichtbaar=(it,f)=>!f.when||f.when(it);
 const UFUNC=['Kantoorfunctie','Bijeenkomstfunctie','Celfunctie','Gezondheidszorgfunctie met bedgebied','Gezondheidszorgfunctie overig','Industriefunctie','Logiesfunctie','Onderwijsfunctie','Sportfunctie','Winkelfunctie','Overige gebruiksfunctie'];
@@ -95,7 +97,7 @@ const DEF={
  dakkapel:{t:'Dakkapel',f:[N('b','Breedte (m)'),N('h','Hoogte voorzijde (m)'),N('d','Diepte (m)'),S('isolatie','Isolatie',ISO),N('rc','Rc indien bekend (m²K/W)'),S('bewijs','Bewijs',['Geen','Waarneming','Foto','Factuur','Bouwtekening / bestek']),X('opm','Opmerking')],sub:['raam']},
  gevel:{t:'Gevel',f:[O('orient','Oriëntatie'),N('breedte','Breedte bouwmuur → bouwmuur (m)',1),N('hoogte','Hoogte (m)'),S('isolatie','Isolatie',ISO),N('rc','Rc indien bekend (m²K/W)'),S('bewijs','Bewijs',['Geen','Waarneming','Foto','Factuur','Bouwtekening / bestek']),X('opm','Opmerking')],opp:['breedte','hoogte'],sub:['raam','deur']},
  raam:{t:'Raam',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('aantal','Aantal'),N('m2','Of totaal direct (m²)'),S('glas','Glas',GLAS),S('kozijn','Kozijn',KOZ)],opp:['b','h','aantal']},
- deur:{t:'Deur',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('m2','Of totaal direct (m²)'),S('soort','Soort',['Dicht','Met glas','Paneel']),S('glas','Glas',GLAS)],opp:['b','h']},
+ deur:{t:'Deur',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('m2','Of totaal direct (m²)'),S('soort','Soort',['Dicht','Met glas','Paneel']),N('gb','Glas breedte (m)',0,MG),N('gh','Glas hoogte (m)',0,MG),N('gm2','Of glas totaal direct (m²)',0,MG),S('glas','Glas',GLAS,MG)],opp:['b','h']},
  vloer:{t:'Vloer',f:[S('grenst','Grenst aan',['Kruipruimte','Grond','Buitenlucht','Onverwarmde ruimte']),N('lengte','Lengte (m)'),N('breedte','Breedte bouwmuur → bouwmuur (m)',1),S('isolatie','Isolatie',ISO),N('rc','Rc indien bekend (m²K/W)'),S('bewijs','Bewijs',['Geen','Waarneming','Foto','Factuur','Bouwtekening / bestek']),X('opm','Opmerking')],opp:['lengte','breedte']},
  installatie:{t:'Installatie',f:[
   S('soort','Soort',()=>cur?.type?.methode==='U'?INST_U:INST_W),
@@ -267,8 +269,8 @@ function opname(){
  bar(`<button class="ghost" data-go="type">Gebouw</button><button data-go="export">Klaar → export</button>`)}
 function itemHTML(it){const d=DEF[it.type];const op=opp(it);let netto='';
  if(op!=null&&it.subs?.length){const af=it.subs.reduce((s,x)=>s+(DEF[x.type].opp&&x.type!=='dakkapel'?(opp(x)||0):0),0);if(af)netto=` · netto ${f2(op-af)} m²`}
- return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><button class="small del" data-del="${it.id}">✕</button></div>
- <div class="grid2">${d.f.filter(f=>zichtbaar(it,f)).map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}</div>`:''}
+ return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><span style="display:flex;gap:6px"><button class="small ghost" data-kopie="${it.id}">Kopieer</button><button class="small del" data-del="${it.id}">✕</button></span></div>
+ <div class="grid2">${d.f.filter(f=>zichtbaar(it,f)).map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}${glasOpp(it)!=null?` · glas ${f2(glasOpp(it))} m² · <b>netto deur ${f2(op-glasOpp(it))} m²</b>`:''}</div>`:''}
  ${d.sub?`<div>${(it.subs||[]).map(itemHTML).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
 function fieldHTML(it,f){const v=it[f.k]??'';const id=`data-id="${it.id}" data-k="${f.k}"`;let inp;
  if(f.t==='num')inp=`<input inputmode="decimal" ${id} value="${esc(v)}">`;
@@ -293,7 +295,7 @@ function exp(){
 function maakXML(){const a=o=>Object.entries(o).filter(([,v])=>v!=null&&v!=='').map(([k,v])=>` ${k}="${esc(v)}"`).join('');
  const el=(it,ind)=>{const d=DEF[it.type];const at={};d.f.filter(f=>zichtbaar(it,f)).forEach(f=>{const v=it[f.k];if(v==null||v==='')return;
    if(f.t==='num'){at[f.k]=num(v);if(f.corr){at[f.k+'_gemeten']=num(v);at[f.k]=+val(it,f.k).toFixed(3);at[f.k+'_correctie']=it[f.k+'_x']||0}}else at[f.k]=v});
-  const o=opp(it);if(o!=null)at.oppervlakte=+o.toFixed(2);const tag=d.t.replace(/[^A-Za-z]/g,'');const subs=it.subs||[];
+  const o=opp(it);if(o!=null)at.oppervlakte=+o.toFixed(2);const go=glasOpp(it);if(go!=null){at.glasOppervlakte=+go.toFixed(2);if(o!=null)at.nettoDeur=+(o-go).toFixed(2)}const tag=d.t.replace(/[^A-Za-z]/g,'');const subs=it.subs||[];
   return subs.length?`${ind}<${tag}${a(at)}>\n${subs.map(s=>el(s,ind+'  ')).join('\n')}\n${ind}</${tag}>`:`${ind}<${tag}${a(at)}/>`};
  const t=cur.type||{},b=cur.bag||{},o=cur.orient||{},h=cur.hoogte||{};
  return `<?xml version="1.0" encoding="UTF-8"?>\n<Opname versie="0.1" datum="${new Date().toISOString()}" methode="${cur.type?.methode==='U'?'ISSO 75.1':'ISSO 82.1'}">\n`+
@@ -306,9 +308,10 @@ function maakXML(){const a=o=>Object.entries(o).filter(([,v])=>v!=null&&v!=='').
  (cur.verdiepingen||[]).map(v=>`    <Verdieping naam="${esc(v.naam)}">\n${v.items.map(i=>el(i,'      ')).join('\n')}\n    </Verdieping>`).join('\n')+`\n  </Verdiepingen>\n</Opname>\n`}
 function xmlBestand(){const naam='opname_'+(cur.adres?.postcode||'')+'_'+(cur.adres?.huisnummer||'')+(cur.adres?.toevoeging||'')+'.xml';return new File([maakXML()],naam.replace(/\s/g,''),{type:'application/xml'})}
 
+function kloon(it){const c=JSON.parse(JSON.stringify(it));const her=x=>{x.id=uid();(x.subs||[]).forEach(her)};her(c);return c}
 function nieuwItem(type){const it={id:uid(),type,subs:[]};DEF[type].f.forEach(f=>{if(f.t==='sel'&&f.k!=='isolatie'&&f.k!=='bewijs')it[f.k]=opts(f)[0]});return it}
 // ---------- events ----------
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
  if(d.go){if(!cur)return;scherm=d.go;render()}
  else if(d.act==='nieuw'){cur={id:uid(),datum:Date.now()};store.opnames.push(cur);zoekRes=[];save();scherm='adres';render()}
  else if(d.act==='lijst'){cur=null;scherm='lijst';render()}
@@ -322,6 +325,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-fdel
  else if(d.vIdx!=null){vIdx=+d.vIdx;render()}
  else if(d.add){const it=nieuwItem(d.add);if(d.add==='dakvlak'&&cur.orient)it.orient='';cur.verdiepingen[vIdx].items.push(it);save();render()}
  else if(d.addsub){const r=vind(d.addsub);r.it.subs=r.it.subs||[];r.it.subs.push(nieuwItem(d.t));save();render()}
+ else if(d.kopie){const r=vind(d.kopie);r.lijst.splice(r.lijst.indexOf(r.it)+1,0,kloon(r.it));save();render();toast('Gekopieerd, de kopie staat eronder')}
  else if(d.del){if(await vraag('Dit onderdeel verwijderen?','Verwijderen','Annuleren')){const r=vind(d.del);r.lijst.splice(r.lijst.indexOf(r.it),1);save();render()}}
  else if(d.corr){e.preventDefault();const r=vind(d.corr);await vraagCorr(r.it,d.k);save();render()}
  else if(d.set){cur.type[d.set]=d.v;save();type()}
