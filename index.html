@@ -53,6 +53,8 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:3000;padding:16px}
 #modal .box{background:var(--card);color:var(--ink);border-radius:14px;padding:18px;max-width:420px;width:100%;white-space:pre-line}
 #modal .row{margin-top:16px}
+[hidden]{display:none!important}
+#mkeuze button{width:100%;margin-top:8px}
 .sug{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden}
 .err{color:var(--warn);font-size:14px}
 </style>
@@ -62,7 +64,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 <main id="app"></main>
 <div class="bar" id="bar"></div>
 <div id="toast"></div>
-<div id="modal"><div class="box"><div id="mtekst"></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
+<div id="modal"><div class="box"><div id="mtekst"></div><div id="mkeuze" hidden></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
 <script>
 // ---------- opslag ----------
 const KEY='opnameApp_v1';
@@ -78,6 +80,10 @@ function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';cl
 
 function vraag(tekst,ja='Ja',nee='Nee'){return new Promise(res=>{const m=$('#modal');$('#mtekst').textContent=tekst;$('#mja').textContent=ja;$('#mnee').textContent=nee;m.style.display='flex';
  const klaar=v=>{m.style.display='none';$('#mja').onclick=$('#mnee').onclick=null;res(v)};$('#mja').onclick=()=>klaar(true);$('#mnee').onclick=()=>klaar(false)})}
+function kies(tekst,lijst){return new Promise(res=>{const m=$('#modal'),k=$('#mkeuze');$('#mtekst').textContent=tekst;
+ k.innerHTML=lijst.map((l,i)=>`<button class="ghost" data-kz="${i}">${esc(l)}</button>`).join('');k.hidden=false;$('#mja').hidden=true;$('#mnee').textContent='Annuleren';m.style.display='flex';
+ const klaar=v=>{m.style.display='none';k.hidden=true;k.innerHTML='';k.onclick=null;$('#mja').hidden=false;$('#mnee').onclick=null;res(v)};
+ k.onclick=e=>{const b=e.target.closest('[data-kz]');if(b)klaar(+b.dataset.kz)};$('#mnee').onclick=()=>klaar(null)})}
 // ---------- definities ----------
 const GLAS=['Onbekend','Enkel','Dubbel','HR','HR+','HR++','Triple'];
 const KOZ=['Onbekend','Hout','Kunststof','Aluminium','Alu therm. onderbroken','Staal'];
@@ -265,13 +271,13 @@ function opname(){
  const vs=cur.verdiepingen;const v=vs[vIdx];const mt=cur.type?.methode==='U'?'EP-U · ISSO 75.1':'EP-W · ISSO 82.1';
  $('#app').innerHTML=`<p class="note" style="margin:0 0 8px">${mt}</p><div class="tabs">${vs.map((x,i)=>i).reverse().map(i=>`<button class="${i===vIdx?'on':''}" data-v-idx="${i}">${esc(vs[i].naam)}</button>`).join('')}</div>`+
  SECTIES.map(([type,titel])=>{const its=v.items.filter(i=>i.type===type);
-  return `<div class="sec"><div class="sechead"><h3>${titel}</h3><button class="small ghost" data-add="${type}">+ ${DEF[type].t}</button></div>${its.map(itemHTML).join('')||'<p class="note">Nog niets ingevoerd.</p>'}</div>`}).join('');
+  return `<div class="sec"><div class="sechead"><h3>${titel}</h3><button class="small ghost" data-add="${type}">+ ${DEF[type].t}</button></div>${its.map(i=>itemHTML(i,true)).join('')||'<p class="note">Nog niets ingevoerd.</p>'}</div>`}).join('');
  bar(`<button class="ghost" data-go="type">Gebouw</button><button data-go="export">Klaar → export</button>`)}
-function itemHTML(it){const d=DEF[it.type];const op=opp(it);let netto='';
+function itemHTML(it,top){const d=DEF[it.type];const op=opp(it);let netto='';
  if(op!=null&&it.subs?.length){const af=it.subs.reduce((s,x)=>s+(DEF[x.type].opp&&x.type!=='dakkapel'?(opp(x)||0):0),0);if(af)netto=` · netto ${f2(op-af)} m²`}
- return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><span style="display:flex;gap:6px"><button class="small ghost" data-kopie="${it.id}">Kopieer</button><button class="small del" data-del="${it.id}">✕</button></span></div>
+ return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="small ghost" data-kopie="${it.id}">Kopieer</button>${top&&cur.verdiepingen.length>1?`<button class="small ghost" data-naar="${it.id}">Naar verdieping</button>`:''}<button class="small del" data-del="${it.id}">✕</button></span></div>
  <div class="grid2">${d.f.filter(f=>zichtbaar(it,f)).map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}${glasOpp(it)!=null?` · glas ${f2(glasOpp(it))} m² · <b>netto deur ${f2(op-glasOpp(it))} m²</b>`:''}</div>`:''}
- ${d.sub?`<div>${(it.subs||[]).map(itemHTML).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
+ ${d.sub?`<div>${(it.subs||[]).map(x=>itemHTML(x,false)).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
 function fieldHTML(it,f){const v=it[f.k]??'';const id=`data-id="${it.id}" data-k="${f.k}"`;let inp;
  if(f.t==='num')inp=`<input inputmode="decimal" ${id} value="${esc(v)}">`;
  else if(f.t==='sel')inp=`<select ${id}>${opts(f).map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`;
@@ -311,7 +317,7 @@ function xmlBestand(){const naam='opname_'+(cur.adres?.postcode||'')+'_'+(cur.ad
 function kloon(it){const c=JSON.parse(JSON.stringify(it));const her=x=>{x.id=uid();(x.subs||[]).forEach(her)};her(c);return c}
 function nieuwItem(type){const it={id:uid(),type,subs:[]};DEF[type].f.forEach(f=>{if(f.t==='sel'&&f.k!=='isolatie'&&f.k!=='bewijs')it[f.k]=opts(f)[0]});return it}
 // ---------- events ----------
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-naar],[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
  if(d.go){if(!cur)return;scherm=d.go;render()}
  else if(d.act==='nieuw'){cur={id:uid(),datum:Date.now()};store.opnames.push(cur);zoekRes=[];save();scherm='adres';render()}
  else if(d.act==='lijst'){cur=null;scherm='lijst';render()}
@@ -325,6 +331,10 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-kopi
  else if(d.vIdx!=null){vIdx=+d.vIdx;render()}
  else if(d.add){const it=nieuwItem(d.add);if(d.add==='dakvlak'&&cur.orient)it.orient='';cur.verdiepingen[vIdx].items.push(it);save();render()}
  else if(d.addsub){const r=vind(d.addsub);r.it.subs=r.it.subs||[];r.it.subs.push(nieuwItem(d.t));save();render()}
+ else if(d.naar){const vs=cur.verdiepingen;const andere=vs.map((v,i)=>i).filter(i=>i!==vIdx).reverse();
+  const r=vind(d.naar);const extra=(r.it.subs||[]).length?` (met ${r.it.subs.length} raam/deur-onderde${r.it.subs.length>1?'len':'el'})`:'';
+  const k=await kies(`${r.it.type==='installatie'?(r.it.soort||'Installatie'):DEF[r.it.type].t}${extra} kopiëren naar:`,andere.map(i=>vs[i].naam));
+  if(k!=null){const doel=vs[andere[k]];doel.items.push(kloon(r.it));save();toast('Gekopieerd naar '+doel.naam)}}
  else if(d.kopie){const r=vind(d.kopie);r.lijst.splice(r.lijst.indexOf(r.it)+1,0,kloon(r.it));save();render();toast('Gekopieerd, de kopie staat eronder')}
  else if(d.del){if(await vraag('Dit onderdeel verwijderen?','Verwijderen','Annuleren')){const r=vind(d.del);r.lijst.splice(r.lijst.indexOf(r.it),1);save();render()}}
  else if(d.corr){e.preventDefault();const r=vind(d.corr);await vraagCorr(r.it,d.k);save();render()}
