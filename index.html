@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f6f5c">
+<meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Opname Energielabel</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,9 +13,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-:root{--bg:#f4f6f5;--card:#fff;--ink:#17201d;--muted:#5f6b67;--line:#dde3e0;--acc:#1f6f5c;--acc2:#e5f2ee;--warn:#b5462e;--hi:#d4502f}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111614;--card:#1b2220;--ink:#e8eeec;--muted:#9aa7a2;--line:#2c3532;--acc:#4fb397;--acc2:#1d3029;--warn:#e07a62;--hi:#ff7a55}}
-:root[data-theme="dark"]{--bg:#111614;--card:#1b2220;--ink:#e8eeec;--muted:#9aa7a2;--line:#2c3532;--acc:#4fb397;--acc2:#1d3029;--warn:#e07a62;--hi:#ff7a55}
+:root{--bg:#eceff0;--card:#f9fafa;--ink:#17201d;--muted:#5f6b67;--line:#d3d9d7;--acc:#1f6f5c;--acc2:#e1efea;--warn:#b5462e;--hi:#d4502f;color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:80px}
 header{position:sticky;top:0;z-index:1000;background:var(--acc);color:#fff;padding:12px 16px calc(10px) ;padding-top:max(12px,env(safe-area-inset-top))}
@@ -86,11 +85,11 @@ const ISO=['Onbekend','Geen','Volgens bouwjaar','Matig (Rc ± 1)','Goed (Rc ± 2
 const N=(k,l,c)=>({k,l,t:'num',corr:!!c}), S=(k,l,o)=>({k,l,t:'sel',o}), X=(k,l)=>({k,l,t:'txt'}), O=(k,l)=>({k,l,t:'orient'});
 const DEF={
  dakvlak:{t:'Dakvlak',f:[O('orient','Oriëntatie'),N('lengte','Lengte nok → goot (m)'),N('breedte','Breedte bouwmuur → bouwmuur (m)',1),N('helling','Hellingshoek (°)'),S('isolatie','Isolatie',ISO),X('opm','Opmerking')],opp:['lengte','breedte'],sub:['dakraam','dakkapel']},
- dakraam:{t:'Dakraam',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('aantal','Aantal'),S('glas','Glas',GLAS),S('kozijn','Kozijn',KOZ)],opp:['b','h','aantal']},
+ dakraam:{t:'Dakraam',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('aantal','Aantal'),N('m2','Of totaal direct (m²)'),S('glas','Glas',GLAS),S('kozijn','Kozijn',KOZ)],opp:['b','h','aantal']},
  dakkapel:{t:'Dakkapel',f:[N('b','Breedte (m)'),N('h','Hoogte voorzijde (m)'),N('d','Diepte (m)'),S('isolatie','Isolatie',ISO),X('opm','Opmerking')],sub:['raam']},
  gevel:{t:'Gevel',f:[O('orient','Oriëntatie'),N('breedte','Breedte bouwmuur → bouwmuur (m)',1),N('hoogte','Hoogte (m)'),S('isolatie','Isolatie',ISO),X('opm','Opmerking')],opp:['breedte','hoogte'],sub:['raam','deur']},
- raam:{t:'Raam',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('aantal','Aantal'),S('glas','Glas',GLAS),S('kozijn','Kozijn',KOZ)],opp:['b','h','aantal']},
- deur:{t:'Deur',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),S('soort','Soort',['Dicht','Met glas']),S('glas','Glas',GLAS)],opp:['b','h']},
+ raam:{t:'Raam',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('aantal','Aantal'),N('m2','Of totaal direct (m²)'),S('glas','Glas',GLAS),S('kozijn','Kozijn',KOZ)],opp:['b','h','aantal']},
+ deur:{t:'Deur',f:[N('b','Breedte (m)'),N('h','Hoogte (m)'),N('m2','Of totaal direct (m²)'),S('soort','Soort',['Dicht','Met glas']),S('glas','Glas',GLAS)],opp:['b','h']},
  vloer:{t:'Vloer',f:[S('grenst','Grenst aan',['Kruipruimte','Grond','Buitenlucht','Onverwarmde ruimte']),N('lengte','Lengte (m)'),N('breedte','Breedte bouwmuur → bouwmuur (m)',1),S('isolatie','Isolatie',ISO),X('opm','Opmerking')],opp:['lengte','breedte']},
  installatie:{t:'Installatie',f:[S('soort','Soort',['Cv-ketel','Mechanische ventilatie','Warmtepomp','Tapwater / boiler','Zonnepanelen','Zonneboiler','Overig']),X('merk','Merk / type'),N('jaar','Bouwjaar'),X('details','Details (bijv. HR107, combi, WTW)')]}
 };
@@ -99,7 +98,7 @@ const SECTIES=[['dakvlak','Dak'],['gevel','Gevels'],['vloer','Vloeren'],['instal
 // ---------- helpers ----------
 function extraMaat(){const l=cur?.type?.ligging;return l==='tussen'?0.22:(l==='hoek'||l==='2onder1')?0.11:0}
 const val=(it,k)=>{const v=num(it[k]);return v==null?null:v+(it[k+'_x']||0)};
-function opp(it){const d=DEF[it.type];if(!d.opp)return null;let p=1;for(const k of d.opp){let v=val(it,k);if(k==='aantal')v=v??1;if(v==null)return null;p*=v}return p}
+function opp(it){const d=DEF[it.type];if(!d.opp)return null;if(num(it.m2)!=null)return num(it.m2);let p=1;for(const k of d.opp){let v=val(it,k);if(k==='aantal')v=v??1;if(v==null)return null;p*=v}return p}
 function zoek(id,lijst){for(const it of lijst){if(it.id===id)return{it,lijst};const r=zoek(id,it.subs||[]);if(r)return r}return null}
 function vind(id){for(const v of cur.verdiepingen){const r=zoek(id,v.items);if(r)return r}return null}
 const SECT=['N','NO','O','ZO','Z','ZW','W','NW'];
@@ -224,7 +223,7 @@ function opname(){
 function itemHTML(it){const d=DEF[it.type];const op=opp(it);let netto='';
  if(op!=null&&it.subs?.length){const af=it.subs.reduce((s,x)=>s+(DEF[x.type].opp&&x.type!=='dakkapel'?(opp(x)||0):0),0);if(af)netto=` · netto ${f2(op-af)} m²`}
  return `<div class="item"><div class="ihead"><span>${d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><button class="small del" data-del="${it.id}">✕</button></div>
- <div class="grid2">${d.f.map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp">Oppervlakte ${f2(op)} m²${netto}</div>`:''}
+ <div class="grid2">${d.f.map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}</div>`:''}
  ${d.sub?`<div>${(it.subs||[]).map(itemHTML).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
 function fieldHTML(it,f){const v=it[f.k]??'';const id=`data-id="${it.id}" data-k="${f.k}"`;let inp;
  if(f.t==='num')inp=`<input inputmode="decimal" ${id} value="${esc(v)}">`;
