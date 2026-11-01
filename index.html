@@ -63,6 +63,11 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #calc input.calc{background:var(--acc2);color:var(--acc);font-weight:600;border-color:transparent}
 #calc input.user{border:2px solid var(--acc)}
 #calc .cmsg{font-size:14px;color:var(--muted);min-height:20px;margin-top:8px}#calc .cmsg.err{color:var(--warn);font-weight:600}
+#dhShapes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+#dhShapes button{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:5px 2px;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px}
+#dhShapes button svg{width:40px;height:24px}
+#dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
+#dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
 </style>
 </head>
 <body>
@@ -83,6 +88,16 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 </div>
 <div class="cmsg" id="cmsg"></div>
 <div id="c15" hidden style="margin-top:8px;padding:10px;border-radius:10px;background:#fdf1e6;border:1px solid #f2cfa9;font-size:14px;line-height:1.5"></div>
+<button class="ghost" id="dh3dBtn" style="width:100%;margin-top:10px">3D-model ▾</button>
+<div id="dh3dBox" hidden>
+<div id="dhShapes"><button type="button" data-s3="zadel" class="on"><svg viewBox="0 0 44 28"><polygon points="4,24 16,6 28,6 40,24" fill="#b5523b" stroke="#1E4D39" stroke-width="1.5" stroke-linejoin="round"/><line x1="16" y1="6" x2="22" y2="24" stroke="#1E4D39" stroke-width="1.2"/></svg>Zadeldak</button>
+      <button type="button" data-s3="lessenaar"><svg viewBox="0 0 44 28"><polygon points="4,24 34,6 40,6 40,24" fill="#b5523b" stroke="#1E4D39" stroke-width="1.5" stroke-linejoin="round"/></svg>Lessenaar</button>
+      <button type="button" data-s3="schild"><svg viewBox="0 0 44 28"><polygon points="4,24 14,8 30,8 40,24" fill="#b5523b" stroke="#1E4D39" stroke-width="1.5" stroke-linejoin="round"/><line x1="14" y1="8" x2="10" y2="24" stroke="#1E4D39" stroke-width="1.2"/><line x1="30" y1="8" x2="34" y2="24" stroke="#1E4D39" stroke-width="1.2"/></svg>Schilddak</button>
+      <button type="button" data-s3="tent"><svg viewBox="0 0 44 28"><polygon points="6,24 22,4 38,24" fill="#b5523b" stroke="#1E4D39" stroke-width="1.5" stroke-linejoin="round"/><line x1="22" y1="4" x2="22" y2="24" stroke="#1E4D39" stroke-width="1.2"/></svg>Tentdak</button>
+    </div>
+<div id="dh3d"><div id="dh3dmsg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;text-align:center;padding:20px">Vul 2 waarden in om het model te zien</div></div>
+<p class="note" id="dh3dHint" style="margin:6px 0 0">Sleep om te draaien, knijp om te zoomen. Oranje = 1,5 m-lijn. Lengte = breedte van het dakvlak (anders voorbeeld *).</p>
+</div>
 <div class="row" style="margin-top:10px"><button class="ghost" id="cwis">Wissen</button><button id="cok" disabled>Overnemen in dakvlak</button></div>
 </div></div>
 <script>
@@ -382,7 +397,7 @@ function dhSolve(){
  DH.ids.forEach(k=>{const e=dhEl(k);if(u.includes(k)){e.className='user'}else{e.value='';e.className=''}});
  DH.res=null;$('#cok').disabled=true;$('#c15').hidden=true;
  const fout=t=>{dhMsg(t,true);dhDraw(null)};
- if(u.length<2){dhMsg(u.length?'Nog 1 waarde invullen.':'');dhDraw(null);return}
+ if(u.length<2){dhMsg(u.length?'Nog 1 waarde invullen.':'');dhDraw(null);dh3d();return}
  if(u.some(k=>!(v[k]>0)))return fout('Gebruik positieve getallen.');
  let {a,b,c,al}=v;const R=Math.PI/180;
  if(al!=null){if(al>=90)return fout('Hoek moet kleiner zijn dan 90°.');const r=al*R;
@@ -396,7 +411,7 @@ function dhSolve(){
  if(b<=1.5)gi.innerHTML=`<b>1,5 m-lijn:</b> hoogte max ${f2(b)} m → geen GO ≥ 1,5 m.`;
  else{const uit=a*1.5/b,st=a-uit;gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(uit)} m</b> uit de goot (horizontaal).<br>Strook ≥ 1,5 m dit dakvlak: <b>${f2(st)} m</b>`+(br!=null?` × breedte ${f2(br)} m = <b>GO ${f2(st*br)} m²</b>`:'<br><span class="note">Vul de breedte van het dakvlak in voor de GO in m².</span>')}
  gi.hidden=false;
- $('#cok').disabled=false;dhDraw(DH.res)}
+ $('#cok').disabled=false;dhDraw(DH.res);dh3d()}
 function dhDraw(r){const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/b),w=a*s,h=b*s,x0=(W-w)/2-15,y0=H-28;
  const A=[x0,y0],C=[x0+w,y0],B=[x0+w,y0-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);
@@ -421,6 +436,122 @@ $('#calc').addEventListener('click',e=>{if(e.target.id==='calc')sluitDriehoek()}
 $('#cok').onclick=()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;
  r.it.lengte=DH.res.c.toFixed(3).replace(/\.?0+$/,'').replace('.',',');r.it.helling=DH.res.al.toFixed(1).replace(/\.0$/,'').replace('.',',');
  save();sluitDriehoek();const y=window.scrollY;render();window.scrollTo(0,y);toast('Lengte, helling en GO bijgewerkt')};
+
+// ---------- 3D-model in driehoek ----------
+
+(function(){
+  const box=document.getElementById('dh3d'), note=document.getElementById('dh3dmsg');
+  const cv=document.createElement('canvas'); cv.style.cssText='display:block;width:100%;height:100%;touch-action:none';
+  box.appendChild(cv); const ctx=cv.getContext('2d');
+  let theta=-0.45, phi=0.32, zoom=1, model=null;
+  const f=(x,d)=>x.toFixed(d).replace('.',',');
+
+  function resize(){ const r=window.devicePixelRatio||1; cv.width=box.clientWidth*r; cv.height=box.clientHeight*r; ctx.setTransform(r,0,0,r,0,0); render(); }
+
+  function project(p,W,H,sc,cy){
+    // rotate around Y (theta), then tilt (phi)
+    const ct=Math.cos(theta), st=Math.sin(theta), cp=Math.cos(phi), sp=Math.sin(phi);
+    let x=p[0]*ct+p[2]*st, z=-p[0]*st+p[2]*ct, y=p[1]-cy;
+    const y2=y*cp-z*sp, z2=y*sp+z*cp;
+    const D=model.size*3.2, k=D/(D-z2);
+    return [W/2+x*sc*k, H*0.56-y2*sc*k, z2];
+  }
+  function render(){
+    const W=box.clientWidth,H=box.clientHeight; ctx.clearRect(0,0,W,H);
+    if(!model) return;
+    const {a,b,L,r,len,sh}=model, hz=L/2, cy=b*0.35;
+    const sc=Math.min(W,H)/(model.size*1.2)*zoom;
+    const P=p=>project(p,W,H,sc,cy);
+    const R1='#b5523b', R2='#a3462f', G='#efe4cf', F='#d8c39c';
+    let faces=[], lines15=[], labels=[];
+    const k=b>1.5? 1.5/b : null;
+    if(sh==='zadel'){
+      faces=[{p:[[-a,0,-hz],[a,0,-hz],[a,0,hz],[-a,0,hz]],c:F},
+        {p:[[-a,0,hz],[a,0,hz],[0,b,hz]],c:G},{p:[[-a,0,-hz],[a,0,-hz],[0,b,-hz]],c:G},
+        {p:[[-a,0,-hz],[0,b,-hz],[0,b,hz],[-a,0,hz]],c:R1,al:.8},{p:[[a,0,-hz],[0,b,-hz],[0,b,hz],[a,0,hz]],c:R2,al:.8}];
+      if(k){ const x=a*(1-k); lines15=[[-x,-hz,x,hz]]; }
+      labels=[[[0,b,hz],'nok '+f(b,2)+' m',0,-14],[[-a/2,b/2,hz],'c '+f(r.c,2)+' m',0,-12],[[a*0.62,0,hz],'α '+f(r.al,1)+'°',1,-12],
+        [[0,0,hz],'diepte '+f(2*a,2)+' m',0,14],[[a,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
+    } else if(sh==='lessenaar'){
+      const x0=-a/2,x1=a/2; // hoge gevel bij x0
+      faces=[{p:[[x0,0,-hz],[x1,0,-hz],[x1,0,hz],[x0,0,hz]],c:F},
+        {p:[[x0,0,hz],[x1,0,hz],[x0,b,hz]],c:G},{p:[[x0,0,-hz],[x1,0,-hz],[x0,b,-hz]],c:G},
+        {p:[[x0,0,-hz],[x0,b,-hz],[x0,b,hz],[x0,0,hz]],c:'#e2d5bb'},
+        {p:[[x1,0,-hz],[x0,b,-hz],[x0,b,hz],[x1,0,hz]],c:R2,al:.8}];
+      if(k) lines15=[[x0,-hz,x1-a*k,hz]];
+      labels=[[[x0,b,hz],'hoogte '+f(b,2)+' m',0,-14],[[0,b/2,hz],'c '+f(r.c,2)+' m',0,-14],[[x1-a*0.3,0,hz],'α '+f(r.al,1)+'°',1,-12],
+        [[0,0,hz],'diepte '+f(a,2)+' m',0,14],[[x1,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
+    } else if(sh==='schild'){
+      const rz=hz-a;
+      faces=[{p:[[-a,0,-hz],[a,0,-hz],[a,0,hz],[-a,0,hz]],c:F},
+        {p:[[-a,0,-hz],[0,b,-rz],[0,b,rz],[-a,0,hz]],c:R1,al:.8},{p:[[a,0,-hz],[0,b,-rz],[0,b,rz],[a,0,hz]],c:R2,al:.8},
+        {p:[[-a,0,hz],[a,0,hz],[0,b,rz]],c:'#bd5a42',al:.8},{p:[[-a,0,-hz],[a,0,-hz],[0,b,-rz]],c:'#bd5a42',al:.8}];
+      if(k){ const x=a*(1-k), z=hz-a*k; lines15=[[-x,-z,x,z]]; }
+      labels=[[[0,b,rz],'nok '+f(b,2)+' m',0,-14],[[a/2,b/2,0],'c '+f(r.c,2)+' m',0,0],[[a*0.55,0,hz],'α '+f(r.al,1)+'°',1,-12],
+        [[0,0,hz],'diepte '+f(2*a,2)+' m',0,14],[[a,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
+    } else {
+      faces=[{p:[[-a,0,-a],[a,0,-a],[a,0,a],[-a,0,a]],c:F},
+        {p:[[-a,0,a],[a,0,a],[0,b,0]],c:'#bd5a42',al:.8},{p:[[-a,0,-a],[a,0,-a],[0,b,0]],c:'#bd5a42',al:.8},
+        {p:[[-a,0,-a],[-a,0,a],[0,b,0]],c:R1,al:.8},{p:[[a,0,-a],[a,0,a],[0,b,0]],c:R2,al:.8}];
+      if(k){ const x=a*(1-k); lines15=[[-x,-x,x,x]]; }
+      labels=[[[0,b,0],'top '+f(b,2)+' m',0,-14],[[0,b/2,a/2],'c '+f(r.c,2)+' m',0,-6],[[a*0.55,0,a],'α '+f(r.al,1)+'°',1,-12],
+        [[0,0,a],'zijde '+f(2*a,2)+' m',0,14]];
+    }
+    faces.forEach(fc=>{ fc.q=fc.p.map(P); fc.z=fc.q.reduce((s,q)=>s+q[2],0)/fc.q.length; });
+    faces.sort((u,v)=>u.z-v.z);
+    ctx.lineJoin='round';
+    for(const fc of faces){
+      ctx.beginPath(); fc.q.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])); ctx.closePath();
+      ctx.globalAlpha=fc.al||1; ctx.fillStyle=fc.c; ctx.fill(); ctx.globalAlpha=1;
+      ctx.strokeStyle='#17463a'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    if(lines15.length){
+      ctx.strokeStyle='#B7791F'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+      for(const [xa,za,xb,zb] of lines15) for(const y of [1.5,0.005]){
+        const q=[[xa,y,zb],[xb,y,zb],[xb,y,za],[xa,y,za]].map(P);
+        ctx.beginPath(); q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+    const lab=(p,t,c,dy)=>{ const q=P(p); q[1]+=dy||0; ctx.font='bold 12px -apple-system,Segoe UI,Roboto,sans-serif';
+      const w=ctx.measureText(t).width+10; ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.fillRect(q[0]-w/2,q[1]-9,w,18);
+      ctx.fillStyle=c||'#17463a'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(t,q[0],q[1]); };
+    labels.forEach(([p,t,o,dy])=>lab(p,t,o?'#8A5A10':null,dy));
+  }
+
+  window.dhUpdate3d=function(r,len,sh){
+    sh=sh||'zadel';
+    if(!r){ model=null; note.style.display='flex'; render(); return; }
+    note.style.display='none';
+    let L;
+    if(sh==='tent') L=2*r.a;
+    else if(sh==='lessenaar') L=len||Math.max(1.5*r.a,0.5);
+    else if(sh==='schild') L=Math.max(len||3*r.a, 2*r.a);
+    else L=len||Math.max(3*r.a,0.5);
+    const dep= sh==='lessenaar'? r.a : 2*r.a;
+    model={a:r.a,b:r.b,L,r,len:sh==='tent'?1:len,sh,size:Math.max(dep,r.b,L)};
+    render();
+  };
+
+  const pts=new Map(); let pinch0=0, zoom0=1;
+  cv.addEventListener('pointerdown',e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2){ const [p,q]=[...pts.values()]; pinch0=Math.hypot(p.x-q.x,p.y-q.y); zoom0=zoom; } });
+  cv.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId)) return;
+    const prev=pts.get(e.pointerId), cur={x:e.clientX,y:e.clientY}; pts.set(e.pointerId,cur);
+    if(pts.size===1){ theta+=(cur.x-prev.x)*0.01; phi=Math.max(-0.3,Math.min(1.5,phi+(cur.y-prev.y)*0.01)); render(); }
+    else if(pts.size===2 && pinch0>0){ const [p,q]=[...pts.values()]; zoom=Math.max(0.4,Math.min(4,zoom0*Math.hypot(p.x-q.x,p.y-q.y)/pinch0)); render(); }
+  });
+  const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch0=0; };
+  cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+  cv.addEventListener('wheel',e=>{ e.preventDefault(); zoom=Math.max(0.4,Math.min(4,zoom*(1-e.deltaY*0.001))); render(); },{passive:false});
+  window.addEventListener('resize',resize); window.dh3dResize=resize; resize();
+})();
+
+DH.shape='zadel';
+function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const ri=vind(DH.itemId),br=ri?num(ri.it.breedte):null;window.dhUpdate3d(DH.res,br>0?br:null,DH.shape)}
+$('#dh3dBtn').onclick=()=>{const b=$('#dh3dBox');b.hidden=!b.hidden;$('#dh3dBtn').textContent=b.hidden?'3D-model ▾':'3D-model ▴';if(!b.hidden){window.dh3dResize();dh3d();setTimeout(()=>$('#dh3d').scrollIntoView({block:'nearest',behavior:'smooth'}),50)}};
+document.querySelectorAll('#dhShapes [data-s3]').forEach(bt=>bt.onclick=()=>{DH.shape=bt.dataset.s3;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x===bt));dh3d()});
 
 render();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
