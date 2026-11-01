@@ -122,6 +122,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 <div><label>Aantal</label><input id="k_n" inputmode="numeric" autocomplete="off" value="1"></div>
 <div id="kHelWrap" style="grid-column:1/-1"><label>Hellingshoek dakvlak (°)</label><input id="k_al" inputmode="decimal" autocomplete="off"></div>
 </div>
+<label style="display:flex;gap:8px;align-items:center;margin-top:10px;color:var(--ink);font-size:14px"><input type="checkbox" id="k_vl" checked style="width:auto"> Voorwand, wangen en dak dakkapel ook als vlakken in de opname zetten</label>
 <div id="kRes" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--acc2);font-size:14px;line-height:1.55"></div>
 <div class="row" style="margin-top:10px"><button class="ghost" id="kwis">Wissen</button><button id="kok" disabled>Toevoegen aan dakvlak</button></div>
 </div></div>
@@ -402,7 +403,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-kape
   const k=await kies(`${r.it.type==='installatie'?(r.it.soort||'Installatie'):DEF[r.it.type].t}${extra} kopiëren naar:`,andere.map(i=>vs[i].naam));
   if(k!=null){const doel=vs[andere[k]];doel.items.push(kloon(r.it));save();toast('Gekopieerd naar '+doel.naam)}}
  else if(d.kopie){const r=vind(d.kopie);r.lijst.splice(r.lijst.indexOf(r.it)+1,0,kloon(r.it));save();render();toast('Gekopieerd, de kopie staat eronder')}
- else if(d.del){if(await vraag('Dit onderdeel verwijderen?','Verwijderen','Annuleren')){const r=vind(d.del);r.lijst.splice(r.lijst.indexOf(r.it),1);save();render()}}
+ else if(d.del){if(await vraag('Dit onderdeel verwijderen?','Verwijderen','Annuleren')){const r=vind(d.del);r.lijst.splice(r.lijst.indexOf(r.it),1);kapelVlakkenWeg(d.del);save();render()}}
  else if(d.corr){e.preventDefault();const r=vind(d.corr);await vraagCorr(r.it,d.k);save();render()}
  else if(d.set){cur.type[d.set]=d.v;save();type()}
  else if(d.act==='fadd'){cur.type.functies.push({f:'Kantoorfunctie',m2:''});save();type()}
@@ -605,18 +606,28 @@ function openKapel(dvId,kId){const dv=vind(dvId)?.it;if(!dv)return;KP.dvId=dvId;
  $('#k_b').value=k?.b??'';$('#k_h').value=k?.h??'';$('#k_d').value=k?.dHand?k.d:'';$('#k_d').placeholder='uit helling';$('#k_n').value=k?.aantal||'1';
  $('#k_al').value=dv.helling??'';$('#kHelWrap').hidden=num(dv.helling)!=null;
  $('#kSub').textContent=`In dakvlak${dv.orient?' '+dv.orient:''}${num(dv.helling)!=null?` · helling ${dv.helling}°`:''}. Hoogte voorzijde = van het dakvlak tot onderkant dak dakkapel.`;
- $('#kok').textContent=k?'Dakkapel bijwerken':'Toevoegen aan dakvlak';kReken();$('#kapel').style.display='flex'}
+ $('#k_vl').checked=!k||cur.verdiepingen.some(v=>v.items.some(x=>x.kapelGroup===k.id));$('#kok').textContent=k?'Dakkapel bijwerken':'Toevoegen aan dakvlak';kReken();$('#kapel').style.display='flex'}
 function sluitKapel(){$('#kapel').style.display='none'}
 ['k_b','k_h','k_d','k_n','k_al'].forEach(id=>$('#'+id).addEventListener('input',kReken));
 $('#kdicht').onclick=sluitKapel;$('#kapel').addEventListener('click',e=>{if(e.target.id==='kapel')sluitKapel()});
 $('#kwis').onclick=()=>{['k_b','k_h','k_d'].forEach(id=>$('#'+id).value='');$('#k_n').value='1';kReken()};
+function kapelVlakkenWeg(kid){for(const v of cur.verdiepingen)for(let i=v.items.length-1;i>=0;i--)if(v.items[i].kapelGroup===kid)v.items.splice(i,1)}
+function kapelVlakken(dv,k){const c=kapelCalc(k,dv.helling);kapelVlakkenWeg(k.id);if(!c||!c.d)return 0;
+ let lijst=null;for(const v of cur.verdiepingen)if(v.items.includes(dv))lijst=v.items;if(!lijst)return 0;
+ const o=dv.orient||'',n=c.n,nt=n>1?` (${n} dakkapellen)`:'';
+ const voor=nieuwItem('gevel');voor.breedte=fS(c.b);voor.hoogte=fS(c.h);if(n>1)voor.m2=fS(c.voor);voor.opm='Voorwand dakkapel'+nt;zetO(voor,o);
+ const w1=nieuwItem('gevel'),w2=nieuwItem('gevel');[w1,w2].forEach((w,i)=>{w.breedte=fS(c.d);w.hoogte=fS(c.h);w.m2=fS(c.wang/2);w.opm='Wang dakkapel (driehoek ½ × diepte × hoogte)'+nt;zetO(w,rotO(o,i?6:2))});
+ const dk=nieuwItem('dakvlak');dk.lengte=fS(c.d);dk.breedte=fS(c.b*n);dk.helling='0';dk.opm='Plat dak dakkapel'+(n>1?` (${n} × ${f2(c.b)} m breed)`:'');zetO(dk,'H');
+ [voor,w1,w2,dk].forEach(x=>{x.kapelGroup=k.id;['isolatie','rc','bewijs'].forEach(f=>{if(k[f]!=null&&k[f]!=='')x[f]=k[f]})});
+ lijst.splice(lijst.indexOf(dv)+1,0,dk);lijst.push(voor,w1,w2);return 4}
 $('#kok').onclick=()=>{const dv=vind(KP.dvId)?.it;if(!dv)return;const al=num($('#k_al').value);
  if(num(dv.helling)==null&&al>0)dv.helling=$('#k_al').value;
  let k=KP.kId?vind(KP.kId)?.it:null;if(!k){k=nieuwItem('dakkapel');dv.subs=dv.subs||[];dv.subs.push(k)}
  const dHand=num($('#k_d').value)>0;const c=kapelCalc({b:$('#k_b').value,h:$('#k_h').value,d:$('#k_d').value,aantal:$('#k_n').value},al);
  k.b=$('#k_b').value;k.h=$('#k_h').value;k.d=dHand?$('#k_d').value:fS(c.d);k.dHand=dHand;k.aantal=$('#k_n').value||'1';
  if(['isolatie','rc','bewijs'].every(x=>k[x]==null||k[x]===''))['isolatie','rc','bewijs'].forEach(x=>{if(dv[x]!=null&&k[x]==null)k[x]=dv[x]});
- save();sluitKapel();const y=window.scrollY;render();window.scrollTo(0,y);toast(`Dakkapel ${KP.kId?'bijgewerkt':'toegevoegd'} · gat ${f2(c.gat)} m² afgetrokken`)};
+ const nv=$('#k_vl').checked?kapelVlakken(dv,k):(kapelVlakkenWeg(k.id),0);
+ save();sluitKapel();const y=window.scrollY;render();window.scrollTo(0,y);toast(`Dakkapel ${KP.kId?'bijgewerkt':'toegevoegd'} · gat ${f2(c.gat)} m² afgetrokken${nv?' · voorwand, 2 wangen en dak toegevoegd':''}`)};
 
 // ---------- 3D-model in driehoek ----------
 
