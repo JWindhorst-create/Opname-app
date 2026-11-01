@@ -848,6 +848,7 @@ function v3Scene(M){
  if(M.al)labels.push({p:nok==='haaks'?[x1*0.7,E+(T-E)*0.3,z1*0.6]:[x0*0.6,E+(T-E)*0.3,z1*0.7],t:'α '+String(M.al).replace('.',',')+'°',c:'#c0661a'});
  return{faces,lines,labels,decals,size:Math.max(W,D,T),cy:T*0.38,nk,north:[sA,cA]}}
 
+const kc0=a=>a[0];
 function v3SceneBag(M){
  const R=Math.PI/180,o=cur.orient||{},az=M.az,c=Math.cos(az*R),s=Math.sin(az*R),faces=[],lines=[],labels=[],decals=[],info=[];
  const L=q=>[-q[0]*c+q[1]*s,q[2],q[0]*s+q[1]*c];
@@ -893,17 +894,33 @@ function v3SceneBag(M){
    for(const x of ops){const a=pos,b=pos+x.b;pos+=x.b+gap;let y0=x.t==='deur'?row.yb:row.yb+0.9;if(y0+x.h>row.yt-0.1)y0=Math.max(row.yb+0.05,row.yt-0.1-x.h);const y1=Math.min(y0+x.h,row.yt-0.05);const NW=[w.ux,0,w.uz];
     decals.push({p:[PW(a,y0),PW(b,y0),PW(b,y1),PW(a,y1)],c:x.t==='deur'?'#7a5c45':'#9cc3d8',s:x.t==='deur'?'#3d2c20':'#3c5560',lw:1.1,n:NW});
     if(x.t==='deur'&&x.glas)decals.push({p:[PW(a+0.15,y0+1),PW(b-0.15,y0+1),PW(b-0.15,y1-0.15),PW(a+0.15,y1-0.15)],c:'#9cc3d8',s:'#3c5560',lw:0.8,n:NW})}}}
- // dakramen op grootste dakvlak met die oriëntatie
- dakIt.forEach(d=>{const rs=(d.subs||[]).filter(x=>x.type==='dakraam');const b=bestR[d.orient];if(!rs.length||!b)return;const[nx,ny,nz]=b.n;const hl=Math.hypot(nx,nz);const tx=-nz/hl,tz=nx/hl;
-  let bx=ny*tz-0,by=nz*tx-nx*tz,bz=0-ny*tx;bx=-(nz*0-ny*tz);by=nz*tx-nx*tz;bz=nx*0-ny*tx;const bl=Math.hypot(bx,by,bz)||1;bx/=bl;by/=bl;bz/=bl;if(by<0){bx=-bx;by=-by;bz=-bz}
-  const ce=b.p.reduce((a,q)=>[a[0]+q[0]/b.p.length,a[1]+q[1]/b.p.length,a[2]+q[2]/b.p.length],[0,0,0]);const ops=rs.flatMap(x=>{const n=Math.max(1,Math.round(num(x.aantal)||1));let w=num(x.b),h=num(x.h);const m=num(x.m2);if(!(w>0&&h>0)&&m>0){h=Math.sqrt(m/n)*1.2;w=m/n/h}return w>0&&h>0?Array(n).fill({w,h}):[]});
-  const sum=ops.reduce((a,x)=>a+x.w,0)+0.5*(ops.length-1);let pos=-sum/2;const Pp=(u,v)=>[ce[0]+tx*u+bx*v+nx*0.04,ce[1]+by*v+ny*0.04,ce[2]+tz*u+bz*v+nz*0.04];
-  for(const x of ops){const a=pos,e=pos+x.w;pos+=x.w+0.5;decals.push({p:[Pp(a,0.3),Pp(e,0.3),Pp(e,0.3+x.h),Pp(a,0.3+x.h)],c:'#8fb7cc',s:'#2f4752',lw:1.2,n:b.n})}});
+ // dakvlak uit 3D BAG bij een oriëntatie (of de dichtstbijzijnde)
+ const zoekDak=or=>{if(bestR[or])return bestR[or];const io=SECT.indexOf(or);let bk=null,bd=9;for(const k in bestR){const d0=Math.min((SECT.indexOf(k)-io+8)%8,(io-SECT.indexOf(k)+8)%8);if(d0<bd){bd=d0;bk=k}}return bd<=2?bestR[bk]:null};
+ const frame=b=>{const[nx,ny,nz]=b.n,hl=Math.hypot(nx,nz)||1,tx=-nz/hl,tz=nx/hl;let bx=ny*tz,by=nz*tx-nx*tz,bz=-ny*tx;const bl=Math.hypot(bx,by,bz)||1;bx/=bl;by/=bl;bz/=bl;if(by<0){bx=-bx;by=-by;bz=-bz}
+  const ce=b.p.reduce((a,q)=>[a[0]+q[0]/b.p.length,a[1]+q[1]/b.p.length,a[2]+q[2]/b.p.length],[0,0,0]);const vs=b.p.map(q=>(q[0]-ce[0])*bx+(q[1]-ce[1])*by+(q[2]-ce[2])*bz),us=b.p.map(q=>(q[0]-ce[0])*tx+(q[2]-ce[2])*tz);
+  return{nx,ny,nz,hl,tx,tz,bx,by,bz,ce,v0:Math.min(...vs),v1:Math.max(...vs),u0:Math.min(...us),u1:Math.max(...us),P:(u,v,off=0.04)=>[ce[0]+tx*u+bx*v+nx*off,ce[1]+by*v+ny*off,ce[2]+tz*u+bz*v+nz*off]}};
+ let nk=0;
+ dakIt.forEach(d=>{const b=zoekDak(d.orient);if(!b)return;const F=frame(b);
+  // dakramen
+  const rs=(d.subs||[]).filter(x=>x.type==='dakraam');const ops=rs.flatMap(x=>{const n=Math.max(1,Math.round(num(x.aantal)||1));let w=num(x.b),h=num(x.h);const m=num(x.m2);if(!(w>0&&h>0)&&m>0){h=Math.sqrt(m/n)*1.2;w=m/n/h}return w>0&&h>0?Array(n).fill({w,h}):[]});
+  if(ops.length){const sum=ops.reduce((a,x)=>a+x.w,0)+0.5*(ops.length-1);let pos=-sum/2;const vb=F.v0+(F.v1-F.v0)*0.6;
+   for(const x of ops){const a=pos,e=pos+x.w;pos+=x.w+0.5;decals.push({p:[F.P(a,vb),F.P(e,vb),F.P(e,vb+x.h),F.P(a,vb+x.h)],c:'#8fb7cc',s:'#2f4752',lw:1.2,n:b.n})}}
+  // dakkapellen
+  const ks=[];(d.subs||[]).filter(x=>x.type==='dakkapel').forEach(k=>{const kc=kapelCalc(k,num(d.helling)?d.helling:b.hel);if(kc&&kc.d)for(let i=0;i<kc.n;i++)ks.push(kc)});
+  if(ks.length){const tot=ks.reduce((a,k)=>a+k.b,0)+0.8*(ks.length-1);let pos=-tot/2;const vf=F.v0+(F.v1-F.v0)*0.18;const wx=-F.nx/F.hl,wz=-F.nz/F.hl;
+   for(const kc of ks){const a=pos,e=pos+kc.b;pos+=kc.b+0.8;nk++;
+    const f0=F.P(a,vf,0),f1=F.P(e,vf,0);const y0=f0[1],yt=y0+kc.h;
+    const A=(q,dy,dd)=>[q[0]+wx*dd,q[1]+dy,q[2]+wz*dd];
+    const a0=f0,b0=f1,a1=A(f0,kc.h,0),b1=A(f1,kc.h,0),a2=A(f0,kc.h,kc.d),b2=A(f1,kc.h,kc.d);
+    faces.push({p:[a0,b0,b1,a1],c:'#f4efe6',lw:1.4},{p:[a1,b1,b2,a2],c:'#6d7b77'},{p:[a0,a1,a2],c:'#e8e1d4'},{p:[b0,b1,b2],c:'#e8e1d4'});
+    const g=(q,du,dy)=>[q[0]+F.tx*du-wx*0.02,q[1]+dy,q[2]+F.tz*du-wz*0.02];
+    decals.push({p:[g(a0,0.2,0.25),g(b0,-0.2,0.25),g(b0,-0.2,kc.h-0.15),g(a0,0.2,kc.h-0.15)],c:'#9cc3d8',s:'#3c5560',lw:1,n:[-wx,0,-wz]})}
+  }});
  const W=Math.max(...xs)-Math.min(...xs),D=Math.max(...zs)-Math.min(...zs);
  labels.push({p:[(Math.max(...xs)+Math.min(...xs))/2,ymax,(Math.max(...zs)+Math.min(...zs))/2],t:'hoogste punt '+f2(ymax)+' m',dy:-16});
  M.info=M.info.filter(x=>!/^(Goothoogte|Nokhoogte|Helling volgens|Dak$|Contour)/.test(x[0]));M.info.splice(1,0,['3D-model','3D BAG LoD '+(cur.bag3d.lod||'2.2')+' · '+f2(W)+' × '+f2(D)+' m · hoogste punt '+f2(ymax)+' m'],...info);
  M.warn=M.warn.filter(x=>!/Goot uit helling|onrealistisch|Geen BAG-contour/.test(x));
- return{faces,lines,labels,decals,size:Math.max(W,D,ymax),cy:ymax*0.4,nk:0,north:[s,c]}}
+ return{faces,lines,labels,decals,size:Math.max(W,D,ymax),cy:ymax*0.4,nk,north:[s,c]}}
 function model3d(){
  if(!cur.verdiepingen){$('#app').innerHTML='<div class="card"><p class="note">Start eerst de opname.</p></div>';bar(`<button class="ghost" data-go="adres">Object</button>`);return}
  if(cur.bag?.pandId&&cur.bag3d===undefined&&V3.tried!==cur.id){V3.tried=cur.id;hoogte3DBAG(cur.bag.pandId).then(()=>{if(cur.bag3d===undefined)cur.bag3d=null;save();if(scherm==='model')render()})}
