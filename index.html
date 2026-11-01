@@ -61,6 +61,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #m3d{position:relative;width:100%;aspect-ratio:1/0.95;border-radius:12px;overflow:hidden;background:linear-gradient(#dfe9f2,#f6f8f7);border:1px solid var(--line);touch-action:none}
 #m3d canvas{display:block;width:100%;height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--muted);margin-top:8px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
+.item.dicht{padding:8px 10px}.item.dicht .ihead>span+span{display:none}.samv{font-size:13px;color:var(--muted);margin-top:4px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chev{display:inline-block;width:14px;color:var(--acc)}
 #calc,#kapel{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:3000}
 #calc .box,#kapel .box{background:var(--card);border-radius:16px 16px 0 0;padding:14px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));width:100%;max-width:520px;max-height:92vh;overflow:auto}
 #calc svg,#kapel svg{width:100%;height:auto;display:block;background:var(--bg);border-radius:10px}
@@ -357,7 +358,7 @@ function syncVerd(){norm(cur.type||(cur.type={}));const oud=cur.verdiepingen||[]
 function startOpname(){syncVerd();scherm='opname';render()}
 function verdVan(it){for(const v of cur.verdiepingen){if(zoek(it.id,v.items))return v}return null}
 function geoKop(){const o=cur.orient;const mt=cur.type?.methode==='U'?'EP-U · ISSO 75.1':'EP-W · ISSO 82.1';
- return `<p class="note" style="margin:0 0 8px">${mt}${o?` · voorgevel <b>${o.voor}</b> (${o.voorAz}°) · <a href="#" data-go="kaart">wijzig</a>`:' · <a href="#" data-go="kaart">voorgevel kiezen</a>'}</p>`}
+ return `<div class="row" style="margin:0 0 8px;justify-content:flex-end;gap:6px"><button class="small ghost" style="flex:0 0 auto" data-act="dicht">Alles inklappen</button><button class="small ghost" style="flex:0 0 auto" data-act="open">Alles uitklappen</button></div><p class="note" style="margin:0 0 8px">${mt}${o?` · voorgevel <b>${o.voor}</b> (${o.voorAz}°) · <a href="#" data-go="kaart">wijzig</a>`:' · <a href="#" data-go="kaart">voorgevel kiezen</a>'}</p>`}
 function geoItems(f){const out=[];cur.verdiepingen.forEach((v,i)=>{if(geoV>=0&&i!==geoV)return;v.items.forEach(it=>{if(f(it))out.push(it)})});return out}
 function oppNetto(it){const o=opp(it);if(o==null)return null;const af=(it.subs||[]).reduce((s2,x)=>s2+(x.type==='dakkapel'?(kapelCalc(x,it.helling)?.gat||0):DEF[x.type].opp?(opp(x)||0):0),0);return{bruto:o,open:af,netto:o-af}}
 function geoGroepen(){const o=cur.orient||{};const g=it=>it.type==='gevel';
@@ -381,10 +382,20 @@ function inst(){
  $('#app').innerHTML=geoKop()+instGroepen().map(([t,soorten])=>{const its=geoItems(it=>it.type==='installatie'&&soorten.includes(it.soort||'Verwarming'));
   return `<div class="sec"><div class="sechead"><h3>${t}</h3><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${soorten.map(so=>`<button class="small ghost" data-add="installatie" data-soort="${so}">+ ${so==='Zonnepanelen (PV)'?'PV':so}</button>`).join('')}</span></div>${its.map(i=>itemHTML(i,true)).join('')||'<p class="note">Nog niets ingevoerd.</p>'}</div>`}).join('');
  bar(`<button class="ghost" data-go="opname">Geometrie</button><button class="ghost" data-go="model">3D</button><button data-go="export">Export →</button>`)}
+function samenvatting(it){const d=DEF[it.type],p=[];const op=opp(it);
+ if(it.type==='installatie'){['collectief','opwekker','afgifte','toestel','vsys','wtw','ksys','merk','jaar'].forEach(k=>{if(it[k]&&zichtbaar(it,d.f.find(f=>f.k===k)||{}))p.push(it[k])});if(num(it.panelen))p.push(it.panelen+' panelen'+(num(it.wp)?' × '+it.wp+' Wp':''))}
+ else{if(op!=null){const n=oppNetto(it);p.push(n&&n.open?`${f2(n.bruto)} m² · netto ${f2(n.netto)} m²`:`${f2(op)} m²`)}
+  if(it.helling)p.push(it.helling+'°');if(it.grenst)p.push(it.grenst);if(it.glas&&it.glas!=='Onbekend')p.push(it.glas);if(it.soort&&it.type==='deur')p.push(it.soort);
+  if(it.isolatie)p.push(it.isolatie);if(num(it.rc))p.push('Rc '+it.rc);
+  const sc={};(it.subs||[]).forEach(x=>{const n=x.type==='raam'||x.type==='dakraam'?(Math.round(num(x.aantal)||1)):1;sc[DEF[x.type].t]=(sc[DEF[x.type].t]||0)+n});Object.entries(sc).forEach(([k,n])=>p.push(n+'× '+k.toLowerCase()));
+  if(it.type==='dakkapel'){const c=kapelCalc(it,kapelOuder(it.id)?.helling);if(c&&c.d)p.unshift(`${f2(c.b)} × ${f2(c.h)} m · gat ${f2(c.gat)} m²`)}}
+ if(it.opm)p.push(it.opm);return p.join(' · ')||'nog niets ingevuld'}
 function itemHTML(it,top){const d=DEF[it.type];const op=opp(it);let netto='';
  if(op!=null&&it.subs?.length){const af=it.subs.reduce((s,x)=>s+(x.type==='dakkapel'?(kapelCalc(x,it.helling)?.gat||0):DEF[x.type].opp?(opp(x)||0):0),0);if(af)netto=` · <b>netto ${f2(op-af)} m²</b>`}
  const vb=top&&geoV<0&&cur.verdiepingen?.length>1?verdVan(it):null;
- return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}${vb?` <span class="pill" style="font-weight:500">${esc(vb.naam)}</span>`:''}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${it.type==='dakvlak'?`<button class="small" data-dh="${it.id}">📐 Driehoek</button><button class="small" data-kapel="${it.id}">🏠 Dakkapel</button>`:''}${it.type==='dakkapel'?`<button class="small" data-kapeled="${it.id}">📐 Maten</button>`:''}<button class="small ghost" data-kopie="${it.id}">Kopieer</button>${top&&cur.verdiepingen.length>1?`<button class="small ghost" data-naar="${it.id}">Naar verdieping</button>`:''}<button class="small del" data-del="${it.id}">✕</button></span></div>
+ const kop=`<div class="ihead"><span data-toggle="${it.id}" style="cursor:pointer;flex:1"><span class="chev">${it.dicht?'▸':'▾'}</span> ${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}${vb?` <span class="pill" style="font-weight:500">${esc(vb.naam)}</span>`:''}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${it.type==='dakvlak'?`<button class="small" data-dh="${it.id}">📐 Driehoek</button><button class="small" data-kapel="${it.id}">🏠 Dakkapel</button>`:''}${it.type==='dakkapel'?`<button class="small" data-kapeled="${it.id}">📐 Maten</button>`:''}<button class="small ghost" data-kopie="${it.id}">Kopieer</button>${top&&cur.verdiepingen.length>1?`<button class="small ghost" data-naar="${it.id}">Naar verdieping</button>`:''}<button class="small del" data-del="${it.id}">✕</button></span></div>`;
+ if(it.dicht)return `<div class="item dicht">${kop}<div class="samv" data-toggle="${it.id}">${esc(samenvatting(it))}</div></div>`;
+ return `<div class="item">${kop}
  <div class="grid2">${d.f.filter(f=>zichtbaar(it,f)).map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}${glasOpp(it)!=null?` · glas ${f2(glasOpp(it))} m² · <b>netto deur ${f2(op-glasOpp(it))} m²</b>`:''}</div>`:''}
  ${it.type==='dakvlak'?goHTML(it):''}${it.type==='dakkapel'?kapelHTML(it):''}
  ${d.sub?`<div>${(it.subs||[]).map(x=>itemHTML(x,false)).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
@@ -432,7 +443,9 @@ function xmlBestand(){const naam='opname_'+(cur.adres?.postcode||'')+'_'+(cur.ad
 function kloon(it){const c=JSON.parse(JSON.stringify(it));const her=x=>{x.id=uid();(x.subs||[]).forEach(her)};her(c);return c}
 function nieuwItem(type){const it={id:uid(),type,subs:[]};DEF[type].f.forEach(f=>{if(f.t==='sel'&&f.k!=='isolatie'&&f.k!=='bewijs')it[f.k]=opts(f)[0]});return it}
 // ---------- events ----------
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-gv],[data-jump],[data-kapel],[data-kapeled],[data-dh],[data-naar],[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-toggle],[data-gv],[data-jump],[data-kapel],[data-kapeled],[data-dh],[data-naar],[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
+ if(d.toggle){const r=vind(d.toggle);if(r){r.it.dicht=!r.it.dicht;save();const y=window.scrollY;render();window.scrollTo(0,y)}return}
+ if(d.act==='dicht'||d.act==='open'){const z=d.act==='dicht';const inst=scherm==='inst';const walk=l=>l.forEach(x=>{if((x.type==='installatie')===inst||!inst&&x.type!=='installatie'){x.dicht=z;(x.subs||[]).forEach(y=>{y.dicht=z})}});cur.verdiepingen.forEach(v=>walk(v.items));save();render();return}
  if(d.gv!=null){geoV=+d.gv;render();return}
  if(d.jump){document.getElementById('sec-'+d.jump)?.scrollIntoView({behavior:'smooth'});return}
  if(d.dh){openDriehoek(d.dh);return}
