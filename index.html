@@ -289,7 +289,7 @@ function lijst(){
  $('#app').innerHTML=`<h2>Opnames</h2>${store.opnames.length?'':'<p class="note">Nog geen opnames. Start hieronder een nieuwe.</p>'}`+
  store.opnames.slice().reverse().map(o=>`<div class="card"><div class="ihead"><span>${esc(o.adres?.naam||'Zonder adres')}</span></div>
  <div class="note">${new Date(o.datum).toLocaleString('nl-NL')}</div><div class="row" style="margin-top:10px"><button class="small" data-open="${o.id}">Openen</button><button class="small del" data-wis="${o.id}">Verwijderen</button></div></div>`).join('');
- bar(`<button data-act="nieuw">+ Nieuwe opname</button>`)}
+ bar(`<button class="ghost" data-act="driehoek">📐 Driehoek</button><button data-act="nieuw">+ Nieuwe opname</button>`)}
 
 function adres(){
  const b=cur.bag,h=cur.hoogte;
@@ -481,6 +481,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-togg
  if(d.kapeled){const o=kapelOuder(d.kapeled);if(o)openKapel(o.id,d.kapeled);return}
  if(d.go){e.preventDefault();if(!cur)return;scherm=d.go;render()}
  else if(d.act==='nieuw'){cur={id:uid(),datum:Date.now()};store.opnames.push(cur);zoekRes=[];save();scherm='adres';render()}
+ else if(d.act==='driehoek'){openDriehoekLos()}
  else if(d.act==='h3d'){toast('3D BAG ophalen…');const ok=await hoogte3DBAG(cur.bag.pandId);save();toast(ok?'3D BAG-hoogtes bijgewerkt':'Ophalen mislukt (internet?)');render()}
  else if(d.act==='lijst'){cur=null;scherm='lijst';render()}
   else if(d.act==='start')startOpname();
@@ -568,7 +569,8 @@ function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[]
  $('#c_L').value=r.it.dhVorm==='schild'||r.it.dhVorm==='tent'?'':(r.it.breedte??'');if(r.it.dhVorm){DH.shape=r.it.dhVorm;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x.dataset.s3===DH.shape))}
  DH.nok=r.it.dhNok||'par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
  dhKopTekst();dhSolve();$('#calc').style.display='flex'}
-function sluitDriehoek(){$('#calc').style.display='none';DH.itemId=null}
+function sluitDriehoek(){$('#calc').style.display='none';DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
+function openDriehoekLos(){DH.los=true;DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
 $('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
 $('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
@@ -576,7 +578,7 @@ $('#cdicht').onclick=sluitDriehoek;
 $('#calc').addEventListener('click',e=>{if(e.target.id==='calc')sluitDriehoek()});
 const fS=x=>String(+(+x).toFixed(3)).replace('.',',');
 const DAKNAAM={zadel:'Zadeldak-symmetrisch',mansarde:'Mansardedak',lessenaar:'Lessenaarsdak',tent:'Piramidedak',schild:'Schilddak'};
-function kopAantal(){const t=cur.type||{};if(t.methode==='U')return{geen:2,een:1,twee:0}[t.belend]??2;
+function kopAantal(){const t=cur?.type||{};if(t.methode==='U')return{geen:2,een:1,twee:0}[t.belend]??2;
  return{vrijstaand:2,'2onder1':1,hoek:1,tussen:0}[t.wtype]??(t.wtype==='appartement'?(t.apos==='hoek'?1:0):2)}
 function rotO(o,n){const i=SECT.indexOf(o);return i<0?'':SECT[(i+n)%8]}
 function labO(o){const c=cur.orient;if(!o||!c)return o;return o===c.voor?'Voorgevel':o===c.achter?'Achtergevel':o===c.zijA?'Linkergevel':o===c.zijB?'Rechtergevel':o}
@@ -869,6 +871,7 @@ $('#dh3dBtn').onclick=()=>{const b=$('#dh3dBox');b.hidden=!b.hidden;$('#dh3dBtn'
 document.querySelectorAll('#dhShapes [data-s3]').forEach(bt=>bt.onclick=()=>{DH.shape=bt.dataset.s3;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhSolve()});
 
 render();
+if(location.hash==='#driehoek')setTimeout(openDriehoekLos,50);window.addEventListener('hashchange',()=>{if(location.hash==='#driehoek')openDriehoekLos()});
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
