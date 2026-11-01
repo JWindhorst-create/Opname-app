@@ -132,6 +132,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 </div></div>
 <script>
 // ---------- opslag ----------
+const APPVERSIE='2026-11-02 00:45';
 const KEY='opnameApp_v1';
 let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{opnames:[]}}catch(e){return{opnames:[]}}})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet')}}
@@ -289,6 +290,7 @@ function lijst(){
  $('#app').innerHTML=`<h2>Opnames</h2>${store.opnames.length?'':'<p class="note">Nog geen opnames. Start hieronder een nieuwe.</p>'}`+
  store.opnames.slice().reverse().map(o=>`<div class="card"><div class="ihead"><span>${esc(o.adres?.naam||'Zonder adres')}</span></div>
  <div class="note">${new Date(o.datum).toLocaleString('nl-NL')}</div><div class="row" style="margin-top:10px"><button class="small" data-open="${o.id}">Openen</button><button class="small del" data-wis="${o.id}">Verwijderen</button></div></div>`).join('');
+ $('#app').insertAdjacentHTML('beforeend',`<p class="note" style="text-align:center;margin-top:24px">App-versie ${APPVERSIE}</p>`);
  bar(`<button class="ghost" data-act="driehoek">📐 Driehoek</button><button data-act="nieuw">+ Nieuwe opname</button>`)}
 
 function adres(){
