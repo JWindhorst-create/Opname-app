@@ -55,6 +55,8 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #modal .row{margin-top:16px}
 [hidden]{display:none!important}
 #mkeuze button{width:100%;margin-top:8px}
+#mkeuze label.ck{display:flex;gap:10px;align-items:center;margin-top:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:15px;color:var(--ink);white-space:normal}
+#mkeuze label.ck input{width:20px;height:20px;flex:0 0 auto;margin:0}
 .sug{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden}
 .err{color:var(--warn);font-size:14px}
 #cSum table{width:100%;border-collapse:collapse;font-size:14px}#cSum td{padding:5px 2px;border-bottom:1px solid var(--line)}#cSum td:last-child{text-align:right;font-weight:600;white-space:nowrap}#cSum tr.h td{background:var(--acc2);color:var(--acc);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
@@ -149,6 +151,11 @@ function kies(tekst,lijst){return new Promise(res=>{const m=$('#modal'),k=$('#mk
  k.innerHTML=lijst.map((l,i)=>`<button class="ghost" data-kz="${i}">${esc(l)}</button>`).join('');k.hidden=false;$('#mja').hidden=true;$('#mnee').textContent='Annuleren';m.style.display='flex';
  const klaar=v=>{m.style.display='none';k.hidden=true;k.innerHTML='';k.onclick=null;$('#mja').hidden=false;$('#mnee').onclick=null;res(v)};
  k.onclick=e=>{const b=e.target.closest('[data-kz]');if(b)klaar(+b.dataset.kz)};$('#mnee').onclick=()=>klaar(null)})}
+// meerkeuze met vinkjes: lijst=[[tekst,aangevinkt]] → array met booleans, of null bij 'nee'
+function kiesMeer(tekst,lijst,ja='Toepassen',nee='Nee'){return new Promise(res=>{const m=$('#modal'),k=$('#mkeuze');$('#mtekst').textContent=tekst;
+ k.innerHTML=lijst.map(([l,c],i)=>`<label class="ck"><input type="checkbox" data-mk="${i}" ${c?'checked':''}><span>${esc(l)}</span></label>`).join('');k.hidden=false;$('#mja').textContent=ja;$('#mnee').textContent=nee;m.style.display='flex';
+ const klaar=v=>{m.style.display='none';k.hidden=true;k.innerHTML='';$('#mja').onclick=$('#mnee').onclick=null;res(v)};
+ $('#mja').onclick=()=>klaar([...k.querySelectorAll('[data-mk]')].map(x=>x.checked));$('#mnee').onclick=()=>klaar(null)})}
 // ---------- definities ----------
 const GLAS=['Onbekend','Enkel','Dubbel','HR','HR+','HR++','Triple'];
 const KOZ=['Onbekend','Hout','Kunststof','Aluminium','Alu therm. onderbroken','Staal'];
@@ -406,7 +413,30 @@ function fieldHTML(it,f){const v=it[f.k]??'';const id=`data-id="${it.id}" data-k
  else inp=`<input ${id} value="${esc(v)}">`;
  let c='';if(f.corr&&num(v)!=null&&extraMaat()){c=`<div class="corr">${it[f.k+'_x']?`+${Math.round(it[f.k+'_x']*100)} cm → ${f2(val(it,f.k))} m`:'Zonder correctie'} · <a href="#" data-corr="${it.id}" data-k="${f.k}">wijzig</a></div>`}
  const wide=f.t==='txt'||f.corr||f.t==='orient';
- return `<div style="${wide?'grid-column:1/-1':''}"><label>${f.l}</label>${inp}${c}</div>`}
+ return `<div style="${wide?'grid-column:1/-1':''}"><label>${f.corr?corrLabel(f.l):f.l}</label>${inp}${c}</div>`}
+// label van bouwmuurmaten afstemmen op woningtype (kopwoning: bouwmuur → buitenkant)
+function corrLabel(l){const ex=extraMaat();if(!cur?.type)return l;
+ if(ex>0&&ex<0.2)return l.replace('bouwmuur → bouwmuur','bouwmuur → buitenkant');if(ex===0)return l.replace('bouwmuur → bouwmuur','buitenkant → buitenkant');return l}
+// ---------- standaard breedte (bouwmuurmaat) hergebruiken ----------
+const MAAT_T=['gevel','dakvlak','vloer'];
+function isZijgevel(it){const o=cur.orient;return it.type==='gevel'&&o&&(it.orient===o.zijA||it.orient===o.zijB)}
+function itemNaam(it){const o=cur.orient||{};if(it.type==='gevel'){const n=it.orient===o.voor?'Voorgevel':it.orient===o.achter?'Achtergevel':it.orient===o.zijA?'Linkergevel':it.orient===o.zijB?'Rechtergevel':'Gevel';return n+(it.orient?' '+it.orient:'')}
+ if(it.type==='dakvlak')return 'Dakvlak'+(it.orient?' '+it.orient:'');return 'Vloer'+(it.grenst?' ('+it.grenst.toLowerCase()+')':'')}
+function maatTekst(s){return s.x?`${f2(s.m)} m + ${Math.round(s.x*100)} cm = ${f2(s.m+s.x)} m`:`${f2(s.m)} m`}
+function zetMaat(it,s){it.breedte=fS(s.m);it.breedte_x=s.x||0}
+async function vraagMeerMaat(it){if(!MAAT_T.includes(it.type))return;const m=num(it.breedte);if(m==null)return;const x=it.breedte_x||0;
+ const s0=cur.stdMaat;if(s0&&Math.abs(s0.m-m)<1e-6&&Math.abs((s0.x||0)-x)<1e-6)return;
+ if(cur.stdNee&&Math.abs(cur.stdNee.m-m)<1e-6&&Math.abs((cur.stdNee.x||0)-x)<1e-6)return;
+ const kand=[];cur.verdiepingen.forEach(v=>v.items.forEach(y=>{if(y!==it&&MAAT_T.includes(y.type)&&num(y.breedte)==null)kand.push(y)}));
+ const s={m,x,bron:itemNaam(it)};
+ const lijst=kand.map(y=>[`${itemNaam(y)} — nu invullen`,!isZijgevel(y)]);lijst.push(['Vragen bij nieuwe gevels, dakvlakken en vloeren',true]);
+ const r=await kiesMeer(`Deze maat ook bij andere onderdelen aanhouden?\n\n${s.bron}: ${maatTekst(s)}`,lijst,'Toepassen','Nee, alleen hier');
+ if(!r){cur.stdNee={m,x};return}
+ let n=0;kand.forEach((y,i)=>{if(r[i]){zetMaat(y,s);n++}});
+ if(r[r.length-1]){cur.stdMaat=s;delete cur.stdNee}else cur.stdNee={m,x};
+ if(n)toast(`Maat ingevuld bij ${n} onderde${n>1?'len':'el'}`)}
+async function vraagOvernemen(it){const s=cur.stdMaat;if(!s||!MAAT_T.includes(it.type)||isZijgevel(it)||num(it.breedte)!=null)return;
+ if(await vraag(`Breedte overnemen?\n\n${maatTekst(s)}\n(van ${s.bron})`,'Ja, overnemen','Nee'))zetMaat(it,s)}
 async function vraagCorr(it,k){const ex=extraMaat();const m=num(it[k]);if(!ex||m==null){it[k+'_x']=0;return}
  const tekst=ligLabel();
  it[k+'_x']=(await vraag(`${tekst}: ${Math.round(ex*100)} cm erbij tellen?\n\n${f2(m)} m → ${f2(m+ex)} m`,'Ja, erbij','Nee'))?ex:0}
@@ -467,6 +497,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-togg
   if(vi<0){if(vs.length===1)vi=0;else{const def=d.add==='dakvlak'?vs.length-1:0;const k=await kies(`${d.soort||DEF[d.add].t} toevoegen op welke bouwlaag?`,vs.map((v,i)=>v.naam+(i===def?' (meest gebruikt)':'')));if(k==null)return;vi=k}}
   const it=nieuwItem(d.add);if(d.soort)it.soort=d.soort;
   if(d.or!=null&&d.or!=='')zetO(it,d.or);else if(d.add==='dakvlak'&&cur.orient){const c0=cur.orient,used=new Set(vs[vi].items.filter(x=>x.type==='dakvlak').map(x=>x.orient));zetO(it,[c0.voor,c0.achter,c0.zijA,c0.zijB].find(x=>!used.has(x))||c0.voor)}
+  await vraagOvernemen(it);
   vs[vi].items.push(it);save();render();toast(`${d.soort||DEF[d.add].t} toegevoegd op ${vs[vi].naam}`)}
  else if(d.addsub){const r=vind(d.addsub);r.it.subs=r.it.subs||[];r.it.subs.push(nieuwItem(d.t));save();render()}
  else if(d.naar){const vs=cur.verdiepingen;const bron=vs.indexOf(verdVan(vind(d.naar).it));const andere=vs.map((v,i)=>i).filter(i=>i!==bron).reverse();
@@ -485,13 +516,13 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-togg
    c.dicht=false;save();render();toast(doel?`Gekopieerd naar ${doelen[k][0].toLowerCase()} ${doel==='H'?'':doel}`.trim():'Gekopieerd, de kopie staat eronder')}
   else{r.lijst.splice(r.lijst.indexOf(it)+1,0,kloon(it));save();render();toast('Gekopieerd, de kopie staat eronder')}}
  else if(d.del){if(await vraag('Dit onderdeel verwijderen?','Verwijderen','Annuleren')){const r=vind(d.del);r.lijst.splice(r.lijst.indexOf(r.it),1);kapelVlakkenWeg(d.del);save();render()}}
- else if(d.corr){e.preventDefault();const r=vind(d.corr);await vraagCorr(r.it,d.k);save();render()}
+ else if(d.corr){e.preventDefault();const r=vind(d.corr);await vraagCorr(r.it,d.k);if(d.k==='breedte')await vraagMeerMaat(r.it);save();render()}
  else if(d.set){cur.type[d.set]=d.v;save();render()}
  else if(d.act==='fadd'){cur.type.functies.push({f:'Kantoorfunctie',m2:''});save();render()}
  else if(d.fdel!=null){cur.type.functies.splice(+d.fdel,1);save();render()}});
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset.id)return;const r=vind(t.dataset.id);if(!r)return;const it=r.it,k=t.dataset.k;
  it[k]=t.value;if(it.type==='dakkapel'&&k==='d')it.dHand=num(t.value)>0;if(it.type==='dakkapel'&&k==='h'&&!it.dHand){const pa=kapelOuder(it.id),kc=kapelCalc(it,pa?.helling);if(kc&&kc.d)it.d=fS(kc.d)}if(t.tagName==='SELECT'&&k==='orient')it.orientL=t.options[t.selectedIndex].text.split(' ')[0];
- const f=DEF[it.type].f.find(x=>x.k===k);if(f?.corr)await vraagCorr(it,k);save();const y=window.scrollY;render();window.scrollTo(0,y)});
+ const f=DEF[it.type].f.find(x=>x.k===k);if(f?.corr){await vraagCorr(it,k);if(k==='breedte')await vraagMeerMaat(it)}save();const y=window.scrollY;render();window.scrollTo(0,y)});
 
 // ---------- driehoek ----------
 function go15(it){const c=num(it.lengte),hk=num(it.helling),kn=num(it.hkGO)||0;if(c==null||hk==null||!(hk>0&&hk<90))return null;
