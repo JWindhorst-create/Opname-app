@@ -57,6 +57,12 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #mkeuze button{width:100%;margin-top:8px}
 .sug{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden}
 .err{color:var(--warn);font-size:14px}
+#calc{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:3000}
+#calc .box{background:var(--card);border-radius:16px 16px 0 0;padding:14px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));width:100%;max-width:520px;max-height:92vh;overflow:auto}
+#calc svg{width:100%;height:auto;display:block;background:var(--bg);border-radius:10px}
+#calc input.calc{background:var(--acc2);color:var(--acc);font-weight:600;border-color:transparent}
+#calc input.user{border:2px solid var(--acc)}
+#calc .cmsg{font-size:14px;color:var(--muted);min-height:20px;margin-top:8px}#calc .cmsg.err{color:var(--warn);font-weight:600}
 </style>
 </head>
 <body>
@@ -65,6 +71,19 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 <div class="bar" id="bar"></div>
 <div id="toast"></div>
 <div id="modal"><div class="box"><div id="mtekst"></div><div id="mkeuze" hidden></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
+<div id="calc"><div class="box"><div class="ihead"><span>📐 Driehoek dakvlak</span><button class="small ghost" id="cdicht">✕</button></div>
+<p class="note" style="margin:4px 0 8px">Vul 2 waarden in (minstens 1 maat). De rest wordt berekend.</p>
+<svg id="csvg" viewBox="0 0 320 150"></svg>
+<div class="grid2">
+<div><label>a · Horizontaal (½ diepte)</label><input id="c_a" inputmode="decimal" autocomplete="off"></div>
+<div><label>b · Hoogte goot → nok</label><input id="c_b" inputmode="decimal" autocomplete="off"></div>
+<div><label>c · Lengte nok → goot</label><input id="c_c" inputmode="decimal" autocomplete="off"></div>
+<div><label>α · Hellingshoek (°)</label><input id="c_al" inputmode="decimal" autocomplete="off"></div>
+<div style="grid-column:1/-1"><label>Of: hele diepte (wordt ÷ 2 in a)</label><input id="c_d" inputmode="decimal" autocomplete="off"></div>
+</div>
+<div class="cmsg" id="cmsg"></div>
+<div class="row" style="margin-top:10px"><button class="ghost" id="cwis">Wissen</button><button id="cok" disabled>Overnemen in dakvlak</button></div>
+</div></div>
 <script>
 // ---------- opslag ----------
 const KEY='opnameApp_v1';
@@ -275,7 +294,7 @@ function opname(){
  bar(`<button class="ghost" data-go="type">Gebouw</button><button data-go="export">Klaar → export</button>`)}
 function itemHTML(it,top){const d=DEF[it.type];const op=opp(it);let netto='';
  if(op!=null&&it.subs?.length){const af=it.subs.reduce((s,x)=>s+(DEF[x.type].opp&&x.type!=='dakkapel'?(opp(x)||0):0),0);if(af)netto=` · netto ${f2(op-af)} m²`}
- return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="small ghost" data-kopie="${it.id}">Kopieer</button>${top&&cur.verdiepingen.length>1?`<button class="small ghost" data-naar="${it.id}">Naar verdieping</button>`:''}<button class="small del" data-del="${it.id}">✕</button></span></div>
+ return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${it.type==='dakvlak'?`<button class="small" data-dh="${it.id}">📐 Driehoek</button>`:''}<button class="small ghost" data-kopie="${it.id}">Kopieer</button>${top&&cur.verdiepingen.length>1?`<button class="small ghost" data-naar="${it.id}">Naar verdieping</button>`:''}<button class="small del" data-del="${it.id}">✕</button></span></div>
  <div class="grid2">${d.f.filter(f=>zichtbaar(it,f)).map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}${glasOpp(it)!=null?` · glas ${f2(glasOpp(it))} m² · <b>netto deur ${f2(op-glasOpp(it))} m²</b>`:''}</div>`:''}
  ${d.sub?`<div>${(it.subs||[]).map(x=>itemHTML(x,false)).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
 function fieldHTML(it,f){const v=it[f.k]??'';const id=`data-id="${it.id}" data-k="${f.k}"`;let inp;
@@ -317,7 +336,8 @@ function xmlBestand(){const naam='opname_'+(cur.adres?.postcode||'')+'_'+(cur.ad
 function kloon(it){const c=JSON.parse(JSON.stringify(it));const her=x=>{x.id=uid();(x.subs||[]).forEach(her)};her(c);return c}
 function nieuwItem(type){const it={id:uid(),type,subs:[]};DEF[type].f.forEach(f=>{if(f.t==='sel'&&f.k!=='isolatie'&&f.k!=='bewijs')it[f.k]=opts(f)[0]});return it}
 // ---------- events ----------
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-naar],[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-dh],[data-naar],[data-kopie],[data-fdel],[data-go],[data-act],[data-open],[data-wis],[data-kies],[data-v-idx],[data-add],[data-addsub],[data-del],[data-corr],[data-set]');if(!t)return;const d=t.dataset;
+ if(d.dh){openDriehoek(d.dh);return}
  if(d.go){if(!cur)return;scherm=d.go;render()}
  else if(d.act==='nieuw'){cur={id:uid(),datum:Date.now()};store.opnames.push(cur);zoekRes=[];save();scherm='adres';render()}
  else if(d.act==='lijst'){cur=null;scherm='lijst';render()}
@@ -344,6 +364,50 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-naar
 document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset.id)return;const r=vind(t.dataset.id);if(!r)return;const it=r.it,k=t.dataset.k;
  it[k]=t.value;if(t.tagName==='SELECT'&&k==='orient')it.orientL=t.options[t.selectedIndex].text.split(' ')[0];
  const f=DEF[it.type].f.find(x=>x.k===k);if(f?.corr)await vraagCorr(it,k);save();const y=window.scrollY;render();window.scrollTo(0,y)});
+
+// ---------- driehoek ----------
+const DH={ids:['a','b','c','al'],order:[],res:null,itemId:null};
+function dhEl(k){return document.getElementById('c_'+k)}
+function dhMsg(t,err){const m=$('#cmsg');m.textContent=t;m.className='cmsg'+(err?' err':'')}
+function dhSolve(){
+ const u=DH.order.slice(-2),v={};u.forEach(k=>v[k]=num(dhEl(k).value));
+ DH.ids.forEach(k=>{const e=dhEl(k);if(u.includes(k)){e.className='user'}else{e.value='';e.className=''}});
+ DH.res=null;$('#cok').disabled=true;
+ const fout=t=>{dhMsg(t,true);dhDraw(null)};
+ if(u.length<2){dhMsg(u.length?'Nog 1 waarde invullen.':'');dhDraw(null);return}
+ if(u.some(k=>!(v[k]>0)))return fout('Gebruik positieve getallen.');
+ let {a,b,c,al}=v;const R=Math.PI/180;
+ if(al!=null){if(al>=90)return fout('Hoek moet kleiner zijn dan 90°.');const r=al*R;
+  if(a!=null){b=a*Math.tan(r);c=a/Math.cos(r)}else if(b!=null){a=b/Math.tan(r);c=b/Math.sin(r)}else{a=c*Math.cos(r);b=c*Math.sin(r)}}
+ else{if(a!=null&&b!=null)c=Math.hypot(a,b);else if(a!=null){if(c<=a)return fout('c moet langer zijn dan a.');b=Math.sqrt(c*c-a*a)}
+  else{if(c<=b)return fout('c moet langer zijn dan b.');a=Math.sqrt(c*c-b*b)}al=Math.atan2(b,a)/R}
+ DH.res={a,b,c,al};const dec={a:3,b:3,c:3,al:1};
+ DH.ids.forEach(k=>{if(!u.includes(k)){dhEl(k).value=DH.res[k].toFixed(dec[k]).replace('.',',');dhEl(k).className='calc'}});
+ dhMsg(`Lengte nok → goot ${f2(c)} m · helling ${al.toFixed(1).replace('.',',')}° · diepte (2a) ${f2(2*a)} m`);
+ $('#cok').disabled=false;dhDraw(DH.res)}
+function dhDraw(r){const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/b),w=a*s,h=b*s,x0=(W-w)/2-15,y0=H-28;
+ const A=[x0,y0],C=[x0+w,y0],B=[x0+w,y0-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
+ const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);
+ $('#csvg').innerHTML=`<polygon points="${A} ${B} ${C}" fill="#e1efea" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
+ `<path d="M ${C[0]-9} ${C[1]} L ${C[0]-9} ${C[1]-9} L ${C[0]} ${C[1]-9}" fill="none" stroke="#1f6f5c"/>`+
+ `<path d="M ${A[0]+ra} ${A[1]} A ${ra} ${ra} 0 0 0 ${A[0]+ra*Math.cos(ang)} ${A[1]-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
+ t((A[0]+C[0])/2,y0+18,'a'+(r?' '+F(r.a,2)+' m':''))+t(C[0]+7,(B[1]+C[1])/2+4,'b'+(r?' '+F(r.b,2)+' m':''),'start')+
+ t((A[0]+B[0])/2-8,(A[1]+B[1])/2-6,'c'+(r?' '+F(r.c,2)+' m':''),'end')+t(A[0]+ra+6,A[1]-5,'α'+(r?' '+F(r.al,1)+'°':''),'start','#d4502f')}
+function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[];
+ DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});$('#c_d').value='';
+ const L=num(r.it.lengte),hk=num(r.it.helling);
+ if(L!=null){dhEl('c').value=String(r.it.lengte);DH.order.push('c')}
+ if(hk!=null){dhEl('al').value=String(r.it.helling);DH.order.push('al')}
+ dhSolve();$('#calc').style.display='flex'}
+function sluitDriehoek(){$('#calc').style.display='none';DH.itemId=null}
+DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
+$('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
+$('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
+$('#cdicht').onclick=sluitDriehoek;
+$('#calc').addEventListener('click',e=>{if(e.target.id==='calc')sluitDriehoek()});
+$('#cok').onclick=()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;
+ r.it.lengte=DH.res.c.toFixed(3).replace(/\.?0+$/,'').replace('.',',');r.it.helling=DH.res.al.toFixed(1).replace(/\.0$/,'').replace('.',',');
+ save();sluitDriehoek();const y=window.scrollY;render();window.scrollTo(0,y);toast('Lengte en helling overgenomen')};
 
 render();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
