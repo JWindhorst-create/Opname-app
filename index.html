@@ -473,7 +473,17 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-togg
   const r=vind(d.naar);const extra=(r.it.subs||[]).length?` (met ${r.it.subs.length} raam/deur-onderde${r.it.subs.length>1?'len':'el'})`:'';
   const k=await kies(`${r.it.type==='installatie'?(r.it.soort||'Installatie'):DEF[r.it.type].t}${extra} kopiëren naar:`,andere.map(i=>vs[i].naam));
   if(k!=null){const doel=vs[andere[k]];doel.items.push(kloon(r.it));save();toast('Gekopieerd naar '+doel.naam)}}
- else if(d.kopie){const r=vind(d.kopie);r.lijst.splice(r.lijst.indexOf(r.it)+1,0,kloon(r.it));save();render();toast('Gekopieerd, de kopie staat eronder')}
+ else if(d.kopie){const r=vind(d.kopie),it=r.it,o=cur.orient;
+  if((it.type==='gevel'||it.type==='dakvlak')&&o){const dak=it.type==='dakvlak';
+   const doelen=[[dak?'Dak voorzijde':'Voorgevel',o.voor],[dak?'Dak achterzijde':'Achtergevel',o.achter],[dak?'Dak linkerzijde':'Linkergevel',o.zijA],[dak?'Dak rechterzijde':'Rechtergevel',o.zijB]];if(dak)doelen.push(['Plat dak (horizontaal)','H']);doelen.push(['Zelfde plek (kopie eronder)',null]);
+   const k=await kies(`${DEF[it.type].t}${it.orient?' '+it.orient:''} kopiëren naar:`,doelen.map(([l,w])=>w&&w!=='H'?`${l} ${w}`:l));if(k==null)return;
+   const c=kloon(it);['dhGroup','kapelGroup','dhSrc','goTot'].forEach(x=>delete c[x]);
+   if(c.subs?.length){const wat=[...new Set(c.subs.map(x=>DEF[x.type].t.toLowerCase()+'en'))].join(' / ').replace('raamen','ramen').replace('deuren en','deuren').replace('dakraamen','dakramen').replace('dakkapelen','dakkapellen');
+    if(!(await vraag(`Ook de ${wat} meekopiëren?`,'Ja, meekopiëren','Nee, alleen het vlak')))c.subs=[]}
+   const doel=doelen[k][1];if(doel){zetO(c,doel);if(doel==='H'){c.helling='0';c.opm=c.opm||'Plat dak'}}
+   if(doel&&doel!==it.orient)r.lijst.push(c);else r.lijst.splice(r.lijst.indexOf(it)+1,0,c);
+   c.dicht=false;save();render();toast(doel?`Gekopieerd naar ${doelen[k][0].toLowerCase()} ${doel==='H'?'':doel}`.trim():'Gekopieerd, de kopie staat eronder')}
+  else{r.lijst.splice(r.lijst.indexOf(it)+1,0,kloon(it));save();render();toast('Gekopieerd, de kopie staat eronder')}}
  else if(d.del){if(await vraag('Dit onderdeel verwijderen?','Verwijderen','Annuleren')){const r=vind(d.del);r.lijst.splice(r.lijst.indexOf(r.it),1);kapelVlakkenWeg(d.del);save();render()}}
  else if(d.corr){e.preventDefault();const r=vind(d.corr);await vraagCorr(r.it,d.k);save();render()}
  else if(d.set){cur.type[d.set]=d.v;save();render()}
