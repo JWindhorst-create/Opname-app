@@ -112,7 +112,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 <div id="dh3dBox" hidden>
 
 <div id="dh3d"><div id="dh3dmsg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;text-align:center;padding:20px">Vul 2 waarden in om het model te zien</div></div>
-<p class="note" id="dh3dHint" style="margin:6px 0 0">Sleep om te draaien, knijp om te zoomen. <b style="color:#1f7a45">Groen vlak</b> = vloer met hoogte ≥ 1,5 m (GO); oranje stippellijnen = 1,5 m-lijn (op 1,5 m en op de vloer). Zonder lengte dak wordt een voorbeeldlengte getoond (*).</p>
+<p class="note" id="dh3dHint" style="margin:6px 0 0">Sleep om te draaien, knijp om te zoomen. <b style="color:#1f7a45">Groen vlak</b> = vloer met hoogte ≥ 1,5 m (GO); oranje stippellijnen = 1,5 m-lijn (op 1,5 m, verticaal en op de vloer). Zonder lengte dak wordt een voorbeeldlengte getoond (*).</p>
 </div>
 <div class="row" style="margin-top:10px"><button class="ghost" id="cwis">Wissen</button><button id="cok" disabled>Overnemen in opname</button></div>
 </div></div>
@@ -132,7 +132,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 </div></div>
 <script>
 // ---------- opslag ----------
-const APPVERSIE='2026-11-02 01:00';
+const APPVERSIE='2026-11-02 01:05';
 const KEY='opnameApp_v1';
 let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{opnames:[]}}catch(e){return{opnames:[]}}})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet')}}
@@ -827,6 +827,7 @@ $('#kok').onclick=()=>{const dv=vind(KP.dvId)?.it;if(!dv)return;const al=num($('
     if(lines15.length){
       ctx.strokeStyle='#B7791F'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
       for(const [xa,za,xb,zb] of lines15){const g=[[xa,0.01,zb],[xb,0.01,zb],[xb,0.01,za],[xa,0.01,za]].map(P);ctx.setLineDash([]);ctx.beginPath();g.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle='rgba(46,150,88,0.5)';ctx.fill();ctx.strokeStyle='#B7791F';ctx.setLineDash([6,4])}
+      for(const [xa,za,xb,zb] of lines15) for(const [cx,cz] of [[xa,za],[xb,za],[xb,zb],[xa,zb]]){const a=P([cx,1.5,cz]),b=P([cx,0.005,cz]);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}
       for(const [xa,za,xb,zb] of lines15) for(const y of [1.5,0.005]){
         const q=[[xa,y,zb],[xb,y,zb],[xb,y,za],[xa,y,za]].map(P);
         ctx.beginPath(); q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.stroke();
