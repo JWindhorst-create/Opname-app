@@ -82,6 +82,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 <div style="grid-column:1/-1"><label>Of: hele diepte (wordt ÷ 2 in a)</label><input id="c_d" inputmode="decimal" autocomplete="off"></div>
 </div>
 <div class="cmsg" id="cmsg"></div>
+<div id="c15" hidden style="margin-top:8px;padding:10px;border-radius:10px;background:#fdf1e6;border:1px solid #f2cfa9;font-size:14px;line-height:1.5"></div>
 <div class="row" style="margin-top:10px"><button class="ghost" id="cwis">Wissen</button><button id="cok" disabled>Overnemen in dakvlak</button></div>
 </div></div>
 <script>
@@ -296,6 +297,7 @@ function itemHTML(it,top){const d=DEF[it.type];const op=opp(it);let netto='';
  if(op!=null&&it.subs?.length){const af=it.subs.reduce((s,x)=>s+(DEF[x.type].opp&&x.type!=='dakkapel'?(opp(x)||0):0),0);if(af)netto=` · netto ${f2(op-af)} m²`}
  return `<div class="item"><div class="ihead"><span>${it.type==='installatie'?esc(it.soort||'Installatie'):d.t}${it.orient?' · '+esc((it.orientL&&it.orientL!==it.orient?it.orientL+' ':'')+it.orient):''}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${it.type==='dakvlak'?`<button class="small" data-dh="${it.id}">📐 Driehoek</button>`:''}<button class="small ghost" data-kopie="${it.id}">Kopieer</button>${top&&cur.verdiepingen.length>1?`<button class="small ghost" data-naar="${it.id}">Naar verdieping</button>`:''}<button class="small del" data-del="${it.id}">✕</button></span></div>
  <div class="grid2">${d.f.filter(f=>zichtbaar(it,f)).map(f=>fieldHTML(it,f)).join('')}</div>${op!=null?`<div class="opp"><b>Totaal ${f2(op)} m²</b>${num(it.m2)!=null?' (direct ingevuld)':DEF[it.type].f.some(f=>f.k==='m2')?' (breedte × hoogte'+(DEF[it.type].opp.includes('aantal')?' × aantal':'')+')':''}${netto}${glasOpp(it)!=null?` · glas ${f2(glasOpp(it))} m² · <b>netto deur ${f2(op-glasOpp(it))} m²</b>`:''}</div>`:''}
+ ${it.type==='dakvlak'?goHTML(it):''}
  ${d.sub?`<div>${(it.subs||[]).map(x=>itemHTML(x,false)).join('')}<div class="row" style="margin-top:6px">${d.sub.map(s=>`<button class="small ghost" data-addsub="${it.id}" data-t="${s}">+ ${DEF[s].t}</button>`).join('')}</div></div>`:''}</div>`}
 function fieldHTML(it,f){const v=it[f.k]??'';const id=`data-id="${it.id}" data-k="${f.k}"`;let inp;
  if(f.t==='num')inp=`<input inputmode="decimal" ${id} value="${esc(v)}">`;
@@ -320,7 +322,7 @@ function exp(){
 function maakXML(){const a=o=>Object.entries(o).filter(([,v])=>v!=null&&v!=='').map(([k,v])=>` ${k}="${esc(v)}"`).join('');
  const el=(it,ind)=>{const d=DEF[it.type];const at={};d.f.filter(f=>zichtbaar(it,f)).forEach(f=>{const v=it[f.k];if(v==null||v==='')return;
    if(f.t==='num'){at[f.k]=num(v);if(f.corr){at[f.k+'_gemeten']=num(v);at[f.k]=+val(it,f.k).toFixed(3);at[f.k+'_correctie']=it[f.k+'_x']||0}}else at[f.k]=v});
-  const o=opp(it);if(o!=null)at.oppervlakte=+o.toFixed(2);const go=glasOpp(it);if(go!=null){at.glasOppervlakte=+go.toFixed(2);if(o!=null)at.nettoDeur=+(o-go).toFixed(2)}const tag=d.t.replace(/[^A-Za-z]/g,'');const subs=it.subs||[];
+  const o=opp(it);if(o!=null)at.oppervlakte=+o.toFixed(2);if(it.type==='dakvlak'){const g=go15(it);if(g){at.lijn15VanafGoot=+g.uit.toFixed(3);at.goStrook=+g.strook.toFixed(3);if(g.go!=null)at.goOppervlakte=+g.go.toFixed(2)}}const go=glasOpp(it);if(go!=null){at.glasOppervlakte=+go.toFixed(2);if(o!=null)at.nettoDeur=+(o-go).toFixed(2)}const tag=d.t.replace(/[^A-Za-z]/g,'');const subs=it.subs||[];
   return subs.length?`${ind}<${tag}${a(at)}>\n${subs.map(s=>el(s,ind+'  ')).join('\n')}\n${ind}</${tag}>`:`${ind}<${tag}${a(at)}/>`};
  const t=cur.type||{},b=cur.bag||{},o=cur.orient||{},h=cur.hoogte||{};
  return `<?xml version="1.0" encoding="UTF-8"?>\n<Opname versie="0.1" datum="${new Date().toISOString()}" methode="${cur.type?.methode==='U'?'ISSO 75.1':'ISSO 82.1'}">\n`+
@@ -366,13 +368,19 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset.id)r
  const f=DEF[it.type].f.find(x=>x.k===k);if(f?.corr)await vraagCorr(it,k);save();const y=window.scrollY;render();window.scrollTo(0,y)});
 
 // ---------- driehoek ----------
+function go15(it){const c=num(it.lengte),hk=num(it.helling);if(c==null||hk==null||!(hk>0&&hk<90))return null;
+ const R=Math.PI/180,a=c*Math.cos(hk*R),b=c*Math.sin(hk*R);if(b<=1.5)return{a,b,uit:a,strook:0,go:0,br:num(it.breedte)};
+ const uit=a*1.5/b,strook=a-uit,br=num(it.breedte);return{a,b,uit,strook,br,go:br!=null?strook*br:null}}
+function goHTML(it){const g=go15(it);if(!g)return'';
+ if(g.b<=1.5)return`<div class="opp" style="color:#a3561a">1,5 m-lijn: hoogte max ${f2(g.b)} m → geen GO ≥ 1,5 m</div>`;
+ return`<div class="opp" style="color:#a3561a">1,5 m-lijn ${f2(g.uit)} m uit de goot · strook ${f2(g.strook)} m${g.go!=null?` × ${f2(g.br)} m = <b>GO ${f2(g.go)} m²</b>`:' · vul breedte in voor GO'}</div>`}
 const DH={ids:['a','b','c','al'],order:[],res:null,itemId:null};
 function dhEl(k){return document.getElementById('c_'+k)}
 function dhMsg(t,err){const m=$('#cmsg');m.textContent=t;m.className='cmsg'+(err?' err':'')}
 function dhSolve(){
  const u=DH.order.slice(-2),v={};u.forEach(k=>v[k]=num(dhEl(k).value));
  DH.ids.forEach(k=>{const e=dhEl(k);if(u.includes(k)){e.className='user'}else{e.value='';e.className=''}});
- DH.res=null;$('#cok').disabled=true;
+ DH.res=null;$('#cok').disabled=true;$('#c15').hidden=true;
  const fout=t=>{dhMsg(t,true);dhDraw(null)};
  if(u.length<2){dhMsg(u.length?'Nog 1 waarde invullen.':'');dhDraw(null);return}
  if(u.some(k=>!(v[k]>0)))return fout('Gebruik positieve getallen.');
@@ -384,12 +392,17 @@ function dhSolve(){
  DH.res={a,b,c,al};const dec={a:3,b:3,c:3,al:1};
  DH.ids.forEach(k=>{if(!u.includes(k)){dhEl(k).value=DH.res[k].toFixed(dec[k]).replace('.',',');dhEl(k).className='calc'}});
  dhMsg(`Lengte nok → goot ${f2(c)} m · helling ${al.toFixed(1).replace('.',',')}° · diepte (2a) ${f2(2*a)} m`);
+ const ri=vind(DH.itemId),br=ri?num(ri.it.breedte):null,gi=$('#c15');
+ if(b<=1.5)gi.innerHTML=`<b>1,5 m-lijn:</b> hoogte max ${f2(b)} m → geen GO ≥ 1,5 m.`;
+ else{const uit=a*1.5/b,st=a-uit;gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(uit)} m</b> uit de goot (horizontaal).<br>Strook ≥ 1,5 m dit dakvlak: <b>${f2(st)} m</b>`+(br!=null?` × breedte ${f2(br)} m = <b>GO ${f2(st*br)} m²</b>`:'<br><span class="note">Vul de breedte van het dakvlak in voor de GO in m².</span>')}
+ gi.hidden=false;
  $('#cok').disabled=false;dhDraw(DH.res)}
 function dhDraw(r){const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/b),w=a*s,h=b*s,x0=(W-w)/2-15,y0=H-28;
  const A=[x0,y0],C=[x0+w,y0],B=[x0+w,y0-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);
  $('#csvg').innerHTML=`<polygon points="${A} ${B} ${C}" fill="#e1efea" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
  `<path d="M ${C[0]-9} ${C[1]} L ${C[0]-9} ${C[1]-9} L ${C[0]} ${C[1]-9}" fill="none" stroke="#1f6f5c"/>`+
+ (r&&r.b>1.5?`<line x1="${A[0]+r.a*1.5/r.b*s}" y1="${y0-1.5*s}" x2="${C[0]}" y2="${y0-1.5*s}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+t(A[0]+r.a*1.5/r.b*s-4,y0-1.5*s+4,'1,5 m','end','#d4502f'):'')+
  `<path d="M ${A[0]+ra} ${A[1]} A ${ra} ${ra} 0 0 0 ${A[0]+ra*Math.cos(ang)} ${A[1]-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
  t((A[0]+C[0])/2,y0+18,'a'+(r?' '+F(r.a,2)+' m':''))+t(C[0]+7,(B[1]+C[1])/2+4,'b'+(r?' '+F(r.b,2)+' m':''),'start')+
  t((A[0]+B[0])/2-8,(A[1]+B[1])/2-6,'c'+(r?' '+F(r.c,2)+' m':''),'end')+t(A[0]+ra+6,A[1]-5,'α'+(r?' '+F(r.al,1)+'°':''),'start','#d4502f')}
@@ -407,7 +420,7 @@ $('#cdicht').onclick=sluitDriehoek;
 $('#calc').addEventListener('click',e=>{if(e.target.id==='calc')sluitDriehoek()});
 $('#cok').onclick=()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;
  r.it.lengte=DH.res.c.toFixed(3).replace(/\.?0+$/,'').replace('.',',');r.it.helling=DH.res.al.toFixed(1).replace(/\.0$/,'').replace('.',',');
- save();sluitDriehoek();const y=window.scrollY;render();window.scrollTo(0,y);toast('Lengte en helling overgenomen')};
+ save();sluitDriehoek();const y=window.scrollY;render();window.scrollTo(0,y);toast('Lengte, helling en GO bijgewerkt')};
 
 render();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
