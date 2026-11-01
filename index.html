@@ -572,7 +572,7 @@ function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[]
  DH.nok=r.it.dhNok||'par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
  dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 function sluitDriehoek(){$('#calc').style.display='none';DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
-function openDriehoekLos(){DH.los=true;DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
+function openDriehoekLos(){DH.los=true;if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.querySelector('header').hidden=true;$('#bar').hidden=true}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
 $('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
 $('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
@@ -873,7 +873,7 @@ $('#dh3dBtn').onclick=()=>{const b=$('#dh3dBox');b.hidden=!b.hidden;$('#dh3dBtn'
 document.querySelectorAll('#dhShapes [data-s3]').forEach(bt=>bt.onclick=()=>{DH.shape=bt.dataset.s3;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhSolve()});
 
 render();
-if(location.hash==='#driehoek')setTimeout(openDriehoekLos,50);window.addEventListener('hashchange',()=>{if(location.hash==='#driehoek')openDriehoekLos()});
+if(location.hash==='#driehoek'||window.DRIEHOEK_ONLY)setTimeout(openDriehoekLos,50);window.addEventListener('hashchange',()=>{if(location.hash==='#driehoek')openDriehoekLos()});
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
