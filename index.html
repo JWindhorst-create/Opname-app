@@ -261,7 +261,7 @@ function render(){
  $('#steps').innerHTML=scherm==='lijst'?'':STAPPEN.map(([k,l])=>`<span data-go="${k}" class="${k===(scherm==='type'?'adres':scherm)?'on':''}">${l}</span>`).join('');
  $('#titel').textContent=cur?.adres?.naam||'Opname Energielabel';
  if(map){map.remove();map=null}
- if(scherm==='type')scherm='adres';if((scherm==='opname'||scherm==='inst')&&cur&&!cur.verdiepingen)syncVerd();
+ if(scherm==='type')scherm='adres';if(cur&&scherm!=='lijst'&&(!cur.verdiepingen||cur.verdiepingen.length!==1||cur.verdiepingen[0].naam!=='Woning'))syncVerd();geoV=-1;
  ({lijst,adres,kaart,opname,inst,model:model3d,export:exp})[scherm]();
  if(vorig!==scherm+vIdx)window.scrollTo(0,0);vorig=scherm+vIdx}
 function bar(h){$('#bar').innerHTML=h}
@@ -315,7 +315,7 @@ function kaart(){
 const orientHTML=o=>`<span class="pill">Voorgevel ${o.voor} (${o.voorAz}°)</span><span class="pill">Achtergevel ${o.achter}</span><span class="pill">Linkergevel ${o.zijA}</span><span class="pill">Rechtergevel ${o.zijB}</span>`;
 
 function type(){
- const t=norm(cur.type||(cur.type={}));if(!t.daktype)t.daktype='hellend';if(!t.datum)t.datum=new Date().toISOString().slice(0,10);save();
+ const t=norm(cur.type||(cur.type={}));if(!t.daktype)t.daktype='hellend';if(t.start!=='dak'&&t.start!=='bg')t.start='dak';if(!t.datum)t.datum=new Date().toISOString().slice(0,10);save();
  const ch=(k,v,l,on)=>`<button class="${(on??t[k]===v)?'on':''}" data-set="${k}" data-v="${v}">${l}</button>`;
  const ex=extraMaat();const corrNote=`<p class="note">${ex?`Bij maten tussen bouwmuren wordt gevraagd of er ${ex>0.2?'2 × 11 cm = 22 cm':'11 cm'} bij moet.`:'Geen bouwmuurcorrectie.'}</p>`;
  const gd=cur.bag?.gebruiksdoel?`<p class="note">BAG-gebruiksdoel: ${esc(cur.bag.gebruiksdoel)}</p>`:'';
@@ -331,22 +331,20 @@ function type(){
   <button class="small ghost" data-act="fadd">+ Gebruiksfunctie</button>
   <label>Belending</label><div class="choice">${ch('belend','geen','Vrijstaand')}${ch('belend','een','Eén zijde belend')}${ch('belend','twee','Twee zijden belend')}</div>${corrNote}</div>`}
  $('#typeBox').innerHTML=`<div class="card"><h3>Objecttype</h3><div class="choice">${ch('methode','W','EP-W · woning<br><small>ISSO 82.1</small>')}${ch('methode','U','EP-U · utiliteit<br><small>ISSO 75.1</small>')}</div>${gd}</div>${deel}
- <div class="card"><h3>Bouwlagen & opname</h3><div class="grid2"><div><label>Aantal bouwlagen (excl. zolder)</label><input type="number" inputmode="numeric" min="1" max="40" id="lagen" value="${t.lagen}"></div>
- <div><label>${t.methode==='W'?'Zolder':'Dakopbouw / zolder'}</label><select id="zolder"><option value="1" ${t.zolder?'selected':''}>Ja</option><option value="0" ${t.zolder?'':'selected'}>Nee</option></select></div>
- <div style="grid-column:1/-1"><label>Opnamedatum</label><input type="date" id="odatum" value="${esc(t.datum)}"></div></div></div>`;
- $('#lagen').onchange=e=>{t.lagen=Math.max(1,+e.target.value||1);save();if(cur.verdiepingen)syncVerd();render()};
- $('#zolder').onchange=e=>{t.zolder=e.target.value==='1';save();if(cur.verdiepingen)syncVerd();render()};
+ <div class="card"><h3>Opname</h3><label>Beginnen bij</label><div class="choice">${ch('start','dak','Dak<br><small>bovenaf: daken → gevels → vloeren</small>')}${ch('start','bg','Begane grond<br><small>onderaf: vloeren → gevels → daken</small>')}</div>
+ <div class="grid2"><div><label>Aantal bouwlagen</label><input type="number" inputmode="numeric" min="1" max="40" id="lagen" value="${t.lagen}"></div>
+ <div><label>Opnamedatum</label><input type="date" id="odatum" value="${esc(t.datum)}"></div></div></div>`;
+ $('#lagen').onchange=e=>{t.lagen=Math.max(1,+e.target.value||1);save()};
  $('#odatum').onchange=e=>{t.datum=e.target.value;save()};
  document.querySelectorAll('[data-fi]').forEach(el=>el.onchange=e=>{t.functies[+el.dataset.fi].f=el.value;save()});
  document.querySelectorAll('[data-fm]').forEach(el=>el.onchange=e=>{t.functies[+el.dataset.fm].m2=el.value;save()})}
 function verdNamen(t){const n=['Begane grond'];for(let i=1;i<t.lagen;i++)n.push(i+'e verdieping');if(t.zolder)n.push('Zolder');return n}
-function syncVerd(){const t=norm(cur.type||(cur.type={}));const namen=verdNamen(t);const oud=cur.verdiepingen||[];
- const nieuw=namen.map(n=>oud.find(v=>v.naam===n)||{naam:n,items:[]});oud.forEach(v=>{if(!nieuw.includes(v)&&v.items.length)nieuw.push(v)});cur.verdiepingen=nieuw;save()}
+function syncVerd(){norm(cur.type||(cur.type={}));const oud=cur.verdiepingen||[];if(oud.length===1&&oud[0].naam==='Woning')return;
+ const items=oud.slice().reverse().flatMap(v=>v.items);cur.verdiepingen=[{naam:'Woning',items}];save()}
 function startOpname(){syncVerd();scherm='opname';render()}
 function verdVan(it){for(const v of cur.verdiepingen){if(zoek(it.id,v.items))return v}return null}
-function geoKop(){const vs=cur.verdiepingen,o=cur.orient;const mt=cur.type?.methode==='U'?'EP-U · ISSO 75.1':'EP-W · ISSO 82.1';
- return `<p class="note" style="margin:0 0 8px">${mt}${o?` · voorgevel <b>${o.voor}</b> (${o.voorAz}°) · <a href="#" data-go="kaart">wijzig</a>`:' · <a href="#" data-go="kaart">voorgevel kiezen</a>'}</p>
- <div class="tabs"><button class="${geoV<0?'on':''}" data-gv="-1">Alle lagen</button>${vs.map((x,i)=>i).reverse().map(i=>`<button class="${i===geoV?'on':''}" data-gv="${i}">${esc(vs[i].naam)}</button>`).join('')}</div>`}
+function geoKop(){const o=cur.orient;const mt=cur.type?.methode==='U'?'EP-U · ISSO 75.1':'EP-W · ISSO 82.1';
+ return `<p class="note" style="margin:0 0 8px">${mt}${o?` · voorgevel <b>${o.voor}</b> (${o.voorAz}°) · <a href="#" data-go="kaart">wijzig</a>`:' · <a href="#" data-go="kaart">voorgevel kiezen</a>'}</p>`}
 function geoItems(f){const out=[];cur.verdiepingen.forEach((v,i)=>{if(geoV>=0&&i!==geoV)return;v.items.forEach(it=>{if(f(it))out.push(it)})});return out}
 function oppNetto(it){const o=opp(it);if(o==null)return null;const af=(it.subs||[]).reduce((s2,x)=>s2+(x.type==='dakkapel'?(kapelCalc(x,it.helling)?.gat||0):DEF[x.type].opp?(opp(x)||0):0),0);return{bruto:o,open:af,netto:o-af}}
 function geoGroepen(){const o=cur.orient||{};const g=it=>it.type==='gevel';
@@ -354,13 +352,14 @@ function geoGroepen(){const o=cur.orient||{};const g=it=>it.type==='gevel';
   ['links','Linkergevel'+(o.zijA?' '+o.zijA:''),it=>g(it)&&o.zijA&&it.orient===o.zijA,'gevel',o.zijA],['rechts','Rechtergevel'+(o.zijB?' '+o.zijB:''),it=>g(it)&&o.zijB&&it.orient===o.zijB,'gevel',o.zijB],
   ['overig','Gevels overige oriëntatie',it=>g(it)&&![o.voor,o.achter,o.zijA,o.zijB].includes(it.orient),'gevel',''],
   ['daken','Daken',it=>it.type==='dakvlak','dakvlak',null],['vloeren','Vloeren',it=>it.type==='vloer','vloer',null]]}
+function geoVolg(G){const st=cur.type?.start==='bg'?'bg':'dak';const d=G.find(x=>x[0]==='daken'),v=G.find(x=>x[0]==='vloeren'),gv=G.filter(x=>x!==d&&x!==v);return st==='bg'?[v,...gv,d]:[d,...gv,v]}
 function opname(){
  const G=geoGroepen();
  const rows=G.map(([k,t,f])=>{const its=geoItems(f);let br=0,op=0,ok=false;its.forEach(it=>{const n=oppNetto(it);if(n){ok=true;br+=n.bruto;op+=n.open}});return{k,t,n:its.length,br,op,ok}}).filter(r=>r.n||r.k!=='overig');
  $('#app').innerHTML=geoKop()+`<div class="card"><h3>Overzicht geometrie</h3><table style="width:100%;border-collapse:collapse;font-size:13.5px"><tr style="color:var(--muted);font-size:12px"><td></td><td style="text-align:right">vlakken</td><td style="text-align:right">bruto</td><td style="text-align:right">open</td><td style="text-align:right">netto</td></tr>
  ${rows.map(r=>`<tr data-jump="${r.k}" style="border-top:1px solid var(--line);cursor:pointer"><td style="padding:6px 2px"><b>${esc(r.t)}</b></td><td style="text-align:right">${r.n||'–'}</td><td style="text-align:right">${r.ok?f2(r.br):'–'}</td><td style="text-align:right">${r.ok&&r.op?f2(r.op):'–'}</td><td style="text-align:right"><b>${r.ok?f2(r.br-r.op):'–'}</b></td></tr>`).join('')}</table>
  <p class="note" style="margin-top:6px">m² · tik op een regel om ernaartoe te gaan</p></div>`+
- G.map(([k,t,f,type,or])=>{const its=geoItems(f);if(k==='overig'&&!its.length)return'';
+ geoVolg(G).map(([k,t,f,type,or])=>{const its=geoItems(f);if(k==='overig'&&!its.length)return'';
   return `<div class="sec" id="sec-${k}"><div class="sechead"><h3>${esc(t)}</h3><button class="small ghost" data-add="${type}" ${or!=null?`data-or="${or}"`:''}>+ ${DEF[type].t}</button></div>${its.map(i=>itemHTML(i,true)).join('')||'<p class="note">Nog niets ingevoerd.</p>'}</div>`}).join('');
  bar(`<button class="ghost" data-go="adres">Object</button><button class="ghost" data-go="model">3D</button><button data-go="inst">Installaties →</button>`)}
 function instGroepen(){const U=cur.type?.methode==='U';const l=[['Ventilatie',['Ventilatie']],['Verwarming',['Verwarming']],['Tapwater',['Tapwater']],['Koeling',['Koeling']],['Zonne-energie',['Zonnepanelen (PV)','Zonneboiler']]];
@@ -404,7 +403,7 @@ function maakXML(){const a=o=>Object.entries(o).filter(([,v])=>v!=null&&v!=='').
   if(it.type==='dakvlak'&&o!=null&&(it.subs||[]).length){const af=it.subs.reduce((s2,x)=>s2+(x.type==='dakkapel'?(kapelCalc(x,it.helling)?.gat||0):DEF[x.type].opp?(opp(x)||0):0),0);if(af)at.nettoOppervlakte=+(o-af).toFixed(2)}if(it.type==='dakvlak'&&it.goTot!=null)at.goTotaalDak=+(+it.goTot).toFixed(2);if(it.type==='dakvlak'&&!['schild','tent','mansarde'].includes(it.dhVorm)){const g=go15(it);if(g){at.lijn15VanafGoot=+g.uit.toFixed(3);at.goStrook=+g.strook.toFixed(3);if(g.go!=null)at.goOppervlakte=+g.go.toFixed(2)}}const go=glasOpp(it);if(go!=null){at.glasOppervlakte=+go.toFixed(2);if(o!=null)at.nettoDeur=+(o-go).toFixed(2)}const tag=d.t.replace(/[^A-Za-z]/g,'');const subs=it.subs||[];
   return subs.length?`${ind}<${tag}${a(at)}>\n${subs.map(s=>el(s,ind+'  ')).join('\n')}\n${ind}</${tag}>`:`${ind}<${tag}${a(at)}/>`};
  const t=cur.type||{},b=cur.bag||{},o=cur.orient||{},h=cur.hoogte||{},vs=cur.verdiepingen||[];
- const metV=(it,ind)=>{const v=vs.find(v=>v.items.includes(it));return el(it,ind).replace(/^(\s*<\w+)/,`$1 bouwlaag="${esc(v?.naam||'')}"`)};
+ const metV=(it,ind)=>el(it,ind);
  const alle=f=>vs.flatMap(v=>v.items.filter(f));
  const geo=geoGroepen().map(([k,tt,f])=>{const its=alle(f);if(!its.length)return'';const tag={voor:'Voorgevel',achter:'Achtergevel',links:'Linkergevel',rechts:'Rechtergevel',overig:'OverigeGevels',daken:'Daken',vloeren:'Vloeren'}[k];return `    <${tag}>\n${its.map(i=>metV(i,'      ')).join('\n')}\n    </${tag}>\n`}).join('');
  const ins=instGroepen().map(([tt,so])=>{const its=alle(it=>it.type==='installatie'&&so.includes(it.soort||'Verwarming'));if(!its.length)return'';const tag=tt.replace(/[^A-Za-z]/g,'');return `    <${tag}>\n${its.map(i=>metV(i,'      ')).join('\n')}\n    </${tag}>\n`}).join('');
@@ -413,7 +412,7 @@ function maakXML(){const a=o=>Object.entries(o).filter(([,v])=>v!=null&&v!=='').
  `    <BAG${a({bouwjaar:b.bouwjaar,gebruiksoppervlakte:b.oppervlakte,gebruiksdoel:b.gebruiksdoel,status:b.status,pandId:b.pandId,verblijfsobjectId:b.vboId})}/>\n`+
  `    <Gebouwhoogte${a({hoogsteVanafMaaiveld:h.h,nokNAP:h.max,maaiveldNAP:h.maaiveld,bouwlagen3DBAG:h.bouwlagen})}/>\n`+
  (t.methode==='U'?`    <Utiliteit${a({belending:t.belend,bouwlagen:t.lagen,dakopbouw:t.zolder?'ja':'nee'})}>\n${(t.functies||[]).map(x=>`      <Gebruiksfunctie${a({functie:x.f,gebruiksoppervlakte:num(x.m2)})}/>`).join('\n')}\n    </Utiliteit>\n`
- :`    <Woning${a({gebouwtype:t.wtype==='appartement'?'appartement':'eengezinswoning',subtype:t.wtype==='appartement'?null:t.wtype,ligging:t.wtype==='appartement'?t.alaag:null,positie:t.wtype==='appartement'?t.apos:null,woongebouw:t.wtype==='appartement'?t.atype:null,daktype:t.daktype,bouwlagen:t.lagen,zolder:t.zolder?'ja':'nee'})}/>\n`)+
+ :`    <Woning${a({gebouwtype:t.wtype==='appartement'?'appartement':'eengezinswoning',subtype:t.wtype==='appartement'?null:t.wtype,ligging:t.wtype==='appartement'?t.alaag:null,positie:t.wtype==='appartement'?t.apos:null,woongebouw:t.wtype==='appartement'?t.atype:null,daktype:t.daktype,bouwlagen:t.lagen,beginnenBij:t.start})}/>\n`)+
  `  </Object>\n  <Geometrie${a({orientatieVoorgevel:o.voor,voorgevelAzimut:o.voorAz,achtergevel:o.achter,linkergevel:o.zijA,rechtergevel:o.zijB})}>\n${geo}  </Geometrie>\n  <Installaties>\n${ins}  </Installaties>\n</Opname>\n`}
 function xmlBestand(){const naam='opname_'+(cur.adres?.postcode||'')+'_'+(cur.adres?.huisnummer||'')+(cur.adres?.toevoeging||'')+'.xml';return new File([maakXML()],naam.replace(/\s/g,''),{type:'application/xml'})}
 
@@ -599,7 +598,7 @@ $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const 
   const keep=k===0?'hoog':'laag';P.gev=P.gev.filter(g=>!g.vraagKant||g.kant===keep);if(keep==='laag'&&!P.gev.some(g=>g.kant==='laag'))toast('Lage kant: geen gevel onder goot ingevuld')}
  const opd=x=>x.l*x.b,somD=P.dak.reduce((s,x)=>s+opd(x),0),somG=P.gev.reduce((s,x)=>s+(gevM2(x,0)??x.b*x.h),0);
  const naam=DAKNAAM[P.sh];
- let txt=`${naam} overnemen op ${cur.verdiepingen[vIdx].naam}:\n\n• ${P.dak.length} dakvla${P.dak.length>1?'kken':'k'}: ${f2(somD)} m² (helling ${al}°)`;
+ let txt=`${naam} overnemen:\n\n• ${P.dak.length} dakvla${P.dak.length>1?'kken':'k'}: ${f2(somD)} m² (helling ${al}°)`;
  if(P.gev.length)txt+=`\n• ${P.gev.length} gevelvla${P.gev.length>1?'kken':'k'}: ${f2(somG)} m²`;
  if((P.sh==='zadel'||P.sh==='mansarde')&&!P.haaks&&!P.nKop)txt+=`\n• geen kopgevels (${ligLabel().toLowerCase()}: woningscheidend)`;
  if(P.sh==='lessenaar'&&!P.haaks&&!P.n)txt+=`\n• geen zijgevels (${ligLabel().toLowerCase()}: woningscheidend)`;
@@ -715,42 +714,36 @@ function v3Data(){
  if(cur.ring&&cur.ring.length>3){const la0=cur.ring[0][0],lo0=cur.ring[0][1],kx=111320*Math.cos(la0*R),ky=110540;
   const pg=cur.ring.slice(0,-1).map(([la,lo])=>{const x=(lo-lo0)*kx,y=(la-la0)*ky;return[-x*c+y*s,x*s+y*c]});
   const us=pg.map(p=>p[0]),vv=pg.map(p=>p[1]);bag={W:Math.max(...us)-Math.min(...us),D:Math.max(...vv)-Math.min(...vv),pg,cu:(Math.max(...us)+Math.min(...us))/2,cv:(Math.max(...vv)+Math.min(...vv))/2}}
- const lv=num(dv?.lengte),Lm=num(dv?.breedte);let aO=null;
- if(dv&&lv&&al)aO=lv*Math.cos(al*R);
- if(aO&&(Lm||sh==='tent')){const mxx=(sh==='mansarde'&&mh&&ma)?mh/Math.tan(ma*R):0;
-  const sp=sh==='lessenaar'?aO:2*(aO+mxx);
-  if(sh==='tent'){W=sp;D=sp}else if(sh==='schild'){W=Math.max(Lm,sp);D=sp}
-  else if(nok==='haaks'){W=sp;D=Lm}else{W=Lm;D=sp}
-  poly=[[-W/2,-D/2],[W/2,-D/2],[W/2,D/2],[-W/2,D/2]];
-  info.push(['Maten model (opname)',f2(W)+' breed × '+f2(D)+' diep']);
-  if(bag)info.push(['BAG-omtrek (controle)',f2(bag.W)+' × '+f2(bag.D)+' m'+((Math.abs(bag.W-W)>0.6||Math.abs(bag.D-D)>0.6)?' – wijkt af':'')])}
- else if(bag){W=bag.W;D=bag.D;poly=bag.pg.map(([u,v])=>[u-bag.cu,v-bag.cv]);warn.push('Nog geen dakmaten in de opname: model op BAG-omtrek. Gebruik 📐 Driehoek met lengte dak.')}
- else{W=6;D=8;poly=[[-W/2,-D/2],[W/2,-D/2],[W/2,D/2],[-W/2,D/2]];warn.push('Geen maten: voorbeeldmaten 6 × 8 m.')}
- // hoogtes: eerst opname (gevelhoogtes per verdieping), 3D BAG vult aan
- const Hb=cur.hoogte?.h??null,Hmin=cur.hoogte?.min??null,lagen=cur.type?.lagen||1;
+ const lv=num(dv?.lengte),Lm=num(dv?.breedte);let aO=null;if(dv&&lv&&al)aO=lv*Math.cos(al*R);
+ // contour uit BAG; opnamematen alleen als er geen contour is
+ if(bag){W=bag.W;D=bag.D;poly=bag.pg.map(([u,v])=>[u-bag.cu,v-bag.cv]);info.push(['Contour (BAG)',f2(W)+' breed × '+f2(D)+' diep (omsloten rechthoek)'])}
+ else if(aO&&(Lm||sh==='tent')){const mxx=(sh==='mansarde'&&mh&&ma)?mh/Math.tan(ma*R):0;const sp=sh==='lessenaar'?aO:2*(aO+mxx);
+  if(sh==='tent'){W=sp;D=sp}else if(sh==='schild'){W=Math.max(Lm,sp);D=sp}else if(nok==='haaks'){W=sp;D=Lm}else{W=Lm;D=sp}
+  poly=[[-W/2,-D/2],[W/2,-D/2],[W/2,D/2],[-W/2,D/2]];warn.push('Geen BAG-contour: rechthoek uit de dakmaten van de opname.')}
+ else{W=6;D=8;poly=[[-W/2,-D/2],[W/2,-D/2],[W/2,D/2],[-W/2,D/2]];warn.push('Geen BAG-contour en geen maten: voorbeeld 6 × 8 m.')}
+ // hoogtes uit 3D BAG, dakvorm/helling uit de opname
+ const Hb=cur.hoogte?.h??null,Hmin=cur.hoogte?.min??null,lagen=cur.type?.lagen||1,plat=cur.type?.daktype==='plat';
  const span=(sh==='zadel'||sh==='mansarde')?(nok==='haaks'?W/2:D/2):sh==='lessenaar'?(nok==='haaks'?W:D):Math.min(W,D)/2;
  const tA=al?Math.tan(al*R):null;let rise=null,mx=0;
  if(sh==='mansarde'&&mh&&ma&&tA){mx=mh/Math.tan(ma*R);rise=mh+Math.max(0,span-mx)*tA}else if(tA)rise=span*tA;
- const hs=[];for(let i=0;i<lagen;i++){const v=vs[i];const hh=(v?.items||[]).filter(x=>x.type==='gevel'&&!x.dhGroup&&!x.kapelGroup).map(x=>num(x.hoogte)).filter(x=>x>1.5&&x<8);hs.push(hh.length?Math.max(...hh):null)}
- const zk=cur.type?.zolder?hk:0,nKnown=hs.filter(x=>x!=null).length;let eave,bron;
- if(nKnown===lagen){eave=hs.reduce((a,b)=>a+b,0)+zk;bron='opname';if(rise==null)rise=Hb!=null?Math.max(0.5,Hb-eave):span*Math.tan(45*R)}
- else if(Hb!=null&&rise!=null){eave=Hb-rise;bron='3D BAG-nok − dakhoogte opname'}
- else if(Hb!=null&&Hmin!=null){eave=Hmin;rise=Hb-Hmin;bron='3D BAG';warn.push('Geen helling in de opname: dak uit 3D BAG-hoogtes.')}
- else{eave=lagen*2.8+zk;if(rise==null)rise=span*Math.tan(45*R);bron='schatting 2,8 m per bouwlaag';warn.push('Geen gevelhoogtes in de opname en geen 3D BAG-hoogte: hoogtes geschat.')}
- if(eave<1.5){warn.push('Afgeleide goothoogte onrealistisch laag – controleer helling, diepte of gevelhoogtes.');eave=Math.max(eave,2.5)}
- // verdiepingshoogtes invullen
- const known=hs.reduce((a,b)=>a+(b||0),0),miss=lagen-nKnown,rest=Math.max(0,eave-zk-known);
- const hh2=hs.map(x=>x??(miss?Math.max(2.2,rest/miss):2.7));const levels=[0];hh2.forEach(x=>levels.push(levels[levels.length-1]+x));
- const zvl=levels[lagen];
- info.push(['Verdiepingshoogtes',hh2.map((x,i)=>`${vs[i]?.naam||'laag '+(i+1)}: ${f2(x)} m${hs[i]==null?' *':''}`).join(' · ')+(miss?' (* afgeleid)':'')]);
+ let eave,bron;
+ if(plat){rise=0;eave=Hb??lagen*2.8;bron=Hb!=null?'3D BAG (plat dak)':'schatting'}
+ else if(Hb!=null&&rise!=null){eave=Hb-rise;bron='3D BAG-nok − dakhoogte uit helling opname'}
+ else if(Hb!=null&&Hmin!=null){eave=Hmin;rise=Math.max(0.3,Hb-Hmin);bron='3D BAG';warn.push('Nog geen helling in de opname: dak uit 3D BAG-hoogtes.')}
+ else if(Hb!=null){rise=span*Math.tan(45*R);eave=Hb-rise;bron='3D BAG-nok, 45° aangenomen'}
+ else{eave=lagen*2.8;if(rise==null)rise=span*Math.tan(45*R);bron='schatting 2,8 m per bouwlaag';warn.push('Geen 3D BAG-hoogte: hoogtes geschat.')}
+ if(eave<1.5){warn.push('Afgeleide goothoogte onrealistisch laag – controleer helling of nokrichting.');eave=Math.max(eave,2.5)}
+ if(!plat&&Hmin!=null&&al&&Math.abs(eave-Hmin)>1.2)warn.push(`Goot uit helling (${f2(eave)} m) wijkt af van laagste dakhoogte 3D BAG (${f2(Hmin)} m): controleer helling/nokrichting, of er is een aanbouw/dakkapel.`);
+ const levels=[];for(let i=0;i<=lagen;i++)levels.push(eave*i/lagen);const zvl=eave;
  info.push(['Goothoogte',`${f2(eave)} m (${bron})`]);
- const nokM=eave+rise;info.push(['Nokhoogte model',f2(nokM)+' m'+(Hb!=null?` · 3D BAG ${f2(Hb)} m (${nokM-Hb>=0?'+':''}${f2(nokM-Hb)})`:'')]);
- if(cur.hoogte?.bouwlagen)info.push(['Bouwlagen volgens 3D BAG',String(cur.hoogte.bouwlagen)+(cur.hoogte.bouwlagen!=lagen+(cur.type?.zolder?1:0)?' (opname '+lagen+(cur.type?.zolder?' + zolder':'')+')':'')]);
+ {const vl=(cur.verdiepingen||[]).flatMap(v=>v.items).filter(x=>x.type==='vloer');if(vl.length)info.push(['Vloer'+(vl.length>1?'en':''),vl.map(x=>(x.grenst||'vloer')+(opp(x)?' '+f2(opp(x))+' m²':'')).join(' · ')])}
+ info.push(['Nokhoogte',plat?f2(eave)+' m (plat dak)':f2(eave+rise)+' m'+(Hb!=null?' (3D BAG)':'')]);
+ if(cur.hoogte?.bouwlagen)info.push(['Bouwlagen volgens 3D BAG',String(cur.hoogte.bouwlagen)+' (opname '+lagen+')']);
  if(Hmin!=null)info.push(['Laagste dakhoogte (3D BAG)',f2(Hmin)+' m']);
- if(Hb!=null&&Hmin!=null&&al&&span>0&&sh!=='mansarde'){const a3=Math.atan((Hb-Hmin)/span)/R;info.push(['Helling volgens 3D BAG (± goot → nok)',a3.toFixed(1).replace('.',',')+'°  (opname '+String(al).replace('.',',')+'°)'])}
+ if(!plat&&Hb!=null&&Hmin!=null&&al&&span>0&&sh!=='mansarde'){const a3=Math.atan((Hb-Hmin)/span)/R;info.push(['Helling volgens 3D BAG (± goot → nok)',a3.toFixed(1).replace('.',',')+'°  (opname '+String(al).replace('.',',')+'°)'])}
  if(al)info.push(['Dak',`${DAKNAAM[sh]||sh}${sh!=='tent'&&sh!=='schild'?' · nok '+(nok==='haaks'?'haaks op':'evenwijdig aan')+' voorgevel':''} · ${String(al).replace('.',',')}°`]);
  if(o)info.unshift(['Windrichtingen',`voorgevel ${o.voor} (${o.voorAz}°) · achter ${o.achter} · links ${o.zijA} · rechts ${o.zijB}`]);else warn.push('Geen voorgevel gekozen: windrichtingen onbekend (stap Voorgevel).');
- return{poly,W,D,sh,nok,hk,al,tA,mh,ma,mx,rise,eave,span,dv,dvVerd,info,warn:warn.filter(Boolean),az,levels,zvl,lagen}}
+ return{poly,W,D,sh:plat?'plat':sh,nok,hk,al:plat?null:al,tA,mh,ma,mx,rise,eave,span,dv,dvVerd,info,warn:warn.filter(Boolean),az,levels,zvl,lagen}}
 
 function v3Scene(M){
  const {poly,W,D,sh,nok,tA,mx,mh,ma,rise,eave}=M,R=Math.PI/180,top=eave+rise,faces=[],lines=[],labels=[],decals=[];
@@ -758,18 +751,25 @@ function v3Scene(M){
  const o=cur.orient||{},wt=cur.type?.wtype,meth=cur.type?.methode;
  const party=new Set();if(meth==='U'){if(cur.type.belend==='twee'){party.add('zA');party.add('zB')}else if(cur.type.belend==='een')party.add('zB')}
  else if(wt==='tussen'||(wt==='appartement'&&cur.type.apos!=='hoek')){party.add('zA');party.add('zB')}else if(wt==='hoek'||wt==='2onder1'||(wt==='appartement'))party.add('zB');
+ // wat is er ingevoerd in de opname
+ const alleIt=(cur.verdiepingen||[]).flatMap(v=>v.items);
+ const sideOf=or=>!or?null:or===o.voor?'voor':or===o.achter?'achter':or===o.zijA?'zA':or===o.zijB?'zB':null;
+ const gevM={};alleIt.filter(x=>x.type==='gevel'&&!x.kapelGroup&&!x.dhGroup).forEach(g=>{const sd=sideOf(g.orient);if(sd)gevM[sd]=(gevM[sd]||0)+(opp(g)||0)});
+ alleIt.filter(x=>x.type==='gevel'&&(x.dhGroup)).forEach(g=>{const sd=sideOf(g.orient);if(sd&&gevM[sd]==null)gevM[sd]=0});
+ const dakOr=new Set(alleIt.filter(x=>x.type==='dakvlak'&&!x.kapelGroup).map(x=>x.orient));const vloer=alleIt.find(x=>x.type==='vloer');
  // muren
  for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];const dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz);if(L<0.2)continue;
   const nx=dz/L,nz=-dx/L;const cx=(a[0]+b[0])/2,cz=(a[1]+b[1])/2;const outw=(nx*cx+nz*cz)>=0?1:-1;const ux=nx*outw,uz=nz*outw;
   let kant=Math.abs(uz)>=Math.abs(ux)?(uz>0?'voor':'achter'):(ux<0?'zA':'zB');
-  const col=party.has(kant)?'#c9c6bf':kant==='voor'?'#e8d3b0':kant==='achter'?'#dcc7a4':'#e2cda9';
+  const heeft=gevM[kant]!=null;const col=party.has(kant)?'#c9c6bf':!heeft?'#f3f0ea':kant==='voor'?'#e8d3b0':kant==='achter'?'#dcc7a4':'#e2cda9';
   faces.push({p:[[a[0],0,a[1]],[b[0],0,b[1]],[b[0],eave,b[1]],[a[0],eave,a[1]]],c:col,al:0.97});
-  if(L>1.5){const w=wr(ux,uz),nm=kant==='voor'?'Voorgevel ':kant==='achter'?'Achtergevel ':party.has(kant)?'Bouwmuur ':kant==='zA'?'Linkergevel ':'Rechtergevel ';labels.push({p:[cx+ux*0.05,0.35,cz+uz*0.05],t:nm+w,c:party.has(kant)?'#6b6b6b':'#8a5a10',n:[ux,0,uz]})}}
- faces.push({p:poly.map(([u,v])=>[u,0.01,v]),c:'#9fb59a'});
+  if(L>1.5){const w=wr(ux,uz),nm=kant==='voor'?'Voorgevel ':kant==='achter'?'Achtergevel ':party.has(kant)?'Bouwmuur ':kant==='zA'?'Linkergevel ':'Rechtergevel ';labels.push({p:[cx+ux*0.05,0.35,cz+uz*0.05],t:nm+w+(party.has(kant)?'':heeft?(gevM[kant]?' · '+f2(gevM[kant])+' m²':''):' · geen invoer'),c:party.has(kant)?'#6b6b6b':heeft?'#8a5a10':'#9a948a',n:[ux,0,uz]})}}
+ faces.push({p:poly.map(([u,v])=>[u,0.01,v]),c:vloer?'#b9a37a':'#9fb59a'});
  // dak over omsloten rechthoek
  const x0=-W/2,x1=W/2,z0=-D/2,z1=D/2,E=eave,T=top,RF='#b5523b',RF2='#a3462f',GB='#e8d3b0',GX=x=>party.has(x<0?'zA':'zB')?'#c9c6bf':GB;
  const Q=(p,c,al=0.93)=>faces.push({p,c,al});
- if(sh==='zadel'||sh==='mansarde'){
+ if(sh==='plat'){Q(poly.map(([u,v])=>[u,E,v]),'#6d7b77',0.95)}
+ else if(sh==='zadel'||sh==='mansarde'){
   if(nok!=='haaks'){if(sh==='mansarde'&&mh){const K=E+mh;Q([[x0,E,z1],[x1,E,z1],[x1,K,z1-mx],[x0,K,z1-mx]],RF);Q([[x0,E,z0],[x1,E,z0],[x1,K,z0+mx],[x0,K,z0+mx]],RF2);
      Q([[x0,K,z1-mx],[x1,K,z1-mx],[x1,T,0],[x0,T,0]],'#bd5a42');Q([[x0,K,z0+mx],[x1,K,z0+mx],[x1,T,0],[x0,T,0]],'#b04e37');
      for(const x of[x0,x1])Q([[x,E,z0],[x,E,z1],[x,K,z1-mx],[x,T,0],[x,K,z0+mx]],GX(x),0.97)}
@@ -811,27 +811,27 @@ function v3Scene(M){
  // windrichting dakvlakken
  for(const f of faces){if(!f.c||!/^#(b5523b|a3462f|bd5a42|b04e37)$/.test(f.c))continue;const p=f.p;const ax=p[1][0]-p[0][0],ay=p[1][1]-p[0][1],az2=p[1][2]-p[0][2],bx=p[2][0]-p[0][0],by=p[2][1]-p[0][1],bz=p[2][2]-p[0][2];
   let nx=ay*bz-az2*by,ny=az2*bx-ax*bz,nz=ax*by-ay*bx;if(ny<0){nx=-nx;ny=-ny;nz=-nz}const hl=Math.hypot(nx,nz);if(hl<1e-6)continue;
-  const ce=p.reduce((a,q)=>[a[0]+q[0]/p.length,a[1]+q[1]/p.length,a[2]+q[2]/p.length],[0,0,0]);const nl=Math.hypot(nx,ny,nz);labels.push({p:ce,t:'dak '+wr(nx/hl,nz/hl),c:'#7a2a18',n:[nx/nl,ny/nl,nz/nl]})}
- // verdiepingen
- const zv=M.zvl,lv=M.levels;
- for(let i=1;i<lv.length;i++){const y=lv[i];if(i===lv.length-1&&!cur.type?.zolder)break;lines.push({p:[[x0,y,z1+0.02],[x1,y,z1+0.02]],c:'#5f6b67',dash:[5,4],w:1},{p:[[x1+0.02,y,z1],[x1+0.02,y,z0]],c:'#5f6b67',dash:[5,4],w:1})}
- // ramen en deuren in gevels
- const sideOf=or=>!or?null:or===o.voor?'voor':or===o.achter?'achter':or===o.zijA?'zA':or===o.zijB?'zB':null;
+  const ce=p.reduce((a,q)=>[a[0]+q[0]/p.length,a[1]+q[1]/p.length,a[2]+q[2]/p.length],[0,0,0]);const nl=Math.hypot(nx,ny,nz),wd=wr(nx/hl,nz/hl),hd=dakOr.has(wd);if(!hd)f.c='#dfb7aa';labels.push({p:ce,t:'dak '+wd+(hd?'':' · geen invoer'),c:hd?'#7a2a18':'#9a6b5e',n:[nx/nl,ny/nl,nz/nl]})}
+ // bouwlagen (indicatief)
+ const zv=M.zvl,lv=M.levels,nl=M.lagen;
+ for(let i=1;i<nl;i++){const y=lv[i];lines.push({p:[[x0,y,z1+0.02],[x1,y,z1+0.02]],c:'#5f6b67',dash:[5,4],w:1},{p:[[x1+0.02,y,z1],[x1+0.02,y,z0]],c:'#5f6b67',dash:[5,4],w:1})}
+ // ramen en deuren per gevel (verdeeld over de bouwlagen, posities indicatief)
  const groups={};let zonder=0;
- (cur.verdiepingen||[]).forEach((v,vi)=>v.items.forEach(g=>{if(g.type!=='gevel'||g.kapelGroup)return;const subs=(g.subs||[]).filter(x=>x.type==='raam'||x.type==='deur');if(!subs.length)return;
-  const sd=sideOf(g.orient);if(!sd){zonder+=subs.length;return}const key=vi+'|'+sd;(groups[key]=groups[key]||[]).push(...subs.flatMap(x=>{const n=x.type==='raam'?Math.max(1,Math.round(num(x.aantal)||1)):1;let b=num(x.b),h=num(x.h);const m=num(x.m2);
-   if(!(b>0&&h>0)&&m>0){const per=m/n;h=x.type==='deur'?2.1:Math.min(1.4,Math.sqrt(per));b=per/h}if(!(b>0&&h>0))return[];return Array(n).fill(0).map(()=>({t:x.type,b,h,glas:x.type==='deur'&&x.soort==='Met glas'}))}))}));
- for(const key in groups){const[vi,sd]=key.split('|');const v=+vi,ops=groups[key];const zol=v>=M.lagen;
-  const yb=zol?zv:lv[v],ytop=zol?Math.max(zv+1,(sd==='voor'||sd==='achter')&&nok!=='haaks'?eave:top):lv[v+1];
-  const len=(sd==='voor'||sd==='achter')?W:D;const sum=ops.reduce((a,x)=>a+x.b,0);let gap=0.6;if(sum+gap*(ops.length-1)>len*0.94)gap=Math.max(0.05,(len*0.94-sum)/Math.max(1,ops.length-1));
-  let pos=-(sum+gap*(ops.length-1))/2;
+ alleIt.forEach(g=>{if(g.type!=='gevel'||g.kapelGroup)return;const subs=(g.subs||[]).filter(x=>x.type==='raam'||x.type==='deur');if(!subs.length)return;
+  const sd=sideOf(g.orient);if(!sd){zonder+=subs.length;return}const top0=!!g.dhGroup;const key=sd+(top0?'|kap':'');(groups[key]=groups[key]||[]).push(...subs.flatMap(x=>{const n=x.type==='raam'?Math.max(1,Math.round(num(x.aantal)||1)):1;let b=num(x.b),h=num(x.h);const m=num(x.m2);
+   if(!(b>0&&h>0)&&m>0){const per=m/n;h=x.type==='deur'?2.1:Math.min(1.4,Math.sqrt(per));b=per/h}if(!(b>0&&h>0))return[];return Array(n).fill(0).map(()=>({t:x.type,b,h,glas:x.type==='deur'&&x.soort==='Met glas'}))}))});
+ for(const key in groups){const[sd,kap]=key.split('|');const all=groups[key];const len=(sd==='voor'||sd==='achter')?W:D;
   const NW=sd==='voor'?[0,0,1]:sd==='achter'?[0,0,-1]:sd==='zA'?[-1,0,0]:[1,0,0];const PW=(u,y)=>sd==='voor'?[u,y,z1+0.03]:sd==='achter'?[-u,y,z0-0.03]:sd==='zA'?[x0-0.03,y,-u]:[x1+0.03,y,u];
-  for(const x of ops){const a=pos,b=pos+x.b;pos+=x.b+gap;let y0=x.t==='deur'?yb:yb+(zol?0.6:0.9);if(y0+x.h>ytop-0.1)y0=Math.max(yb+0.05,ytop-0.1-x.h);const y1=Math.min(y0+x.h,ytop-0.05);
-   if(x.t==='deur'){decals.push({p:[PW(a,y0),PW(b,y0),PW(b,y1),PW(a,y1)],c:'#7a5c45',s:'#3d2c20',lw:1,n:NW});if(x.glas)decals.push({p:[PW(a+0.15,y0+1),PW(b-0.15,y0+1),PW(b-0.15,y1-0.15),PW(a+0.15,y1-0.15)],c:'#9cc3d8',s:'#3c5560',lw:0.8,n:NW})}
-   else decals.push({p:[PW(a,y0),PW(b,y0),PW(b,y1),PW(a,y1)],c:'#9cc3d8',s:'#3c5560',lw:1.2,n:NW})}}
+  const rows=kap?[{yb:E,yt:E+(T-E)*0.75,ops:all}]:Array.from({length:nl},(_,r)=>({yb:lv[r],yt:lv[r+1],ops:[]}));
+  if(!kap){let ri=0;all.filter(x=>x.t==='deur').forEach(x=>rows[0].ops.push(x));all.filter(x=>x.t!=='deur').forEach(x=>{rows[ri%nl].ops.push(x);ri++})}
+  for(const row of rows){const ops=row.ops;if(!ops.length)continue;const sum=ops.reduce((a,x)=>a+x.b,0);let gap=0.6;if(sum+gap*(ops.length-1)>len*0.94)gap=Math.max(0.05,(len*0.94-sum)/Math.max(1,ops.length-1));
+   let pos=-(sum+gap*(ops.length-1))/2;
+   for(const x of ops){const a=pos,b=pos+x.b;pos+=x.b+gap;let y0=x.t==='deur'?row.yb:row.yb+(kap?0.4:0.9);if(y0+x.h>row.yt-0.1)y0=Math.max(row.yb+0.05,row.yt-0.1-x.h);const y1=Math.min(y0+x.h,row.yt-0.05);
+    if(x.t==='deur'){decals.push({p:[PW(a,y0),PW(b,y0),PW(b,y1),PW(a,y1)],c:'#7a5c45',s:'#3d2c20',lw:1,n:NW});if(x.glas)decals.push({p:[PW(a+0.15,y0+1),PW(b-0.15,y0+1),PW(b-0.15,y1-0.15),PW(a+0.15,y1-0.15)],c:'#9cc3d8',s:'#3c5560',lw:0.8,n:NW})}
+    else decals.push({p:[PW(a,y0),PW(b,y0),PW(b,y1),PW(a,y1)],c:'#9cc3d8',s:'#3c5560',lw:1.2,n:NW})}}}
  if(zonder)M.warn.push(zonder+' raam/deur zonder oriëntatie van de gevel – niet getekend.');
  // labels
- labels.push({p:[0,T,0],t:'nok '+f2(T)+' m',dy:-14},{p:[x0,zv,z1],t:cur.type?.zolder?'zoldervloer '+f2(zv)+' m':'',dy:-10},{p:[x1,E,z1],t:'goot '+f2(E)+' m',dy:-12},{p:[x1,0,0],t:f2(D)+' m',dy:24},{p:[0,0,z1],t:f2(W)+' m',dy:24});
+ labels.push({p:[0,T,0],t:(sh==='plat'?'dak ':'nok ')+f2(T)+' m',dy:-14},{p:[x1,E,z1],t:'goot '+f2(E)+' m',dy:-12});
  if(M.al)labels.push({p:nok==='haaks'?[x1*0.7,E+(T-E)*0.3,z1*0.6]:[x0*0.6,E+(T-E)*0.3,z1*0.7],t:'α '+String(M.al).replace('.',',')+'°',c:'#c0661a'});
  return{faces,lines,labels,decals,size:Math.max(W,D,T),cy:T*0.38,nk,north:[sA,cA]}}
 
@@ -839,8 +839,8 @@ function model3d(){
  if(!cur.verdiepingen){$('#app').innerHTML='<div class="card"><p class="note">Start eerst de opname.</p></div>';bar(`<button class="ghost" data-go="adres">Object</button>`);return}
  const M=v3Data(),S=v3Scene(M);V3.scene=S;
  $('#app').innerHTML=`<div class="card"><h2 style="margin-bottom:8px">3D-model</h2><div id="m3d"><canvas></canvas></div>
- <div class="legend"><span><i style="background:#e8d3b0"></i>gevel</span><span><i style="background:#c9c6bf"></i>woningscheidend</span><span><i style="background:#b5523b"></i>dakvlak</span><span><i style="background:#f4efe6;border:1px solid #999"></i>dakkapel${S.nk?` (${S.nk})`:''}</span><span><i style="background:#5f6b67;height:2px"></i>vloeren</span></div>
- <p class="note">Sleep om te draaien, knijp om te zoomen. Breedte en diepte uit de opname, hoogtes uit 3D BAG.</p></div>
+ <div class="legend"><span><i style="background:#e8d3b0"></i>gevel</span><span><i style="background:#c9c6bf"></i>woningscheidend</span><span><i style="background:#b5523b"></i>dakvlak</span><span><i style="background:#f4efe6;border:1px solid #999"></i>dakkapel${S.nk?` (${S.nk})`:''}</span><span><i style="background:#f3f0ea;border:1px solid #bbb"></i>geen invoer</span><span><i style="background:#5f6b67;height:2px"></i>bouwlagen</span></div>
+ <p class="note">Sleep om te draaien, knijp om te zoomen. Contour uit BAG, hoogtes uit 3D BAG, gevels/daken/vloer/ramen uit de opname (posities indicatief).</p></div>
  <div class="card"><h3>Gegevens</h3><div class="kv">${M.info.map(([k,v])=>`<b>${k}</b><span>${v}</span>`).join('')}</div>
  ${M.warn.length?`<p class="note" style="color:var(--warn);margin-top:8px">${M.warn.join('<br>')}</p>`:''}
  ${cur.bag?.pandId&&(cur.hoogte?.min==null)?'<button class="small ghost" data-act="h3d" style="margin-top:10px">3D BAG-hoogtes (opnieuw) ophalen</button>':''}
