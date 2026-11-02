@@ -134,7 +134,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 </div></div>
 <script>
 // ---------- opslag ----------
-const APPVERSIE='2026-11-02 08:50';
+const APPVERSIE='2026-11-02 08:55';
 const KEY='opnameApp_v1';
 let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{opnames:[]}}catch(e){return{opnames:[]}}})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet')}}
@@ -811,11 +811,11 @@ async function maakDriehoekPdf(){
  kop('D. Bronnen',11);
  tekst('- NTA 8800, Energieprestatie van gebouwen - Bepalingsmethode (geldende versie volgens Regeling energieprestatie gebouwen).\n- ISSO-publicatie 82.1 Opnameprotocol energieprestatie woningbouw / ISSO-publicatie 75.1 Opnameprotocol energieprestatie utiliteitsbouw (geldende druk).\n- NEN 2580, Oppervlakten en inhouden van gebouwen - Termen, definities en bepalingsmethoden, par. 4.5.2.\n- Besluit bouwwerken leefomgeving, Bijlage I A (verwijzing gebruiksoppervlakte naar NEN 2580).',9);
  y+=4;tekst('Ondertekening EP-adviseur: ______________________________     Datum: ______________',9.5);
- const naam=('GO-onderbouwing_'+(adr?.postcode||'')+'_'+(adr?.huisnummer||'')+(adr?.toevoeging||'')).replace(/\s/g,'').replace(/_+$/,'')+'.pdf';
+ const naam=('GO-onderbouwing_'+(adr?.postcode||'')+'_'+(adr?.huisnummer||'')+(adr?.toevoeging||'')).replace(/\s/g,'').replace(/_+$/,'').replace(/^GO-onderbouwing$/,'GO-onderbouwing_'+new Date().toISOString().slice(0,10))+'.pdf';
  const blob=doc.output('blob'),file=new File([blob],naam,{type:'application/pdf'});
  if(window.claude?.use){try{const dl=await window.claude.use('downloads');if(!dl){toast('Opslaan is hier niet beschikbaar');return}
    await dl.save({filename:naam,data:blob});toast('PDF opgeslagen: '+naam)}catch(e){toast(e?.code==='declined'?'Opslaan geannuleerd':'Opslaan lukte niet ('+(e?.code||e?.message||'fout')+')')}return}
- try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:naam});return}}catch(e){if(e.name==='AbortError')return}
+ const mob=matchMedia('(pointer:coarse)').matches&&window.parent===window;try{if(mob&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:naam});return}}catch(e){if(e.name==='AbortError')return}
  const u=URL.createObjectURL(blob);const el=document.createElement('a');el.href=u;el.download=naam;document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast('PDF opgeslagen: '+naam)}
 function ex2(){try{return cur?.type?extraMaat():0}catch(e){return 0}}
 $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use){$('#dhPdf').hidden=true;try{window.claude?.use?.('downloads').then(dl=>{if(dl)$('#dhPdf').hidden=false}).catch(()=>{})}catch(e){}}
