@@ -132,7 +132,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 </div></div>
 <script>
 // ---------- opslag ----------
-const APPVERSIE='2026-11-02 01:05';
+const APPVERSIE='2026-11-02 01:10';
 const KEY='opnameApp_v1';
 let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{opnames:[]}}catch(e){return{opnames:[]}}})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet')}}
@@ -558,7 +558,7 @@ function dhDraw(r){const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H
  const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);
  $('#csvg').innerHTML=`<polygon points="${A} ${B} ${C}" fill="#e1efea" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
  `<path d="M ${C[0]-9} ${C[1]} L ${C[0]-9} ${C[1]-9} L ${C[0]} ${C[1]-9}" fill="none" stroke="#1f6f5c"/>`+
- (r&&r.b>1.5?`<line x1="${A[0]+r.a*1.5/r.b*s}" y1="${y0-1.5*s}" x2="${C[0]}" y2="${y0-1.5*s}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+t(A[0]+r.a*1.5/r.b*s-4,y0-1.5*s+4,'1,5 m','end','#d4502f'):'')+
+ (r&&r.b>1.5?`<line x1="${A[0]+r.a*1.5/r.b*s}" y1="${y0-1.5*s}" x2="${C[0]}" y2="${y0-1.5*s}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${A[0]+r.a*1.5/r.b*s}" y1="${y0-1.5*s}" x2="${A[0]+r.a*1.5/r.b*s}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><rect x="${A[0]+r.a*1.5/r.b*s}" y="${y0-1.5*s}" width="${C[0]-(A[0]+r.a*1.5/r.b*s)}" height="${1.5*s}" fill="rgba(46,150,88,0.28)"/><line x1="${A[0]+r.a*1.5/r.b*s}" y1="${y0}" x2="${C[0]}" y2="${y0}" stroke="#1f7a45" stroke-width="4"/>`+t(A[0]+r.a*1.5/r.b*s-4,y0-1.5*s+4,'1,5 m','end','#d4502f'):'')+
  `<path d="M ${A[0]+ra} ${A[1]} A ${ra} ${ra} 0 0 0 ${A[0]+ra*Math.cos(ang)} ${A[1]-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
  t((A[0]+C[0])/2,y0+18,'a'+(r?' '+F(r.a,2)+' m':''))+t(C[0]+7,(B[1]+C[1])/2+4,'b'+(r?' '+F(r.b,2)+' m':''),'start')+
  t((A[0]+B[0])/2-8,(A[1]+B[1])/2-6,'c'+(r?' '+F(r.c,2)+' m':''),'end')+t(A[0]+ra+6,A[1]-5,'α'+(r?' '+F(r.al,1)+'°':''),'start','#d4502f')}
