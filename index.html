@@ -62,7 +62,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #cSum table{width:100%;border-collapse:collapse;font-size:14px}#cSum td{padding:5px 2px;border-bottom:1px solid var(--line)}#cSum td:last-child{text-align:right;font-weight:600;white-space:nowrap}#cSum tr.h td{background:var(--acc2);color:var(--acc);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--muted);margin-top:8px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
 .item.dicht{padding:8px 10px}.item.dicht .ihead>span+span{display:none!important}.samv{font-size:13px;color:var(--muted);margin-top:4px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chev{display:inline-block;width:14px;color:var(--acc)}
-body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body.dhonly{padding:0;background:#f4f6f5}body.dhonly #calc{position:static;display:block!important;background:none;padding:12px}body.dhonly #calc .box{margin:0 auto;max-width:760px;border-radius:14px;max-height:none;overflow:visible;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body.dhonly{padding:0;background:#f4f6f5}body.dhonly #calc{position:static;display:block!important;background:none;padding:12px}body.dhonly .dhwide{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;align-items:start;margin-bottom:6px}body.dhonly .dhwide #csvg{max-width:480px;margin:0 auto}body.dhonly .dhwide #dh3dBox{margin:0}body.dhonly .dhwide #dh3d{aspect-ratio:1/0.72}body.dhonly.wide #calc .box{max-width:1180px}body.dhonly #calc .box{margin:0 auto;max-width:760px;border-radius:14px;max-height:none;overflow:visible;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 #calc,#kapel{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:3000}
 #calc .box,#kapel .box{background:var(--card);border-radius:16px 16px 0 0;padding:14px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));width:100%;max-width:520px;max-height:92vh;overflow:auto}
 #calc svg,#kapel svg{width:100%;height:auto;display:block;background:var(--bg);border-radius:10px}
@@ -134,7 +134,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 </div></div>
 <script>
 // ---------- opslag ----------
-const APPVERSIE='2026-11-02 08:20';
+const APPVERSIE='2026-11-02 08:35';
 const KEY='opnameApp_v1';
 let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{opnames:[]}}catch(e){return{opnames:[]}}})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet')}}
@@ -573,8 +573,12 @@ function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[]
  $('#c_L').value=r.it.dhVorm==='schild'||r.it.dhVorm==='tent'?'':(r.it.breedte??'');if(r.it.dhVorm){DH.shape=r.it.dhVorm;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x.dataset.s3===DH.shape))}
  DH.nok=r.it.dhNok||'par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
  dhKopTekst();dhSolve();$('#calc').style.display='flex'}
+function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide'))return;document.body.classList.add('wide');
+ const sv=$('#csvg'),bx=$('#dh3dBox'),w=document.createElement('div');w.className='dhwide';sv.parentNode.insertBefore(w,sv);w.appendChild(sv);w.appendChild(bx);
+ bx.hidden=false;$('#dh3dBtn').hidden=true;const hint=$('#dh3dHint');if(hint)hint.style.fontSize='12px';setTimeout(()=>{window.dh3dResize&&window.dh3dResize();dh3d()},60)}
+window.addEventListener('resize',()=>{if(document.body.classList.contains('dhonly'))dhBreed()});
 function sluitDriehoek(){$('#calc').style.display='none';DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
-function openDriehoekLos(){DH.los=true;if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly')}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
+function openDriehoekLos(){DH.los=true;if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
 $('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
 $('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
