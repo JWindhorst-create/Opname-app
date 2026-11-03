@@ -918,6 +918,7 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
       const gab=z=>{const p=[[fl,0,z]];if(hL>0)p.push([xL,hL,z]);p.push([0,vn,z]);if(hR>0)p.push([xR,hR,z]);p.push([fr,0,z]);return p};
       faces=[{p:[[fl,0,-hz],[fr,0,-hz],[fr,0,hz],[fl,0,hz]],c:F},{p:gab(hz),c:G},{p:gab(-hz),c:G},
         {p:[[xL,hL,-hz],[0,vn,-hz],[0,vn,hz],[xL,hL,hz]],c:R1,al:.8},{p:[[xR,hR,-hz],[0,vn,-hz],[0,vn,hz],[xR,hR,hz]],c:R2,al:.8}];
+      const vd=model.prof.vd||0;if(vd>0){const bl=hL<0?-(vn+vd)/tA:xL,br=hR<0?(vn+vd)/tA:xR;[hz,-hz].forEach(z=>faces.push({p:[[fl,0,z],[fr,0,z],[br,-vd,z],[bl,-vd,z]],c:'#bfb6a3'}))}
       if(hL>0)faces.push({p:[[xL,0,-hz],[xL,hL,-hz],[xL,hL,hz],[xL,0,hz]],c:'#e2d5bb'});
       if(hR>0)faces.push({p:[[xR,0,-hz],[xR,hR,-hz],[xR,hR,hz],[xR,0,hz]],c:'#e2d5bb'});
       if(vn>1.5){const x1=hL>=1.5?xL:-(vn-1.5)/tA,x2=hR>=1.5?xR:(vn-1.5)/tA;lines15=[[x1,-hz,x2,hz]]}
@@ -1080,7 +1081,7 @@ DH.shape='zadel';DH.duKant='beide';
 function dhZetKant(k){DH.duKant=k;document.querySelectorAll('#cDuKant [data-duk]').forEach(x=>x.classList.toggle('on',x.dataset.duk===k))}
 document.querySelectorAll('#cDuKant [data-duk]').forEach(bt=>bt.onclick=()=>{dhZetKant(bt.dataset.duk);dhKopTekst();dhSolve()});
 function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res&&DH.shape==='zadel'?{...DH.res,prof:dhProf()}:DH.res,br>0?br:null,DH.shape)}
-function dhProf(){if(!DH.res)return null;const tA=Math.tan(DH.res.al*Math.PI/180),vn=DH.res.b+(DH.off||0);if(dhZijMode()){const du=dhDu(),hk=Math.max(0,num($('#c_hk').value)||0);return DH.duKant==='voor'?{vn,tA,hL:-du,hR:hk}:{vn,tA,hL:hk,hR:-du}}const h=dhHkS();return{vn,tA,hL:h,hR:h}}
+function dhProf(){if(!DH.res)return null;const tA=Math.tan(DH.res.al*Math.PI/180),vn=DH.res.b+(DH.off||0),v0=num($('#c_vd')?.value),vd=dhDu()>0?(v0!=null&&v0>=0?v0:0.2):0;if(dhZijMode()){const du=dhDu(),hk=Math.max(0,num($('#c_hk').value)||0);return DH.duKant==='voor'?{vn,tA,vd,hL:-du,hR:hk}:{vn,tA,vd,hL:hk,hR:-du}}const h=dhHkS();return{vn,tA,vd,hL:h,hR:h}}
 $('#dh3dBtn').onclick=()=>{const b=$('#dh3dBox');b.hidden=!b.hidden;$('#dh3dBtn').textContent=b.hidden?'3D-model ▾':'3D-model ▴';if(!b.hidden){window.dh3dResize();dh3d();setTimeout(()=>$('#dh3d').scrollIntoView({block:'nearest',behavior:'smooth'}),50)}};
 document.querySelectorAll('#dhShapes [data-s3]').forEach(bt=>bt.onclick=()=>{DH.shape=bt.dataset.s3;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhSolve()});
 
