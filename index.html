@@ -75,7 +75,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 #dhShapes button svg{width:36px;height:22px;background:none}
 #dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
 #dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
-.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}</style>
+.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
 </head>
 <body>
 <header><h1 id="titel">Opname Energielabel</h1><div class="steps" id="steps"></div></header>
@@ -785,7 +785,7 @@ async function maakDriehoekPdf(){
  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(90);doc.text(pdfT(`Opgesteld ${new Date().toLocaleDateString('nl-NL')}${cur?.type?.datum?' · opnamedatum '+new Date(cur.type.datum).toLocaleDateString('nl-NL'):''} · methode ${cur?.type?.methode==='U'?'EP-U (ISSO 75.1)':'EP-W (ISSO 82.1)'} · NTA 8800`),ML,34);y=44;
  kop('1. Object');
  tabel([['Adres',adr?.naam||'-'],['BAG pand-ID / vbo-ID',(bag?.pandId||'-')+' / '+(bag?.vboId||'-')],['Bouwjaar (BAG)',String(bag?.bouwjaar??'-')],['Woningtype',cur?.type?(ligLabel()||cur.type.wtype||'-'):'-'],['Dakvlak',it?`${it.orientL||''} ${it.orient||''}`.trim()||'-':'losse berekening']]);
- if(DH.vlakken&&bag?.pandId&&DH.vlakken.pid===bag.pandId){kop('Dak- en gevelvlakken uit 3DBAG (informatief, hele pand)');tabel(vlakkenPdfRijen())}
+ if(DH.vlakken&&DH.vlakken.daken.length&&bag?.pandId&&DH.vlakken.pid===bag.pandId){tabel(vlakkenPdfRijen())}
  kop('2. Invoer (gemeten) en berekende waarden');
  const gem=DH.order.slice(-2),lab={a:'a - horizontale maat',b:'b - hoogte goot -> nok',c:'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
@@ -1001,23 +1001,15 @@ function vlakken3D(j){const f=j.feature||j,cos=f.CityObjects||j.CityObjects||{},
  const gevels=RICHT8.filter(k=>gev[k]>=0.5).map(k=>({r:k,area:gev[k]}));
  return{daken,plat,gevels,dakTot:daken.reduce((s,d)=>s+d.area,0)+plat,gevTot:gevels.reduce((s,g)=>s+g.area,0),at}}
 async function dhVlakkenLaden(){const pid=DH.bag?.pandId,box=$('#dhVlakken');if(!box)return;if(!pid||!DH.adres){box.innerHTML='';DH.vlakken=null;return}
- if(DH.vlakken&&DH.vlakken.pid===pid){dhVlakkenToon();return}box.innerHTML='<p class="note">Dak- en gevelvlakken ophalen uit 3DBAG…</p>';
+ if(DH.vlakken&&DH.vlakken.pid===pid){dhVlakkenToon();return}box.innerHTML='<p class="note" style="margin:4px 0 0">Hellingshoek ophalen uit 3DBAG…</p>';
  try{const j=await fetch('https://api.3dbag.nl/collections/pand/items/NL.IMBAG.Pand.'+String(pid).replace(/^NL\.IMBAG\.Pand\./,'')).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
-  if(DH.bag?.pandId!==pid)return;const v=vlakken3D(j);if(!v){box.innerHTML='<p class="note">Geen 3D-model met dakvlakken gevonden in 3DBAG voor dit pand.</p>';return}v.pid=pid;DH.vlakken=v;dhVlakkenToon()}
- catch(e){box.innerHTML='<p class="note">3DBAG kon niet worden bereikt (geen internet?). De berekening werkt gewoon zonder.</p>'}}
-function dhVlakkenToon(){const v=DH.vlakken,box=$('#dhVlakken');if(!box||!v)return;const a=v.at||{};
- const rij=(l,r,m,knop)=>`<tr><td>${l}</td><td>${r}</td><td style="text-align:right;white-space:nowrap">${m}</td><td style="text-align:right">${knop||''}</td></tr>`;
- box.innerHTML=`<details class="dhvl" open><summary><b>Dak- en gevelvlakken uit 3DBAG</b> <span class="note">· ter informatie</span></summary>
- <table class="dhvlt"><tr><th colspan="4">Dakvlakken</th></tr>${v.daken.map((d,i)=>rij('Dakvlak '+(i+1),RICHT8L[d.r]+' ('+d.az+'°) · <b>'+String(d.slope).replace('.',',')+'°</b>',fm2(d.area)+' m²',`<button type="button" class="small ghost" data-dhal="${d.slope}" title="Hellingshoek invullen bij α">Gebruik</button>`)).join('')}${v.plat>=0.5?rij('Plat dak','helling &lt; 15°',fm2(v.plat)+' m²'):''}
- ${rij('<b>Totaal dak</b>','',`<b>${fm2(v.dakTot)} m²</b>`)}
- <tr><th colspan="4">Gevelvlakken (per richting)</th></tr>${v.gevels.map(g=>rij('Gevel '+g.r,RICHT8L[g.r],fm2(g.area)+' m²')).join('')}
- ${rij('<b>Totaal gevels</b>','',`<b>${fm2(v.gevTot)} m²</b>`)}
- ${Number.isFinite(a.b3_opp_buitenmuur)||Number.isFinite(a.b3_opp_scheidingsmuur)?rij('waarvan','buitenmuur '+fm2(a.b3_opp_buitenmuur||0)+' m² · scheidingsmuur met buren '+fm2(a.b3_opp_scheidingsmuur||0)+' m²',''):''}</table>
- <p class="note" style="margin:4px 0 0">Bron 3DBAG (LoD 2.2), hele pand: bij een rij of appartementengebouw zijn dit de vlakken van het hele gebouw, inclusief muren tegen de buren. Gevels zijn bruto (zonder aftrek van kozijnen). Gebruik dit ter controle; meet de woning zelf in.</p></details>`}
+  if(DH.bag?.pandId!==pid)return;const v=vlakken3D(j);if(!v){box.innerHTML='';return}v.pid=pid;DH.vlakken=v;dhVlakkenToon()}
+ catch(e){box.innerHTML=''}}
+function dhVlakkenToon(){const v=DH.vlakken,box=$('#dhVlakken');if(!box||!v)return;
+ box.innerHTML=v.daken.length?`<div class="dhhel"><span class="note">Hellingshoek schuine daken (3DBAG):</span> ${v.daken.map(d=>`<button type="button" class="dhchip" data-dhal="${d.slope}" title="Invullen bij α">${RICHT8L[d.r]} <b>${String(d.slope).replace('.',',')}°</b></button>`).join('')}</div>`:'<p class="note" style="margin:4px 0 0">Geen schuine dakvlakken in 3DBAG voor dit pand.</p>'}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-dhal]');if(!b)return;const inp=$('#c_al');inp.value=String(b.dataset.dhal).replace('.',',');inp.dispatchEvent(new Event('input',{bubbles:true}));inp.focus();toast&&toast('Hellingshoek '+inp.value+'° ingevuld')});
 {const _t=dhAdrToon;dhAdrToon=function(){_t.apply(this,arguments);dhVlakkenLaden()}}
-function vlakkenPdfRijen(){const v=DH.vlakken;if(!v)return[];const R=[];v.daken.forEach((d,i)=>R.push(['Dakvlak '+(i+1)+' ('+RICHT8L[d.r]+')',String(d.slope).replace('.',',')+' graden · '+fm2(d.area)+' m2']));if(v.plat>=0.5)R.push(['Plat dak (< 15 graden)',fm2(v.plat)+' m2']);R.push(['Totaal dak',fm2(v.dakTot)+' m2',1]);
- v.gevels.forEach(g=>R.push(['Gevel '+RICHT8L[g.r],fm2(g.area)+' m2 (bruto)']));R.push(['Totaal gevels',fm2(v.gevTot)+' m2',1]);const a=v.at||{};if(Number.isFinite(a.b3_opp_scheidingsmuur))R.push(['waarvan scheidingsmuur met buren',fm2(a.b3_opp_scheidingsmuur)+' m2']);return R}
+function vlakkenPdfRijen(){const v=DH.vlakken;if(!v||!v.daken.length)return[];return[['Hellingshoek schuine daken (3DBAG)',v.daken.map(d=>RICHT8L[d.r]+' '+String(d.slope).replace('.',',')+' graden').join(' · ')]]}
 
 DH.shape='zadel';
 function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res,br>0?br:null,DH.shape)}
