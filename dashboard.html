@@ -1218,9 +1218,17 @@ body.v-opname{background-image:none!important}
 .kr-tab td:last-child{text-align:right;white-space:nowrap}
 .kr-tab tr.t td{font-weight:700;border-bottom:0}
 .kr-x{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
-.kr-err{color:#b3261e;font-size:13px}#kr-model svg{display:block;width:100%;max-width:420px;height:auto;margin:4px auto 0;background:#f7faf8;border:1px solid var(--line);border-radius:10px}
+.kr-err{color:#b3261e;font-size:13px}.kr-menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.kr-menu button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;color:#24503a}.kr-menu button b{font-size:16px}.kr-menu button small{color:var(--muted);font-size:13px}.kr-menu button:hover{border-color:#2e6b4f;background:#f3f8f4}#kr-grid{grid-template-columns:1fr;max-width:720px;margin:0 auto}.kr-terug{margin-bottom:10px}.kr-menu[hidden],#kr-grid[hidden],.kr-card[hidden]{display:none!important}#kr-model svg{display:block;width:100%;max-width:420px;height:auto;margin:4px auto 0;background:#f7faf8;border:1px solid var(--line);border-radius:10px}
 </style>
-<div class="kr-grid">
+<div class="kr-menu" id="kr-menu">
+ <button type="button" data-krgo="kr-ramen"><b>Ramen en deuren</b><small>Oppervlakte van openingen met afwijkende vorm, met tekening</small></button>
+ <button type="button" data-krgo="kr-corr"><b>Correctie dakvlak na-isolatie</b><small>Dakvlaklengte bij isolatie aan de binnenkant</small></button>
+ <button type="button" data-krgo="kr-dakf"><b>Dakfactor</b><small>Dakoppervlak uit horizontale projectie</small></button>
+ <button type="button" data-krgo="kr-glas"><b>Glas in deur</b><small>Percentage glas en dicht deel</small></button>
+ <button type="button" data-krgo="kr-versp"><b>Verspringende woning</b><small>Vrije zijgevel bij verspringing</small></button>
+ <button type="button" data-krgo="kr-kwh"><b>kWh, MJ en GJ</b><small>Energie-eenheden omrekenen</small></button>
+</div>
+<div class="kr-grid" id="kr-grid" hidden>
  <div class="kr-card" id="kr-ramen">
   <h3>Ramen en deuren met afwijkende vorm</h3>
   <p class="kr-sub">Oppervlakte van een gevelopening die niet rechthoekig is. Kies de vorm, vul de maten in (m) en zet hem op de lijst. Samengestelde vormen splits je op in deze basisvormen.</p>
@@ -1762,6 +1770,7 @@ $('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
 /* --- Uitleg per onderdeel (?-knop bovenin en op elke tegel) --- */
 const HELP={
  klein:[
+  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen. Met <b>← Alle rekenhulpen</b> ga je terug naar dit overzicht.'},
   {at:'#kr-dakf',t:'Dakfactor',b:'Dakoppervlak uit de horizontale projectie en de hellingshoek.'},
   {at:'#kr-versp',t:'Verspringende woning',b:'Vrij stuk zijgevel bij een woning die verspringt ten opzichte van de buren.'},
   {at:'#kr-ramen',t:'Ramen en deuren',b:'Kies de vorm van de opening, vul de maten in en zet hem op de lijst. Onderaan staat het totaal in m². De formule staat bij de uitkomst.'},
@@ -5513,6 +5522,11 @@ ftRender();
 }
 
 
+
+(function(){const g=document.getElementById.bind(document);if(!g('kr-menu'))return;const grid=g('kr-grid'),menu=g('kr-menu');
+ const terug=document.createElement('button');terug.type='button';terug.className='btn sec kr-terug';terug.textContent='← Alle rekenhulpen';
+ function open(id){menu.hidden=!!id;grid.hidden=!id;grid.querySelectorAll('.kr-card').forEach(c=>c.hidden=c.id!==id);if(id){grid.insertBefore(terug,grid.firstChild);window.scrollTo(0,0)}}
+ menu.addEventListener('click',e=>{const b=e.target.closest('[data-krgo]');if(b)open(b.dataset.krgo)});terug.addEventListener('click',()=>open(null));open(null)})();
 /* ========== Kleine rekenhulpen ========== */
 (function(){const K='eln-klein-v1';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}st.lijst=st.lijst||[];st.vorm=st.vorm||'boog';
  const sv=()=>{try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}},nm=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?n:null},F=(x,d=2)=>x.toLocaleString('nl-NL',{minimumFractionDigits:d,maximumFractionDigits:d}),E=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
