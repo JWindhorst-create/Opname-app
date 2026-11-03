@@ -563,7 +563,7 @@ function dhSolve(){
 function dhDrawDu(r,d){const G=DH.green||r,vn=G.b,ag=G.a,af=r.a,W=320,H=150,s=Math.min((W-120)/af,(H-34)/(vn+d)),yb=H-12,yf=yb-d*s,x0=(W-af*s)/2-10,xf=x0+(af-ag)*s,xr=x0+af*s,yn=yf-vn*s;
  const t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,dd)=>x.toFixed(dd).replace('.',',');
  const ang=Math.atan2(vn,ag),ra=Math.min(24,ag*s*.35),cr=d/Math.sin(G.al*Math.PI/180);let s15='';
- if(vn>1.5){const x5=xf+ag*1.5/vn*s,y5=yf-1.5*s;s15=`<line x1="${x5}" y1="${y5}" x2="${xr}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${y5}" x2="${x5}" y2="${yf}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${yf}" x2="${xr}" y2="${yf}" stroke="#1f7a45" stroke-width="4"/>`+t(x5-4,y5+4,'1,5 m','end','#d4502f')}
+ if(vn>1.5){const x5=xf+ag*1.5/vn*s,y5=yf-1.5*s;s15=`<line x1="${x5}" y1="${y5}" x2="${xr}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${y5}" x2="${x5}" y2="${yf}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+t(x5-4,y5+4,'1,5 m','end','#d4502f')}
  $('#csvg').innerHTML=`<polygon points="${xf},${yf} ${xr},${yn} ${xr},${yf}" fill="#e1efea" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
  `<line x1="${xf}" y1="${yf}" x2="${x0}" y2="${yb}" stroke="#1f6f5c" stroke-width="2.5" stroke-linecap="round"/>`+
  `<path d="M ${xr-9} ${yf} L ${xr-9} ${yf-9} L ${xr} ${yf-9}" fill="none" stroke="#1f6f5c"/>`+s15+
@@ -573,7 +573,7 @@ function dhDrawDu(r,d){const G=DH.green||r,vn=G.b,ag=G.a,af=r.a,W=320,H=150,s=Ma
 function dhDrawZij(){const Z=dhZij(),W=320,H=150,r=DH.res,span=Z.D.a+Z.N.a,s=Math.min((W-100)/span,(H-46)/(Z.vn+Z.du)),x0=(W-span*s)/2,xn=x0+Z.D.a*s,yb=H-28,Y=h=>yb-(h+Z.du)*s,y0=Y(0);
  const t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const gD=[x0,yb],nk=[xn,Y(Z.vn)],xR=xn+Z.N.a*s,gN=[xR,Y(Z.hk)],fL=xn-Z.D.f*s;let s15='';
- if(Z.vn>1.5){const y5=Y(1.5),xl=xn-(Z.vn-1.5)/Z.tA*s,xr=Z.hk>=1.5?xR:xn+(Z.vn-1.5)/Z.tA*s;s15=`<line x1="${xl}" y1="${y5}" x2="${xr}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${xl}" y1="${y5}" x2="${xl}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+(xr<xR-1?`<line x1="${xr}" y1="${y5}" x2="${xr}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`:'')+`<line x1="${xl}" y1="${y0}" x2="${xr}" y2="${y0}" stroke="#1f7a45" stroke-width="4"/>`+t(xr+3,y5-4,'1,5 m','start','#d4502f')}
+ if(Z.vn>1.5){const y5=Y(1.5),xl=xn-(Z.vn-1.5)/Z.tA*s,xr=Z.hk>=1.5?xR:xn+(Z.vn-1.5)/Z.tA*s;s15=`<line x1="${xl}" y1="${y5}" x2="${xr}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${xl}" y1="${y5}" x2="${xl}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+(xr<xR-1?`<line x1="${xr}" y1="${y5}" x2="${xr}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`:'')+``+t(xr+3,y5-4,'1,5 m','start','#d4502f')}
  const ra=Math.min(24,Z.D.a*s*.35),ang=Math.atan(Z.tA);
  $('#csvg').innerHTML=`<polygon points="${fL},${y0} ${nk} ${gN} ${xR},${y0}" fill="#e1efea"/>`+
  `<polyline points="${gD} ${nk} ${gN} ${xR},${y0}" fill="none" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/><line x1="${fL}" y1="${y0}" x2="${xR}" y2="${y0}" stroke="#17463a" stroke-width="2.5"/>`+
@@ -584,7 +584,7 @@ function dhDrawZij(){const Z=dhZij(),W=320,H=150,r=DH.res,span=Z.D.a+Z.N.a,s=Mat
 function dhDraw(r){const o=r?(DH.off||0):0;if(r&&dhZijMode())return dhDrawZij();if(o<0)return dhDrawDu(r,-o);const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/(b+o)),w=a*s,h=b*s,hw=o*s,x0=(W-w)/2-15,y0=H-28;
  const F0=[x0,y0],A=[x0,y0-hw],C=[x0+w,y0],B=[x0+w,y0-hw-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);let s15='';
- if(r&&b+o>1.5){const h5=1.5-o,x5=h5>0?x0+a*h5/b*s:x0,y5=y0-1.5*s;s15=`<line x1="${x5}" y1="${y5}" x2="${C[0]}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+(h5>0?`<line x1="${x5}" y1="${y5}" x2="${x5}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`:'')+`<line x1="${x5}" y1="${y0}" x2="${C[0]}" y2="${y0}" stroke="#1f7a45" stroke-width="4"/>`+t(x5-4,y5+4,'1,5 m','end','#d4502f')}
+ if(r&&b+o>1.5){const h5=1.5-o,x5=h5>0?x0+a*h5/b*s:x0,y5=y0-1.5*s;s15=`<line x1="${x5}" y1="${y5}" x2="${C[0]}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+(h5>0?`<line x1="${x5}" y1="${y5}" x2="${x5}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`:'')+``+t(x5-4,y5+4,'1,5 m','end','#d4502f')}
  $('#csvg').innerHTML=`<polygon points="${F0} ${A} ${B} ${C}" fill="#e1efea" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
  (o>0?`<line x1="${A[0]}" y1="${A[1]}" x2="${C[0]}" y2="${A[1]}" stroke="#8aa39b" stroke-width="1" stroke-dasharray="3 3"/>`+t(x0-5,y0-hw/2+4,F(o,2)+' m','end','#6b7b76'):'')+
  `<path d="M ${C[0]-9} ${C[1]} L ${C[0]-9} ${C[1]-9} L ${C[0]} ${C[1]-9}" fill="none" stroke="#1f6f5c"/>`+s15+
@@ -854,7 +854,7 @@ async function maakDriehoekPdf(){
  // afbeeldingen
  if(y>Hh-110)nieuwePagina();kop((ok?'5':'4')+'. Doorsnede en 3D-model');
  doc.addImage(img2d,'PNG',ML,y,CW*0.5,CW*0.5*300/640);if(img3d)doc.addImage(img3d,'PNG',ML+CW*0.52,y-2,CW*0.48,CW*0.48*0.8);y+=CW*0.48*0.8+4;
- tekst('Doorsnede: oranje stippellijn = 1,5 m-lijn (netto hoogte 1,5 m), verticaal doorgetrokken naar de vloer; groen = vloerdeel met netto hoogte >= 1,5 m (GO). 3D-model: groen vlak = GO op vloerniveau.',8.5);
+ tekst('Doorsnede: oranje stippellijn = 1,5 m-lijn (netto hoogte 1,5 m), verticaal doorgetrokken naar de vloer; het vloerdeel tussen de verticale stippellijnen heeft netto hoogte >= 1,5 m (GO). 3D-model: groen vlak = GO op vloerniveau.',8.5);
  // onderbouwing
  nieuwePagina();kop('Onderbouwing',15);
  kop('A. Rekenmethode (goniometrie rechthoekige driehoek)',11);
@@ -919,7 +919,7 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
       const gab=z=>{const p=[[fl,0,z]];if(hL>0)p.push([xL,hL,z]);p.push([0,vn,z]);if(hR>0)p.push([xR,hR,z]);p.push([fr,0,z]);return p};
       faces=[{p:[[fl,0,-hz],[fr,0,-hz],[fr,0,hz],[fl,0,hz]],c:F},{p:gab(hz),c:G},{p:gab(-hz),c:G},
         {p:[[xL,hL,-hz],[0,vn,-hz],[0,vn,hz],[xL,hL,hz]],c:R1,al:.8},{p:[[xR,hR,-hz],[0,vn,-hz],[0,vn,hz],[xR,hR,hz]],c:R2,al:.8}];
-      const vd=model.prof.vd||0;if(vd>0){const bl=hL<0?-(vn+vd)/tA:xL,br=hR<0?(vn+vd)/tA:xR;[hz,-hz].forEach(z=>faces.push({p:[[fl,0,z],[fr,0,z],[br,-vd,z],[bl,-vd,z]],c:'#8f8471'}));labels.push([[bl*0.5+fl*0.5,-vd,hz],'vloer '+f(vd,2)+' m',0,12])}
+      const vd=model.prof.vd||0;if(vd>0){const bl=hL<0?-(vn+vd)/tA:xL,br=hR<0?(vn+vd)/tA:xR;[hz,-hz].forEach(z=>faces.push({p:[[fl,0,z],[fr,0,z],[br,-vd,z],[bl,-vd,z]],c:'#8f8471'}));faces.push({p:[[bl,-vd,-hz],[br,-vd,-hz],[br,-vd,hz],[bl,-vd,hz]],c:'#8f8471'},{p:[[fl,0,-hz],[fl,0,hz],[bl,-vd,hz],[bl,-vd,-hz]],c:'#a39885'},{p:[[fr,0,-hz],[fr,0,hz],[br,-vd,hz],[br,-vd,-hz]],c:'#a39885'});labels.push([[bl*0.5+fl*0.5,-vd,hz],'vloer '+f(vd,2)+' m',0,12])}
       if(hL>0)faces.push({p:[[xL,0,-hz],[xL,hL,-hz],[xL,hL,hz],[xL,0,hz]],c:'#e2d5bb'});
       if(hR>0)faces.push({p:[[xR,0,-hz],[xR,hR,-hz],[xR,hR,hz],[xR,0,hz]],c:'#e2d5bb'});
       if(vn>1.5){const x1=hL>=1.5?xL:-(vn-1.5)/tA,x2=hR>=1.5?xR:(vn-1.5)/tA;lines15=[[x1,-hz,x2,hz]]}
@@ -959,6 +959,8 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
         [[0,0,a],'zijde '+f(2*a,2)+' m',0,14]];
     }
     faces.forEach(fc=>{ fc.q=fc.p.map(P); fc.z=fc.q.reduce((s,q)=>s+q[2],0)/fc.q.length; });
+    const isSl=fc=>fc.c==='#8f8471'||fc.c==='#a39885',slabF=faces.filter(isSl).sort((u,v)=>u.z-v.z);faces=faces.filter(fc=>!isSl(fc));
+    for(const fc of slabF){ctx.beginPath();fc.q.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fillStyle=fc.c;ctx.fill();ctx.strokeStyle='#17463a';ctx.lineWidth=1;ctx.stroke()}
     const vloerF=faces.filter(fc=>fc.c===F);faces=faces.filter(fc=>fc.c!==F);
     faces.sort((u,v)=>u.z-v.z);
     ctx.lineJoin='round';
