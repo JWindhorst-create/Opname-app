@@ -104,7 +104,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <button type="button" data-nok="haaks">Haaks op voorgevel<br><small>voor → achter, kopgevels voor/achter</small></button></div></div>
 <div class="grid2" style="align-items:end"><div id="cLwrap"><label id="cLlab">Lengte dak (evenwijdig aan nok, m)</label><input id="c_L" inputmode="decimal" autocomplete="off"></div>
 <div id="cHkwrap"><label>Opstand vloer → goot (m)</label><input id="c_hk" inputmode="decimal" autocomplete="off" placeholder="0 = geen"></div></div>
-<div id="cDuwrap" style="margin-top:2px"><label>Óf: goot ligt onder de vloer (m, verticaal vloer → goot)</label><input id="c_du" inputmode="decimal" autocomplete="off" placeholder="0 = nee"><div class="choice" id="cDuKant" hidden style="margin-top:6px"><button type="button" data-duk="beide" class="on">Beide kanten</button><button type="button" data-duk="voor">Alleen voor</button><button type="button" data-duk="achter">Alleen achter</button></div></div>
+<div id="cDuwrap" style="margin-top:2px"><div class="grid2" style="align-items:end"><div><label>Óf: goot onder de vloer (m, plafond verdieping → goot)</label><input id="c_du" inputmode="decimal" autocomplete="off" placeholder="0 = nee"></div><div><label>Dikte zoldervloer (m)</label><input id="c_vd" inputmode="decimal" autocomplete="off" value="0,20"></div></div><div class="note" id="cDuNote" style="margin-top:2px"></div><div class="choice" id="cDuKant" hidden style="margin-top:6px"><button type="button" data-duk="beide" class="on">Beide kanten</button><button type="button" data-duk="voor">Alleen voor</button><button type="button" data-duk="achter">Alleen achter</button></div></div>
 <div class="note" id="cKop" style="margin-top:6px"></div>
 <div id="cSum" hidden style="margin-top:8px"></div>
 <button class="ghost" id="dh3dBtn" style="width:100%;margin-top:10px">3D-model ▾</button>
@@ -536,7 +536,7 @@ const DH={ids:['a','b','c','al'],order:[],res:null,itemId:null};
 function dhKeys(){return DH.order.slice(-2)}
 function dhEl(k){return document.getElementById('c_'+k)}
 function dhMsg(t,err){const m=$('#cmsg');m.textContent=t;m.className='cmsg'+(err?' err':'')}
-function dhHkS(){const sh=DH.shape;if(!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))return 0;const du=(sh==='zadel'||sh==='lessenaar')?Math.max(0,num($('#c_du')?.value)||0):0;return du>0?-du:Math.max(0,num($('#c_hk').value)||0)}
+function dhHkS(){const sh=DH.shape;if(!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))return 0;const du=(sh==='zadel'||sh==='lessenaar')?dhDu():0;return du>0?-du:Math.max(0,num($('#c_hk').value)||0)}
 function dhOff(){const sh=DH.shape;if(!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))return 0;return dhHkS()+(sh==='mansarde'?Math.max(0,num($('#c_mh').value)||0):0)}
 function dhSolve(){
  DH.off=dhOff();const u=dhKeys(),v={};u.forEach(k=>v[k]=num(dhEl(k).value));
@@ -593,7 +593,7 @@ function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[]
  else{if(L!=null){dhEl('c').value=String(r.it.lengte);DH.order.push('c')}
   if(hk!=null){dhEl('al').value=String(r.it.helling);DH.order.push('al')}}
  $('#c_L').value=r.it.dhVorm==='schild'||r.it.dhVorm==='tent'?'':(r.it.breedte??'');if(r.it.dhVorm){DH.shape=r.it.dhVorm;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x.dataset.s3===DH.shape))}
- DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_du').value=r.it.dhDu||'';dhZetKant(r.it.dhDuKant||'beide');$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
+ DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_du').value=r.it.dhDu||'';$('#c_vd').value=r.it.dhVd||'0,20';dhZetKant(r.it.dhDuKant||'beide');$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
  if(src&&!src.bv&&DH.order.includes('b')&&src.b!=null)dhEl('b').value=String(+(+src.b+dhOff()).toFixed(6)).replace('.',',');
  dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide'))return;document.body.classList.add('wide');
@@ -624,8 +624,9 @@ $('#c_mh').addEventListener('input',()=>{manTekst();dhSolve()});$('#c_ma').addEv
 function vlakZijde(P,rot){const haaks=DH.nok==='haaks'&&P.sh!=='tent'&&P.sh!=='schild';return(haaks?{0:'links',4:'rechts',2:'voor',6:'achter'}:{0:'voor',4:'achter',2:'links',6:'rechts'})[rot]||''}
 function dakNaam(P,d){const z=vlakZijde(P,d.rot),o=d.opm||'';return'Dakvlak '+z+(/onderste/.test(o)?' (onder, steil)':/bovenste/.test(o)?' (boven)':/Trapezium/.test(o)?' (trapezium)':/Schild/.test(o)?' (driehoek)':/Piramide/.test(o)?' (driehoek)':'')}
 function gevNaam(P,g){const z=vlakZijde(P,g.rot),o=g.opm||'';return(g.kant==='hoog'?'Hoge gevel ':g.kant==='laag'?'Lage gevel ':/Kopgevel|Driehoekige kopgevel/.test(o)?'Kopgevel ':/onder goot/.test(o)?'Opstand ':/Zijgevel/.test(o)?'Zijgevel ':'Gevel ')+z}
+function dhDu(){const d=Math.max(0,num($('#c_du')?.value)||0);if(!(d>0))return 0;const v=num($('#c_vd')?.value);return d+(v!=null&&v>=0?v:0.2)}
 function dhZijMode(){return DH.shape==='zadel'&&(DH.duKant||'beide')!=='beide'&&(num($('#c_du')?.value)||0)>0}
-function dhZij(){if(!dhZijMode()||!DH.res)return null;const r=DH.res,du=num($('#c_du').value),hk=Math.max(0,num($('#c_hk').value)||0),vn=r.b-du,R=Math.PI/180,tA=Math.tan(r.al*R),sA=Math.sin(r.al*R);
+function dhZij(){if(!dhZijMode()||!DH.res)return null;const r=DH.res,du=dhDu(),hk=Math.max(0,num($('#c_hk').value)||0),vn=r.b-du,R=Math.PI/180,tA=Math.tan(r.al*R),sA=Math.sin(r.al*R);
  const kD=DH.duKant,kN=kD==='voor'?'achter':'voor',bN=vn-hk;
  const D={kant:kD,b:r.b,a:r.a,c:r.c,f:vn/tA},N={kant:kN,b:bN,a:bN>0?bN/tA:0,c:bN>0?bN/sA:0};N.f=N.a;
  const go=vn>1.5;D.strook=go?Math.max(0,D.f-1.5/tA):0;N.strook=go&&bN>0?Math.max(0,N.a-Math.max(0,1.5-hk)/tA):0;
@@ -706,13 +707,13 @@ function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs
 function dhSrcObj(){const k=dhKeys(),o={keys:k,c:DH.res.c,bv:1};k.forEach(x=>o[x]=num(dhEl(x).value));return o}
 function dhKopTekst(){const n=kopAantal(),sh=DH.shape,haaks=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')&&DH.nok==='haaks';$('#cMan').hidden=sh!=='mansarde';manTekst();
  const lig=cur?.type?(ligLabel()||{vrijstaand:'Vrijstaand'}[cur.type.wtype]||''):'';
- $('#cNok').hidden=true;$('#cDuwrap').hidden=!(sh==='zadel'||sh==='lessenaar');$('#cDuKant').hidden=!(sh==='zadel'&&(num($('#c_du').value)||0)>0);$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
+ $('#cNok').hidden=true;$('#cDuwrap').hidden=!(sh==='zadel'||sh==='lessenaar');$('#cDuKant').hidden=!(sh==='zadel'&&(num($('#c_du').value)||0)>0);{const d=num($('#c_du').value)||0,v=num($('#c_vd').value);$('#cDuNote').textContent=d>0?'Goot ligt '+f2(dhDu())+' m onder bovenkant zoldervloer ('+f2(d)+' + vloer '+f2(v!=null&&v>=0?v:0.2)+'); het dakvlak loopt door tot de goot.':''}$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
  $('#cLlab').textContent=haaks?'Lengte dak (voor → achter, m)':sh==='zadel'||sh==='lessenaar'||sh==='mansarde'?'Lengte dak (bouwmuur → bouwmuur, m)':'Lengte dak (evenwijdig aan nok, m)';
  let t=lig;if(sh==='zadel'||sh==='mansarde')t+=haaks?` → kopgevels voor + achter${num($('#c_hk').value)>0?`, ${n} gevel${n===1?'':'s'} onder goot`:''}`:` → ${n} kopgevel${n===1?'':'s'}${num($('#c_hk').value)>0?', opstanden voor + achter':''}`;
  else if(sh==='lessenaar')t+=haaks?` → zijgevels voor + achter${n>=2?', hoge en lage kant':n===1?', 1 zijkant (wordt gevraagd)':''}`:` → hoge gevel${num($('#c_hk').value)>0?' + lage gevel':''}, ${n} zijgevel${n===1?'':'s'}`;
  if(dhZijMode()){const Z=dhZij();if(Z)t=lig+' → '+n+' kopgevel'+(n===1?'':'s')+(Z.hk>0?', opstand '+Z.N.kant:'')}
  $('#cKop').textContent=t}
-$('#c_L').addEventListener('input',()=>{dhSolve()});$('#c_hk').addEventListener('input',()=>{if(num($('#c_hk').value)>0&&!dhZijMode())$('#c_du').value='';dhKopTekst();dhSolve()});$('#c_du').addEventListener('input',()=>{if(num($('#c_du').value)>0&&(DH.duKant||'beide')==='beide')$('#c_hk').value='';dhKopTekst();dhSolve()});
+$('#c_L').addEventListener('input',()=>{dhSolve()});$('#c_hk').addEventListener('input',()=>{if(num($('#c_hk').value)>0&&!dhZijMode())$('#c_du').value='';dhKopTekst();dhSolve()});$('#c_vd').addEventListener('input',()=>{dhKopTekst();dhSolve()});$('#c_du').addEventListener('input',()=>{if(num($('#c_du').value)>0&&(DH.duKant||'beide')==='beide')$('#c_hk').value='';dhKopTekst();dhSolve()});
 DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(bt=>bt.onclick=()=>{DH.nok=bt.dataset.nok;document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhInfo()});
 $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const P=dhPlan();if(P&&P.fatal){toast(P.fatal);return}
  const al=DH.res.al.toFixed(1).replace(/\.0$/,'').replace('.',',');
@@ -737,7 +738,7 @@ $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const 
  const id=DH.itemId,lijst=r.lijst,base=r.it.orient||cur.orient?.voor||'',src=r.it;if(!r.it.orient&&base)zetO(r.it,base);
  for(let i=lijst.length-1;i>=0;i--)if(lijst[i].dhGroup===id)lijst.splice(i,1);
  const zetDak=(it,d)=>{it.lengte=fS(d.l);it.breedte=fS(d.b);it.breedte_x=d.corr?x:0;it.helling=d.hel||al;it.dhVorm=P.sh;it.hkGO=d.hk!=null?(d.hk?String(d.hk).replace('.',','):''):((P.sh==='zadel'||P.sh==='lessenaar')&&dhHkS()!==0?String(dhHkS()).replace('.',','):'');if(d.opm)it.opm=d.opm;else if(it.opm&&/^(Trapezium|Schild|Tentdak|Piramidedak|Mansarde)/.test(it.opm))it.opm=''};
- zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhDuKant=DH.duKant||'beide';src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
+ zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhVd=$('#c_vd').value;src.dhDuKant=DH.duKant||'beide';src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
  let pos=lijst.indexOf(src)+1;
  P.dak.slice(1).forEach(d=>{const it=nieuwItem('dakvlak');['isolatie','rc','bewijs'].forEach(k=>{if(src[k]!=null)it[k]=src[k]});zetDak(it,d);zetO(it,rotO(base,d.rot));it.dhGroup=id;lijst.splice(pos++,0,it)});
  P.gev.forEach(g=>{const it=nieuwItem('gevel');it.breedte=fS(g.b);it.breedte_x=g.corr?x:0;it.hoogte=fS(g.h);const gm=gevM2(g,x);if(gm!=null)it.m2=fS(gm);it.opm=g.opm;zetO(it,rotO(base,g.rot));it.dhGroup=id;lijst.push(it)});
@@ -838,7 +839,7 @@ async function maakDriehoekPdf(){
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
   ['Dakvorm',DAKNAAM[sh]],
   ...(M?[['Onderste dakvlak mansarde',`hoogte goot -> knik ${f2(M.mh)} m · helling ${M.ma} graden · lengte ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`]]:[]),
-  ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Opstand vloer -> goot',Math.max(0,num($('#c_hk').value)||0)>0&&(hk>0||dhZijMode())?f2(num($('#c_hk').value))+' m'+(dhZijMode()?' (kant '+dhZij().N.kant+')':''):'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m (verticaal vloer -> goot), '+(dhZijMode()?'alleen kant '+DH.duKant:'beide kanten')+'; dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
+  ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Opstand vloer -> goot',Math.max(0,num($('#c_hk').value)||0)>0&&(hk>0||dhZijMode())?f2(num($('#c_hk').value))+' m'+(dhZijMode()?' (kant '+dhZij().N.kant+')':''):'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m onder bovenkant zoldervloer (gemeten '+f2(num($('#c_du').value))+' m plafond verdieping -> goot + vloerdikte '+f2(-hk-num($('#c_du').value))+' m), '+(dhZijMode()?'alleen kant '+DH.duKant:'beide kanten')+'; dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');const Zp=dhZij();
  if(Zp)tabel(Zp.vn>1.5?[['Strook >= 1,5 m kant '+Zp.D.kant,f2(Zp.D.strook)+' m (dak loopt '+f2(Zp.du)+' m door onder de vloer)'],['Strook >= 1,5 m kant '+Zp.N.kant,f2(Zp.N.strook)+' m'],['GO-breedte',f2(Zp.goB)+' m'],['Breedte zoldervloer',f2(Zp.W)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':'vul lengte dak in',true]]:[['Netto hoogte',`maximaal ${f2(Zp.vn)} m: geen GO zolder`,true]]);else
  tabel(H>1.5?[['Afstand 1,5 m-lijn uit de goot (horizontaal)',f2(t)+' m'],['Strook >= 1,5 m per dakzijde',f2(st)+' m'],['GO-breedte',f2(gb)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':(L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?f2(gb*L)+' m2':'vul lengte dak in'),true]]:[['Netto hoogte',`maximaal ${f2(H)} m: geen vloerdeel met netto hoogte >= 1,5 m -> GO zolder 0 m2`,true]]);
@@ -915,12 +916,10 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
         {p:[[xL,hL,-hz],[0,vn,-hz],[0,vn,hz],[xL,hL,hz]],c:R1,al:.8},{p:[[xR,hR,-hz],[0,vn,-hz],[0,vn,hz],[xR,hR,hz]],c:R2,al:.8}];
       if(hL>0)faces.push({p:[[xL,0,-hz],[xL,hL,-hz],[xL,hL,hz],[xL,0,hz]],c:'#e2d5bb'});
       if(hR>0)faces.push({p:[[xR,0,-hz],[xR,hR,-hz],[xR,hR,hz],[xR,0,hz]],c:'#e2d5bb'});
-      if(hL<0)[hz,-hz].forEach(z=>faces.push({p:[[xL,hL,z],[fl,0,z],[fl,hL,z]],c:'#d9dcd8',al:.75}));
-      if(hR<0)[hz,-hz].forEach(z=>faces.push({p:[[xR,hR,z],[fr,0,z],[fr,hR,z]],c:'#d9dcd8',al:.75}));
       if(vn>1.5){const x1=hL>=1.5?xL:-(vn-1.5)/tA,x2=hR>=1.5?xR:(vn-1.5)/tA;lines15=[[x1,-hz,x2,hz]]}
       labels=[[[0,vn,hz],'nok '+f(vn,2)+' m',0,-14],[[xL/2,(hL+vn)/2,hz],'c '+f((vn-hL)/sA,2)+' m',0,-12],[[xR*0.62,hR*0.4,hz],'α '+f(r.al,1)+'°',1,-12],
         [[(fl+fr)/2,0,hz],'vloer '+f(fr-fl,2)+' m',0,14],[[fr,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
-      if(hL<0)labels.push([[xL,hL,hz],'goot −'+f(-hL,2)+' m',0,14]);if(hR<0)labels.push([[xR,hR,-hz],'goot −'+f(-hR,2)+' m',0,14]);
+      if(hL<0)labels.push([[xL*0.8,hL*0.8,hz],'goot −'+f(-hL,2)+' m',0,14]);if(hR<0)labels.push([[xR,hR,-hz],'goot −'+f(-hR,2)+' m',0,14]);
     } else if(sh==='zadel'){
       faces=[{p:[[-a,0,-hz],[a,0,-hz],[a,0,hz],[-a,0,hz]],c:F},
         {p:[[-a,0,hz],[a,0,hz],[0,b,hz]],c:G},{p:[[-a,0,-hz],[a,0,-hz],[0,b,-hz]],c:G},
@@ -1077,7 +1076,7 @@ DH.shape='zadel';DH.duKant='beide';
 function dhZetKant(k){DH.duKant=k;document.querySelectorAll('#cDuKant [data-duk]').forEach(x=>x.classList.toggle('on',x.dataset.duk===k))}
 document.querySelectorAll('#cDuKant [data-duk]').forEach(bt=>bt.onclick=()=>{dhZetKant(bt.dataset.duk);dhKopTekst();dhSolve()});
 function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res&&DH.shape==='zadel'?{...DH.res,prof:dhProf()}:DH.res,br>0?br:null,DH.shape)}
-function dhProf(){if(!DH.res)return null;const tA=Math.tan(DH.res.al*Math.PI/180),vn=DH.res.b+(DH.off||0);if(dhZijMode()){const du=num($('#c_du').value),hk=Math.max(0,num($('#c_hk').value)||0);return DH.duKant==='voor'?{vn,tA,hL:-du,hR:hk}:{vn,tA,hL:hk,hR:-du}}const h=dhHkS();return{vn,tA,hL:h,hR:h}}
+function dhProf(){if(!DH.res)return null;const tA=Math.tan(DH.res.al*Math.PI/180),vn=DH.res.b+(DH.off||0);if(dhZijMode()){const du=dhDu(),hk=Math.max(0,num($('#c_hk').value)||0);return DH.duKant==='voor'?{vn,tA,hL:-du,hR:hk}:{vn,tA,hL:hk,hR:-du}}const h=dhHkS();return{vn,tA,hL:h,hR:h}}
 $('#dh3dBtn').onclick=()=>{const b=$('#dh3dBox');b.hidden=!b.hidden;$('#dh3dBtn').textContent=b.hidden?'3D-model ▾':'3D-model ▴';if(!b.hidden){window.dh3dResize();dh3d();setTimeout(()=>$('#dh3d').scrollIntoView({block:'nearest',behavior:'smooth'}),50)}};
 document.querySelectorAll('#dhShapes [data-s3]').forEach(bt=>bt.onclick=()=>{DH.shape=bt.dataset.s3;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhSolve()});
 
