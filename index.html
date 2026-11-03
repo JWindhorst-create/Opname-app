@@ -549,37 +549,38 @@ function dhSolve(){
  const fout=t=>{dhMsg(t,true);dhDraw(null)};
  if(u.length<2){dhMsg(u.length?'Vul nog één waarde in: hellingshoek of een tweede maat.':'');dhDraw(null);dh3d();return}
  if(u.some(k=>!(v[k]>0)))return fout('Gebruik positieve getallen.');
- let {a,b,c,al}=v;const R=Math.PI/180,off=DH.off;if(b!=null){b-=off;if(!(b>0))if(off<0&&!(b>0))return fout('Vul een positieve hoogte vloer → nok in.');if(!(b>0))return fout('Hoogte vloer → nok moet groter zijn dan '+f2(off)+' m ('+(DH.shape==='mansarde'?'gevel onder goot + goot → knik':'gevel onder goot')+').')}
+ let {a,b,c,al}=v;const R=Math.PI/180,off=DH.off;if(b!=null&&!(off<0)){b-=off;if(!(b>0))if(off<0&&!(b>0))return fout('Vul een positieve hoogte vloer → nok in.');if(!(b>0))return fout('Hoogte vloer → nok moet groter zijn dan '+f2(off)+' m ('+(DH.shape==='mansarde'?'gevel onder goot + goot → knik':'gevel onder goot')+').')}
  if(al!=null){if(al>=90)return fout('Hoek moet kleiner zijn dan 90°.');const r=al*R;
   if(a!=null){b=a*Math.tan(r);c=a/Math.cos(r)}else if(b!=null){a=b/Math.tan(r);c=b/Math.sin(r)}else{a=c*Math.cos(r);b=c*Math.sin(r)}}
  else{if(a!=null&&b!=null)c=Math.hypot(a,b);else if(a!=null){if(c<=a)return fout('c moet langer zijn dan a.');b=Math.sqrt(c*c-a*a)}
   else{if(c<=b)return fout('c moet langer zijn dan b.');a=Math.sqrt(c*c-b*b)}al=Math.atan2(b,a)/R}
+ let G=null;if(off<0){G={a,b,c,al};const kk=(b-off)/b;a*=kk;b*=kk;c*=kk}DH.green=G;
  DH.res={a,b,c,al};const dec={a:3,b:3,c:3,al:1};
- DH.ids.forEach(k=>{if(!u.includes(k)){dhEl(k).value=(k==='b'?DH.res.b+off:DH.res[k]).toFixed(dec[k]).replace('.',',');dhEl(k).className='calc'}});
- const Zm=dhZij();if(Zm)dhMsg(`Goot → nok ${Zm.D.kant} ${f2(Zm.D.b)} m · ${Zm.N.kant} ${f2(Zm.N.b)} m · dakvlak nok → goot ${Zm.D.kant} ${f2(Zm.D.c)} m · ${Zm.N.kant} ${f2(Zm.N.c)} m · helling ${al.toFixed(1).replace('.',',')}°`);else dhMsg(`${Zm?`Goot → nok ${Zm.D.kant} ${f2(Zm.D.b)} m · ${Zm.N.kant} ${f2(Zm.N.b)} m · `:off!==0?`Goot → nok ${f2(b)} m · `:''}Lengte nok → goot ${f2(c)} m · helling ${al.toFixed(1).replace('.',',')}° · diepte (2a) ${f2(2*a)} m`);
+ DH.ids.forEach(k=>{if(!u.includes(k)){dhEl(k).value=(G?G[k]:k==='b'?DH.res.b+off:DH.res[k]).toFixed(dec[k]).replace('.',',');dhEl(k).className='calc'}});
+ const Zm=dhZij();if(Zm)dhMsg(`Goot → nok ${Zm.D.kant} ${f2(Zm.D.b)} m · ${Zm.N.kant} ${f2(Zm.N.b)} m · dakvlak nok → goot ${Zm.D.kant} ${f2(Zm.D.c)} m · ${Zm.N.kant} ${f2(Zm.N.c)} m · helling ${al.toFixed(1).replace('.',',')}°`);else if(G)dhMsg(`Dakvlak nok → goot ${f2(c)} m = ${f2(G.c)} m boven de vloer + ${f2(c-G.c)} m doorlopend · helling ${al.toFixed(1).replace('.',',')}° · vloerbreedte (2a) ${f2(2*G.a)} m`);else dhMsg(`${Zm?`Goot → nok ${Zm.D.kant} ${f2(Zm.D.b)} m · ${Zm.N.kant} ${f2(Zm.N.b)} m · `:off!==0?`Goot → nok ${f2(b)} m · `:''}Lengte nok → goot ${f2(c)} m · helling ${al.toFixed(1).replace('.',',')}° · diepte (2a) ${f2(2*a)} m`);
  dhInfo();
  $('#cok').disabled=false;dhDraw(DH.res);dh3d()}
-function dhDrawDu(r,d){const a=r.a,b=r.b,W=320,H=150,s=Math.min((W-110)/a,(H-50)/b),w=a*s,h=b*s,x0=(W-w)/2-15,y0=H-28,yf=y0-d*s,xf=x0+a*d/b*s;
- const A=[x0,y0],C=[x0+w,y0],B=[x0+w,y0-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,dd)=>x.toFixed(dd).replace('.',',');
- const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);let s15='';
- if(b-d>1.5){const x5=x0+a*(d+1.5)/b*s,y5=y0-(d+1.5)*s;s15=`<line x1="${x5}" y1="${y5}" x2="${C[0]}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${y5}" x2="${x5}" y2="${yf}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${yf}" x2="${C[0]}" y2="${yf}" stroke="#1f7a45" stroke-width="4"/>`+t(C[0]-5,y5-5,'1,5 m','end','#d4502f')}
- $('#csvg').innerHTML=`<polygon points="${A} ${B} ${C}" fill="#f1f4f3" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/><polygon points="${xf},${yf} ${B} ${C[0]},${yf}" fill="#e1efea"/><polygon points="${A} ${B} ${C}" fill="none" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
- `<line x1="${xf}" y1="${yf}" x2="${C[0]}" y2="${yf}" stroke="#17463a" stroke-width="2.5"/>`+t(xf-4,yf+4,'vloer','end','#6b7b76')+t(C[0]+7,(yf+y0)/2+4,F(d,2)+' m','start','#6b7b76')+
- `<path d="M ${C[0]-9} ${C[1]} L ${C[0]-9} ${C[1]-9} L ${C[0]} ${C[1]-9}" fill="none" stroke="#1f6f5c"/>`+s15+
- `<path d="M ${A[0]+ra} ${A[1]} A ${ra} ${ra} 0 0 0 ${A[0]+ra*Math.cos(ang)} ${A[1]-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
- t((A[0]+C[0])/2,y0+18,'a '+F(a,2)+' m')+t(C[0]+7,(B[1]+yf)/2+4,'b '+F(b-d,2)+' m','start')+
- t((A[0]+B[0])/2-8,(A[1]+B[1])/2-6,'c '+F(r.c,2)+' m','end')+t(A[0]+ra+6,A[1]-5,'α '+F(r.al,1)+'°','start','#d4502f')}
+function dhDrawDu(r,d){const G=DH.green||r,vn=G.b,ag=G.a,af=r.a,W=320,H=150,s=Math.min((W-120)/af,(H-34)/(vn+d)),yb=H-12,yf=yb-d*s,x0=(W-af*s)/2-10,xf=x0+(af-ag)*s,xr=x0+af*s,yn=yf-vn*s;
+ const t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,dd)=>x.toFixed(dd).replace('.',',');
+ const ang=Math.atan2(vn,ag),ra=Math.min(24,ag*s*.35),cr=d/Math.sin(G.al*Math.PI/180);let s15='';
+ if(vn>1.5){const x5=xf+ag*1.5/vn*s,y5=yf-1.5*s;s15=`<line x1="${x5}" y1="${y5}" x2="${xr}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${y5}" x2="${x5}" y2="${yf}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${yf}" x2="${xr}" y2="${yf}" stroke="#1f7a45" stroke-width="4"/>`+t(x5-4,y5+4,'1,5 m','end','#d4502f')}
+ $('#csvg').innerHTML=`<polygon points="${xf},${yf} ${xr},${yn} ${xr},${yf}" fill="#e1efea" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
+ `<line x1="${xf}" y1="${yf}" x2="${x0}" y2="${yb}" stroke="#1f6f5c" stroke-width="2.5" stroke-linecap="round"/>`+
+ `<path d="M ${xr-9} ${yf} L ${xr-9} ${yf-9} L ${xr} ${yf-9}" fill="none" stroke="#1f6f5c"/>`+s15+
+ `<path d="M ${xf+ra} ${yf} A ${ra} ${ra} 0 0 0 ${xf+ra*Math.cos(ang)} ${yf-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
+ t((xf+xr)/2,yf+16,'a '+F(ag,2)+' m')+t(xr+7,(yn+yf)/2+4,'b '+F(vn,2)+' m','start')+
+ t(xf+(xr-xf)*.3-6,yf-(yf-yn)*.3-6,'c '+F(G.c,2)+' m','end')+t((xf+x0)/2-6,(yf+yb)/2,'+ '+F(cr,2)+' m','end','#6b7b76')+t(xf+ra+6,yf-5,'α '+F(G.al,1)+'°','start','#d4502f')}
 function dhDrawZij(){const Z=dhZij(),W=320,H=150,r=DH.res,span=Z.D.a+Z.N.a,s=Math.min((W-100)/span,(H-46)/(Z.vn+Z.du)),x0=(W-span*s)/2,xn=x0+Z.D.a*s,yb=H-28,Y=h=>yb-(h+Z.du)*s,y0=Y(0);
  const t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const gD=[x0,yb],nk=[xn,Y(Z.vn)],xR=xn+Z.N.a*s,gN=[xR,Y(Z.hk)],fL=xn-Z.D.f*s;let s15='';
  if(Z.vn>1.5){const y5=Y(1.5),xl=xn-(Z.vn-1.5)/Z.tA*s,xr=Z.hk>=1.5?xR:xn+(Z.vn-1.5)/Z.tA*s;s15=`<line x1="${xl}" y1="${y5}" x2="${xr}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${xl}" y1="${y5}" x2="${xl}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+(xr<xR-1?`<line x1="${xr}" y1="${y5}" x2="${xr}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`:'')+`<line x1="${xl}" y1="${y0}" x2="${xr}" y2="${y0}" stroke="#1f7a45" stroke-width="4"/>`+t(xr+3,y5-4,'1,5 m','start','#d4502f')}
  const ra=Math.min(24,Z.D.a*s*.35),ang=Math.atan(Z.tA);
- $('#csvg').innerHTML=`<polygon points="${fL},${y0} ${nk} ${gN} ${xR},${y0}" fill="#e1efea"/><polygon points="${gD} ${fL},${y0} ${xR},${y0} ${xR},${yb}" fill="#f1f4f3"/>`+
- `<polyline points="${gD} ${nk} ${gN} ${xR},${yb}" fill="none" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/><line x1="${fL}" y1="${y0}" x2="${xR}" y2="${y0}" stroke="#17463a" stroke-width="2.5"/>`+
+ $('#csvg').innerHTML=`<polygon points="${fL},${y0} ${nk} ${gN} ${xR},${y0}" fill="#e1efea"/>`+
+ `<polyline points="${gD} ${nk} ${gN} ${xR},${y0}" fill="none" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/><line x1="${fL}" y1="${y0}" x2="${xR}" y2="${y0}" stroke="#17463a" stroke-width="2.5"/>`+
  `<line x1="${xn}" y1="${nk[1]}" x2="${xn}" y2="${y0}" stroke="#8aa39b" stroke-width="1" stroke-dasharray="3 3"/>`+s15+
- `<path d="M ${gD[0]+ra} ${gD[1]} A ${ra} ${ra} 0 0 0 ${gD[0]+ra*Math.cos(ang)} ${gD[1]-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
- t(gD[0]+ra+4,gD[1]-4,'α '+F(r.al,1)+'°','start','#d4502f')+t(xn-4,(Math.min(Y(1.5),y0-14)+y0)/2+4,'b '+F(Z.vn,2)+' m','end')+
- t(fL-4,y0+4,'vloer','end','#6b7b76')+t(gD[0]-4,yb-2,F(Z.du,2)+' m','end','#6b7b76')+(Z.hk>0?t(xR+4,(gN[1]+y0)/2+4,F(Z.hk,2)+' m','start','#6b7b76'):'')+t(x0,yb+17,Z.D.kant,'start','#6b7b76')+t(xR,yb+17,Z.N.kant,'end','#6b7b76')}
+ `<path d="M ${fL+ra} ${y0} A ${ra} ${ra} 0 0 0 ${fL+ra*Math.cos(ang)} ${y0-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
+ t(fL+ra+4,y0-4,'α '+F(r.al,1)+'°','start','#d4502f')+t(xn+4,y0-8,'b '+F(Z.vn,2)+' m','start')+
+ t((gD[0]+fL)/2-6,(yb+y0)/2,'+ '+F(Z.du/Math.sin(Math.atan(Z.tA)),2)+' m','end','#6b7b76')+(Z.hk>0?t(xR+4,(gN[1]+y0)/2+4,F(Z.hk,2)+' m','start','#6b7b76'):'')+t(x0,yb+17,Z.D.kant,'start','#6b7b76')+t(xR,yb+17,Z.N.kant,'end','#6b7b76')}
 function dhDraw(r){const o=r?(DH.off||0):0;if(r&&dhZijMode())return dhDrawZij();if(o<0)return dhDrawDu(r,-o);const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/(b+o)),w=a*s,h=b*s,hw=o*s,x0=(W-w)/2-15,y0=H-28;
  const F0=[x0,y0],A=[x0,y0-hw],C=[x0+w,y0],B=[x0+w,y0-hw-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);let s15='';
@@ -699,7 +700,7 @@ function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs
  if(M){half=a+M.mx;H=M.mh+b+hk;t=nd<=0?0:(M.mh>=nd?nd/Math.tan(M.ma*R):M.mx+(nd-M.mh)/tA)}else{half=a;H=b+hk;t=nd<=0?0:nd/tA}
  if(H<=1.5)gi.innerHTML=`<b>1,5 m-lijn:</b> hoogte max ${f2(H)} m → geen GO ≥ 1,5 m.`;
  else{const st=Math.max(0,half-t),gb=sh==='lessenaar'?st:2*st;
-  gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. opstand vloer → goot':hk<0?', dak loopt '+f2(-hk)+' m door onder de vloer':''}).<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
+  gi.innerHTML=(hk<0?`<b>1,5 m-lijn</b> ligt <b>${f2(t+hk/tA)} m</b> uit de rand van de vloer (horizontaal)`:`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. opstand vloer → goot':''})`)+`.<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
  gi.hidden=false}
  const P=dhPlan();if(!P||P.err||P.fatal){cs.hidden=true;return}
  const sd=P.dak.reduce((s2,x)=>s2+x.l*x.b,0),sg=P.gev.filter(g=>!g.vraagKant).reduce((s2,g)=>s2+(gevM2(g,0)??g.b*g.h),0),ng=P.gev.filter(g=>!g.vraagKant).length;
@@ -839,9 +840,9 @@ async function maakDriehoekPdf(){
  tabel([['Adres',adr?.naam||'-'],['BAG pand-ID / vbo-ID',(bag?.pandId||'-')+' / '+(bag?.vboId||'-')],['Bouwjaar (BAG)',String(bag?.bouwjaar??'-')],['Woningtype',cur?.type?(ligLabel()||cur.type.wtype||'-'):'-'],['Dakvlak',it?`${it.orientL||''} ${it.orient||''}`.trim()||'-':'losse berekening']]);
  if(DH.vlakken&&DH.vlakken.daken.length&&bag?.pandId&&DH.vlakken.pid===bag.pandId){tabel(vlakkenPdfRijen())}
  kop('2. Invoer (gemeten) en berekende waarden');
- const gem=DH.order.slice(-2),lab={a:'a - horizontale maat',b:'b - hoogte vloer -> nok',c:'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
- tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
-  ['Dakvorm',DAKNAAM[sh]],
+ const gem=DH.order.slice(-2),lab={a:DH.green?'a - horizontale maat (op vloerniveau)':'a - horizontale maat',b:'b - hoogte vloer -> nok',c:DH.green?'c - lengte dakhelling nok -> vloer':'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
+ tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(DH.green?DH.green[k]:k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
+  ...(DH.green?[['Dakvlak doorlopend onder de vloer',`+ ${f2(DH.res.c-DH.green.c)} m -> totaal nok -> goot ${f2(DH.res.c)} m`]]:[]),['Dakvorm',DAKNAAM[sh]],
   ...(M?[['Onderste dakvlak mansarde',`hoogte goot -> knik ${f2(M.mh)} m · helling ${M.ma} graden · lengte ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`]]:[]),
   ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Opstand vloer -> goot',Math.max(0,num($('#c_hk').value)||0)>0&&(hk>0||dhZijMode())?f2(num($('#c_hk').value))+' m'+(dhZijMode()?' (kant '+dhZij().N.kant+')':''):'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m onder bovenkant zoldervloer (gemeten '+f2(num($('#c_du').value))+' m plafond verdieping -> goot + vloerdikte '+f2(-hk-num($('#c_du').value))+' m), '+(dhZijMode()?'alleen kant '+DH.duKant:'beide kanten')+'; dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');const Zp=dhZij();
@@ -918,11 +919,11 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
       const gab=z=>{const p=[[fl,0,z]];if(hL>0)p.push([xL,hL,z]);p.push([0,vn,z]);if(hR>0)p.push([xR,hR,z]);p.push([fr,0,z]);return p};
       faces=[{p:[[fl,0,-hz],[fr,0,-hz],[fr,0,hz],[fl,0,hz]],c:F},{p:gab(hz),c:G},{p:gab(-hz),c:G},
         {p:[[xL,hL,-hz],[0,vn,-hz],[0,vn,hz],[xL,hL,hz]],c:R1,al:.8},{p:[[xR,hR,-hz],[0,vn,-hz],[0,vn,hz],[xR,hR,hz]],c:R2,al:.8}];
-      const vd=model.prof.vd||0;if(vd>0){const bl=hL<0?-(vn+vd)/tA:xL,br=hR<0?(vn+vd)/tA:xR;[hz,-hz].forEach(z=>faces.push({p:[[fl,0,z],[fr,0,z],[br,-vd,z],[bl,-vd,z]],c:'#bfb6a3'}))}
+      const vd=model.prof.vd||0;if(vd>0){const bl=hL<0?-(vn+vd)/tA:xL,br=hR<0?(vn+vd)/tA:xR;[hz,-hz].forEach(z=>faces.push({p:[[fl,0,z],[fr,0,z],[br,-vd,z],[bl,-vd,z]],c:'#8f8471'}));labels.push([[bl*0.5+fl*0.5,-vd,hz],'vloer '+f(vd,2)+' m',0,12])}
       if(hL>0)faces.push({p:[[xL,0,-hz],[xL,hL,-hz],[xL,hL,hz],[xL,0,hz]],c:'#e2d5bb'});
       if(hR>0)faces.push({p:[[xR,0,-hz],[xR,hR,-hz],[xR,hR,hz],[xR,0,hz]],c:'#e2d5bb'});
       if(vn>1.5){const x1=hL>=1.5?xL:-(vn-1.5)/tA,x2=hR>=1.5?xR:(vn-1.5)/tA;lines15=[[x1,-hz,x2,hz]]}
-      labels=[[[0,vn,hz],'nok '+f(vn,2)+' m',0,-14],[[xL/2,(hL+vn)/2,hz],'c '+f((vn-hL)/sA,2)+' m',0,-12],[[xR*0.62,hR*0.4,hz],'α '+f(r.al,1)+'°',1,-12],
+      labels=[[[0,vn,hz],'nok '+f(vn,2)+' m',0,-14],[[xL/2,(hL+vn)/2,hz],'c '+(hL<0?f(vn/sA,2)+' + '+f(-hL/sA,2):f((vn-hL)/sA,2))+' m',0,-12],[[xR*0.62,hR*0.4,hz],'α '+f(r.al,1)+'°',1,-12],
         [[(fl+fr)/2,0,hz],'vloer '+f(fr-fl,2)+' m',0,14],[[fr,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
       if(hL<0)labels.push([[xL*0.8,hL*0.8,hz],'goot −'+f(-hL,2)+' m',0,14]);if(hR<0)labels.push([[xR,hR,-hz],'goot −'+f(-hR,2)+' m',0,14]);
     } else if(sh==='zadel'){
