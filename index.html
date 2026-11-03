@@ -108,6 +108,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <button type="button" data-nok="haaks">Haaks op voorgevel<br><small>voor → achter, kopgevels voor/achter</small></button></div></div>
 <div class="grid2"><div id="cLwrap"><label id="cLlab">Lengte dak (evenwijdig aan nok, m)</label><input id="c_L" inputmode="decimal" autocomplete="off"></div>
 <div id="cHkwrap"><label>Hoogte gevel onder goot (m)</label><input id="c_hk" inputmode="decimal" autocomplete="off" placeholder="0 = geen"></div></div>
+<div id="cDuwrap" style="margin-top:2px"><label>Óf: dak loopt door onder de zoldervloer (m, verticaal vloer → goot)</label><input id="c_du" inputmode="decimal" autocomplete="off" placeholder="0 = nee"></div>
 <div class="note" id="cKop" style="margin-top:6px"></div>
 <div id="cSum" hidden style="margin-top:8px"></div>
 <button class="ghost" id="dh3dBtn" style="width:100%;margin-top:10px">3D-model ▾</button>
@@ -539,7 +540,8 @@ const DH={ids:['a','b','c','al'],order:[],res:null,itemId:null};
 function dhKeys(){return DH.order.slice(-2)}
 function dhEl(k){return document.getElementById('c_'+k)}
 function dhMsg(t,err){const m=$('#cmsg');m.textContent=t;m.className='cmsg'+(err?' err':'')}
-function dhOff(){const sh=DH.shape;if(!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))return 0;return Math.max(0,num($('#c_hk').value)||0)+(sh==='mansarde'?Math.max(0,num($('#c_mh').value)||0):0)}
+function dhHkS(){const sh=DH.shape;if(!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))return 0;const du=(sh==='zadel'||sh==='lessenaar')?Math.max(0,num($('#c_du')?.value)||0):0;return du>0?-du:Math.max(0,num($('#c_hk').value)||0)}
+function dhOff(){const sh=DH.shape;if(!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))return 0;return dhHkS()+(sh==='mansarde'?Math.max(0,num($('#c_mh').value)||0):0)}
 function dhSolve(){
  DH.off=dhOff();const u=dhKeys(),v={};u.forEach(k=>v[k]=num(dhEl(k).value));
  DH.ids.forEach(k=>{const e=dhEl(k);if(u.includes(k)){e.className='user'}else{e.value='';e.className=''}});
@@ -547,17 +549,27 @@ function dhSolve(){
  const fout=t=>{dhMsg(t,true);dhDraw(null)};
  if(u.length<2){dhMsg(u.length?'Vul nog één waarde in: hellingshoek of een tweede maat.':'');dhDraw(null);dh3d();return}
  if(u.some(k=>!(v[k]>0)))return fout('Gebruik positieve getallen.');
- let {a,b,c,al}=v;const R=Math.PI/180,off=DH.off;if(b!=null){b-=off;if(!(b>0))return fout('Hoogte vloer → nok moet groter zijn dan '+f2(off)+' m ('+(DH.shape==='mansarde'?'gevel onder goot + goot → knik':'gevel onder goot')+').')}
+ let {a,b,c,al}=v;const R=Math.PI/180,off=DH.off;if(b!=null){b-=off;if(!(b>0))if(off<0&&!(b>0))return fout('Vul een positieve hoogte vloer → nok in.');if(!(b>0))return fout('Hoogte vloer → nok moet groter zijn dan '+f2(off)+' m ('+(DH.shape==='mansarde'?'gevel onder goot + goot → knik':'gevel onder goot')+').')}
  if(al!=null){if(al>=90)return fout('Hoek moet kleiner zijn dan 90°.');const r=al*R;
   if(a!=null){b=a*Math.tan(r);c=a/Math.cos(r)}else if(b!=null){a=b/Math.tan(r);c=b/Math.sin(r)}else{a=c*Math.cos(r);b=c*Math.sin(r)}}
  else{if(a!=null&&b!=null)c=Math.hypot(a,b);else if(a!=null){if(c<=a)return fout('c moet langer zijn dan a.');b=Math.sqrt(c*c-a*a)}
   else{if(c<=b)return fout('c moet langer zijn dan b.');a=Math.sqrt(c*c-b*b)}al=Math.atan2(b,a)/R}
  DH.res={a,b,c,al};const dec={a:3,b:3,c:3,al:1};
  DH.ids.forEach(k=>{if(!u.includes(k)){dhEl(k).value=(k==='b'?DH.res.b+off:DH.res[k]).toFixed(dec[k]).replace('.',',');dhEl(k).className='calc'}});
- dhMsg(`${off>0?`Goot → nok ${f2(b)} m · `:''}Lengte nok → goot ${f2(c)} m · helling ${al.toFixed(1).replace('.',',')}° · diepte (2a) ${f2(2*a)} m`);
+ dhMsg(`${off!==0?`Goot → nok ${f2(b)} m · `:''}Lengte nok → goot ${f2(c)} m · helling ${al.toFixed(1).replace('.',',')}° · diepte (2a) ${f2(2*a)} m`);
  dhInfo();
  $('#cok').disabled=false;dhDraw(DH.res);dh3d()}
-function dhDraw(r){const o=r?(DH.off||0):0,a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/(b+o)),w=a*s,h=b*s,hw=o*s,x0=(W-w)/2-15,y0=H-28;
+function dhDrawDu(r,d){const a=r.a,b=r.b,W=320,H=150,s=Math.min((W-110)/a,(H-50)/b),w=a*s,h=b*s,x0=(W-w)/2-15,y0=H-28,yf=y0-d*s,xf=x0+a*d/b*s;
+ const A=[x0,y0],C=[x0+w,y0],B=[x0+w,y0-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,dd)=>x.toFixed(dd).replace('.',',');
+ const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);let s15='';
+ if(b-d>1.5){const x5=x0+a*(d+1.5)/b*s,y5=y0-(d+1.5)*s;s15=`<line x1="${x5}" y1="${y5}" x2="${C[0]}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${y5}" x2="${x5}" y2="${yf}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/><line x1="${x5}" y1="${yf}" x2="${C[0]}" y2="${yf}" stroke="#1f7a45" stroke-width="4"/>`+t(C[0]-5,y5-5,'1,5 m','end','#d4502f')}
+ $('#csvg').innerHTML=`<polygon points="${A} ${B} ${C}" fill="#f1f4f3" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/><polygon points="${xf},${yf} ${B} ${C[0]},${yf}" fill="#e1efea"/><polygon points="${A} ${B} ${C}" fill="none" stroke="#1f6f5c" stroke-width="2.5" stroke-linejoin="round"/>`+
+ `<line x1="${xf}" y1="${yf}" x2="${C[0]}" y2="${yf}" stroke="#17463a" stroke-width="2.5"/>`+t(xf-4,yf+4,'vloer','end','#6b7b76')+t(C[0]+7,(yf+y0)/2+4,F(d,2)+' m','start','#6b7b76')+
+ `<path d="M ${C[0]-9} ${C[1]} L ${C[0]-9} ${C[1]-9} L ${C[0]} ${C[1]-9}" fill="none" stroke="#1f6f5c"/>`+s15+
+ `<path d="M ${A[0]+ra} ${A[1]} A ${ra} ${ra} 0 0 0 ${A[0]+ra*Math.cos(ang)} ${A[1]-ra*Math.sin(ang)}" fill="none" stroke="#d4502f" stroke-width="2"/>`+
+ t((A[0]+C[0])/2,y0+18,'a '+F(a,2)+' m')+t(C[0]+7,(B[1]+yf)/2+4,'b '+F(b-d,2)+' m','start')+
+ t((A[0]+B[0])/2-8,(A[1]+B[1])/2-6,'c '+F(r.c,2)+' m','end')+t(A[0]+ra+6,A[1]-5,'α '+F(r.al,1)+'°','start','#d4502f')}
+function dhDraw(r){const o=r?(DH.off||0):0;if(o<0)return dhDrawDu(r,-o);const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H-50)/(b+o)),w=a*s,h=b*s,hw=o*s,x0=(W-w)/2-15,y0=H-28;
  const F0=[x0,y0],A=[x0,y0-hw],C=[x0+w,y0],B=[x0+w,y0-hw-h],t=(x,y,z,an,col)=>`<text x="${x}" y="${y}" font-size="12" font-weight="700" fill="${col||'#1f6f5c'}" text-anchor="${an||'middle'}">${z}</text>`,F=(x,d)=>x.toFixed(d).replace('.',',');
  const ang=Math.atan2(h,w),ra=Math.min(26,w*.35);let s15='';
  if(r&&b+o>1.5){const h5=1.5-o,x5=h5>0?x0+a*h5/b*s:x0,y5=y0-1.5*s;s15=`<line x1="${x5}" y1="${y5}" x2="${C[0]}" y2="${y5}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`+(h5>0?`<line x1="${x5}" y1="${y5}" x2="${x5}" y2="${y0}" stroke="#d4502f" stroke-width="2" stroke-dasharray="6 4"/>`:'')+`<line x1="${x5}" y1="${y0}" x2="${C[0]}" y2="${y0}" stroke="#1f7a45" stroke-width="4"/>`+t(x5-4,y5+4,'1,5 m','end','#d4502f')}
@@ -574,7 +586,7 @@ function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[]
  else{if(L!=null){dhEl('c').value=String(r.it.lengte);DH.order.push('c')}
   if(hk!=null){dhEl('al').value=String(r.it.helling);DH.order.push('al')}}
  $('#c_L').value=r.it.dhVorm==='schild'||r.it.dhVorm==='tent'?'':(r.it.breedte??'');if(r.it.dhVorm){DH.shape=r.it.dhVorm;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x.dataset.s3===DH.shape))}
- DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
+ DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_du').value=r.it.dhDu||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
  if(src&&!src.bv&&DH.order.includes('b')&&src.b!=null)dhEl('b').value=String(+(+src.b+dhOff()).toFixed(6)).replace('.',',');
  dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide'))return;document.body.classList.add('wide');
@@ -583,7 +595,7 @@ function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide')
  bx.hidden=false;$('#dh3dBtn').hidden=true;const hint=$('#dh3dHint');if(hint)hint.style.fontSize='12px';setTimeout(()=>{window.dh3dResize&&window.dh3dResize();dh3d()},60)}
 window.addEventListener('resize',()=>{if(document.body.classList.contains('dhonly'))dhBreed()});
 function sluitDriehoek(){if(document.body.classList.contains('dhonly'))return;$('#calc').style.display='none';$('#dhAdr').hidden=true;DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
-function openDriehoekLos(){DH.los=true;$('#dhAdr').hidden=false;if(!DH.adres&&cur?.adres){DH.adres=cur.adres;DH.bag=cur.bag||null}dhAdrToon();if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
+function openDriehoekLos(){DH.los=true;$('#dhAdr').hidden=false;if(!DH.adres&&cur?.adres){DH.adres=cur.adres;DH.bag=cur.bag||null}dhAdrToon();if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_du','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
 $('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
 $('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
@@ -605,7 +617,7 @@ $('#c_mh').addEventListener('input',()=>{manTekst();dhSolve()});$('#c_ma').addEv
 function vlakZijde(P,rot){const haaks=DH.nok==='haaks'&&P.sh!=='tent'&&P.sh!=='schild';return(haaks?{0:'links',4:'rechts',2:'voor',6:'achter'}:{0:'voor',4:'achter',2:'links',6:'rechts'})[rot]||''}
 function dakNaam(P,d){const z=vlakZijde(P,d.rot),o=d.opm||'';return'Dakvlak '+z+(/onderste/.test(o)?' (onder, steil)':/bovenste/.test(o)?' (boven)':/Trapezium/.test(o)?' (trapezium)':/Schild/.test(o)?' (driehoek)':/Piramide/.test(o)?' (driehoek)':'')}
 function gevNaam(P,g){const z=vlakZijde(P,g.rot),o=g.opm||'';return(g.kant==='hoog'?'Hoge gevel ':g.kant==='laag'?'Lage gevel ':/Kopgevel|Driehoekige kopgevel/.test(o)?'Kopgevel ':/onder goot/.test(o)?'Gevel onder goot ':/Zijgevel/.test(o)?'Zijgevel ':'Gevel ')+z}
-function dhPlan(){const r=DH.res,sh=DH.shape,L=num($('#c_L').value),n=kopAantal(),hk=Math.max(0,num($('#c_hk').value)||0),ex=extraMaat();if(!r)return null;
+function dhPlan(){const r=DH.res,sh=DH.shape,L=num($('#c_L').value),n=kopAantal(),hk=dhHkS(),ex=extraMaat();if(!r)return null;
  const {a,b,c}=r,dak=[],gev=[];let corrL=0,corrW=0;
  if(sh==='mansarde'){const M=manVals();if(!M)return{fatal:'Vul hoogte goot → knik en helling van het onderste dakvlak in.'};if(!(L>0))return{err:'Vul de lengte van het dak in.'};
   const haaks=DH.nok==='haaks',mal=String(+M.ma.toFixed(1)).replace('.',','),W=2*(a+M.mx);
@@ -620,6 +632,12 @@ function dhPlan(){const r=DH.res,sh=DH.shape,L=num($('#c_L').value),n=kopAantal(
   const P=fin({sh,dak,gev,nKop,nKnie,haaks,lesW:W});P.goTot=(M.mh+b+hk>1.5)?Math.max(0,W-2*t)*L:0;P.man=M;P.vloer=W*L;P.vol=area(W)*L;P.Htot=M.mh+b+hk;return P}
  if(sh==='tent'){for(let k=0;k<4;k++)dak.push({l:c,b:a,rot:k*2,opm:'Piramidedak: driehoek, breedte = ½ × 2a (gelijkwaardig)'});}
  else{if(!(L>0))return{err:'Vul de lengte van het dak in.'};
+  if(sh==='zadel'&&hk<0){const du=-hk,af=a*(b-du)/b,hb=b-du;dak.push({l:c,b:L,rot:0,corr:1},{l:c,b:L,rot:4,corr:1});
+   for(let k=0;k<n;k++)gev.push({b:2*af,h:hb,tri:hb,rh:0,corr:0,rot:k?6:2,opm:'Kopgevel boven zoldervloer (½ × breedte × '+fS(hb)+'); deel onder de vloer hoort bij de verdieping eronder'});corrL=1;
+   const P=fin({sh,dak,gev,nKop:n,nKnie:0,haaks:false});P.vloer=2*af*L;P.vol=af*hb*L;P.Htot=hb;P.goTot=hb>1.5?Math.max(0,2*(af-1.5/Math.tan(r.al*Math.PI/180)))*L:0;P.du=du;return P}
+  if(sh==='lessenaar'&&hk<0){const du=-hk,af=a*(b-du)/b,hb=b-du;dak.push({l:c,b:L,rot:0,corr:1});
+   gev.push({b:L,h:hb,rot:4,corr:1,opm:'Hoge gevel lessenaarsdak (boven zoldervloer)',kant:'hoog'});for(let k=0;k<n;k++)gev.push({b:af,h:hb,tri:hb,rh:0,corr:0,rot:k?6:2,opm:'Zijgevel boven zoldervloer: driehoek ½ × breedte × '+fS(hb)});corrL=1;
+   const P=fin({sh,dak,gev,n,haaks:false,lesW:a});P.vloer=af*L;P.vol=af*hb/2*L;P.Htot=hb;P.goTot=hb>1.5?Math.max(0,af-1.5/Math.tan(r.al*Math.PI/180))*L:0;P.du=du;return P}
   if(sh==='zadel'){const haaks=DH.nok==='haaks';
    const nKop=haaks?2:n, nKnie=hk>0?(haaks?n:2):0;
    dak.push({l:c,b:L,rot:0,corr:haaks?0:1},{l:c,b:L,rot:4,corr:haaks?0:1});
@@ -650,30 +668,30 @@ function dhPlan(){const r=DH.res,sh=DH.shape,L=num($('#c_L').value),n=kopAantal(
 function gevM2(g,x){if(g.area)return g.area(g.b+(g.corr?x:0));if(g.tri==null)return null;const w=g.b+(g.corr?x:0);return g.half?(w*g.tri/2+w*g.rh):(w*g.tri/2+w*g.rh)}
 function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs.hidden=true;return}
  const {a,b,al}=DH.res,sh=DH.shape,R=Math.PI/180,tA=Math.tan(al*R),L=num($('#c_L').value);
- const hk=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?Math.max(0,num($('#c_hk').value)||0):0;const M=sh==='mansarde'?manVals():null;
+ const hk=dhHkS();const M=sh==='mansarde'?manVals():null;
  if(sh==='mansarde'&&!M){gi.innerHTML='<b>Mansardedak:</b> vul hoogte goot → knik en helling van het onderste dakvlak in.';gi.hidden=false;cs.hidden=true;return}
  const nd=1.5-hk;let t,half,H;
  if(M){half=a+M.mx;H=M.mh+b+hk;t=nd<=0?0:(M.mh>=nd?nd/Math.tan(M.ma*R):M.mx+(nd-M.mh)/tA)}else{half=a;H=b+hk;t=nd<=0?0:nd/tA}
  if(H<=1.5)gi.innerHTML=`<b>1,5 m-lijn:</b> hoogte max ${f2(H)} m → geen GO ≥ 1,5 m.`;
  else{const st=Math.max(0,half-t),gb=sh==='lessenaar'?st:2*st;
-  gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk?', incl. gevel onder goot':''}).<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
+  gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. gevel onder goot':hk<0?', dak loopt '+f2(-hk)+' m door onder de vloer':''}).<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
  gi.hidden=false;
  const P=dhPlan();if(!P||P.err||P.fatal){cs.hidden=true;return}
  const sd=P.dak.reduce((s2,x)=>s2+x.l*x.b,0),sg=P.gev.filter(g=>!g.vraagKant).reduce((s2,g)=>s2+(gevM2(g,0)??g.b*g.h),0),ng=P.gev.filter(g=>!g.vraagKant).length;
  const gvz=P.gev.filter(g=>!g.vraagKant);const rows=[['h',DAKNAAM[P.sh]+' · overzicht'],['s','Dakvlakken'],...P.dak.map(d=>[dakNaam(P,d)+(d.hel?' · '+d.hel+'°':''),f2(d.l*d.b)+' m²']),['<b>Totaal dak</b>','<b>'+f2(sd)+' m²</b>'],['s','Gevelvlakken (zolderniveau)'],...(gvz.length?gvz.map(g=>[gevNaam(P,g),f2(gevM2(g,0)??g.b*g.h)+' m²']):[['geen','']]),...(gvz.length?[['<b>Totaal gevels</b>','<b>'+f2(sg)+' m²</b>']]:[]),['s','Zolder']];
  if(P.gev.some(g=>g.vraagKant))rows.push(['+ hoge óf lage zijgevel (wordt gevraagd)','']);
- if(P.Htot!=null)rows.push(['Nokhoogte',f2(P.Htot)+' m']);if(P.vloer!=null)rows.push(['Zoldervloer',f2(P.vloer)+' m²']);
+ if(P.du)rows.push(['Dak loopt door onder vloer',f2(P.du)+' m']);if(P.Htot!=null)rows.push(['Nokhoogte',f2(P.Htot)+' m']);if(P.vloer!=null)rows.push(['Zoldervloer',f2(P.vloer)+' m²']);
  if(P.goTot!=null)rows.push(['<b>GO ≥ 1,5 m</b>','<b>'+f2(P.goTot)+' m²</b>']);if(P.vol!=null)rows.push(['Volume',f2(P.vol)+' m³']);
  cs.innerHTML='<table>'+rows.map(x=>x[0]==='h'?`<tr class="h"><td colspan="2">${x[1]}</td></tr>`:x[0]==='s'?`<tr class="s"><td colspan="2">${x[1]}</td></tr>`:`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')+'</table>';cs.hidden=false}
 function dhSrcObj(){const k=dhKeys(),o={keys:k,c:DH.res.c,bv:1};k.forEach(x=>o[x]=num(dhEl(x).value));return o}
 function dhKopTekst(){const n=kopAantal(),sh=DH.shape,haaks=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')&&DH.nok==='haaks';$('#cMan').hidden=sh!=='mansarde';manTekst();
  const lig=cur?.type?(ligLabel()||{vrijstaand:'Vrijstaand'}[cur.type.wtype]||''):'';
- $('#cNok').hidden=true;$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
+ $('#cNok').hidden=true;$('#cDuwrap').hidden=!(sh==='zadel'||sh==='lessenaar');$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
  $('#cLlab').textContent=haaks?'Lengte dak (voor → achter, m)':sh==='zadel'||sh==='lessenaar'||sh==='mansarde'?'Lengte dak (bouwmuur → bouwmuur, m)':'Lengte dak (evenwijdig aan nok, m)';
  let t=lig;if(sh==='zadel'||sh==='mansarde')t+=haaks?` → kopgevels voor + achter${num($('#c_hk').value)>0?`, ${n} gevel${n===1?'':'s'} onder goot`:''}`:` → ${n} kopgevel${n===1?'':'s'}${num($('#c_hk').value)>0?', gevels onder goot voor + achter':''}`;
  else if(sh==='lessenaar')t+=haaks?` → zijgevels voor + achter${n>=2?', hoge en lage kant':n===1?', 1 zijkant (wordt gevraagd)':''}`:` → hoge gevel${num($('#c_hk').value)>0?' + lage gevel':''}, ${n} zijgevel${n===1?'':'s'}`;
  $('#cKop').textContent=t}
-$('#c_L').addEventListener('input',()=>{dhSolve()});$('#c_hk').addEventListener('input',()=>{dhKopTekst();dhSolve()});
+$('#c_L').addEventListener('input',()=>{dhSolve()});$('#c_hk').addEventListener('input',()=>{if(num($('#c_hk').value)>0)$('#c_du').value='';dhKopTekst();dhSolve()});$('#c_du').addEventListener('input',()=>{if(num($('#c_du').value)>0)$('#c_hk').value='';dhKopTekst();dhSolve()});
 DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(bt=>bt.onclick=()=>{DH.nok=bt.dataset.nok;document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhInfo()});
 $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const P=dhPlan();if(P&&P.fatal){toast(P.fatal);return}
  const al=DH.res.al.toFixed(1).replace(/\.0$/,'').replace('.',',');
@@ -697,8 +715,8 @@ $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const 
  else if(P.corrW)x=(await vraag(`${ligLabel()}: ${Math.round(ex*100)} cm erbij tellen bij de breedte van de ${P.sh==='lessenaar'?'zijgevels':'kopgevels'} (bouwmuur → bouwmuur)?\n\n${f2(P.W)} m → ${f2(P.W+ex)} m`,'Ja, erbij','Nee'))?ex:0;
  const id=DH.itemId,lijst=r.lijst,base=r.it.orient||cur.orient?.voor||'',src=r.it;if(!r.it.orient&&base)zetO(r.it,base);
  for(let i=lijst.length-1;i>=0;i--)if(lijst[i].dhGroup===id)lijst.splice(i,1);
- const zetDak=(it,d)=>{it.lengte=fS(d.l);it.breedte=fS(d.b);it.breedte_x=d.corr?x:0;it.helling=d.hel||al;it.dhVorm=P.sh;it.hkGO=num($('#c_hk').value)>0&&(P.sh==='zadel'||P.sh==='lessenaar')?$('#c_hk').value:'';if(d.opm)it.opm=d.opm;else if(it.opm&&/^(Trapezium|Schild|Tentdak|Piramidedak|Mansarde)/.test(it.opm))it.opm=''};
- zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
+ const zetDak=(it,d)=>{it.lengte=fS(d.l);it.breedte=fS(d.b);it.breedte_x=d.corr?x:0;it.helling=d.hel||al;it.dhVorm=P.sh;it.hkGO=(P.sh==='zadel'||P.sh==='lessenaar')&&dhHkS()!==0?String(dhHkS()).replace('.',','):'';if(d.opm)it.opm=d.opm;else if(it.opm&&/^(Trapezium|Schild|Tentdak|Piramidedak|Mansarde)/.test(it.opm))it.opm=''};
+ zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
  let pos=lijst.indexOf(src)+1;
  P.dak.slice(1).forEach(d=>{const it=nieuwItem('dakvlak');['isolatie','rc','bewijs'].forEach(k=>{if(src[k]!=null)it[k]=src[k]});zetDak(it,d);zetO(it,rotO(base,d.rot));it.dhGroup=id;lijst.splice(pos++,0,it)});
  P.gev.forEach(g=>{const it=nieuwItem('gevel');it.breedte=fS(g.b);it.breedte_x=g.corr?x:0;it.hoogte=fS(g.h);const gm=gevM2(g,x);if(gm!=null)it.m2=fS(gm);it.opm=g.opm;zetO(it,rotO(base,g.rot));it.dhGroup=id;lijst.push(it)});
@@ -772,7 +790,7 @@ async function maakDriehoekPdf(){
  if(!DH.res){toast('Vul eerst de driehoek in');return}
  toast('PDF maken…');
  try{await laadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')}catch(e){toast('PDF-bibliotheek niet geladen (internet?)');return}
- const {a,b,c,al}=DH.res,sh=DH.shape,R=Math.PI/180,L=num($('#c_L').value),hk=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?Math.max(0,num($('#c_hk').value)||0):0,M=sh==='mansarde'?manVals():null;
+ const {a,b,c,al}=DH.res,sh=DH.shape,R=Math.PI/180,L=num($('#c_L').value),hk=dhHkS(),M=sh==='mansarde'?manVals():null;
  const P=dhPlan();const ok=P&&!P.err&&!P.fatal;
  const nd=1.5-hk,tA=Math.tan(al*R);let t,half,H;if(M){half=a+M.mx;H=M.mh+b+hk;t=nd<=0?0:(M.mh>=nd?nd/Math.tan(M.ma*R):M.mx+(nd-M.mh)/tA)}else{half=a;H=b+hk;t=nd<=0?0:nd/tA}
  const st=H>1.5?Math.max(0,half-t):0,gb=sh==='lessenaar'?st:2*st;
@@ -799,7 +817,7 @@ async function maakDriehoekPdf(){
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
   ['Dakvorm',DAKNAAM[sh]],
   ...(M?[['Onderste dakvlak mansarde',`hoogte goot -> knik ${f2(M.mh)} m · helling ${M.ma} graden · lengte ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`]]:[]),
-  ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Hoogte gevel onder goot',hk?f2(hk)+' m':'geen'],['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
+  ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Hoogte gevel onder goot',hk>0?f2(hk)+' m':'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m (verticaal vloer -> goot); dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');
  tabel(H>1.5?[['Afstand 1,5 m-lijn uit de goot (horizontaal)',f2(t)+' m'],['Strook >= 1,5 m per dakzijde',f2(st)+' m'],['GO-breedte',f2(gb)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':(L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?f2(gb*L)+' m2':'vul lengte dak in'),true]]:[['Netto hoogte',`maximaal ${f2(H)} m: geen vloerdeel met netto hoogte >= 1,5 m -> GO zolder 0 m2`,true]]);
  if(ok){kop('4. Overzicht vlakken');const sd=P.dak.reduce((q,x)=>q+x.l*x.b,0),gv=P.gev.filter(g=>!g.vraagKant),sg=gv.reduce((q,g)=>q+(gevM2(g,0)??g.b*g.h),0);
