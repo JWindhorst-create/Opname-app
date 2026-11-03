@@ -75,7 +75,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 #dhShapes button svg{width:36px;height:22px;background:none}
 #dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
 #dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
-.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
+.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#dhAdrKader{margin-top:6px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:7px 10px;background:#f8fbf9;font-size:12.5px;line-height:1.45;color:var(--muted,#5d6e63)}#dhAdrKader .dhhel{margin-top:3px;gap:5px}#dhAdrKader .dhchip{font-size:12.5px;padding:2px 9px}#dhAdrKader .note{font-size:12.5px;margin:2px 0 0}#dhAdrKader .dhal{margin-top:4px}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
 </head>
 <body>
 <header><h1 id="titel">Opname Energielabel</h1><div class="steps" id="steps"></div></header>
@@ -84,7 +84,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div id="toast"></div>
 <div id="modal"><div class="box"><div id="mtekst"></div><div id="mkeuze" hidden></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
 <div id="calc"><div class="box"><div class="ihead"><span>📐 Driehoek dakvlak</span><button class="small ghost" id="cdicht">✕</button></div>
-<div id="dhAdr" hidden style="margin:2px 0 10px"><label style="margin-top:4px">Adres <small style="color:var(--muted)">· voor de PDF (BAG-gegevens worden opgehaald)</small></label><div class="row" style="align-items:center"><input id="dhAdrQ" autocomplete="off" placeholder="Typ het adres, bijv. Orangerie 52 Gouda of 2805AB 52"><button type="button" class="small ghost" id="dhAdrX" title="Adres wissen" style="flex:0 0 auto" hidden>✕</button></div><div id="dhAdrRes"></div><div class="note" id="dhAdrInfo" style="margin-top:4px"></div><div id="dhVlakken"></div></div>
+<div id="dhAdr" hidden style="margin:2px 0 10px"><label style="margin-top:4px">Adres <small style="color:var(--muted)">· voor de PDF (BAG-gegevens worden opgehaald)</small></label><div class="row" style="align-items:center"><input id="dhAdrQ" autocomplete="off" placeholder="Typ het adres, bijv. Orangerie 52 Gouda of 2805AB 52"><button type="button" class="small ghost" id="dhAdrX" title="Adres wissen" style="flex:0 0 auto" hidden>✕</button></div><div id="dhAdrRes"></div><div id="dhAdrKader" hidden><div id="dhAdrInfo"></div><div id="dhVlakken"></div></div></div>
 <p class="note" style="margin:4px 0 8px">Vul 2 waarden in: hellingshoek + één maat, óf twee maten (bijv. breedte a en hoogte b). De rest wordt berekend.</p>
 <svg id="csvg" viewBox="0 0 320 150"></svg>
 <div style="margin-bottom:6px"><label style="font-weight:700;color:var(--ink)">α · Hellingshoek dakvlak (°) <small style="font-weight:400;color:var(--muted)">· of laat berekenen</small></label><input id="c_al" inputmode="decimal" autocomplete="off" placeholder="bijv. 45"></div>
@@ -107,8 +107,8 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <button type="button" data-nok="par" class="on">Evenwijdig aan voorgevel<br><small>muur → muur, gevels voor/achter</small></button>
 <button type="button" data-nok="haaks">Haaks op voorgevel<br><small>voor → achter, kopgevels voor/achter</small></button></div></div>
 <div class="grid2"><div id="cLwrap"><label id="cLlab">Lengte dak (evenwijdig aan nok, m)</label><input id="c_L" inputmode="decimal" autocomplete="off"></div>
-<div id="cHkwrap"><label>Hoogte gevel onder goot (m)</label><input id="c_hk" inputmode="decimal" autocomplete="off" placeholder="0 = geen"></div></div>
-<div id="cDuwrap" style="margin-top:2px"><label>Óf: dak loopt door onder de zoldervloer (m, verticaal vloer → goot)</label><input id="c_du" inputmode="decimal" autocomplete="off" placeholder="0 = nee"></div>
+<div id="cHkwrap"><label>Opstand vloer → goot (m)</label><input id="c_hk" inputmode="decimal" autocomplete="off" placeholder="0 = geen"></div></div>
+<div id="cDuwrap" style="margin-top:2px"><label>Óf: goot ligt onder de vloer (m, verticaal vloer → goot)</label><input id="c_du" inputmode="decimal" autocomplete="off" placeholder="0 = nee"></div>
 <div class="note" id="cKop" style="margin-top:6px"></div>
 <div id="cSum" hidden style="margin-top:8px"></div>
 <button class="ghost" id="dh3dBtn" style="width:100%;margin-top:10px">3D-model ▾</button>
@@ -616,7 +616,7 @@ $('#c_mh').addEventListener('input',()=>{manTekst();dhSolve()});$('#c_ma').addEv
 // ---------- namen per dak- en gevelvlak (overzicht + PDF) ----------
 function vlakZijde(P,rot){const haaks=DH.nok==='haaks'&&P.sh!=='tent'&&P.sh!=='schild';return(haaks?{0:'links',4:'rechts',2:'voor',6:'achter'}:{0:'voor',4:'achter',2:'links',6:'rechts'})[rot]||''}
 function dakNaam(P,d){const z=vlakZijde(P,d.rot),o=d.opm||'';return'Dakvlak '+z+(/onderste/.test(o)?' (onder, steil)':/bovenste/.test(o)?' (boven)':/Trapezium/.test(o)?' (trapezium)':/Schild/.test(o)?' (driehoek)':/Piramide/.test(o)?' (driehoek)':'')}
-function gevNaam(P,g){const z=vlakZijde(P,g.rot),o=g.opm||'';return(g.kant==='hoog'?'Hoge gevel ':g.kant==='laag'?'Lage gevel ':/Kopgevel|Driehoekige kopgevel/.test(o)?'Kopgevel ':/onder goot/.test(o)?'Gevel onder goot ':/Zijgevel/.test(o)?'Zijgevel ':'Gevel ')+z}
+function gevNaam(P,g){const z=vlakZijde(P,g.rot),o=g.opm||'';return(g.kant==='hoog'?'Hoge gevel ':g.kant==='laag'?'Lage gevel ':/Kopgevel|Driehoekige kopgevel/.test(o)?'Kopgevel ':/onder goot/.test(o)?'Opstand ':/Zijgevel/.test(o)?'Zijgevel ':'Gevel ')+z}
 function dhPlan(){const r=DH.res,sh=DH.shape,L=num($('#c_L').value),n=kopAantal(),hk=dhHkS(),ex=extraMaat();if(!r)return null;
  const {a,b,c}=r,dak=[],gev=[];let corrL=0,corrW=0;
  if(sh==='mansarde'){const M=manVals();if(!M)return{fatal:'Vul hoogte goot → knik en helling van het onderste dakvlak in.'};if(!(L>0))return{err:'Vul de lengte van het dak in.'};
@@ -674,7 +674,7 @@ function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs
  if(M){half=a+M.mx;H=M.mh+b+hk;t=nd<=0?0:(M.mh>=nd?nd/Math.tan(M.ma*R):M.mx+(nd-M.mh)/tA)}else{half=a;H=b+hk;t=nd<=0?0:nd/tA}
  if(H<=1.5)gi.innerHTML=`<b>1,5 m-lijn:</b> hoogte max ${f2(H)} m → geen GO ≥ 1,5 m.`;
  else{const st=Math.max(0,half-t),gb=sh==='lessenaar'?st:2*st;
-  gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. gevel onder goot':hk<0?', dak loopt '+f2(-hk)+' m door onder de vloer':''}).<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
+  gi.innerHTML=`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. opstand vloer → goot':hk<0?', dak loopt '+f2(-hk)+' m door onder de vloer':''}).<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
  gi.hidden=false;
  const P=dhPlan();if(!P||P.err||P.fatal){cs.hidden=true;return}
  const sd=P.dak.reduce((s2,x)=>s2+x.l*x.b,0),sg=P.gev.filter(g=>!g.vraagKant).reduce((s2,g)=>s2+(gevM2(g,0)??g.b*g.h),0),ng=P.gev.filter(g=>!g.vraagKant).length;
@@ -688,7 +688,7 @@ function dhKopTekst(){const n=kopAantal(),sh=DH.shape,haaks=(sh==='zadel'||sh===
  const lig=cur?.type?(ligLabel()||{vrijstaand:'Vrijstaand'}[cur.type.wtype]||''):'';
  $('#cNok').hidden=true;$('#cDuwrap').hidden=!(sh==='zadel'||sh==='lessenaar');$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
  $('#cLlab').textContent=haaks?'Lengte dak (voor → achter, m)':sh==='zadel'||sh==='lessenaar'||sh==='mansarde'?'Lengte dak (bouwmuur → bouwmuur, m)':'Lengte dak (evenwijdig aan nok, m)';
- let t=lig;if(sh==='zadel'||sh==='mansarde')t+=haaks?` → kopgevels voor + achter${num($('#c_hk').value)>0?`, ${n} gevel${n===1?'':'s'} onder goot`:''}`:` → ${n} kopgevel${n===1?'':'s'}${num($('#c_hk').value)>0?', gevels onder goot voor + achter':''}`;
+ let t=lig;if(sh==='zadel'||sh==='mansarde')t+=haaks?` → kopgevels voor + achter${num($('#c_hk').value)>0?`, ${n} gevel${n===1?'':'s'} onder goot`:''}`:` → ${n} kopgevel${n===1?'':'s'}${num($('#c_hk').value)>0?', opstanden voor + achter':''}`;
  else if(sh==='lessenaar')t+=haaks?` → zijgevels voor + achter${n>=2?', hoge en lage kant':n===1?', 1 zijkant (wordt gevraagd)':''}`:` → hoge gevel${num($('#c_hk').value)>0?' + lage gevel':''}, ${n} zijgevel${n===1?'':'s'}`;
  $('#cKop').textContent=t}
 $('#c_L').addEventListener('input',()=>{dhSolve()});$('#c_hk').addEventListener('input',()=>{if(num($('#c_hk').value)>0)$('#c_du').value='';dhKopTekst();dhSolve()});$('#c_du').addEventListener('input',()=>{if(num($('#c_du').value)>0)$('#c_hk').value='';dhKopTekst();dhSolve()});
@@ -817,7 +817,7 @@ async function maakDriehoekPdf(){
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
   ['Dakvorm',DAKNAAM[sh]],
   ...(M?[['Onderste dakvlak mansarde',`hoogte goot -> knik ${f2(M.mh)} m · helling ${M.ma} graden · lengte ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`]]:[]),
-  ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Hoogte gevel onder goot',hk>0?f2(hk)+' m':'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m (verticaal vloer -> goot); dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
+  ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Opstand vloer -> goot',hk>0?f2(hk)+' m':'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m (verticaal vloer -> goot); dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');
  tabel(H>1.5?[['Afstand 1,5 m-lijn uit de goot (horizontaal)',f2(t)+' m'],['Strook >= 1,5 m per dakzijde',f2(st)+' m'],['GO-breedte',f2(gb)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':(L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?f2(gb*L)+' m2':'vul lengte dak in'),true]]:[['Netto hoogte',`maximaal ${f2(H)} m: geen vloerdeel met netto hoogte >= 1,5 m -> GO zolder 0 m2`,true]]);
  if(ok){kop('4. Overzicht vlakken');const sd=P.dak.reduce((q,x)=>q+x.l*x.b,0),gv=P.gev.filter(g=>!g.vraagKant),sg=gv.reduce((q,g)=>q+(gevM2(g,0)??g.b*g.h),0);
@@ -979,7 +979,7 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
 try{const o=JSON.parse(localStorage.getItem('dhLosAdres')||'null');if(o&&o.adres){DH.adres=o.adres;DH.bag=o.bag||null}}catch(e){}
 function dhAdrBewaar(){try{DH.adres?localStorage.setItem('dhLosAdres',JSON.stringify({adres:DH.adres,bag:DH.bag})):localStorage.removeItem('dhLosAdres')}catch(e){}}
 function dhAdrToon(){const a=DH.adres,b=DH.bag;$('#dhAdrQ').value=a?.naam||'';$('#dhAdrX').hidden=!a;$('#dhAdrRes').innerHTML='';
- $('#dhAdrInfo').innerHTML=a?('✓ '+esc(a.naam)+(b?.bouwjaar?' · bouwjaar '+esc(b.bouwjaar):'')+(b?.oppervlakte?' · '+esc(b.oppervlakte)+' m² GO (BAG)':'')+(b?.pandId?' · pand '+esc(b.pandId):'')):''}
+ $('#dhAdrKader').hidden=!a;$('#dhAdrInfo').innerHTML=a?('<div style="color:var(--ink,#17201d);font-weight:600">✓ '+esc(a.naam)+'</div>'+((b?.bouwjaar||b?.pandId)?'<div>'+[b?.bouwjaar?'bouwjaar '+esc(b.bouwjaar):'',b?.pandId?'pand '+esc(b.pandId):''].filter(Boolean).join(' · ')+'</div>':'')):''}
 let dhAdrT=0,dhAdrNr=0,dhAdrDocs=[];
 $('#dhAdrQ').addEventListener('input',e=>{clearTimeout(dhAdrT);const q=e.target.value.trim();if(q.length<3){$('#dhAdrRes').innerHTML='';return}const nr=++dhAdrNr;
  dhAdrT=setTimeout(async()=>{try{const r=await suggestAdres(q);if(nr!==dhAdrNr)return;dhAdrDocs=r;$('#dhAdrRes').innerHTML=r.length?'<div class="sug">'+r.map((d,i)=>`<div class="res" data-dhadr="${i}">${esc(d.weergavenaam)}</div>`).join('')+'</div>':'<p class="note">Geen adres gevonden.</p>'}
@@ -1032,7 +1032,7 @@ async function dhVlakkenLaden(){const pid=DH.bag?.pandId,box=$('#dhVlakken');if(
   if(DH.bag?.pandId!==pid)return;const v=vlakken3D(j);if(!v){box.innerHTML='';return}v.pid=pid;DH.vlakken=v;dhVlakkenToon()}
  catch(e){box.innerHTML=''}}
 function dhVlakkenToon(){const v=DH.vlakken,box=$('#dhVlakken');if(!box||!v)return;
- box.innerHTML=v.daken.length?`<div class="dhhel"><span class="note">Hellingshoek schuine daken (3DBAG):</span> ${v.daken.map(d=>`<button type="button" class="dhchip" data-dhal="${d.slope}" title="Invullen bij α">${RICHT8L[d.r]} <b>${String(d.slope).replace('.',',')}°</b></button>`).join('')}</div>`:'<p class="note" style="margin:4px 0 0">Geen schuine dakvlakken in 3DBAG voor dit pand.</p>'}
+ box.innerHTML=v.daken.length?`<div class="dhal">Hellingshoek schuine daken (3DBAG):</div><div class="dhhel">${v.daken.map(d=>`<button type="button" class="dhchip" data-dhal="${d.slope}" title="Invullen bij α">${RICHT8L[d.r]} <b>${String(d.slope).replace('.',',')}°</b></button>`).join('')}</div>`:'<p class="note" style="margin:4px 0 0">Geen schuine dakvlakken in 3DBAG voor dit pand.</p>'}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-dhal]');if(!b)return;const inp=$('#c_al');inp.value=String(b.dataset.dhal).replace('.',',');inp.dispatchEvent(new Event('input',{bubbles:true}));inp.focus();toast&&toast('Hellingshoek '+inp.value+'° ingevuld')});
 {const _t=dhAdrToon;dhAdrToon=function(){_t.apply(this,arguments);dhVlakkenLaden()}}
 function vlakkenPdfRijen(){const v=DH.vlakken;if(!v||!v.daken.length)return[];return[['Hellingshoek schuine daken (3DBAG)',v.daken.map(d=>RICHT8L[d.r]+' '+String(d.slope).replace('.',',')+' graden').join(' · ')]]}
