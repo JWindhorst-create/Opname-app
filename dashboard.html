@@ -543,9 +543,47 @@ body.v-opname{background-image:none!important}
 .db-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}.db-form label{display:flex;flex-direction:column;gap:4px}.db-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:7px 10px;border:1px solid var(--g200);border-radius:8px;margin-bottom:5px;background:#fff}.db-n{font-weight:600;font-size:13px;overflow-wrap:anywhere}
 .wt-card{border:2px solid #2D6042}.wt-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.wt-badge{display:inline-block;background:#B3261E;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;vertical-align:2px}
 .wt-src{border-top:1px solid var(--g200);padding:8px 0}.wt-h a{color:#245C45}.wt-l{margin:4px 0 0 18px;font-size:13px;line-height:1.55}.wt-new{background:#FFF0D6;color:#8A5300;border-radius:5px;padding:0 6px;font-size:11px;font-weight:700}.wt-err{color:#B3261E}.tile{position:relative}.wt-tb{position:absolute;top:8px;right:8px;background:#B3261E;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700}.wt-card.wt-stil{border:1px solid var(--g200)}.wt-card.wt-stil .wt-top h3{font-size:15px}.wt-det summary{cursor:pointer;margin:4px 0}
+
+.mk-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mk-seg{display:flex;border:1px solid var(--g200);border-radius:8px;overflow:hidden;max-width:520px}
+.mk-seg label{flex:1;cursor:pointer}
+.mk-seg input{position:absolute;opacity:0;pointer-events:none}
+.mk-seg span{display:block;text-align:center;padding:8px 6px;font-size:13px;font-weight:700;color:var(--g800);background:#fff;border-left:1px solid var(--g200);white-space:nowrap}
+.mk-seg label:first-child span{border-left:0}
+.mk-seg input:checked+span{background:#2D6042;color:#fff}
+.mk-seg input:focus-visible+span{outline:2px solid #2D6042;outline-offset:-3px}
+.mk-opt{display:none;font-size:12.5px;color:var(--muted);margin:8px 0 2px}
+.mk-opt .subsline{margin-bottom:4px}
+.mk-bij{margin-top:12px;padding-top:10px;border-top:1px solid var(--g200)}
+.mk-check{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:13.5px;cursor:pointer;color:var(--g800)}
+.mk-check input{width:16px;height:16px;accent-color:#2D6042}
+.mk-bij-opts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 0 23px;font-size:13px;color:var(--muted)}
+.mk-bij-opts select{width:auto;min-width:0}
+.mk-in{display:inline-flex;align-items:center;gap:6px}
+.mk-help{margin-left:auto;width:24px;height:24px;border-radius:50%;border:1.5px solid #2D6042;background:#fff;color:#2D6042;font-weight:800;font-size:13px;cursor:pointer;line-height:1;padding:0}
+.mk-help:hover{background:#2D6042;color:#fff}
+.mk-modal{position:fixed;inset:0;background:rgba(20,40,30,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.mk-modal[hidden]{display:none}
+.mk-box{background:#fff;border-radius:14px;max-width:460px;width:100%;padding:22px 22px 18px;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.mk-box h4{margin:6px 0 8px;font-size:17px;color:#2D6042}
+.mk-wt-body{font-size:14px;line-height:1.5;color:#2b3a32;min-height:96px}
+.mk-wt-body ul{margin:6px 0 0;padding-left:18px}
+.mk-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:16px;cursor:pointer;color:#5d6b63}
+.mk-dots{display:flex;gap:6px}
+.mk-dots i{width:8px;height:8px;border-radius:50%;background:#d5e2da}
+.mk-dots i.on{background:#2D6042}
+.mk-nav{display:flex;justify-content:space-between;margin-top:16px}
+@media(max-width:640px){.mk-row{grid-template-columns:1fr}.mk-seg span{font-size:12px;padding:8px 3px}}
 </style>
 </head>
 <body>
+<div class="mk-modal" id="mk-modal" hidden><div class="mk-box" role="dialog" aria-modal="true" aria-labelledby="mk-wt-title">
+ <button type="button" class="mk-x" id="mk-wt-x" aria-label="Sluiten">✕</button>
+ <div class="mk-dots" id="mk-wt-dots"></div>
+ <h4 id="mk-wt-title"></h4><div class="mk-wt-body" id="mk-wt-body"></div>
+ <div class="mk-nav"><button type="button" class="btn sec" id="mk-wt-prev">Vorige</button><button type="button" class="btn" id="mk-wt-next">Volgende</button></div>
+</div></div>
+
 <header class="topbar"><div class="topbar-in">
  <button type="button" id="home-link" class="home-link" title="Naar het dashboard"><img src="data:image/jpeg;base64,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" alt="Logo Energielabels Nederland"><div><div class="t1">Energielabels Nederland</div><div class="t2" id="top-title">Dashboard</div></div></button>
  <div class="spacer"></div>
@@ -687,10 +725,10 @@ body.v-opname{background-image:none!important}
     <div class="progress" id="read-progress"><div></div></div>
     <div class="msg" id="read-msg"></div>
    </div>
-   <div class="card cmp">
-    <h3><span class="step">3</span>Mappen aanmaken</h3>
-    <div class="g3">
-     <div><label class="f" for="fmt">Mapnaam</label>
+   <div class="card cmp" id="mk-card">
+    <h3><span class="step">3</span>Mappen aanmaken<button type="button" class="mk-help" id="mk-help" title="Hoe werkt het?" aria-label="Uitleg mappen aanmaken">?</button></h3>
+    <div class="mk-row">
+     <div><label class="f" for="fmt">Mapnaam per adres</label>
       <select id="fmt">
        <option value="pcnr">Postcode, nr, Plaats, Straat</option>
        <option value="dossier">Projectdossier Straat-nr Plaats</option>
@@ -699,39 +737,39 @@ body.v-opname{background-image:none!important}
        <option value="plaats">Plaats - Straat nr</option>
       </select></div>
      <div><label class="f" for="project">Projectmap (optioneel)</label><input type="text" id="project" placeholder="Bijv. VvE Puttestraat Gouda" title="Als ingevuld, komen alle adresmappen in deze projectmap"></div>
-     <div><label class="f">Wat wil je maken?</label>
-      <div class="seg" id="mk-modes">
-       <label><input type="radio" name="mk-mode" value="main"><span>Hoofdmappen</span></label>
-       <label><input type="radio" name="mk-mode" value="subs"><span>+ submappen</span></label>
-       <label><input type="radio" name="mk-mode" value="full" checked><span>+ bijlagen</span></label>
-      </div></div>
     </div>
-    <div class="mode-desc"><span data-m="main">Alleen één map per adres.</span><span data-m="subs" id="mode-subs-desc">Met submappen erin</span><span data-m="full" id="mode-full-desc">Daarna per adres de gevel aanklikken; het rapport komt in Info</span></div>
-    <div class="g3" id="opt-row">
-     <div id="subs-box" class="span2">
-      <label class="f">Submappen in elke adresmap <button type="button" class="link-btn" id="subs-reset">standaard</button></label>
-      <div class="subsline"><div class="chips" id="subs-chips"></div><div class="addrow"><input type="text" id="subs-new" placeholder="Nieuwe submap"><button class="btn sec mini" type="button" id="subs-add">+</button></div></div>
-      <input type="hidden" id="subs" value="Info, Foto's, Opname">
-     </div>
-     <div id="rep-box">
-      <label class="f" for="rep-type">Rapport per adres</label>
-      <select id="rep-type">
+    <label class="f" style="margin-top:10px">Soort mappen</label>
+    <div class="mk-seg" id="mk-modes">
+     <label><input type="radio" name="mk-mode" value="main"><span>Alleen adresmap</span></label>
+     <label><input type="radio" name="mk-mode" value="subs" checked><span>Met submappen</span></label>
+     <label><input type="radio" name="mk-mode" value="innax"><span>INNAX</span></label>
+    </div>
+    <div class="mk-opt" data-m="main">Eén lege map per adres.</div>
+    <div class="mk-opt" data-m="subs">
+     <div class="subsline"><div class="chips" id="subs-chips"></div><div class="addrow"><input type="text" id="subs-new" placeholder="Submap toevoegen"><button class="btn sec mini" type="button" id="subs-add">+</button></div></div>
+     <button type="button" class="link-btn" id="subs-reset">standaard terugzetten</button>
+     <input type="hidden" id="subs" value="Info, Foto's, Opname">
+    </div>
+    <div class="mk-opt" data-m="innax">Standaard INNAX-indeling per adres: 1) Projectdossier t/m 9) Opdracht, met het Bijlage 4-formulier erin.</div>
+    <div class="mk-bij">
+     <label class="mk-check"><input type="checkbox" id="mk-bij" checked> <span>Bijlagen (rapporten) direct meemaken</span></label>
+     <div class="mk-bij-opts" id="mk-bij-opts">
+      <select id="rep-type" title="Welk rapport per adres">
        <option value="innax">INNAX (3 PDF's apart)</option>
-       <option value="logo">Losse opname + logo</option>
-       <option value="plain">Losse opname zonder logo</option>
-       <option value="split">Bijlage 4 apart + logo</option>
-       <option value="splitplain">Bijlage 4 apart zonder logo</option>
+       <option value="logo">Objectdossier met logo</option>
+       <option value="plain">Objectdossier zonder logo</option>
+       <option value="split">Bijlage 4 apart, met logo</option>
+       <option value="splitplain">Bijlage 4 apart, zonder logo</option>
       </select>
-      <label class="f" for="rep-sub" style="margin-top:6px">in submap</label>
-      <select id="rep-sub"></select>
+      <span class="mk-in" id="rep-sub-wrap">in <select id="rep-sub"></select></span>
+      <span class="mk-in" id="rep-where"></span>
      </div>
     </div>
     <div class="actrow">
      <button class="btn" type="button" id="make-btn" disabled>Maak mappen</button>
-     <button class="btn sec" type="button" id="innax-btn" disabled title="Standaard INNAX-projectdossier per adres: 1) Projectdossier t/m 9) Opdracht, met submappen en het Bijlage 4-formulier">INNAX-mappen</button>
-     <button class="btn sec" type="button" id="reports-btn" disabled>Alleen rapporten maken</button>
      <span class="hint" id="root-hint">Daarna kies je de hoofdmap.</span>
     </div>
+    <button type="button" class="link-btn" id="reports-btn" disabled style="margin-top:8px">Mappen bestaan al? Alleen de bijlagen maken</button>
     <div class="msg" id="make-msg"></div>
    </div>
  </div>
@@ -1425,6 +1463,7 @@ $('make-btn').addEventListener('click',async()=>{
  const mode=mkMode(),project=safeName($('project').value),subs=mode==='main'?[]:$('subs').value.split(/[,;]/).map(s=>safeName(s)).filter(Boolean);
  const btn=$('make-btn');btn.disabled=true;clearMsg('make-msg');
  try{
+  if(mode==='innax'){const root=await makeInnax(sel,project,btn);if(root&&mkBij())await startReports(root);return}
   if(!FS){await zipFallback(sel,project,subs);return}
   const root=await pickRoot();if(!root){msg('make-msg','Geen hoofdmap gekozen; er is niets aangemaakt.','warn');return}
   btn.textContent='Bezig…';
@@ -1441,7 +1480,7 @@ $('make-btn').addEventListener('click',async()=>{
   }
   const where=esc(root.name+(project?' / '+project:''));
   msg('make-msg','<b>'+made+'</b> map'+(made===1?'':'pen')+' aangemaakt in <b>'+where+'</b>'+(existed?', '+existed+' bestond'+(existed===1?'':'en')+' al (niets overschreven)':'')+(failed?', '+failed+' mislukt':'')+'.',failed?'warn':'ok');
-  if(mode==='full')await startReports(root);
+  if(mkBij())await startReports(root);
  }catch(e){console.error(e);msg('make-msg','Mappen maken is niet gelukt: '+esc(e.message),'err')}
  finally{updateCounts()}
 });
@@ -1461,15 +1500,13 @@ async function innaxFill(dir){let nieuw=0;for(const p of INNAX_DIRS){let d=dir;f
  let d=dir;for(const part of INNAX_DOCX.pad.split('/'))d=await d.getDirectoryHandle(part,{create:true});
  let ex=false;try{await d.getFileHandle(INNAX_DOCX.naam);ex=true}catch(e){}
  if(!ex){const fh=await d.getFileHandle(INNAX_DOCX.naam,{create:true}),w=await fh.createWritable();await w.write(innaxDocx());await w.close();nieuw=1}return nieuw}
-$('innax-btn').addEventListener('click',async()=>{
- const sel=state.rows.filter(r=>r.on&&r.folder.trim()&&r.status!=='busy');if(!sel.length)return;
- const project=safeName($('project').value),btn=$('innax-btn');btn.disabled=true;clearMsg('make-msg');
+async function makeInnax(sel,project,btn){
  try{
   if(!FS){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');const zip=new JSZip(),base=project?zip.folder(project):zip;
    sel.forEach(r=>{const d=base.folder(r.folder);INNAX_DIRS.forEach(p=>d.folder(p));d.file(INNAX_DOCX.pad+'/'+INNAX_DOCX.naam,innaxDocx());r.result='in ZIP';updateRow(r)});
    const blob=await zip.generateAsync({type:'blob'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(project||'INNAX-mappen')+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),60000);
-   msg('make-msg',sel.length+' INNAX-mappen in een ZIP gedownload.','ok');return}
-  const root=await pickRoot();if(!root){msg('make-msg','Geen hoofdmap gekozen; er is niets aangemaakt.','warn');return}
+   msg('make-msg',sel.length+' INNAX-mappen in een ZIP gedownload.','ok');return null}
+  const root=await pickRoot();if(!root){msg('make-msg','Geen hoofdmap gekozen; er is niets aangemaakt.','warn');return null}
   btn.textContent='Bezig…';const base=project?await root.getDirectoryHandle(project,{create:true}):root;
   let made=0,existed=0,failed=0;const names=new Set();
   for(const r of sel){const name=r.folder;if(names.has(name.toLowerCase())){r.result='dubbel';updateRow(r);continue}names.add(name.toLowerCase());
@@ -1477,20 +1514,19 @@ $('innax-btn').addEventListener('click',async()=>{
     const dir=await base.getDirectoryHandle(name,{create:true});await innaxFill(dir);r.result=ex?'aangevuld (INNAX)':'aangemaakt (INNAX)';ex?existed++:made++}
    catch(e){console.error(e);r.result='fout';failed++}updateRow(r)}
   msg('make-msg','<b>'+made+'</b> INNAX-map'+(made===1?'':'pen')+' aangemaakt in <b>'+esc(root.name+(project?' / '+project:''))+'</b>, met submappen 1) t/m 9) en het Bijlage 4-formulier'+(existed?'. '+existed+' bestaande map'+(existed===1?' is':'pen zijn')+' aangevuld (niets overschreven)':'')+(failed?', '+failed+' mislukt':'')+'.',failed?'warn':'ok');
- }catch(e){console.error(e);msg('make-msg','INNAX-mappen maken is niet gelukt: '+esc(e.message),'err')}
- finally{btn.textContent='INNAX-mappen';updateCounts()}
-});
+  return root;
+ }catch(e){console.error(e);msg('make-msg','INNAX-mappen maken is niet gelukt: '+esc(e.message),'err');return null}
+}
 /* --- Submappen zelf bepalen --- */
 const SUBS_DEFAULT=['Info',"Foto's",'Opname'];
 let subsList=SUBS_DEFAULT.slice();try{const v=JSON.parse(localStorage.getItem('eln-subs')||'null');if(Array.isArray(v))subsList=v}catch(e){}
 function subsSave(){$('subs').value=subsList.join(', ');try{localStorage.setItem('eln-subs',JSON.stringify(subsList))}catch(e){}subsRender()}
 function subsRender(){
  $('subs-chips').innerHTML=subsList.length?subsList.map((n,i)=>'<span class="chip">'+esc(n)+'<button type="button" data-i="'+i+'" title="Weghalen">✕</button></span>').join(''):'<span class="none">Geen submappen</span>';
- $('mode-subs-desc').textContent=subsList.length?'Met '+subsList.join(', ').replace(/, ([^,]*)$/,' en $1')+' erin':'Nog geen submappen gekozen';
  const cur=$('rep-sub').value,opts=subsList.length?subsList:['Info'];
  $('rep-sub').innerHTML=opts.map(n=>'<option'+(n===cur?' selected':'')+'>'+esc(n)+'</option>').join('');
  if(!opts.includes(cur)){const info=opts.find(n=>/^info$/i.test(n));if(info)$('rep-sub').value=info}
- $('mode-full-desc').textContent='Daarna per adres de gevel aanklikken; het rapport komt in '+$('rep-sub').value;
+ mkModeUI&&mkWhere();
 }
 $('subs-chips').addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(!b)return;subsList.splice(+b.dataset.i,1);subsSave()});
 function subsAdd(){const v=safeName($('subs-new').value);if(!v)return;if(!subsList.some(n=>n.toLowerCase()===v.toLowerCase()))subsList.push(v);$('subs-new').value='';subsSave()}
@@ -1501,11 +1537,40 @@ $('rep-sub').addEventListener('change',()=>{try{localStorage.setItem('eln-rep-su
 try{const v=localStorage.getItem('eln-rep-sub');subsRender();if(v&&[...$('rep-sub').options].some(o=>o.value===v))$('rep-sub').value=v}catch(e){}
 subsSave();
 
-/* --- Keuze: alleen hoofdmappen / + submappen / + bijlagen --- */
-function mkMode(){return(document.querySelector('input[name="mk-mode"]:checked')||{}).value||'full'}
-function mkModeUI(){const m=mkMode();document.querySelectorAll('.mode-desc span').forEach(x=>x.style.display=x.dataset.m===m?'inline':'none');$('opt-row').style.display=m==='main'?'none':'';$('rep-box').style.visibility=m==='full'?'visible':'hidden';try{localStorage.setItem('eln-mk-mode',m)}catch(e){}}
-try{const m=localStorage.getItem('eln-mk-mode');const el=m&&document.querySelector('input[name="mk-mode"][value="'+m+'"]');if(el)el.checked=true}catch(e){}
-document.querySelectorAll('input[name="mk-mode"]').forEach(r=>r.addEventListener('change',mkModeUI));mkModeUI();
+/* --- Keuze: alleen adresmap / met submappen / INNAX, plus bijlagen aan/uit --- */
+const INNAX_REP={'01_Objectdossier':'5) Algemeen/Orientatie','01_BAG':'5) Algemeen/Bouwjaar','02_Bijlage4':'8) EPA & RVO/Bijlage 4'};
+function mkMode(){const v=(document.querySelector('input[name="mk-mode"]:checked')||{}).value;return v==='main'||v==='innax'?v:'subs'}
+function mkBij(){return $('mk-bij').checked}
+function repTarget(name){const m=mkMode();if(m==='innax'){for(const k in INNAX_REP)if(name.startsWith(k))return INNAX_REP[k];return '1) Projectdossier'}if(m==='main')return '';return safeName($('rep-sub').value)||'Info'}
+function mkWhere(){const m=mkMode();$('rep-sub-wrap').style.display=m==='subs'?'':'none';
+ $('rep-where').textContent=m==='main'?'direct in de adresmap':m==='innax'?'automatisch in de juiste INNAX-mappen':'';$('rep-where').style.display=m==='subs'?'none':''}
+function mkModeUI(){const m=mkMode();document.querySelectorAll('.mk-opt').forEach(x=>x.style.display=x.dataset.m===m?'block':'none');
+ $('mk-bij-opts').style.display=mkBij()?'':'none';mkWhere();
+ $('root-hint').textContent=mkBij()?'Daarna kies je de hoofdmap en klik je per adres de voorgevel aan.':'Daarna kies je de hoofdmap.';
+ try{localStorage.setItem('eln-mk-mode',m);localStorage.setItem('eln-mk-bij',mkBij()?'1':'0')}catch(e){}}
+try{let m=localStorage.getItem('eln-mk-mode');if(m==='full')m='subs';const el=m&&document.querySelector('input[name="mk-mode"][value="'+m+'"]');if(el)el.checked=true;const b=localStorage.getItem('eln-mk-bij');if(b!==null)$('mk-bij').checked=b==='1';else if(localStorage.getItem('eln-mk-mode')==='subs')$('mk-bij').checked=false}catch(e){}
+document.querySelectorAll('input[name="mk-mode"]').forEach(r=>r.addEventListener('change',()=>{if(mkMode()==='innax'&&mkBij())$('rep-type').value='innax';mkModeUI()}));
+$('mk-bij').addEventListener('change',mkModeUI);mkModeUI();
+
+/* --- Uitleg (walkthrough) --- */
+const MK_WT=[
+ {t:'1. Adressen in de lijst',b:'Zet eerst de adressen in de lijst bij stap 1 (Excel, printscreen of plakken) en controleer ze bij stap 2. Alleen aangevinkte adressen krijgen een map.'},
+ {t:'2. Mapnaam en projectmap',b:'Kies hoe elke adresmap heet. Vul je een <b>projectmap</b> in, dan komen alle adresmappen daarin; laat je hem leeg, dan komen ze direct in de hoofdmap die je straks kiest.'},
+ {t:'3. Soort mappen',b:'<ul><li><b>Alleen adresmap</b> – één lege map per adres.</li><li><b>Met submappen</b> – met je eigen submappen erin (bijv. Info, Foto’s, Opname). Toevoegen met +, weghalen met ✕.</li><li><b>INNAX</b> – de vaste INNAX-indeling 1) t/m 9), met het Bijlage 4-formulier.</li></ul>'},
+ {t:'4. Bijlagen meemaken',b:'Staat <b>Bijlagen direct meemaken</b> aan, dan maakt het dashboard per adres ook het rapport (objectdossier/BAG/Bijlage 4). Na het aanmaken opent de kaart: klik per adres de <b>voorgevel</b> aan en druk op OK. Het rapport wordt meteen in de goede map opgeslagen.'},
+ {t:'5. Maak mappen',b:'Klik op <b>Maak mappen</b> en kies één keer de hoofdmap. Bestaande mappen en bestanden worden nooit overschreven, alleen aangevuld.<br><br>Bestaan de mappen al? Gebruik dan onderaan <b>Alleen de bijlagen maken</b>.'}
+];
+let mkWtI=0;
+function mkWtShow(){const st=MK_WT[mkWtI];$('mk-wt-title').textContent=st.t;$('mk-wt-body').innerHTML=st.b;
+ $('mk-wt-dots').innerHTML=MK_WT.map((_,i)=>'<i class="'+(i===mkWtI?'on':'')+'"></i>').join('');
+ $('mk-wt-prev').style.visibility=mkWtI?'visible':'hidden';$('mk-wt-next').textContent=mkWtI===MK_WT.length-1?'Klaar':'Volgende'}
+function mkWtClose(){$('mk-modal').hidden=true}
+$('mk-help').addEventListener('click',()=>{mkWtI=0;mkWtShow();$('mk-modal').hidden=false;$('mk-wt-next').focus()});
+$('mk-wt-next').addEventListener('click',()=>{if(mkWtI<MK_WT.length-1){mkWtI++;mkWtShow()}else mkWtClose()});
+$('mk-wt-prev').addEventListener('click',()=>{if(mkWtI>0){mkWtI--;mkWtShow()}});
+$('mk-wt-x').addEventListener('click',mkWtClose);
+$('mk-modal').addEventListener('click',e=>{if(e.target.id==='mk-modal')mkWtClose()});
+document.addEventListener('keydown',e=>{if($('mk-modal').hidden)return;if(e.key==='Escape')mkWtClose();else if(e.key==='ArrowRight')$('mk-wt-next').click();else if(e.key==='ArrowLeft')$('mk-wt-prev').click()});
 
 /* --- Rapporten per adres in de map Info --- */
 const seq={active:false,list:[],i:0,base:null,type:'innax',info:'Info',done:0,busy:false};
@@ -1519,7 +1584,7 @@ async function startReports(chosenRoot){
  const root=chosenRoot||await pickRoot();if(!root){msg('make-msg','Geen hoofdmap gekozen.','warn');return}
  const project=safeName($('project').value),subs=$('subs').value.split(/[,;]/).map(x=>safeName(x)).filter(Boolean);
  seq.base=project?await root.getDirectoryHandle(project,{create:true}):root;
- seq.info=safeName($('rep-sub').value)||'Info';
+ seq.info=mkMode()==='innax'?'INNAX-mappen':mkMode()==='main'?'adresmap':(safeName($('rep-sub').value)||'Info');
  Object.assign(seq,{list,i:0,type:$('rep-type').value,done:0,active:true,busy:false});
  show('gevel');$('seq-bar').hidden=false;
  await seqLoad();
@@ -1550,17 +1615,17 @@ async function seqOk(){
   opts.returnBlob=true;
   const res=await w.generatePdfReport(opts);
   if(!res?.files?.length)throw new Error('het rapport kon niet worden gemaakt');
-  seqMsg('Opslaan in '+r.folder+' / '+seq.info+'…');
-  const dir=await (await seq.base.getDirectoryHandle(r.folder,{create:true})).getDirectoryHandle(seq.info,{create:true});
-  for(const f of res.files){const fh=await dir.getFileHandle(f.name,{create:true}),wr=await fh.createWritable();await wr.write(f.blob);await wr.close()}
-  r.result='rapport in '+seq.info;updateRow(r);seq.done++;
+  seqMsg('Opslaan in '+r.folder+'…');
+  const adr=await seq.base.getDirectoryHandle(r.folder,{create:true});
+  for(const f of res.files){let dir=adr;for(const part of repTarget(f.name).split('/').filter(Boolean))dir=await dir.getDirectoryHandle(part,{create:true});const fh=await dir.getFileHandle(f.name,{create:true}),wr=await fh.createWritable();await wr.write(f.blob);await wr.close()}
+  r.result='bijlagen gemaakt';updateRow(r);seq.done++;
   seq.busy=false;seqNext();
  }catch(e){console.error(e);seq.busy=false;$('seq-ok').disabled=false;seqMsg('Niet gelukt: '+e.message+'. Probeer opnieuw of sla dit adres over.',true)}
 }
 function seqNext(){seq.i++;if(seq.i>=seq.list.length)seqEnd(true);else seqLoad()}
 function seqEnd(finished){
  if(!seq.active)return;seq.active=false;$('seq-bar').hidden=true;
- const t=(finished?'Klaar: ':'Gestopt: ')+seq.done+' rapport'+(seq.done===1?'':'en')+' opgeslagen in de map '+esc(seq.info)+' van de adressen.';
+ const t=(finished?'Klaar: ':'Gestopt: ')+seq.done+' rapport'+(seq.done===1?'':'en')+' opgeslagen ('+esc(seq.info==='adresmap'?'direct in de adresmappen':seq.info==='INNAX-mappen'?'in de INNAX-mappen':'in de map '+seq.info)+').';
  if(!$('view-gevel').hidden)show('mappen');
  msg('make-msg',t,seq.done?'ok':'info');
 }
