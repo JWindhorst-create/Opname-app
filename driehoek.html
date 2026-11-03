@@ -976,9 +976,13 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
       }
       ctx.setLineDash([]);
     }
-    const lab=(p,t,c,dy)=>{ const q=P(p); q[1]+=dy||0; ctx.font='bold 12px -apple-system,Segoe UI,Roboto,sans-serif';
-      const w=ctx.measureText(t).width+10; ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.fillRect(q[0]-w/2,q[1]-9,w,18);
-      ctx.fillStyle=c||'#17463a'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(t,q[0],q[1]); };
+    ctx.font='bold 12px -apple-system,Segoe UI,Roboto,sans-serif';const placed=[],LH=18,GP=3;
+    const hit=(x,y,w)=>placed.some(r=>x-w/2<r.x+r.w/2+GP&&x+w/2>r.x-r.w/2-GP&&y-LH/2<r.y+LH/2+GP&&y+LH/2>r.y-LH/2-GP);
+    const lab=(p,t,c,dy)=>{ const a0=P(p),w=ctx.measureText(t).width+10;let x=Math.max(w/2+2,Math.min(W-w/2-2,a0[0])),y0=Math.max(LH/2+2,Math.min(H-LH/2-2,a0[1]+(dy||0))),y=y0;
+      if(hit(x,y,w)){let ok=false;for(let k=1;k<=24&&!ok;k++)for(const sg of [1,-1]){const yy=y0+sg*k*(LH+GP)/2;if(yy<LH/2+2||yy>H-LH/2-2)continue;for(const dx of [0,-w/2,w/2]){const xx=Math.max(w/2+2,Math.min(W-w/2-2,x+dx));if(!hit(xx,yy,w)){x=xx;y=yy;ok=true;break}}if(ok)break}}
+      placed.push({x,y,w});if(Math.hypot(x-a0[0],y-(a0[1]+(dy||0)))>4){ctx.strokeStyle='rgba(23,70,58,0.55)';ctx.lineWidth=1;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(a0[0],a0[1]);ctx.lineTo(x,y);ctx.stroke()}
+      ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.fillRect(x-w/2,y-LH/2,w,LH);
+      ctx.fillStyle=c||'#17463a'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(t,x,y); };
     labels.forEach(([p,t,o,dy])=>lab(p,t,o?'#8A5A10':null,dy));
   }
 
