@@ -686,6 +686,12 @@ body.v-opname{background-image:none!important}
    <p>Driehoeksmeter: helling + maat of 2 maten → dakvlakken, gevels, 1,5 m-lijn/GO, alle dakvormen in 3D en PDF voor het dossier met onderbouwing.</p>
    <span class="go">Openen →</span>
   </button>
+  <button class="tile" type="button" data-open="klein">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
+   <h2>Kleine rekenhulpen</h2>
+   <p>Oppervlakte van ramen en deuren met afwijkende vorm (rond, boog, ruit, driehoek…) en correctie van de dakvlaklengte bij na-isolatie aan de binnenkant.</p>
+   <span class="go">Openen →</span>
+  </button>
   <button class="tile" type="button" data-open="schetsen">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1"/><path d="M3 9h7v9"/><path d="M14 4v5h7"/></svg></div>
    <h2>Complexgegevens</h2>
@@ -1189,6 +1195,58 @@ body.v-opname{background-image:none!important}
   <div class="card" id="ip-main"></div>
  </div>
 </section>
+<section class="view" id="view-klein" hidden>
+<style>
+#view-klein{max-width:1100px;margin:0 auto;padding:16px 24px 60px}
+.kr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.kr-grid{grid-template-columns:1fr}#view-klein{padding:10px}}
+.kr-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+.kr-card h3{margin:0 0 4px}
+.kr-card .kr-sub{font-size:13px;color:var(--muted);margin:0 0 12px;line-height:1.45}
+.kr-row{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-bottom:8px;align-items:end}
+.kr-row>div{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+.kr-row input,.kr-row select{font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box;background:#fff}
+.kr-vorm{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px;margin-bottom:10px}
+.kr-vorm button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 4px;font:inherit;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink,#17201d)}
+.kr-vorm button.on{border-color:#2e6b4f;background:#e6f2ea;font-weight:700}
+.kr-vorm svg{width:44px;height:30px}
+.kr-res{background:#f3f8f4;border:1px solid #cfe2d5;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.5;margin:8px 0}
+.kr-res b{font-size:16px}
+.kr-f{font-size:12px;color:var(--muted);margin-top:4px}
+.kr-tab{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+.kr-tab td{padding:5px 4px;border-bottom:1px solid var(--line)}
+.kr-tab td:last-child{text-align:right;white-space:nowrap}
+.kr-tab tr.t td{font-weight:700;border-bottom:0}
+.kr-x{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
+.kr-err{color:#b3261e;font-size:13px}
+</style>
+<div class="kr-grid">
+ <div class="kr-card" id="kr-ramen">
+  <h3>Ramen en deuren met afwijkende vorm</h3>
+  <p class="kr-sub">Oppervlakte van een gevelopening die niet rechthoekig is. Kies de vorm, vul de maten in (m) en zet hem op de lijst. Samengestelde vormen splits je op in deze basisvormen.</p>
+  <div class="kr-vorm" id="kr-vormen"></div>
+  <div class="kr-row" id="kr-velden"></div>
+  <div class="kr-row"><div>Omschrijving<input id="kr-oms" placeholder="bijv. voordeur, raam zolder"></div><div>Aantal<input id="kr-n" inputmode="numeric" value="1"></div></div>
+  <div class="kr-res" id="kr-uit">Vul de maten in.</div>
+  <button class="btn" type="button" id="kr-add">+ Op de lijst</button>
+  <table class="kr-tab" id="kr-lijst"></table>
+ </div>
+ <div class="kr-card" id="kr-corr">
+  <h3>Correctie dakvlak bij na-isolatie aan de binnenkant</h3>
+  <p class="kr-sub">Is het dak aan de binnenkant na-geïsoleerd, dan is de lengte die je binnen langs de nieuwe afwerking meet korter dan het oorspronkelijke dakvlak (en andersom). Deze hulp rekent de lengte om. ISSO 82.1 §8.2: constructies binnenwerks opmeten.</p>
+  <div class="kr-row">
+   <div>Hellingshoek dakvlak (°)<input id="kc-al" inputmode="decimal" placeholder="bijv. 45"></div>
+   <div>Dikte na-isolatie + afwerking (m)<input id="kc-d" inputmode="decimal" placeholder="bijv. 0,12"></div>
+   <div>Gemeten lengte langs het dak (m)<input id="kc-c" inputmode="decimal" placeholder="bijv. 4,20"></div>
+   <div>Gemeten aan<select id="kc-dir"><option value="na">nieuwe binnenkant (na isolatie)</option><option value="voor">oorspronkelijk dakvlak (vóór isolatie)</option></select></div>
+   <div>Onderkant eindigt op<select id="kc-o"><option value="h">vloer (horizontaal)</option><option value="v">knieschot / wand (verticaal)</option></select></div>
+   <div>Bovenkant eindigt op<select id="kc-b"><option value="v">nok (dakvlakken komen samen)</option><option value="h">plafond / hanenbalk (horizontaal)</option><option value="v2">wand (verticaal)</option></select></div>
+  </div>
+  <div class="kr-res" id="kc-uit">Vul hellingshoek, dikte en gemeten lengte in.</div>
+  <div class="kr-f">Methode: de nieuwe binnenkant ligt evenwijdig aan het dakvlak, op afstand d. Waar het dakvlak op een horizontaal vlak eindigt (vloer, plafond) verschuift het eindpunt langs de helling met d / tan α; waar het op een verticaal vlak eindigt (nok, knieschot, wand) met d · tan α. Een volledige zijde vloer → nok verschilt dus d / (sin α · cos α).</div>
+ </div>
+</div>
+</section>
 
 <section class="view" id="view-fotos" hidden>
  <div class="card cmp">
@@ -1223,7 +1281,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector('script[src="'+src+'"]'))return res();const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Kon '+src.split('/').pop()+' niet laden (internet?)'));document.head.appendChild(s)})}
 
 /* ========== Navigatie ========== */
-const TITLES={home:'Dashboard',bronnen:'Bronnen',uitvoer:'Uitvoerlijst woningen',gevel:'Objectdossier',mappen:'Projectmappen aanmaken',sorteren:'Bestanden naar dossier',projectdossier:'Vooropname documenten',rc:'Rc-berekening constructies',opname:'Opnameformulier',stappen:'Zonering utiliteit',beslis:'Beslisschema’s',interp:'Interpoleren',driehoek:'Driehoek & dak',schetsen:'Complexgegevens',fundering:'Funderingsdossier',dossier:'Dossierbundel',fotos:'Foto\'s sorteren'};
+const TITLES={home:'Dashboard',klein:'Kleine rekenhulpen',bronnen:'Bronnen',uitvoer:'Uitvoerlijst woningen',gevel:'Objectdossier',mappen:'Projectmappen aanmaken',sorteren:'Bestanden naar dossier',projectdossier:'Vooropname documenten',rc:'Rc-berekening constructies',opname:'Opnameformulier',stappen:'Zonering utiliteit',beslis:'Beslisschema’s',interp:'Interpoleren',driehoek:'Driehoek & dak',schetsen:'Complexgegevens',fundering:'Funderingsdossier',dossier:'Dossierbundel',fotos:'Foto\'s sorteren'};
 // laatst gebruikte adres meenemen naar de andere onderdelen
 const VIEW_ADDR={projectdossier:'pd-addr',rc:'rc-addr',opname:'of-addr',stappen:'sp-addr',beslis:'bs-addr',interp:'ip-addr'},VIEW_ADDR_BTN={projectdossier:'pd-addr-btn',rc:'rc-addr-btn',stappen:'sp-addr-btn'};
 let curView='home';
@@ -1676,6 +1734,9 @@ $('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
 
 /* --- Uitleg per onderdeel (?-knop bovenin en op elke tegel) --- */
 const HELP={
+ klein:[
+  {at:'#kr-ramen',t:'Ramen en deuren',b:'Kies de vorm van de opening, vul de maten in en zet hem op de lijst. Onderaan staat het totaal in m². De formule staat bij de uitkomst.'},
+  {at:'#kr-corr',t:'Correctie dakvlak',b:'Na-isolatie aan de binnenkant maakt het dakvlak dat je binnen meet korter. Vul hellingshoek, isolatiedikte en de gemeten lengte in en kies waar het dakvlak onder en boven eindigt.'}],
  home:[
   {t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Klik op het <b>?</b> rechtsboven op een tegel: het onderdeel opent en je krijgt een rondleiding met pijlen langs de knoppen.'},
   {at:'#top-help',t:'Terug en uitleg',b:'Met <b>← Dashboard</b> bovenin ga je altijd terug naar dit overzicht. Het <b>?</b> ernaast geeft op elke pagina de uitleg van díe pagina.'},
@@ -5417,6 +5478,44 @@ window.__ft={target:ftTarget,memAdd:ftMemAdd,memMatch:ftMemMatch,assign:ftAssign
 ftRender();
 }
 
+
+/* ========== Kleine rekenhulpen ========== */
+(function(){const K='eln-klein-v1';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}st.lijst=st.lijst||[];st.vorm=st.vorm||'boog';
+ const sv=()=>{try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}},nm=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?n:null},F=(x,d=2)=>x.toLocaleString('nl-NL',{minimumFractionDigits:d,maximumFractionDigits:d}),E=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const VORM={
+  boog:{t:'Rechthoek + halfrond',svg:'<path d="M12 28V14a10 10 0 0 1 20 0v14z"/>',v:[['b','Breedte'],['h','Hoogte recht deel (tot begin boog)']],a:x=>x.b*x.h+Math.PI*x.b*x.b/8,f:'b × h + π × b² / 8'},
+  seg:{t:'Rechthoek + segmentboog',svg:'<path d="M10 28V12q12-8 24 0v16z"/>',v:[['b','Breedte'],['h','Hoogte recht deel'],['p','Pijlhoogte boog (≤ ½ b)']],a:x=>{if(!(x.p>0)||x.p>x.b/2+1e-9)return null;const R=(x.b*x.b/4+x.p*x.p)/(2*x.p),th=2*Math.asin(Math.min(1,x.b/(2*R)));return x.b*x.h+R*R/2*(th-Math.sin(th))},f:'b × h + segment: R = (b²/4 + p²) / 2p, θ = 2·asin(b/2R), A = R²/2 · (θ − sin θ)'},
+  rond:{t:'Rond',svg:'<circle cx="22" cy="15" r="12"/>',v:[['d','Diameter']],a:x=>Math.PI*x.d*x.d/4,f:'π × d² / 4'},
+  halfrond:{t:'Halfrond',svg:'<path d="M8 24a14 14 0 0 1 28 0z"/>',v:[['b','Breedte (diameter)']],a:x=>Math.PI*x.b*x.b/8,f:'π × b² / 8'},
+  ovaal:{t:'Ovaal (ellips)',svg:'<ellipse cx="22" cy="15" rx="15" ry="10"/>',v:[['b','Breedte'],['h','Hoogte']],a:x=>Math.PI*x.b*x.h/4,f:'π × b × h / 4'},
+  ruit:{t:'Ruit',svg:'<path d="M22 2l14 13-14 13L8 15z"/>',v:[['b','Breedte (diagonaal)'],['h','Hoogte (diagonaal)']],a:x=>x.b*x.h/2,f:'b × h / 2'},
+  drie:{t:'Driehoek',svg:'<path d="M8 27h28L22 4z"/>',v:[['b','Basis'],['h','Hoogte']],a:x=>x.b*x.h/2,f:'b × h / 2'},
+  trap:{t:'Trapezium',svg:'<path d="M6 27h32l-8-22H14z"/>',v:[['b','Onderzijde'],['b2','Bovenzijde'],['h','Hoogte']],a:x=>(x.b+x.b2)/2*x.h,f:'(b onder + b boven) / 2 × h'},
+  acht:{t:'Achthoek',svg:'<path d="M17 3h10l8 8v8l-8 8H17l-8-8v-8z"/>',v:[['b','Breedte (over de vlakke zijden)']],a:x=>2*(Math.SQRT2-1)*x.b*x.b,f:'regelmatig: 2 × (√2 − 1) × b²'},
+  recht:{t:'Rechthoek',svg:'<rect x="11" y="3" width="22" height="25"/>',v:[['b','Breedte'],['h','Hoogte']],a:x=>x.b*x.h,f:'b × h'}};
+ const $k=id=>document.getElementById(id);if(!$k('kr-vormen'))return;
+ function vormen(){$k('kr-vormen').innerHTML=Object.entries(VORM).map(([k,v])=>'<button type="button" data-krv="'+k+'" class="'+(k===st.vorm?'on':'')+'"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8">'+v.svg+'</svg>'+v.t+'</button>').join('');
+  const V=VORM[st.vorm];st.m=st.m||{};$k('kr-velden').innerHTML=V.v.map(([k,l])=>'<div>'+l+' (m)<input data-krm="'+k+'" inputmode="decimal" value="'+E(st.m[k]??'')+'"></div>').join('');reken()}
+ function waarden(){const V=VORM[st.vorm],x={};for(const [k] of V.v){const n=nm(st.m[k]);if(!(n>0))return null;x[k]=n}return x}
+ function reken(){const V=VORM[st.vorm],x=waarden(),n=Math.max(1,Math.round(nm($k('kr-n').value)||1));if(!x){$k('kr-uit').innerHTML='Vul de maten in.<div class="kr-f">Formule: '+E(V.f)+'</div>';return null}
+  const a=V.a(x);if(a==null||!isFinite(a)){$k('kr-uit').innerHTML='<span class="kr-err">Deze maten kloppen niet voor deze vorm (pijlhoogte maximaal de halve breedte).</span>';return null}
+  $k('kr-uit').innerHTML='Oppervlakte: <b>'+F(a)+' m²</b>'+(n>1?' · × '+n+' = <b>'+F(a*n)+' m²</b>':'')+'<div class="kr-f">Formule: '+E(V.f)+'</div>';return{a,n}}
+ function lijst(){const L=st.lijst;if(!L.length){$k('kr-lijst').innerHTML='';return}const tot=L.reduce((t,r)=>t+r.a*r.n,0);
+  $k('kr-lijst').innerHTML=L.map((r,i)=>'<tr><td>'+E(r.oms||VORM[r.v]?.t||r.v)+'<div class="kr-f">'+E(VORM[r.v]?.t||'')+' · '+E(r.maat)+(r.n>1?' · '+r.n+'×':'')+'</div></td><td>'+F(r.a*r.n)+' m² <button class="kr-x" type="button" data-krdel="'+i+'" title="Verwijderen">✕</button></td></tr>').join('')+'<tr class="t"><td>Totaal</td><td>'+F(tot)+' m²</td></tr>'}
+ $k('kr-vormen').addEventListener('click',e=>{const b=e.target.closest('[data-krv]');if(!b)return;st.vorm=b.dataset.krv;st.m={};sv();vormen()});
+ $k('kr-velden').addEventListener('input',e=>{const k=e.target.dataset.krm;if(!k)return;st.m[k]=e.target.value;sv();reken()});
+ $k('kr-n').addEventListener('input',reken);
+ $k('kr-add').addEventListener('click',()=>{const r=reken();if(!r)return;const V=VORM[st.vorm];st.lijst.push({v:st.vorm,oms:$k('kr-oms').value.trim(),n:r.n,a:r.a,maat:V.v.map(([k,l])=>k+' '+F(nm(st.m[k]))).join(' · ')});$k('kr-oms').value='';$k('kr-n').value='1';sv();lijst()});
+ $k('kr-lijst').addEventListener('click',e=>{const b=e.target.closest('[data-krdel]');if(!b)return;st.lijst.splice(+b.dataset.krdel,1);sv();lijst()});
+ vormen();lijst();
+ // correctie dakvlak
+ const C=st.c=st.c||{};['kc-al','kc-d','kc-c','kc-dir','kc-o','kc-b'].forEach(id=>{if(C[id]!=null)$k(id).value=C[id];$k(id).addEventListener('input',()=>{C[id]=$k(id).value;sv();corr()});$k(id).addEventListener('change',()=>{C[id]=$k(id).value;sv();corr()})});
+ function corr(){const al=nm($k('kc-al').value),d=nm($k('kc-d').value),c=nm($k('kc-c').value),o=$k('kc-o').value,b=$k('kc-b').value,dir=$k('kc-dir').value;
+  if(!(al>0&&al<90&&d>=0&&c>0)){$k('kc-uit').innerHTML='Vul hellingshoek, dikte en gemeten lengte in.';return}
+  const r=al*Math.PI/180,sh=d/Math.tan(r),sv2=d*Math.tan(r),dO=o==='h'?sh:sv2,dB=b==='h'?sh:sv2,dT=dO+dB,uit=dir==='na'?c+dT:c-dT;
+  if(!(uit>0)){$k('kc-uit').innerHTML='<span class="kr-err">De correctie is groter dan de gemeten lengte. Controleer de invoer.</span>';return}
+  $k('kc-uit').innerHTML=(dir==='na'?'Lengte oorspronkelijk dakvlak':'Lengte langs de nieuwe binnenkant')+': <b>'+F(uit,3)+' m</b><div class="kr-f">Correctie onderkant '+F(dO,3)+' m ('+(o==='h'?'d / tan α':'d · tan α')+') + bovenkant '+F(dB,3)+' m ('+(b==='h'?'d / tan α':'d · tan α')+') = '+(dir==='na'?'+':'−')+F(dT,3)+' m</div>'}
+ corr()})();
 </script>
 </body>
 </html>
