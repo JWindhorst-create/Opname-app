@@ -93,8 +93,6 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div><label>b · Hoogte goot → nok</label><input id="c_b" inputmode="decimal" autocomplete="off"></div>
 <div><label>c · Lengte nok → goot</label><input id="c_c" inputmode="decimal" autocomplete="off"></div>
 <div><label>Of: hele diepte (÷ 2)</label><input id="c_d" inputmode="decimal" autocomplete="off"></div>
-<div><label>Of: hoogte vloer → nok</label><input id="c_vn" inputmode="decimal" autocomplete="off" placeholder="zoldervloer → nok"></div>
-<div class="note" id="cVnInfo" style="align-self:end;margin:0 0 10px"></div>
 </div>
 <div class="cmsg" id="cmsg"></div>
 <div id="c15" hidden style="margin-top:8px;padding:10px;border-radius:10px;background:#fdf1e6;border:1px solid #f2cfa9;font-size:14px;line-height:1.5"></div>
@@ -543,7 +541,6 @@ function dhEl(k){return document.getElementById('c_'+k)}
 function dhMsg(t,err){const m=$('#cmsg');m.textContent=t;m.className='cmsg'+(err?' err':'')}
 function dhSolve(){
  const u=dhKeys(),v={};u.forEach(k=>v[k]=num(dhEl(k).value));
- if(!u.includes('b')&&$('#c_vn')?.value){$('#c_vn').value='';$('#cVnInfo').innerHTML=''}
  DH.ids.forEach(k=>{const e=dhEl(k);if(u.includes(k)){e.className='user'}else{e.value='';e.className=''}});
  DH.res=null;$('#cok').disabled=true;$('#c15').hidden=true;$('#cSum').hidden=true;
  const fout=t=>{dhMsg(t,true);dhDraw(null)};
@@ -569,7 +566,7 @@ function dhDraw(r){const a=r?r.a:4,b=r?r.b:3,W=320,H=150,s=Math.min((W-110)/a,(H
  t((A[0]+C[0])/2,y0+18,'a'+(r?' '+F(r.a,2)+' m':''))+t(C[0]+7,(B[1]+C[1])/2+4,'b'+(r?' '+F(r.b,2)+' m':''),'start')+
  t((A[0]+B[0])/2-8,(A[1]+B[1])/2-6,'c'+(r?' '+F(r.c,2)+' m':''),'end')+t(A[0]+ra+6,A[1]-5,'α'+(r?' '+F(r.al,1)+'°':''),'start','#d4502f')}
 function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[];
- DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});$('#c_d').value='';$('#c_vn').value='';$('#cVnInfo').innerHTML='';
+ DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});$('#c_d').value='';
  const L=num(r.it.lengte),hk=num(r.it.helling),src=r.it.dhSrc;
  if(src&&L!=null&&Math.abs(src.c-L)<0.002){src.keys.forEach(k=>{dhEl(k).value=String(+(+src[k]).toFixed(6)).replace('.',',');DH.order.push(k)})}
  else{if(L!=null){dhEl('c').value=String(r.it.lengte);DH.order.push('c')}
@@ -583,14 +580,10 @@ function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide')
  bx.hidden=false;$('#dh3dBtn').hidden=true;const hint=$('#dh3dHint');if(hint)hint.style.fontSize='12px';setTimeout(()=>{window.dh3dResize&&window.dh3dResize();dh3d()},60)}
 window.addEventListener('resize',()=>{if(document.body.classList.contains('dhonly'))dhBreed()});
 function sluitDriehoek(){if(document.body.classList.contains('dhonly'))return;$('#calc').style.display='none';$('#dhAdr').hidden=true;DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
-function openDriehoekLos(){DH.los=true;$('#dhAdr').hidden=false;if(!DH.adres&&cur?.adres){DH.adres=cur.adres;DH.bag=cur.bag||null}dhAdrToon();if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_vn','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cVnInfo').innerHTML='';$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
-DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';if(k==='b'){$('#c_vn').value='';dhVnInfo()}dhSolve()}));
-function dhVnB(){const vn=num($('#c_vn').value),hk=Math.max(0,num($('#c_hk').value)||0);if(!(vn>0)){dhVnInfo();return false}const b=vn-hk;dhEl('b').value=b>0?String(+b.toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='b');if(b>0)DH.order.push('b');dhVnInfo();return true}
-function dhVnInfo(){const vn=num($('#c_vn').value),hk=Math.max(0,num($('#c_hk').value)||0),el=$('#cVnInfo');if(!el)return;el.innerHTML=vn>0?(vn-hk>0?(hk>0?`b = ${f2(vn)} − ${f2(hk)} (gevel onder goot) = <b>${f2(vn-hk)} m</b>`:`b = <b>${f2(vn)} m</b> · heeft de zolder een gevel onder de goot, vul die hieronder in`):'<span style="color:#b3261e">Vloer → nok moet hoger zijn dan de gevel onder de goot.</span>'):''}
-$('#c_vn').addEventListener('input',()=>{dhVnB();dhSolve()});
-$('#c_hk').addEventListener('input',()=>{if(num($('#c_vn').value)>0){dhVnB();dhSolve()}});
+function openDriehoekLos(){DH.los=true;$('#dhAdr').hidden=false;if(!DH.adres&&cur?.adres){DH.adres=cur.adres;DH.bag=cur.bag||null}dhAdrToon();if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
+DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
 $('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
-$('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';$('#c_vn').value='';dhVnInfo();dhSolve()};
+$('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
 $('#cdicht').onclick=sluitDriehoek;
 $('#calc').addEventListener('click',e=>{if(e.target.id==='calc')sluitDriehoek()});
 const fS=x=>String(+(+x).toFixed(3)).replace('.',',');
