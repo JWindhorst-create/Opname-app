@@ -1218,7 +1218,7 @@ body.v-opname{background-image:none!important}
 .kr-tab td:last-child{text-align:right;white-space:nowrap}
 .kr-tab tr.t td{font-weight:700;border-bottom:0}
 .kr-x{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
-.kr-err{color:#b3261e;font-size:13px}
+.kr-err{color:#b3261e;font-size:13px}#kr-model svg{display:block;width:100%;max-width:420px;height:auto;margin:4px auto 0;background:#f7faf8;border:1px solid var(--line);border-radius:10px}
 </style>
 <div class="kr-grid">
  <div class="kr-card" id="kr-ramen">
@@ -1227,7 +1227,7 @@ body.v-opname{background-image:none!important}
   <div class="kr-vorm" id="kr-vormen"></div>
   <div class="kr-row" id="kr-velden"></div>
   <div class="kr-row"><div>Omschrijving<input id="kr-oms" placeholder="bijv. voordeur, raam zolder"></div><div>Aantal<input id="kr-n" inputmode="numeric" value="1"></div></div>
-  <div class="kr-res" id="kr-uit">Vul de maten in.</div>
+  <div id="kr-model"></div><div class="kr-res" id="kr-uit">Vul de maten in.</div>
   <button class="btn" type="button" id="kr-add">+ Op de lijst</button>
   <table class="kr-tab" id="kr-lijst"></table>
  </div>
@@ -5526,8 +5526,36 @@ ftRender();
  function vormen(){$k('kr-vormen').innerHTML=Object.entries(VORM).map(([k,v])=>'<button type="button" data-krv="'+k+'" class="'+(k===st.vorm?'on':'')+'"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8">'+v.svg+'</svg>'+v.t+'</button>').join('');
   const V=VORM[st.vorm];st.m=st.m||{};$k('kr-velden').innerHTML=V.v.map(([k,l])=>'<div>'+l+' (m)<input data-krm="'+k+'" inputmode="decimal" value="'+E(st.m[k]??'')+'"></div>').join('');reken()}
  function waarden(){const V=VORM[st.vorm],x={};for(const [k] of V.v){const n=nm(st.m[k]);if(!(n>0))return null;x[k]=n}return x}
- function reken(){const V=VORM[st.vorm],x=waarden(),n=Math.max(1,Math.round(nm($k('kr-n').value)||1));if(!x){$k('kr-uit').innerHTML='Vul de maten in.<div class="kr-f">Formule: '+E(V.f)+'</div>';return null}
+
+ function teken(x){const el=$k('kr-model');if(!el)return;if(!x){el.innerHTML='';return}const v=st.vorm,W0=300,H0=210,M=46;
+  let W=x.b||x.d,H;const r2=Math.SQRT2;
+  if(v==='rond'){W=x.d;H=x.d}else if(v==='boog')H=x.h+x.b/2;else if(v==='seg')H=x.h+x.p;else if(v==='halfrond')H=x.b/2;else if(v==='acht')H=x.b;else H=x.h;
+  const k=Math.min((W0-2*M)/W,(H0-2*M+8)/H),ox=(W0-W*k)/2,oy=(H0+H*k)/2-6,X=u=>(ox+u*k).toFixed(1),Y=u=>(oy-u*k).toFixed(1),f=n=>F(n);
+  let p='';if(v==='recht')p=`M${X(0)} ${Y(0)}H${X(x.b)}V${Y(x.h)}H${X(0)}Z`;
+  else if(v==='boog')p=`M${X(0)} ${Y(0)}V${Y(x.h)}A${(x.b/2*k).toFixed(1)} ${(x.b/2*k).toFixed(1)} 0 0 1 ${X(x.b)} ${Y(x.h)}V${Y(0)}Z`;
+  else if(v==='seg'){const R=(x.b*x.b/4+x.p*x.p)/(2*x.p);p=`M${X(0)} ${Y(0)}V${Y(x.h)}A${(R*k).toFixed(1)} ${(R*k).toFixed(1)} 0 0 1 ${X(x.b)} ${Y(x.h)}V${Y(0)}Z`}
+  else if(v==='rond')p=`M${X(0)} ${Y(x.d/2)}a${(x.d/2*k).toFixed(1)} ${(x.d/2*k).toFixed(1)} 0 1 0 ${(x.d*k).toFixed(1)} 0a${(x.d/2*k).toFixed(1)} ${(x.d/2*k).toFixed(1)} 0 1 0 ${(-x.d*k).toFixed(1)} 0Z`;
+  else if(v==='halfrond')p=`M${X(0)} ${Y(0)}A${(x.b/2*k).toFixed(1)} ${(x.b/2*k).toFixed(1)} 0 0 1 ${X(x.b)} ${Y(0)}Z`;
+  else if(v==='ovaal')p=`M${X(0)} ${Y(x.h/2)}a${(x.b/2*k).toFixed(1)} ${(x.h/2*k).toFixed(1)} 0 1 0 ${(x.b*k).toFixed(1)} 0a${(x.b/2*k).toFixed(1)} ${(x.h/2*k).toFixed(1)} 0 1 0 ${(-x.b*k).toFixed(1)} 0Z`;
+  else if(v==='ruit')p=`M${X(x.b/2)} ${Y(0)}L${X(x.b)} ${Y(x.h/2)}L${X(x.b/2)} ${Y(x.h)}L${X(0)} ${Y(x.h/2)}Z`;
+  else if(v==='drie')p=`M${X(0)} ${Y(0)}H${X(x.b)}L${X(x.b/2)} ${Y(x.h)}Z`;
+  else if(v==='trap')p=`M${X(0)} ${Y(0)}H${X(x.b)}L${X((x.b+x.b2)/2)} ${Y(x.h)}H${X((x.b-x.b2)/2)}Z`;
+  else if(v==='acht'){const a=x.b/(1+r2),c=(x.b-a)/2;p=`M${X(c)} ${Y(0)}H${X(c+a)}L${X(x.b)} ${Y(c)}V${Y(c+a)}L${X(c+a)} ${Y(x.b)}H${X(c)}L${X(0)} ${Y(c+a)}V${Y(c)}Z`}
+  const dim=(x1,y1,x2,y2,t,side)=>{const hor=Math.abs(y1-y2)<1e-9,o=side==='b'?-0.0:0;let P,T;
+   if(hor){const yy=+Y(y1)+(side==='t'?-14:14);P=`M${X(x1)} ${yy}H${X(x2)}M${X(x1)} ${yy-4}v8M${X(x2)} ${yy-4}v8`;T=`<text x="${((+X(x1)+ +X(x2))/2).toFixed(1)}" y="${yy+(side==='t'?-4:12)}" text-anchor="middle">${t}</text>`}
+   else{const xx=+X(x1)+(side==='l'?-14:14);P=`M${xx} ${Y(y1)}V${Y(y2)}M${xx-4} ${Y(y1)}h8M${xx-4} ${Y(y2)}h8`;T=`<text x="${xx+(side==='l'?-4:4)}" y="${((+Y(y1)+ +Y(y2))/2+4).toFixed(1)}" text-anchor="${side==='l'?'end':'start'}">${t}</text>`}
+   return`<path d="${P}" stroke="#7d8f86" stroke-width="1" fill="none"/>`+T};
+  let d='';
+  if(v==='rond')d=dim(0,0,x.d,0,f(x.d),'b');
+  else{d=dim(0,0,W,0,f(W),'b');
+   if(v==='boog'){d+=dim(0,0,0,x.h,f(x.h),'l')+dim(x.b,0,x.b,H,f(H),'r')}
+   else if(v==='seg'){d+=dim(0,0,0,x.h,f(x.h),'l')+dim(x.b,x.h,x.b,H,f(x.p),'r')}
+   else if(v==='trap'){d+=dim((x.b-x.b2)/2,x.h,(x.b+x.b2)/2,x.h,f(x.b2),'t')+dim(x.b,0,x.b,x.h,f(x.h),'r')}
+   else d+=dim(W,0,W,H,f(H),'r')}
+  el.innerHTML=`<svg viewBox="0 0 ${W0} ${H0}" font-size="11" font-weight="600" fill="#33463d"><path d="${p}" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="2.5" stroke-linejoin="round"/>${d}</svg>`}
+ function reken(){const V=VORM[st.vorm],x=waarden(),n=Math.max(1,Math.round(nm($k('kr-n').value)||1));teken(null);if(!x){$k('kr-uit').innerHTML='Vul de maten in.<div class="kr-f">Formule: '+E(V.f)+'</div>';return null}
   const a=V.a(x);if(a==null||!isFinite(a)){$k('kr-uit').innerHTML='<span class="kr-err">Deze maten kloppen niet voor deze vorm (pijlhoogte maximaal de halve breedte).</span>';return null}
+  teken(x);
   $k('kr-uit').innerHTML='Oppervlakte: <b>'+F(a)+' m²</b>'+(n>1?' · × '+n+' = <b>'+F(a*n)+' m²</b>':'')+'<div class="kr-f">Formule: '+E(V.f)+'</div>';return{a,n}}
  function lijst(){const L=st.lijst;if(!L.length){$k('kr-lijst').innerHTML='';return}const tot=L.reduce((t,r)=>t+r.a*r.n,0);
   $k('kr-lijst').innerHTML=L.map((r,i)=>'<tr><td>'+E(r.oms||VORM[r.v]?.t||r.v)+'<div class="kr-f">'+E(VORM[r.v]?.t||'')+' · '+E(r.maat)+(r.n>1?' · '+r.n+'×':'')+'</div></td><td>'+F(r.a*r.n)+' m² <button class="kr-x" type="button" data-krdel="'+i+'" title="Verwijderen">✕</button></td></tr>').join('')+'<tr class="t"><td>Totaal</td><td>'+F(tot)+' m²</td></tr>'}
