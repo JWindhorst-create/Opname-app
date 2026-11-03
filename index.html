@@ -103,7 +103,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div class="grid2"><div><label>Hoogte goot → knik (m)</label><input id="c_mh" inputmode="decimal" autocomplete="off"></div>
 <div><label>Helling onderste dakvlak (°)</label><input id="c_ma" inputmode="decimal" autocomplete="off" placeholder="bijv. 70"></div></div>
 <div class="note" id="cManRes" style="margin-top:6px"></div></div>
-<div id="cNok"><label>Nokrichting</label><div class="choice" id="cNokCh">
+<div id="cNok" hidden><label>Nokrichting</label><div class="choice" id="cNokCh">
 <button type="button" data-nok="par" class="on">Evenwijdig aan voorgevel<br><small>muur → muur, gevels voor/achter</small></button>
 <button type="button" data-nok="haaks">Haaks op voorgevel<br><small>voor → achter, kopgevels voor/achter</small></button></div></div>
 <div class="grid2"><div id="cLwrap"><label id="cLlab">Lengte dak (evenwijdig aan nok, m)</label><input id="c_L" inputmode="decimal" autocomplete="off"></div>
@@ -574,7 +574,7 @@ function openDriehoek(id){const r=vind(id);if(!r)return;DH.itemId=id;DH.order=[]
  else{if(L!=null){dhEl('c').value=String(r.it.lengte);DH.order.push('c')}
   if(hk!=null){dhEl('al').value=String(r.it.helling);DH.order.push('al')}}
  $('#c_L').value=r.it.dhVorm==='schild'||r.it.dhVorm==='tent'?'':(r.it.breedte??'');if(r.it.dhVorm){DH.shape=r.it.dhVorm;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x.dataset.s3===DH.shape))}
- DH.nok=r.it.dhNok||'par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
+ DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x.dataset.nok===DH.nok));$('#c_hk').value=r.it.dhHk||'';$('#c_mh').value=r.it.dhMh||'';$('#c_ma').value=r.it.dhMa||'';
  if(src&&!src.bv&&DH.order.includes('b')&&src.b!=null)dhEl('b').value=String(+(+src.b+dhOff()).toFixed(6)).replace('.',',');
  dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide'))return;document.body.classList.add('wide');
@@ -668,7 +668,7 @@ function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs
 function dhSrcObj(){const k=dhKeys(),o={keys:k,c:DH.res.c,bv:1};k.forEach(x=>o[x]=num(dhEl(x).value));return o}
 function dhKopTekst(){const n=kopAantal(),sh=DH.shape,haaks=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')&&DH.nok==='haaks';$('#cMan').hidden=sh!=='mansarde';manTekst();
  const lig=cur?.type?(ligLabel()||{vrijstaand:'Vrijstaand'}[cur.type.wtype]||''):'';
- $('#cNok').hidden=!(sh==='zadel'||sh==='lessenaar'||sh==='mansarde');$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
+ $('#cNok').hidden=true;$('#cHkwrap').style.visibility=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?'':'hidden';$('#cLwrap').style.visibility=sh==='tent'?'hidden':'';
  $('#cLlab').textContent=haaks?'Lengte dak (voor → achter, m)':sh==='zadel'||sh==='lessenaar'||sh==='mansarde'?'Lengte dak (bouwmuur → bouwmuur, m)':'Lengte dak (evenwijdig aan nok, m)';
  let t=lig;if(sh==='zadel'||sh==='mansarde')t+=haaks?` → kopgevels voor + achter${num($('#c_hk').value)>0?`, ${n} gevel${n===1?'':'s'} onder goot`:''}`:` → ${n} kopgevel${n===1?'':'s'}${num($('#c_hk').value)>0?', gevels onder goot voor + achter':''}`;
  else if(sh==='lessenaar')t+=haaks?` → zijgevels voor + achter${n>=2?', hoge en lage kant':n===1?', 1 zijkant (wordt gevraagd)':''}`:` → hoge gevel${num($('#c_hk').value)>0?' + lage gevel':''}, ${n} zijgevel${n===1?'':'s'}`;
@@ -797,7 +797,7 @@ async function maakDriehoekPdf(){
  kop('2. Invoer (gemeten) en berekende waarden');
  const gem=DH.order.slice(-2),lab={a:'a - horizontale maat',b:'b - hoogte vloer -> nok',c:'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
-  ['Dakvorm',DAKNAAM[sh]+(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'?' · nok '+(DH.nok==='haaks'?'haaks op':'evenwijdig aan')+' voorgevel':'')],
+  ['Dakvorm',DAKNAAM[sh]],
   ...(M?[['Onderste dakvlak mansarde',`hoogte goot -> knik ${f2(M.mh)} m · helling ${M.ma} graden · lengte ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`]]:[]),
   ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Hoogte gevel onder goot',hk?f2(hk)+' m':'geen'],['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');
