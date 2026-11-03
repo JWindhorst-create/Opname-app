@@ -689,7 +689,7 @@ body.v-opname{background-image:none!important}
   <button class="tile" type="button" data-open="klein">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
    <h2>Kleine rekenhulpen</h2>
-   <p>Oppervlakte van ramen en deuren met afwijkende vorm (rond, boog, ruit, driehoek…) en correctie van de dakvlaklengte bij na-isolatie aan de binnenkant.</p>
+   <p>Ramen en deuren met afwijkende vorm, correctie dakvlak bij na-isolatie, dakfactor, glas in deur, verspringende woning en kWh/MJ omrekenen.</p>
    <span class="go">Openen →</span>
   </button>
   <button class="tile" type="button" data-open="schetsen">
@@ -1245,6 +1245,33 @@ body.v-opname{background-image:none!important}
   <div class="kr-res" id="kc-uit">Vul hellingshoek, dikte en gemeten lengte in.</div>
   <div class="kr-f">Methode: de nieuwe binnenkant ligt evenwijdig aan het dakvlak, op afstand d. Waar het dakvlak op een horizontaal vlak eindigt (vloer, plafond) verschuift het eindpunt langs de helling met d / tan α; waar het op een verticaal vlak eindigt (nok, knieschot, wand) met d · tan α. Een volledige zijde vloer → nok verschilt dus d / (sin α · cos α).</div>
  </div>
+ <div class="kr-card" id="kr-dakf">
+  <h3>Dakoppervlak uit vloeroppervlak (dakfactor)</h3>
+  <p class="kr-sub">Het dakvlak is groter dan zijn horizontale projectie. Dakfactor = 1 / cos α.</p>
+  <div class="kr-row"><div>Horizontale projectie (m²)<input id="kd-a" inputmode="decimal" placeholder="bijv. 48"></div><div>Hellingshoek (°)<input id="kd-al" inputmode="decimal" placeholder="bijv. 40"></div></div>
+  <div class="kr-res" id="kd-uit">Vul oppervlak en hellingshoek in.</div>
+ </div>
+ <div class="kr-card" id="kr-glas">
+  <h3>Glas in deur</h3>
+  <p class="kr-sub">Aandeel glas in een deur, met het oppervlak van het dichte deel. Gebruik dit bij de keuze voor de U-waarde (zie het beslisschema U-waarde deuren).</p>
+  <div class="kr-row"><div>Deur breedte (m)<input id="kg-db" inputmode="decimal" placeholder="0,93"></div><div>Deur hoogte (m)<input id="kg-dh" inputmode="decimal" placeholder="2,31"></div>
+  <div>Glas breedte (m)<input id="kg-gb" inputmode="decimal"></div><div>Glas hoogte (m)<input id="kg-gh" inputmode="decimal"></div>
+  <div>Aantal ruiten van deze maat<input id="kg-n" inputmode="numeric" value="1"></div><div>Óf glas totaal (m²)<input id="kg-gm" inputmode="decimal"></div></div>
+  <div class="kr-res" id="kg-uit">Vul de maten in.</div>
+ </div>
+ <div class="kr-card" id="kr-versp">
+  <h3>Verspringende woning: vrije zijgevel</h3>
+  <p class="kr-sub">Verspringt de woning ten opzichte van de buren, dan grenst een stuk zijgevel aan buiten. Rechthoek tot de goot, plus bij een zadeldak (nok evenwijdig aan de voorgevel) het vrije deel van de kopgevel.</p>
+  <div class="kr-row"><div>Verspringing (m)<input id="kv-d" inputmode="decimal" placeholder="bijv. 1,2"></div><div>Hoogte tot goot (m)<input id="kv-h" inputmode="decimal" placeholder="bijv. 5,6"></div>
+  <div>Diepte woning (m, gevel tot gevel)<input id="kv-w" inputmode="decimal" placeholder="alleen bij kap"></div><div>Hellingshoek kap (°)<input id="kv-al" inputmode="decimal" placeholder="leeg = geen kap"></div></div>
+  <div class="kr-res" id="kv-uit">Vul verspringing en hoogte in.</div>
+ </div>
+ <div class="kr-card" id="kr-kwh">
+  <h3>kWh, MJ en GJ omrekenen</h3>
+  <p class="kr-sub">1 kWh = 3,6 MJ · 1 GJ = 1000 MJ.</p>
+  <div class="kr-row"><div>Waarde<input id="ke-v" inputmode="decimal" placeholder="bijv. 3500"></div><div>Eenheid<select id="ke-u"><option value="kWh">kWh</option><option value="MJ">MJ</option><option value="GJ">GJ</option></select></div></div>
+  <div class="kr-res" id="ke-uit">Vul een waarde in.</div>
+ </div>
 </div>
 </section>
 
@@ -1735,6 +1762,8 @@ $('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
 /* --- Uitleg per onderdeel (?-knop bovenin en op elke tegel) --- */
 const HELP={
  klein:[
+  {at:'#kr-dakf',t:'Dakfactor',b:'Dakoppervlak uit de horizontale projectie en de hellingshoek.'},
+  {at:'#kr-versp',t:'Verspringende woning',b:'Vrij stuk zijgevel bij een woning die verspringt ten opzichte van de buren.'},
   {at:'#kr-ramen',t:'Ramen en deuren',b:'Kies de vorm van de opening, vul de maten in en zet hem op de lijst. Onderaan staat het totaal in m². De formule staat bij de uitkomst.'},
   {at:'#kr-corr',t:'Correctie dakvlak',b:'Na-isolatie aan de binnenkant maakt het dakvlak dat je binnen meet korter. Vul hellingshoek, isolatiedikte en de gemeten lengte in en kies waar het dakvlak onder en boven eindigt.'}],
  home:[
@@ -5516,6 +5545,24 @@ ftRender();
   if(!(uit>0)){$k('kc-uit').innerHTML='<span class="kr-err">De correctie is groter dan de gemeten lengte. Controleer de invoer.</span>';return}
   $k('kc-uit').innerHTML=(dir==='na'?'Lengte oorspronkelijk dakvlak':'Lengte langs de nieuwe binnenkant')+': <b>'+F(uit,3)+' m</b><div class="kr-f">Correctie onderkant '+F(dO,3)+' m ('+(o==='h'?'d / tan α':'d · tan α')+') + bovenkant '+F(dB,3)+' m ('+(b==='h'?'d / tan α':'d · tan α')+') = '+(dir==='na'?'+':'−')+F(dT,3)+' m</div>'}
  corr()})();
+
+(function(){const K='eln-klein-x';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}const g=document.getElementById.bind(document);if(!g('kr-kwh'))return;
+ const nm=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?n:null},F=(x,d=2)=>x.toLocaleString('nl-NL',{minimumFractionDigits:d,maximumFractionDigits:d}),R=Math.PI/180;
+ const ids=['kd-a','kd-al','kg-db','kg-dh','kg-gb','kg-gh','kg-n','kg-gm','kv-d','kv-h','kv-w','kv-al','ke-v','ke-u'];
+ const sv=()=>{try{const o=JSON.parse(localStorage.getItem(K)||'{}');o.x={};ids.forEach(i=>o.x[i]=g(i).value);localStorage.setItem(K,JSON.stringify(o))}catch(e){}};
+ if(st.x)ids.forEach(i=>{if(st.x[i]!=null&&st.x[i]!=='')g(i).value=st.x[i]});
+ function dakf(){const a=nm(g('kd-a').value),al=nm(g('kd-al').value);if(!(a>0&&al!=null&&al>=0&&al<90)){g('kd-uit').innerHTML='Vul oppervlak en hellingshoek in.';return}const f=1/Math.cos(al*R);
+  g('kd-uit').innerHTML='Dakoppervlak: <b>'+F(a*f)+' m²</b><div class="kr-f">Dakfactor 1 / cos '+F(al,1)+'° = '+F(f,3)+' · '+F(a)+' × '+F(f,3)+'</div>'}
+ function glas(){const db=nm(g('kg-db').value),dh=nm(g('kg-dh').value),gm=nm(g('kg-gm').value),gb=nm(g('kg-gb').value),gh=nm(g('kg-gh').value),n=Math.max(1,Math.round(nm(g('kg-n').value)||1));
+  if(!(db>0&&dh>0)){g('kg-uit').innerHTML='Vul de maten van de deur in.';return}const D=db*dh,G=gm>0?gm:(gb>0&&gh>0?gb*gh*n:0);
+  if(G>D){g('kg-uit').innerHTML='<span class="kr-err">Er is meer glas dan deur. Controleer de maten.</span>';return}
+  g('kg-uit').innerHTML='Glas: <b>'+F(G/D*100,1)+'%</b> van de deur<div class="kr-f">Deur '+F(D)+' m² · glas '+F(G)+' m² · dicht deel '+F(D-G)+' m²</div>'}
+ function versp(){const d=nm(g('kv-d').value),h=nm(g('kv-h').value),w=nm(g('kv-w').value),al=nm(g('kv-al').value);if(!(d>0&&h>0)){g('kv-uit').innerHTML='Vul verspringing en hoogte in.';return}
+  const A1=d*h;let A2=0,t='';if(al>0&&al<90&&w>0){if(d>=w){A2=w*w/4*Math.tan(al*R);t='verspringing ≥ diepte: hele kopgevel vrij'}else{const A=w*w/4*Math.tan(al*R);A2=A*(1-Math.pow((w-d)/w,2));t='kopgevel '+F(A)+' m² × (1 − ((w − d) / w)²)'}}
+  g('kv-uit').innerHTML='Vrije zijgevel: <b>'+F(A1+A2)+' m²</b><div class="kr-f">Tot de goot: '+F(d)+' × '+F(h)+' = '+F(A1)+' m²'+(A2?' · kap: '+F(A2)+' m² ('+t+')':'')+'</div>'}
+ function kwh(){const v=nm(g('ke-v').value),u=g('ke-u').value;if(v==null){g('ke-uit').innerHTML='Vul een waarde in.';return}const mj=u==='kWh'?v*3.6:u==='GJ'?v*1000:v;
+  g('ke-uit').innerHTML='<b>'+F(mj/3.6,2)+' kWh</b> · <b>'+F(mj,1)+' MJ</b> · <b>'+F(mj/1000,3)+' GJ</b>'}
+ const all=()=>{dakf();glas();versp();kwh();sv()};ids.forEach(i=>{g(i).addEventListener('input',all);g(i).addEventListener('change',all)});all()})();
 </script>
 </body>
 </html>
