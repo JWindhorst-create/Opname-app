@@ -560,6 +560,7 @@ body.v-opname{background-image:none!important}
 .mk-bij-opts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 0 23px;font-size:13px;color:var(--muted)}
 .mk-bij-opts select{width:auto;min-width:0}
 .mk-in{display:inline-flex;align-items:center;gap:6px}
+.mk-b4{cursor:pointer;color:var(--g800);font-weight:600;margin-left:14px}.mk-b4 input{width:15px;height:15px;accent-color:#2D6042}
 .mk-help{margin-left:auto;width:24px;height:24px;border-radius:50%;border:1.5px solid #2D6042;background:#fff;color:#2D6042;font-weight:800;font-size:13px;cursor:pointer;line-height:1;padding:0}
 .mk-help:hover{background:#2D6042;color:#fff}
 .mk-modal{position:fixed;inset:0;background:rgba(20,40,30,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
@@ -757,6 +758,7 @@ body.v-opname{background-image:none!important}
       <input type="hidden" id="rep-type" value="logo"><span class="mk-in" id="rep-what"></span>
       <span class="mk-in" id="rep-sub-wrap">in <select id="rep-sub"></select></span>
       <span class="mk-in" id="rep-where"></span>
+      <label class="mk-in mk-b4" id="rep-b4-wrap"><input type="checkbox" id="rep-b4"> Bijlage 4 apart</label>
      </div>
     </div>
     <div class="actrow">
@@ -1536,7 +1538,7 @@ const INNAX_REP={'01_Objectdossier':'5) Algemeen/Orientatie','01_BAG':'5) Algeme
 function mkMode(){const v=(document.querySelector('input[name="mk-mode"]:checked')||{}).value;return v==='main'||v==='innax'?v:'subs'}
 function mkBij(){return $('mk-bij').checked}
 function repTarget(name){const m=mkMode();if(m==='innax'){for(const k in INNAX_REP)if(name.startsWith(k))return INNAX_REP[k];return '1) Projectdossier'}if(m==='main')return '';return safeName($('rep-sub').value)||'Info'}
-function mkWhere(){const m=mkMode();$('rep-type').value=m==='innax'?'innax':'logo';$('rep-what').textContent=m==='innax'?'INNAX-rapporten (objectdossier, BAG-gegevens en Bijlage 4)':'Objectdossier met logo';$('rep-sub-wrap').style.display=m==='subs'?'':'none';
+function mkWhere(){const m=mkMode(),b4=$('rep-b4').checked;$('rep-type').value=m==='innax'?'innax':b4?'split':'logo';$('rep-b4-wrap').style.display=m==='innax'?'none':'';$('rep-what').textContent=m==='innax'?'INNAX-rapporten (objectdossier, BAG-gegevens en Bijlage 4)':'Objectdossier met logo';$('rep-sub-wrap').style.display=m==='subs'?'':'none';
  $('rep-where').textContent=m==='main'?'direct in de adresmap':m==='innax'?'automatisch in de juiste INNAX-mappen':'';$('rep-where').style.display=m==='subs'?'none':''}
 function mkModeUI(){const m=mkMode();document.querySelectorAll('.mk-opt').forEach(x=>x.style.display=x.dataset.m===m?'block':'none');
  $('mk-bij-opts').style.display=mkBij()?'':'none';mkWhere();
@@ -1544,6 +1546,8 @@ function mkModeUI(){const m=mkMode();document.querySelectorAll('.mk-opt').forEac
  try{localStorage.setItem('eln-mk-mode',m);localStorage.setItem('eln-mk-bij',mkBij()?'1':'0')}catch(e){}}
 try{let m=localStorage.getItem('eln-mk-mode');if(m==='full')m='subs';const el=m&&document.querySelector('input[name="mk-mode"][value="'+m+'"]');if(el)el.checked=true;const b=localStorage.getItem('eln-mk-bij');if(b!==null)$('mk-bij').checked=b==='1';else if(localStorage.getItem('eln-mk-mode')==='subs')$('mk-bij').checked=false}catch(e){}
 document.querySelectorAll('input[name="mk-mode"]').forEach(r=>r.addEventListener('change',()=>{mkModeUI()}));
+try{$('rep-b4').checked=localStorage.getItem('eln-rep-b4')==='1'}catch(e){}
+$('rep-b4').addEventListener('change',()=>{try{localStorage.setItem('eln-rep-b4',$('rep-b4').checked?'1':'0')}catch(e){}mkWhere()});
 $('mk-bij').addEventListener('change',mkModeUI);mkModeUI();
 
 /* --- Uitleg (walkthrough) --- */
@@ -1551,7 +1555,7 @@ const MK_WT=[
  {t:'1. Adressen in de lijst',b:'Zet eerst de adressen in de lijst bij stap 1 (Excel, printscreen of plakken) en controleer ze bij stap 2. Alleen aangevinkte adressen krijgen een map.'},
  {t:'2. Mapnaam en projectmap',b:'Kies hoe elke adresmap heet. Vul je een <b>projectmap</b> in, dan komen alle adresmappen daarin; laat je hem leeg, dan komen ze direct in de hoofdmap die je straks kiest.'},
  {t:'3. Soort mappen',b:'<ul><li><b>Alleen adresmap</b> – één lege map per adres.</li><li><b>Met submappen</b> – met je eigen submappen erin (bijv. Info, Foto’s, Opname). Toevoegen met +, weghalen met ✕.</li><li><b>INNAX</b> – de vaste INNAX-indeling 1) t/m 9), met het Bijlage 4-formulier.</li></ul>'},
- {t:'4. Bijlagen meemaken',b:'Staat <b>Bijlagen direct meemaken</b> aan, dan maakt het dashboard per adres ook het rapport: bij INNAX de drie INNAX-PDF’s, anders het objectdossier met logo. Na het aanmaken opent de kaart: klik per adres de <b>voorgevel</b> aan en druk op OK. Het rapport wordt meteen in de goede map opgeslagen.'},
+ {t:'4. Bijlagen meemaken',b:'Staat <b>Bijlagen direct meemaken</b> aan, dan maakt het dashboard per adres ook het rapport: bij INNAX de drie INNAX-PDF’s, anders het objectdossier met logo (vink <b>Bijlage 4 apart</b> aan als je Bijlage 4 als losse PDF wilt). Na het aanmaken opent de kaart: klik per adres de <b>voorgevel</b> aan en druk op OK. Het rapport wordt meteen in de goede map opgeslagen.'},
  {t:'5. Maak mappen',b:'Klik op <b>Maak mappen</b> en kies één keer de hoofdmap. Bestaande mappen en bestanden worden nooit overschreven, alleen aangevuld.<br><br>Bestaan de mappen al? Gebruik dan onderaan <b>Alleen de bijlagen maken</b>.'}
 ];
 let mkWtI=0;
