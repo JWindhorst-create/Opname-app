@@ -570,17 +570,24 @@ body.v-opname{background-image:none!important}
 .mk-wt-body{font-size:14px;line-height:1.5;color:#2b3a32;min-height:96px}
 .mk-wt-body ul{margin:6px 0 0;padding-left:18px}
 .mk-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:16px;cursor:pointer;color:#5d6b63}
+.mk-name{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#6b7c72;margin:0 24px 6px 0}.mk-name:empty{display:none}
 .mk-dots{display:flex;gap:6px}
 .mk-dots i{width:8px;height:8px;border-radius:50%;background:#d5e2da}
 .mk-dots i.on{background:#2D6042}
 .mk-nav{display:flex;justify-content:space-between;margin-top:16px}
-@media(max-width:640px){.mk-row{grid-template-columns:1fr}.mk-seg span{font-size:12px;padding:8px 3px}}
+.top-help{width:34px;height:34px;border-radius:50%;border:1.5px solid #2D6042;background:#fff;color:#2D6042;font-weight:800;font-size:16px;cursor:pointer;margin-right:10px;padding:0;line-height:1;flex:none}
+.top-help:hover{background:#2D6042;color:#fff}
+.tile{position:relative}
+.tile h2{padding-right:26px}
+.tile-help{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;border:1.5px solid #b9cfc1;background:#fff;color:#2D6042;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1}
+.tile-help:hover{background:#2D6042;border-color:#2D6042;color:#fff}
+@media(max-width:640px){.top-help{width:30px;height:30px;font-size:14px;margin-right:6px}.mk-row{grid-template-columns:1fr}.mk-seg span{font-size:12px;padding:8px 3px}}
 </style>
 </head>
 <body>
 <div class="mk-modal" id="mk-modal" hidden><div class="mk-box" role="dialog" aria-modal="true" aria-labelledby="mk-wt-title">
  <button type="button" class="mk-x" id="mk-wt-x" aria-label="Sluiten">✕</button>
- <div class="mk-dots" id="mk-wt-dots"></div>
+ <div class="mk-name" id="mk-wt-name"></div><div class="mk-dots" id="mk-wt-dots"></div>
  <h4 id="mk-wt-title"></h4><div class="mk-wt-body" id="mk-wt-body"></div>
  <div class="mk-nav"><button type="button" class="btn sec" id="mk-wt-prev">Vorige</button><button type="button" class="btn" id="mk-wt-next">Volgende</button></div>
 </div></div>
@@ -588,6 +595,7 @@ body.v-opname{background-image:none!important}
 <header class="topbar"><div class="topbar-in">
  <button type="button" id="home-link" class="home-link" title="Naar het dashboard"><img src="data:image/jpeg;base64,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" alt="Logo Energielabels Nederland"><div><div class="t1">Energielabels Nederland</div><div class="t2" id="top-title">Dashboard</div></div></button>
  <div class="spacer"></div>
+ <button class="top-help" id="top-help" type="button" title="Uitleg bij deze pagina" aria-label="Uitleg bij deze pagina">?</button>
  <button class="back" id="back-btn" type="button">← Dashboard</button>
 <img id="bp-logo" alt="Energielabels Nederland" title="Naar het dashboard"></div></header>
 
@@ -1558,17 +1566,95 @@ const MK_WT=[
  {t:'4. Bijlagen meemaken',b:'Staat <b>Bijlagen direct meemaken</b> aan, dan maakt het dashboard per adres ook het rapport: bij INNAX de drie INNAX-PDF’s, anders het objectdossier met logo (vink <b>Bijlage 4 apart</b> aan als je Bijlage 4 als losse PDF wilt). Na het aanmaken opent de kaart: klik per adres de <b>voorgevel</b> aan en druk op OK. Het rapport wordt meteen in de goede map opgeslagen.'},
  {t:'5. Maak mappen',b:'Klik op <b>Maak mappen</b> en kies één keer de hoofdmap. Bestaande mappen en bestanden worden nooit overschreven, alleen aangevuld.<br><br>Bestaan de mappen al? Gebruik dan onderaan <b>Alleen de bijlagen maken</b>.'}
 ];
-let mkWtI=0;
-function mkWtShow(){const st=MK_WT[mkWtI];$('mk-wt-title').textContent=st.t;$('mk-wt-body').innerHTML=st.b;
- $('mk-wt-dots').innerHTML=MK_WT.map((_,i)=>'<i class="'+(i===mkWtI?'on':'')+'"></i>').join('');
- $('mk-wt-prev').style.visibility=mkWtI?'visible':'hidden';$('mk-wt-next').textContent=mkWtI===MK_WT.length-1?'Klaar':'Volgende'}
+let WT=MK_WT,mkWtI=0;
+function mkWtShow(){const st=WT[mkWtI];$('mk-wt-title').textContent=st.t;$('mk-wt-body').innerHTML=st.b;
+ $('mk-wt-dots').innerHTML=WT.length>1?WT.map((_,i)=>'<i class="'+(i===mkWtI?'on':'')+'"></i>').join(''):'';
+ $('mk-wt-prev').style.visibility=mkWtI?'visible':'hidden';$('mk-wt-next').textContent=mkWtI===WT.length-1?'Klaar':'Volgende'}
+function helpOpen(steps,name){WT=steps;$('mk-wt-name').textContent=name||'';mkWtI=0;mkWtShow();$('mk-modal').hidden=false;$('mk-wt-next').focus()}
 function mkWtClose(){$('mk-modal').hidden=true}
-$('mk-help').addEventListener('click',()=>{mkWtI=0;mkWtShow();$('mk-modal').hidden=false;$('mk-wt-next').focus()});
-$('mk-wt-next').addEventListener('click',()=>{if(mkWtI<MK_WT.length-1){mkWtI++;mkWtShow()}else mkWtClose()});
+$('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
+$('mk-wt-next').addEventListener('click',()=>{if(mkWtI<WT.length-1){mkWtI++;mkWtShow()}else mkWtClose()});
 $('mk-wt-prev').addEventListener('click',()=>{if(mkWtI>0){mkWtI--;mkWtShow()}});
 $('mk-wt-x').addEventListener('click',mkWtClose);
 $('mk-modal').addEventListener('click',e=>{if(e.target.id==='mk-modal')mkWtClose()});
 document.addEventListener('keydown',e=>{if($('mk-modal').hidden)return;if(e.key==='Escape')mkWtClose();else if(e.key==='ArrowRight')$('mk-wt-next').click();else if(e.key==='ArrowLeft')$('mk-wt-prev').click()});
+
+/* --- Uitleg per onderdeel (?-knop bovenin en op elke tegel) --- */
+const HELP={
+ home:[
+  {t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Klik op het <b>?</b> rechtsboven op een tegel voor een korte uitleg, zonder de tegel te openen.'},
+  {t:'Terug en uitleg',b:'Met <b>← Dashboard</b> bovenin ga je altijd terug naar dit overzicht. Het <b>?</b> ernaast geeft op elke pagina de uitleg van díe pagina.'},
+  {t:'Waar staat je werk?',b:'Wat je invoert wordt in deze browser bewaard (niet online). Gebruik op een andere computer of telefoon dus niet dezelfde gegevens zonder back-up of export.'}],
+ gevel:[
+  {t:'1. Adres zoeken',b:'Typ een adres of postcode + huisnummer en klik op <b>Zoek adres</b>. De BAG-gegevens (bouwjaar, oppervlakte, pand) en het 3DBAG-model worden opgehaald.'},
+  {t:'2. Voorgevel aanklikken',b:'Klik op de kaart op de <b>voorgevel</b>. De oriëntatie van alle gevels wordt dan bepaald (in graden en windrichting).'},
+  {t:'3. Rapporten en bestanden',b:'<ul><li><b>Dossier INNAX / Dossier los</b> – PDF voor één adres.</li><li><b>Dossiers INNAX / los</b> – voor meerdere adressen.</li><li><b>Vabi-project (.epa)</b> – direct te openen in Vabi.</li></ul>'},
+  {t:'4. Opnameformulier',b:'Met <b>Opnameformulier →</b> ga je door naar het formulier; adres, BAG-gegevens en voorgevel staan dan al ingevuld.'}],
+ uitvoer:[
+  {t:'1. Lijst kiezen',b:'Elke inspectieronde krijgt een eigen lijst. Maak er een met <b>+ Nieuwe lijst</b>, of ga verder in een bestaande lijst.'},
+  {t:'2. Adressen invoeren',b:'Vul eerst de opnamedatum in. Plak daarna een printscreen met <b>Ctrl+V</b>; de adressen worden uitgelezen. Een los adres kun je ook met de hand toevoegen.'},
+  {t:'3. Aanvinken wat ontbreekt',b:'Vink per adres aan wat nog opgevraagd moet worden: <b>CV, MV, TP, PV</b> en <b>gevel, dak, vloer</b>. De opmerking vult zich vanzelf.'},
+  {t:'4. PDF',b:'Klik op <b>Download PDF</b>. Onder <i>Meer opties</i> vind je back-up, Excel en importeren – maak af en toe een back-up, want de lijsten staan alleen in deze browser.'}],
+ projectdossier:[
+  {t:'In voorbereiding',b:'Deze knop is nog in ontwikkeling. Het inlezen werkt, maar controleer de uitkomst altijd zelf.'},
+  {t:'1. Object',b:'Vul het adres in, klik op <b>Zoek</b> en kies woning (EP-W) of utiliteit (EP-U).'},
+  {t:'2. Documenten',b:'Sleep de aangeleverde documenten (PDF, Word, Excel, foto’s) in het vak. Geef per document aan waarvoor het is.'},
+  {t:'3. Controleren en PDF',b:'Het vooropnameformulier vult zich, met bij elk gegeven de bron. Wat niet in de documenten staat, staat als <i>niet aangeleverd – te bepalen bij opname</i>. Klik op <b>Maak PDF</b>.'}],
+ rc:[
+  {t:'1. Object en methode',b:'Vul het adres in en kies woning of utiliteit. Kies de <b>basismethode</b> (isolatiediktes, Rc = d/λ + Rad) of de <b>detailmethode</b>.'},
+  {t:'2. Constructies',b:'Voeg een gevel, plat dak, schuin dak, vloer of paneel toe. Of sleep een tekening, PDF of printscreen in het vak: de opbouwen worden uitgelezen en je kiest welke je overneemt.'},
+  {t:'3. Berekening en PDF',b:'Per constructie zie je de berekening. Met <b>Opslaan bij adres</b> bewaar je hem; met <b>Maak PDF</b> krijg je alle constructies voor het dossier.'}],
+ opname:[
+  {t:'1. Object',b:'Kom je via <b>Opnameformulier →</b> in het objectdossier, dan staan adres, BAG-gegevens, voorgevel en dakhelling al klaar. Anders: adres invullen en <b>Zoek</b>.'},
+  {t:'2. Invullen',b:'Vul rechts de rest van het formulier in. De volgorde volgt Vabi. Je invoer wordt in deze browser bewaard.'},
+  {t:'3. PDF',b:'Klik op <b>Maak opnameformulier (PDF)</b>: één A4 dubbelzijdig. Met <b>Formulier leegmaken</b> begin je opnieuw.'}],
+ stappen:[
+  {t:'Zonering utiliteit',b:'Stappenplan volgens ISSO 75.1: van gebruiksfunctie naar thermische zone, klimatiseringszone en rekenzone.'},
+  {t:'Werken in 5 stappen',b:'Loop de tabbladen 1 t/m 5 door met <b>Volgende</b>. Onder elke stap staat <b>Zo doe je deze stap</b> met de regels uit de ISSO.'},
+  {t:'Oppervlakten',b:'Oppervlakten mag je als som invullen, bijv. <b>42,92+9,2+6,2</b>.'},
+  {t:'Opslaan en export',b:'Je werk staat in de historie in deze browser. Exporteer naar <b>Excel</b> of <b>PDF</b>; met <b>Excel importeren</b> lees je een eerdere export weer in.'}],
+ beslis:[
+  {t:'1. Project',b:'Vul het adres in, kies woning (ISSO 82.1) of utiliteit (ISSO 75.1) en de opnamemethode.'},
+  {t:'2. Wat wil je uitzoeken?',b:'<ul><li><b>Hoort een ruimte bij de verwarmde zone?</b> – bergingen, zolders, garages, serres enz.</li><li><b>Ander opnamevraagstuk</b> – zoekt het juiste schema op.</li><li><b>Check object</b> – alle schema’s die van toepassing zijn in één keer.</li></ul>'},
+  {t:'3. Ruimten doorlopen',b:'Voeg een ruimte toe, kies de soort en beantwoord de vragen met <b>Ja / Nee</b>. Begin bij een ruimte die grenst aan een al verwarmde ruimte.'},
+  {t:'4. PDF',b:'Klik op <b>PDF voor het dossier</b>: daarin staat de gevolgde route per ruimte.'}],
+ interp:[
+  {t:'1. Bron kiezen',b:'Kies <b>Handmatig</b>, de <b>BCRG-databank</b>, of lees een <b>BCRG-PDF</b> in. Voor een warmtepomp is er <b>+ Warmtepomp (verklaring)</b>.'},
+  {t:'2. Waarden invullen',b:'Vul bij twee (of meer) bekende waarden X en Y in. Bij <b>gezocht</b> vul je de X in; de Y verschijnt ernaast.<br><br>Bijv. 1200 → 2500 en 1500 → 3000: bij 1350 hoort 2750.'},
+  {t:'3. Afronden en grenzen',b:'Kies hoe de uitkomst wordt afgerond. Standaard wordt niet geëxtrapoleerd: buiten de tabel geldt de verklaring niet.'},
+  {t:'4. PDF',b:'Klik op <b>PDF</b> voor de onderbouwing in het dossier.'}],
+ driehoek:[
+  {t:'1. Twee waarden',b:'Vul 2 waarden in: de <b>hellingshoek</b> + één maat, of <b>twee maten</b> (bijv. breedte a en hoogte b). De rest wordt berekend.'},
+  {t:'2. Dakvorm en maten',b:'Kies de dakvorm en de nokrichting, en vul de <b>lengte dak</b> (bouwmuur → bouwmuur) en de hoogte onder de goot in. Dan worden dakvlakken en gevels uitgerekend.'},
+  {t:'3. 3D en GO',b:'Sleep om het model te draaien. Groen = vloer met hoogte ≥ 1,5 m (GO); oranje = de 1,5 m-lijn.'},
+  {t:'4. PDF',b:'Klik op <b>PDF voor dossier</b>: berekening, 3D-beeld en onderbouwing.'}],
+ schetsen:[
+  {t:'Complexen',b:'Een complex = meerdere adressen met dezelfde kenmerken (plaats, woningtype, installaties, kozijnlegenda). Maak er een met <b>+ Nieuw complex</b>.'},
+  {t:'Losse woningen',b:'Woningen die niet bij een complex horen, zet je onder <b>Losse woningen</b>. Je kunt schetsen toevoegen, kopiëren of spiegelen.'},
+  {t:'Codes',b:'Onder <b>Codes</b> staan de afkortingen op de schetsen (bijv. TT, muv, OV, HD++, KD++, KE).'},
+  {t:'Uitvoer',b:'<b>Invoerlijst alle adressen</b> geeft een Excel-lijst; ook een Vabi-bestand (.epa) is mogelijk. Met <b>Afdrukken / PDF</b> print je de schetsen. Alles staat in deze browser.'}],
+ mappen:null,
+ fotos:[
+  {t:'1. Mappen kiezen',b:'Kies <b>Standaard</b> of <b>INNAX</b>. Standaard worden alleen installaties gesorteerd; vink <b>ook bouwkundig sorteren</b> aan voor gevel, dak, vloer en kozijnen.'},
+  {t:'2. Fotomap kiezen',b:'Klik op <b>Kies de map met foto’s</b>. De foto’s worden in je eigen browser beoordeeld; er wordt niets geüpload. Bij INNAX kies je de adresmap zelf.'},
+  {t:'3. Nakijken',b:'Twijfelgevallen zijn <b>oranje omrand</b>: kijk die na. Je kunt elk onderdeel aanpassen voordat je verdeelt.'},
+  {t:'4. Verdelen',b:'Klik op <b>Verdeel in mappen</b>. Met <b>verplaatsen</b> aangevinkt worden de foto’s verplaatst, anders gekopieerd.'}],
+ sorteren:[
+  {t:'In voorbereiding',b:'De opzet staat; de bestandsnamen en submappen kun je nog aanpassen bij <b>Bestandstypes</b>.'},
+  {t:'1. Bestanden ophalen',b:'Kies je <b>Downloads-map</b> (bestanden worden daarna verplaatst) of sleep de bestanden in het vak (dan worden ze gekopieerd).'},
+  {t:'2. Controleren',b:'In de lijst zie je per bestand de soort en het herkende adres (postcode + huisnummer).'},
+  {t:'3. Sorteren',b:'Klik op <b>Sorteer bestanden</b> en kies de map met dossiers. Niet zeker? Dan gaat het naar <b>_Controleren</b>. Er wordt nooit iets overschreven.'}],
+ bronnen:[
+  {t:'Geldende bronnen',b:'Overzicht van de geldende NTA 8800, ISSO 75.1 / 82.1, BRL 9500, errata, wijzigingsdocumenten en KEGO. Klik op een bron om die te openen.'},
+  {t:'Controle op nieuws',b:'Op de achtergrond wordt elke 4 uur gecontroleerd op nieuwe KEGO-antwoorden, errata en BRL-documenten. Alleen als er iets nieuws is, zie je een melding.'},
+  {t:'Eigen documenten',b:'Documenten in de map <b>Bronnen</b> naast het dashboard werken ook zonder internet. In de online versie zijn die niet beschikbaar.'}]
+};
+function helpFor(v){return v==='mappen'?[{t:'Projectmappen aanmaken',b:'<b>1.</b> Zet de adressen in de lijst (Excel, printscreen of plakken).<br><b>2.</b> Controleer ze in de tabel.<br><b>3.</b> Kies het soort mappen en klik op <b>Maak mappen</b>.<br><br>Bij stap 3 staat een eigen <b>?</b> met de uitleg in stappen.'}].concat(MK_WT):HELP[v]||HELP.home}
+$('top-help').addEventListener('click',()=>{const v=typeof curView!=='undefined'?curView:'home';helpOpen(helpFor(v),TITLES[v]||'Dashboard')});
+document.querySelectorAll('.tile[data-open]').forEach(t=>{const v=t.dataset.open;if(!helpFor(v)||v==='home')return;
+ const q=document.createElement('span');q.className='tile-help';q.textContent='?';q.title='Uitleg';q.setAttribute('role','button');q.setAttribute('aria-label','Uitleg '+(TITLES[v]||''));q.tabIndex=0;
+ const go=e=>{e.stopPropagation();e.preventDefault();helpOpen(helpFor(v),TITLES[v])};
+ q.addEventListener('click',go);q.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')go(e)});t.appendChild(q)});
 
 /* --- Rapporten per adres in de map Info --- */
 const seq={active:false,list:[],i:0,base:null,type:'innax',info:'Info',done:0,busy:false};
