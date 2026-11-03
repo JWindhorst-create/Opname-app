@@ -71,7 +71,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 #dhShapes button svg{width:36px;height:22px;background:none}
 #dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
 #dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
-</style>
+.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}</style>
 </head>
 <body>
 <header><h1 id="titel">Opname Energielabel</h1><div class="steps" id="steps"></div></header>
@@ -80,7 +80,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div id="toast"></div>
 <div id="modal"><div class="box"><div id="mtekst"></div><div id="mkeuze" hidden></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
 <div id="calc"><div class="box"><div class="ihead"><span>📐 Driehoek dakvlak</span><button class="small ghost" id="cdicht">✕</button></div>
-<div id="dhAdr" hidden style="margin:2px 0 10px"><label style="margin-top:4px">Adres <small style="color:var(--muted)">· voor de PDF (BAG-gegevens worden opgehaald)</small></label><div class="row" style="align-items:center"><input id="dhAdrQ" autocomplete="off" placeholder="Typ het adres, bijv. Orangerie 52 Gouda of 2805AB 52"><button type="button" class="small ghost" id="dhAdrX" title="Adres wissen" style="flex:0 0 auto" hidden>✕</button></div><div id="dhAdrRes"></div><div class="note" id="dhAdrInfo" style="margin-top:4px"></div></div>
+<div id="dhAdr" hidden style="margin:2px 0 10px"><label style="margin-top:4px">Adres <small style="color:var(--muted)">· voor de PDF (BAG-gegevens worden opgehaald)</small></label><div class="row" style="align-items:center"><input id="dhAdrQ" autocomplete="off" placeholder="Typ het adres, bijv. Orangerie 52 Gouda of 2805AB 52"><button type="button" class="small ghost" id="dhAdrX" title="Adres wissen" style="flex:0 0 auto" hidden>✕</button></div><div id="dhAdrRes"></div><div class="note" id="dhAdrInfo" style="margin-top:4px"></div><div id="dhVlakken"></div></div>
 <p class="note" style="margin:4px 0 8px">Vul 2 waarden in: hellingshoek + één maat, óf twee maten (bijv. breedte a en hoogte b). De rest wordt berekend.</p>
 <svg id="csvg" viewBox="0 0 320 150"></svg>
 <div style="margin-bottom:6px"><label style="font-weight:700;color:var(--ink)">α · Hellingshoek dakvlak (°) <small style="font-weight:400;color:var(--muted)">· of laat berekenen</small></label><input id="c_al" inputmode="decimal" autocomplete="off" placeholder="bijv. 45"></div>
@@ -781,6 +781,7 @@ async function maakDriehoekPdf(){
  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(90);doc.text(pdfT(`Opgesteld ${new Date().toLocaleDateString('nl-NL')}${cur?.type?.datum?' · opnamedatum '+new Date(cur.type.datum).toLocaleDateString('nl-NL'):''} · methode ${cur?.type?.methode==='U'?'EP-U (ISSO 75.1)':'EP-W (ISSO 82.1)'} · NTA 8800`),ML,34);y=44;
  kop('1. Object');
  tabel([['Adres',adr?.naam||'-'],['BAG pand-ID / vbo-ID',(bag?.pandId||'-')+' / '+(bag?.vboId||'-')],['Bouwjaar (BAG)',String(bag?.bouwjaar??'-')],['Woningtype',cur?.type?(ligLabel()||cur.type.wtype||'-'):'-'],['Dakvlak',it?`${it.orientL||''} ${it.orient||''}`.trim()||'-':'losse berekening']]);
+ if(DH.vlakken&&bag?.pandId&&DH.vlakken.pid===bag.pandId){kop('Dak- en gevelvlakken uit 3DBAG (informatief, hele pand)');tabel(vlakkenPdfRijen())}
  kop('2. Invoer (gemeten) en berekende waarden');
  const gem=DH.order.slice(-2),lab={a:'a - horizontale maat',b:'b - hoogte goot -> nok',c:'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
@@ -968,6 +969,51 @@ async function dhAdrKies(i){const s0=dhAdrDocs[i];if(!s0)return;$('#dhAdrRes').i
    DH.bag={bouwjaar:pp.bouwjaar??vp.bouwjaar,oppervlakte:vp.oppervlakte,gebruiksdoel:vp.gebruiksdoel,pandId:pp.identificatie,vboId:vp.identificatie}}}catch(e){console.warn('BAG',e)}
   dhAdrBewaar();dhAdrToon();toast('Adres gekozen')}
  catch(e){$('#dhAdrRes').innerHTML='<p class="err">'+GEEN_NET+'</p>'}}
+
+// ---------- 3DBAG: dak- en gevelvlakken (informatief) ----------
+const RICHT8=['N','NO','O','ZO','Z','ZW','W','NW'],RICHT8L={N:'noord',NO:'noordoost',O:'oost',ZO:'zuidoost',Z:'zuid',ZW:'zuidwest',W:'west',NW:'noordwest'};
+const richt8=a=>RICHT8[Math.round((((a%360)+360)%360)/45)%8];
+const fm2=v=>(Math.round(v*10)/10).toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1});
+function vlakken3D(j){const f=j.feature||j,cos=f.CityObjects||j.CityObjects||{},verts=f.vertices||j.vertices||[],tr=j.metadata?.transform||j.transform||f.transform||{},sc=tr.scale||[1,1,1],tl=tr.translate||[0,0,0];
+ const P=i=>{const v=verts[i];return v?[0,1,2].map(k=>Number(v[k])*Number(sc[k]??1)+Number(tl[k]??0)):null};
+ const newell=r=>{let x=0,y=0,z=0;for(let i=0;i<r.length;i++){const a=r[i],b=r[(i+1)%r.length];x+=(a[1]-b[1])*(a[2]+b[2]);y+=(a[2]-b[2])*(a[0]+b[0]);z+=(a[0]-b[0])*(a[1]+b[1])}return[x,y,z]};
+ const lod=g=>parseFloat(String(g.lod||'0'))||0;let geos=[],at={};
+ Object.values(cos).forEach(o=>{if(o.attributes)Object.entries(o.attributes).forEach(([k,v])=>{if(/^b3_opp_/.test(k)&&Number.isFinite(+v))at[k]=+v});(Array.isArray(o.geometry)?o.geometry:[]).forEach(g=>{if(g&&g.boundaries&&g.semantics)geos.push(g)})});
+ if(!geos.length)return null;const mx=Math.max(...geos.map(lod));geos=geos.filter(g=>lod(g)===mx);const faces=[];
+ geos.forEach(g=>{const S=g.semantics.surfaces||[],V=g.semantics.values;
+  const doS=(surf,vi)=>{const s=S[vi];if(!s)return;const t=String(s.type||'');const isR=/roof/i.test(t),isW=/wall/i.test(t);if(!isR&&!isW)return;
+   const ring=(surf[0]||[]).map(P).filter(Boolean);if(ring.length<3)return;let [nx,ny,nz]=newell(ring);const n=Math.hypot(nx,ny,nz);if(!n)return;
+   let area=n/2;for(let h=1;h<surf.length;h++){const hr=(surf[h]||[]).map(P).filter(Boolean);if(hr.length>2){const q=newell(hr);area-=Math.hypot(...q)/2}}
+   if(isR&&nz<0){nx=-nx;ny=-ny;nz=-nz}let slope=Math.acos(Math.min(1,Math.abs(nz)/n))*180/Math.PI,az=((Math.atan2(nx,ny)*180/Math.PI)+360)%360;
+   if(isR&&Number.isFinite(s.b3_hellingshoek))slope=s.b3_hellingshoek;if(isR&&Number.isFinite(s.b3_azimut))az=s.b3_azimut;
+   if(area>0.05)faces.push({t:isR?'dak':'gevel',area,slope,az})};
+  if(g.type==='Solid'||g.type==='CompositeSolid')(g.boundaries||[]).forEach((shell,si)=>(shell||[]).forEach((surf,fi)=>{if(Array.isArray(surf[0]?.[0]?.[0]))surf.forEach((sf,k)=>doS(sf,V?.[si]?.[fi]?.[k]));else doS(surf,V?.[si]?.[fi])}));
+  else(g.boundaries||[]).forEach((surf,fi)=>doS(surf,V?.[fi]))});
+ const angd=(a,b)=>Math.abs(((a-b)%360+540)%360-180);const dak=[],gev={};let plat=0;
+ faces.forEach(x=>{if(x.t==='dak'){if(x.slope<15){plat+=x.area;return}let gr=dak.find(d=>angd(d.az,x.az)<=30&&Math.abs(d.slope-x.slope)<=6);if(!gr){gr={sx:0,sy:0,ws:0,area:0,az:x.az,slope:x.slope};dak.push(gr)}
+  const r=x.az*Math.PI/180;gr.sx+=Math.sin(r)*x.area;gr.sy+=Math.cos(r)*x.area;gr.ws+=x.slope*x.area;gr.area+=x.area;gr.az=((Math.atan2(gr.sx,gr.sy)*180/Math.PI)+360)%360;gr.slope=gr.ws/gr.area}
+  else{const k=richt8(x.az);gev[k]=(gev[k]||0)+x.area}});
+ const daken=dak.filter(d=>d.area>=0.5).sort((a,b)=>b.area-a.area).map(d=>({az:Math.round(d.az),r:richt8(d.az),slope:Math.round(d.slope*10)/10,area:d.area}));
+ const gevels=RICHT8.filter(k=>gev[k]>=0.5).map(k=>({r:k,area:gev[k]}));
+ return{daken,plat,gevels,dakTot:daken.reduce((s,d)=>s+d.area,0)+plat,gevTot:gevels.reduce((s,g)=>s+g.area,0),at}}
+async function dhVlakkenLaden(){const pid=DH.bag?.pandId,box=$('#dhVlakken');if(!box)return;if(!pid||!DH.adres){box.innerHTML='';DH.vlakken=null;return}
+ if(DH.vlakken&&DH.vlakken.pid===pid){dhVlakkenToon();return}box.innerHTML='<p class="note">Dak- en gevelvlakken ophalen uit 3DBAG…</p>';
+ try{const j=await fetch('https://api.3dbag.nl/collections/pand/items/NL.IMBAG.Pand.'+String(pid).replace(/^NL\.IMBAG\.Pand\./,'')).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+  if(DH.bag?.pandId!==pid)return;const v=vlakken3D(j);if(!v){box.innerHTML='<p class="note">Geen 3D-model met dakvlakken gevonden in 3DBAG voor dit pand.</p>';return}v.pid=pid;DH.vlakken=v;dhVlakkenToon()}
+ catch(e){box.innerHTML='<p class="note">3DBAG kon niet worden bereikt (geen internet?). De berekening werkt gewoon zonder.</p>'}}
+function dhVlakkenToon(){const v=DH.vlakken,box=$('#dhVlakken');if(!box||!v)return;const a=v.at||{};
+ const rij=(l,r,m,knop)=>`<tr><td>${l}</td><td>${r}</td><td style="text-align:right;white-space:nowrap">${m}</td><td style="text-align:right">${knop||''}</td></tr>`;
+ box.innerHTML=`<details class="dhvl" open><summary><b>Dak- en gevelvlakken uit 3DBAG</b> <span class="note">· ter informatie</span></summary>
+ <table class="dhvlt"><tr><th colspan="4">Dakvlakken</th></tr>${v.daken.map((d,i)=>rij('Dakvlak '+(i+1),RICHT8L[d.r]+' ('+d.az+'°) · <b>'+String(d.slope).replace('.',',')+'°</b>',fm2(d.area)+' m²',`<button type="button" class="small ghost" data-dhal="${d.slope}" title="Hellingshoek invullen bij α">Gebruik</button>`)).join('')}${v.plat>=0.5?rij('Plat dak','helling &lt; 15°',fm2(v.plat)+' m²'):''}
+ ${rij('<b>Totaal dak</b>','',`<b>${fm2(v.dakTot)} m²</b>`)}
+ <tr><th colspan="4">Gevelvlakken (per richting)</th></tr>${v.gevels.map(g=>rij('Gevel '+g.r,RICHT8L[g.r],fm2(g.area)+' m²')).join('')}
+ ${rij('<b>Totaal gevels</b>','',`<b>${fm2(v.gevTot)} m²</b>`)}
+ ${Number.isFinite(a.b3_opp_buitenmuur)||Number.isFinite(a.b3_opp_scheidingsmuur)?rij('waarvan','buitenmuur '+fm2(a.b3_opp_buitenmuur||0)+' m² · scheidingsmuur met buren '+fm2(a.b3_opp_scheidingsmuur||0)+' m²',''):''}</table>
+ <p class="note" style="margin:4px 0 0">Bron 3DBAG (LoD 2.2), hele pand: bij een rij of appartementengebouw zijn dit de vlakken van het hele gebouw, inclusief muren tegen de buren. Gevels zijn bruto (zonder aftrek van kozijnen). Gebruik dit ter controle; meet de woning zelf in.</p></details>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-dhal]');if(!b)return;const inp=$('#c_al');inp.value=String(b.dataset.dhal).replace('.',',');inp.dispatchEvent(new Event('input',{bubbles:true}));inp.focus();toast&&toast('Hellingshoek '+inp.value+'° ingevuld')});
+{const _t=dhAdrToon;dhAdrToon=function(){_t.apply(this,arguments);dhVlakkenLaden()}}
+function vlakkenPdfRijen(){const v=DH.vlakken;if(!v)return[];const R=[];v.daken.forEach((d,i)=>R.push(['Dakvlak '+(i+1)+' ('+RICHT8L[d.r]+')',String(d.slope).replace('.',',')+' graden · '+fm2(d.area)+' m2']));if(v.plat>=0.5)R.push(['Plat dak (< 15 graden)',fm2(v.plat)+' m2']);R.push(['Totaal dak',fm2(v.dakTot)+' m2',1]);
+ v.gevels.forEach(g=>R.push(['Gevel '+RICHT8L[g.r],fm2(g.area)+' m2 (bruto)']));R.push(['Totaal gevels',fm2(v.gevTot)+' m2',1]);const a=v.at||{};if(Number.isFinite(a.b3_opp_scheidingsmuur))R.push(['waarvan scheidingsmuur met buren',fm2(a.b3_opp_scheidingsmuur)+' m2']);return R}
 
 DH.shape='zadel';
 function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res,br>0?br:null,DH.shape)}
