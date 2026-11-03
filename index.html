@@ -59,7 +59,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #mkeuze label.ck input{width:20px;height:20px;flex:0 0 auto;margin:0}
 .sug{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden}
 .err{color:var(--warn);font-size:14px}
-#cSum table{width:100%;border-collapse:collapse;font-size:14px}#cSum td{padding:5px 2px;border-bottom:1px solid var(--line)}#cSum td:last-child{text-align:right;font-weight:600;white-space:nowrap}#cSum tr.h td{background:var(--acc2);color:var(--acc);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+#cSum table{width:100%;border-collapse:collapse;font-size:14px}#cSum td{padding:5px 2px;border-bottom:1px solid var(--line)}#cSum td:last-child{text-align:right;font-weight:600;white-space:nowrap}#cSum tr.s td{font-size:12px;color:var(--muted);font-weight:700;padding-top:10px;border-bottom:1px solid var(--line)}#cSum tr.s td:last-child{text-align:left}#cSum tr.h td{background:var(--acc2);color:var(--acc);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--muted);margin-top:8px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
 .item.dicht{padding:8px 10px}.item.dicht .ihead>span+span{display:none!important}.samv{font-size:13px;color:var(--muted);margin-top:4px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chev{display:inline-block;width:14px;color:var(--acc)}
 body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body.dhonly{padding:0;background:#f4f6f5}body.dhonly #calc{position:static;display:block!important;background:none;padding:12px}body.dhonly .dhwide{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:6px}body.dhonly .dhwide .dhleft{min-width:0}body.dhonly .dhwide #csvg{max-width:480px;margin:0 auto;display:block}body.dhonly .dhwide #dh3dBox{margin:0;position:sticky;top:8px;min-width:0}body.dhonly .dhwide #dh3d{width:100%!important}body.dhonly .dhwide #dh3d{aspect-ratio:1/0.72}body.dhonly.wide #calc .box{max-width:1180px}body.dhonly #calc .box{margin:0 auto;max-width:760px;border-radius:14px;max-height:none;overflow:visible;box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -597,6 +597,11 @@ function manVals(){const mh=num($('#c_mh').value),ma=num($('#c_ma').value);if(!(
 function manTekst(){const M=manVals(),e=$('#cManRes');if(!M){e.textContent='';return}let t=`Onderste dakvlak: lengte goot → knik ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`;
  if(DH.res)t+=` · totale diepte ${f2(2*(DH.res.a+M.mx))} m · nokhoogte ${f2(M.mh+DH.res.b)} m`;e.textContent=t}
 $('#c_mh').addEventListener('input',()=>{manTekst();dhInfo();dh3d()});$('#c_ma').addEventListener('input',()=>{manTekst();dhInfo();dh3d()});
+
+// ---------- namen per dak- en gevelvlak (overzicht + PDF) ----------
+function vlakZijde(P,rot){const haaks=DH.nok==='haaks'&&P.sh!=='tent'&&P.sh!=='schild';return(haaks?{0:'links',4:'rechts',2:'voor',6:'achter'}:{0:'voor',4:'achter',2:'links',6:'rechts'})[rot]||''}
+function dakNaam(P,d){const z=vlakZijde(P,d.rot),o=d.opm||'';return'Dakvlak '+z+(/onderste/.test(o)?' (onder, steil)':/bovenste/.test(o)?' (boven)':/Trapezium/.test(o)?' (trapezium)':/Schild/.test(o)?' (driehoek)':/Piramide/.test(o)?' (driehoek)':'')}
+function gevNaam(P,g){const z=vlakZijde(P,g.rot),o=g.opm||'';return(g.kant==='hoog'?'Hoge gevel ':g.kant==='laag'?'Lage gevel ':/Kopgevel|Driehoekige kopgevel/.test(o)?'Kopgevel ':/onder goot/.test(o)?'Gevel onder goot ':/Zijgevel/.test(o)?'Zijgevel ':'Gevel ')+z}
 function dhPlan(){const r=DH.res,sh=DH.shape,L=num($('#c_L').value),n=kopAantal(),hk=Math.max(0,num($('#c_hk').value)||0),ex=extraMaat();if(!r)return null;
  const {a,b,c}=r,dak=[],gev=[];let corrL=0,corrW=0;
  if(sh==='mansarde'){const M=manVals();if(!M)return{fatal:'Vul hoogte goot → knik en helling van het onderste dakvlak in.'};if(!(L>0))return{err:'Vul de lengte van het dak in.'};
@@ -652,11 +657,11 @@ function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs
  gi.hidden=false;
  const P=dhPlan();if(!P||P.err||P.fatal){cs.hidden=true;return}
  const sd=P.dak.reduce((s2,x)=>s2+x.l*x.b,0),sg=P.gev.filter(g=>!g.vraagKant).reduce((s2,g)=>s2+(gevM2(g,0)??g.b*g.h),0),ng=P.gev.filter(g=>!g.vraagKant).length;
- const rows=[['h',DAKNAAM[P.sh]+' · overzicht'],[`${P.dak.length} dakvla${P.dak.length>1?'kken':'k'}`,f2(sd)+' m²'],ng?[`${ng} gevelvla${ng===1?'k':'kken'} (zolderniveau)`,f2(sg)+' m²']:['Gevelvlakken zolderniveau','geen']];
+ const gvz=P.gev.filter(g=>!g.vraagKant);const rows=[['h',DAKNAAM[P.sh]+' · overzicht'],['s','Dakvlakken'],...P.dak.map(d=>[dakNaam(P,d)+(d.hel?' · '+d.hel+'°':''),f2(d.l*d.b)+' m²']),['<b>Totaal dak</b>','<b>'+f2(sd)+' m²</b>'],['s','Gevelvlakken (zolderniveau)'],...(gvz.length?gvz.map(g=>[gevNaam(P,g),f2(gevM2(g,0)??g.b*g.h)+' m²']):[['geen','']]),...(gvz.length?[['<b>Totaal gevels</b>','<b>'+f2(sg)+' m²</b>']]:[]),['s','Zolder']];
  if(P.gev.some(g=>g.vraagKant))rows.push(['+ hoge óf lage zijgevel (wordt gevraagd)','']);
  if(P.Htot!=null)rows.push(['Nokhoogte',f2(P.Htot)+' m']);if(P.vloer!=null)rows.push(['Zoldervloer',f2(P.vloer)+' m²']);
  if(P.goTot!=null)rows.push(['<b>GO ≥ 1,5 m</b>','<b>'+f2(P.goTot)+' m²</b>']);if(P.vol!=null)rows.push(['Volume',f2(P.vol)+' m³']);
- cs.innerHTML='<table>'+rows.map(x=>x[0]==='h'?`<tr class="h"><td colspan="2">${x[1]}</td></tr>`:`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')+'</table>';cs.hidden=false}
+ cs.innerHTML='<table>'+rows.map(x=>x[0]==='h'?`<tr class="h"><td colspan="2">${x[1]}</td></tr>`:x[0]==='s'?`<tr class="s"><td colspan="2">${x[1]}</td></tr>`:`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')+'</table>';cs.hidden=false}
 function dhSrcObj(){const k=dhKeys(),o={keys:k,c:DH.res.c};k.forEach(x=>o[x]=num(dhEl(x).value));return o}
 function dhKopTekst(){const n=kopAantal(),sh=DH.shape,haaks=(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')&&DH.nok==='haaks';$('#cMan').hidden=sh!=='mansarde';manTekst();
  const lig=cur?.type?(ligLabel()||{vrijstaand:'Vrijstaand'}[cur.type.wtype]||''):'';
@@ -795,7 +800,7 @@ async function maakDriehoekPdf(){
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');
  tabel(H>1.5?[['Afstand 1,5 m-lijn uit de goot (horizontaal)',f2(t)+' m'],['Strook >= 1,5 m per dakzijde',f2(st)+' m'],['GO-breedte',f2(gb)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':(L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?f2(gb*L)+' m2':'vul lengte dak in'),true]]:[['Netto hoogte',`maximaal ${f2(H)} m: geen vloerdeel met netto hoogte >= 1,5 m -> GO zolder 0 m2`,true]]);
  if(ok){kop('4. Overzicht vlakken');const sd=P.dak.reduce((q,x)=>q+x.l*x.b,0),gv=P.gev.filter(g=>!g.vraagKant),sg=gv.reduce((q,g)=>q+(gevM2(g,0)??g.b*g.h),0);
-  tabel([['Dakvlakken ('+P.dak.length+')',f2(sd)+' m2'],...P.dak.map((d,i)=>['   dakvlak '+(i+1),`${f2(d.l)} x ${f2(d.b)} m${d.hel?' · '+d.hel+' graden':''}${d.opm?' · '+d.opm:''}`]),['Gevelvlakken zolderniveau ('+gv.length+')',f2(sg)+' m2'],...gv.map((g,i)=>['   gevelvlak '+(i+1),`${f2(g.b)} x ${f2(g.h)} m${gevM2(g,0)!=null?' -> '+f2(gevM2(g,0))+' m2':''} · ${g.opm||''}`]),
+  tabel([...P.dak.map(d=>['   '+dakNaam(P,d),`${f2(d.l*d.b)} m2 (${f2(d.l)} x ${f2(d.b)} m${d.hel?' · '+d.hel+' graden':''}${d.opm?' · '+d.opm:''})`]),['Totaal dakvlakken ('+P.dak.length+')',f2(sd)+' m2',true],...gv.map(g=>['   '+gevNaam(P,g),`${gevM2(g,0)!=null?f2(gevM2(g,0)):f2(g.b*g.h)} m2 (${f2(g.b)} x ${f2(g.h)} m · ${g.opm||''})`]),['Totaal gevelvlakken zolderniveau ('+gv.length+')',f2(sg)+' m2',true],
    ...(P.vloer!=null?[['Zoldervloer',f2(P.vloer)+' m2']]:[]),...(P.vol!=null?[['Volume onder dak',f2(P.vol)+' m3']]:[])])}
  // afbeeldingen
  if(y>Hh-110)nieuwePagina();kop((ok?'5':'4')+'. Doorsnede en 3D-model');
