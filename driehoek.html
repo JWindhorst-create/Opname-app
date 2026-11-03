@@ -80,6 +80,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div id="toast"></div>
 <div id="modal"><div class="box"><div id="mtekst"></div><div id="mkeuze" hidden></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
 <div id="calc"><div class="box"><div class="ihead"><span>📐 Driehoek dakvlak</span><button class="small ghost" id="cdicht">✕</button></div>
+<div id="dhAdr" hidden style="margin:2px 0 10px"><label style="margin-top:4px">Adres <small style="color:var(--muted)">· voor de PDF (BAG-gegevens worden opgehaald)</small></label><div class="row" style="align-items:center"><input id="dhAdrQ" autocomplete="off" placeholder="Typ het adres, bijv. Orangerie 52 Gouda of 2805AB 52"><button type="button" class="small ghost" id="dhAdrX" title="Adres wissen" style="flex:0 0 auto" hidden>✕</button></div><div id="dhAdrRes"></div><div class="note" id="dhAdrInfo" style="margin-top:4px"></div></div>
 <p class="note" style="margin:4px 0 8px">Vul 2 waarden in: hellingshoek + één maat, óf twee maten (bijv. breedte a en hoogte b). De rest wordt berekend.</p>
 <svg id="csvg" viewBox="0 0 320 150"></svg>
 <div style="margin-bottom:6px"><label style="font-weight:700;color:var(--ink)">α · Hellingshoek dakvlak (°) <small style="font-weight:400;color:var(--muted)">· of laat berekenen</small></label><input id="c_al" inputmode="decimal" autocomplete="off" placeholder="bijv. 45"></div>
@@ -130,7 +131,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 </div></div>
 <script>
 // ---------- opslag ----------
-const APPVERSIE='2026-11-02 08:55';
+const APPVERSIE='2026-11-03 17:15';
 const KEY='opnameApp_v1';
 let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{opnames:[]}}catch(e){return{opnames:[]}}})();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet')}}
@@ -574,8 +575,8 @@ function dhBreed(){if(!window.DRIEHOEK_ONLY||window.innerWidth<900||$('.dhwide')
  let n=sv;const mv=[];while(n&&n!==bx){mv.push(n);n=n.nextSibling}mv.forEach(x=>L.appendChild(x));w.appendChild(L);w.appendChild(bx);
  bx.hidden=false;$('#dh3dBtn').hidden=true;const hint=$('#dh3dHint');if(hint)hint.style.fontSize='12px';setTimeout(()=>{window.dh3dResize&&window.dh3dResize();dh3d()},60)}
 window.addEventListener('resize',()=>{if(document.body.classList.contains('dhonly'))dhBreed()});
-function sluitDriehoek(){$('#calc').style.display='none';DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
-function openDriehoekLos(){DH.los=true;if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
+function sluitDriehoek(){$('#calc').style.display='none';$('#dhAdr').hidden=true;DH.itemId=null;DH.los=false;$('#cok').hidden=false;if(location.hash==='#driehoek')history.replaceState(null,'',location.pathname)}
+function openDriehoekLos(){DH.los=true;$('#dhAdr').hidden=false;if(!DH.adres&&cur?.adres){DH.adres=cur.adres;DH.bag=cur.bag||null}dhAdrToon();if(window.DRIEHOEK_ONLY){$('#cdicht').hidden=true;document.body.classList.add('dhonly');dhBreed()}DH.itemId=null;DH.order=[];DH.ids.forEach(k=>{dhEl(k).value='';dhEl(k).className=''});['c_d','c_L','c_hk','c_mh','c_ma'].forEach(i=>$('#'+i).value='');$('#cok').hidden=true;dhKopTekst();dhSolve();$('#calc').style.display='flex'}
 DH.ids.forEach(k=>dhEl(k).addEventListener('input',()=>{DH.order=DH.order.filter(x=>x!==k);if(dhEl(k).value.trim())DH.order.push(k);if(k==='a')$('#c_d').value='';dhSolve()}));
 $('#c_d').addEventListener('input',e=>{const d=num(e.target.value);dhEl('a').value=d>0?String(+(d/2).toFixed(3)).replace('.',','):'';DH.order=DH.order.filter(x=>x!=='a');if(dhEl('a').value)DH.order.push('a');dhSolve()});
 $('#cwis').onclick=()=>{DH.order=[];DH.ids.forEach(k=>dhEl(k).value='');$('#c_d').value='';dhSolve()};
@@ -768,7 +769,7 @@ async function maakDriehoekPdf(){
  const box=$('#dh3dBox'),was=box.hidden;if(was){box.hidden=false;window.dh3dResize()}dh3d();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
  const cv3=$('#dh3d canvas');let img3d=null;try{img3d=cv3?cv3.toDataURL('image/png'):null}catch(e){}if(was)box.hidden=true;
  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});const W=210,Hh=297,ML=18,MR=18,CW=W-ML-MR;let y=0,page=1;
- const it=DH.itemId?vind(DH.itemId)?.it:null,adr=cur?.adres,bag=cur?.bag;
+ const it=DH.itemId?vind(DH.itemId)?.it:null,adr=(DH.los&&DH.adres)||cur?.adres,bag=(DH.los&&DH.adres)?DH.bag:cur?.bag;
  const briefpapier=()=>{try{doc.addImage(BP_WM,'JPEG',0,Hh-70,95,70,undefined,'FAST')}catch(e){}try{doc.addImage(BP_LOGO,'JPEG',W-MR-30,8,30,30,undefined,'FAST')}catch(e){}
   doc.setFontSize(8);doc.setTextColor(120);doc.text(pdfT(`Onderbouwing dakgeometrie en GO · ${adr?.naam||'zonder adres'} · pagina ${page}`),ML,Hh-8)};
  const nieuwePagina=()=>{doc.addPage();page++;briefpapier();y=44};
@@ -942,6 +943,31 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
   cv.addEventListener('wheel',e=>{ e.preventDefault(); zoom=Math.max(0.4,Math.min(4,zoom*(1-e.deltaY*0.001))); render(); },{passive:false});
   window.addEventListener('resize',resize); window.dh3dResize=resize; resize();
 })();
+
+// ---------- adres bij de losse driehoeksmeter ----------
+try{const o=JSON.parse(localStorage.getItem('dhLosAdres')||'null');if(o&&o.adres){DH.adres=o.adres;DH.bag=o.bag||null}}catch(e){}
+function dhAdrBewaar(){try{DH.adres?localStorage.setItem('dhLosAdres',JSON.stringify({adres:DH.adres,bag:DH.bag})):localStorage.removeItem('dhLosAdres')}catch(e){}}
+function dhAdrToon(){const a=DH.adres,b=DH.bag;$('#dhAdrQ').value=a?.naam||'';$('#dhAdrX').hidden=!a;$('#dhAdrRes').innerHTML='';
+ $('#dhAdrInfo').innerHTML=a?('✓ '+esc(a.naam)+(b?.bouwjaar?' · bouwjaar '+esc(b.bouwjaar):'')+(b?.oppervlakte?' · '+esc(b.oppervlakte)+' m² GO (BAG)':'')+(b?.pandId?' · pand '+esc(b.pandId):'')):''}
+let dhAdrT=0,dhAdrNr=0,dhAdrDocs=[];
+$('#dhAdrQ').addEventListener('input',e=>{clearTimeout(dhAdrT);const q=e.target.value.trim();if(q.length<3){$('#dhAdrRes').innerHTML='';return}const nr=++dhAdrNr;
+ dhAdrT=setTimeout(async()=>{try{const r=await suggestAdres(q);if(nr!==dhAdrNr)return;dhAdrDocs=r;$('#dhAdrRes').innerHTML=r.length?'<div class="sug">'+r.map((d,i)=>`<div class="res" data-dhadr="${i}">${esc(d.weergavenaam)}</div>`).join('')+'</div>':'<p class="note">Geen adres gevonden.</p>'}
+  catch(err){if(nr===dhAdrNr)$('#dhAdrRes').innerHTML='<p class="err">'+GEEN_NET+'</p>'}},220)});
+$('#dhAdrQ').addEventListener('keydown',e=>{if(e.key==='Enter'&&dhAdrDocs.length){e.preventDefault();dhAdrKies(0)}});
+$('#dhAdrRes').addEventListener('click',e=>{const d=e.target.closest('[data-dhadr]');if(d)dhAdrKies(+d.dataset.dhadr)});
+$('#dhAdrX').onclick=()=>{DH.adres=null;DH.bag=null;dhAdrBewaar();dhAdrToon();$('#dhAdrQ').focus()};
+async function dhAdrKies(i){const s0=dhAdrDocs[i];if(!s0)return;$('#dhAdrRes').innerHTML='<p class="note">Adres en BAG-gegevens ophalen…</p>';
+ try{const doc=await lookupAdres(s0.id);
+  DH.adres={naam:doc.weergavenaam,straat:doc.straatnaam,huisnummer:doc.huisnummer,toevoeging:(doc.huisletter||'')+(doc.huisnummertoevoeging||''),postcode:doc.postcode,plaats:doc.woonplaatsnaam,vboId:doc.adresseerbaarobject_id};DH.bag=null;
+  try{const m=/POINT\(([\d.]+) ([\d.]+)\)/.exec(doc.centroide_rd||'');if(m){const x=+m[1],y=+m[2];
+   const base='https://service.pdok.nl/lv/bag/wfs/v2_0?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:28992&bbox='+[x-1,y-1,x+1,y+1].join(',')+',EPSG:28992&typeNames=';
+   const [vr,pr]=await Promise.all([fetch(base+'bag:verblijfsobject').then(r=>r.json()),fetch(base+'bag:pand').then(r=>r.json())]);
+   const vbo=(vr.features||[]).find(f=>String(f.properties.identificatie)===String(doc.adresseerbaarobject_id))||(vr.features||[])[0];const vp=vbo?.properties||{};
+   const pids=String(vp.pandidentificatie||'').split(/[,; ]+/),panden=pr.features||[];
+   const pand=panden.find(f=>pids.includes(String(f.properties.identificatie)))||panden.find(f=>{const g=f.geometry;const r=g.type==='Polygon'?g.coordinates[0]:g.coordinates[0][0];return inPoly([x,y],r)})||panden[0];const pp=pand?.properties||{};
+   DH.bag={bouwjaar:pp.bouwjaar??vp.bouwjaar,oppervlakte:vp.oppervlakte,gebruiksdoel:vp.gebruiksdoel,pandId:pp.identificatie,vboId:vp.identificatie}}}catch(e){console.warn('BAG',e)}
+  dhAdrBewaar();dhAdrToon();toast('Adres gekozen')}
+ catch(e){$('#dhAdrRes').innerHTML='<p class="err">'+GEEN_NET+'</p>'}}
 
 DH.shape='zadel';
 function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res,br>0?br:null,DH.shape)}
