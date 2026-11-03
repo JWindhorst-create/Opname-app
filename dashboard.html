@@ -383,7 +383,7 @@ body.v-opname .topbar-in{max-width:1480px}
 .ftd-b{padding:16px 18px;font-size:14px;line-height:1.5;color:#1e2933}
 .ftd-note{margin-top:12px;padding:10px 12px;background:#eef6f1;border-left:4px solid var(--g700,#245c45);border-radius:6px;font-size:13px}
 .ftd-f{display:flex;justify-content:flex-end;gap:8px;padding:0 18px 16px}
-.bsx-wrap{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:14px;align-items:start}.bsx-list{display:flex;flex-direction:column;gap:4px}.bsx-main{min-width:0}.bsx-kies{display:flex;flex-direction:column;gap:4px;margin:6px 0 12px}.bsx-kies select{font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;max-width:640px}.bt{margin-top:14px;border:1px solid var(--line,#d5e2d9);border-radius:12px;padding:8px 12px;background:#fbfdfb}.bt summary{cursor:pointer;font-weight:700;color:#24503a}.bt-in{margin-top:8px;overflow-x:auto}.bt-n{border:1px solid #d5e2d9;border-radius:8px;padding:6px 9px;font-size:13px;line-height:1.35;background:#fff;max-width:640px}.bt-n.s{font-style:italic}.bt-n.e{background:#f3f7f4}.bt-n.on{border-color:#2e6b4f;background:#e6f2ea}.bt-n.e.on{background:#d8ecdf;font-weight:600}.bt-n.cur{box-shadow:0 0 0 2px #2e6b4f}.bt-k{margin-left:12px;padding-left:12px;border-left:2px solid #d5e2d9}.bt-b{margin-top:6px}.bt-b.off{opacity:.45}.bt-l{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:#eef1ef;color:#5d6e63;margin-bottom:3px}.bt-b.on>.bt-l{background:#2e6b4f;color:#fff}.bsx-terug{display:none}@media (max-width:760px){.bsx-wrap.sel .bsx-list{display:none}.bsx-terug{display:inline-flex;margin-bottom:10px}}
+.bsx-wrap{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:14px;align-items:start}.bsx-list{display:flex;flex-direction:column;gap:4px}.bsx-main{min-width:0}.bsx-seg{display:flex;flex-wrap:wrap;gap:6px}.bsx-seg button{flex:1 1 0;min-width:110px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 8px;font:inherit;font-weight:600;color:#24503a;cursor:pointer}.bsx-seg button.on{background:#2e6b4f;border-color:#2e6b4f;color:#fff}.bsx-seg.sm button{padding:6px 8px;font-size:13px;font-weight:500}.bsx-seg.sm{margin-top:4px}.bsx-kies{display:flex;flex-direction:column;gap:4px;margin:6px 0 12px}.bsx-kies select{font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;max-width:640px}.bt{margin-top:14px;border:1px solid var(--line,#d5e2d9);border-radius:12px;padding:8px 12px;background:#fbfdfb}.bt summary{cursor:pointer;font-weight:700;color:#24503a}.bt-in{margin-top:8px;overflow-x:auto}.bt-n{border:1px solid #d5e2d9;border-radius:8px;padding:6px 9px;font-size:13px;line-height:1.35;background:#fff;max-width:640px}.bt-n.s{font-style:italic}.bt-n.e{background:#f3f7f4}.bt-n.on{border-color:#2e6b4f;background:#e6f2ea}.bt-n.e.on{background:#d8ecdf;font-weight:600}.bt-n.cur{box-shadow:0 0 0 2px #2e6b4f}.bt-k{margin-left:12px;padding-left:12px;border-left:2px solid #d5e2d9}.bt-b{margin-top:6px}.bt-b.off{opacity:.45}.bt-l{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:#eef1ef;color:#5d6e63;margin-bottom:3px}.bt-b.on>.bt-l{background:#2e6b4f;color:#fff}.bsx-terug{display:none}@media (max-width:760px){.bsx-wrap.sel .bsx-list{display:none}.bsx-terug{display:inline-flex;margin-bottom:10px}}
 @media (max-width:760px){.bsx-wrap{grid-template-columns:1fr}}
 .eband.wide{grid-template-columns:1fr!important}
 .sk-area.first{height:min(78vh,760px)!important}
@@ -1056,19 +1056,11 @@ body.v-opname{background-image:none!important}
 <!-- ===== BESLISSCHEMA RUIMTEN ===== -->
 <section class="view" id="view-beslis" hidden>
  <div class="card cmp">
-  <div class="bsh-step"><span class="step">1</span><b>Project</b> <span class="sub">– adres, soort gebouw (ISSO 82.1 of 75.1) en opnamemethode</span></div>
-  <div class="sp-obj" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-   <div class="addrow" style="flex:1;min-width:300px"><input type="text" id="bs-addr" placeholder="Adres – begin te typen, bijv. Stationsweg 41, Hillegom" autocomplete="off"><button class="btn sec" type="button" id="bs-addr-btn">Zoek</button></div>
-   <div class="seg" id="bs-type" style="min-width:300px"><label><input type="radio" name="bs-type" value="woning" checked><span>Woning (ISSO 82.1)</span></label><label><input type="radio" name="bs-type" value="utiliteit"><span>Utiliteit (ISSO 75.1)</span></label></div>
-   <div class="seg" id="bs-meth" title="Opnamemethode: verbergt schema’s die alleen bij de andere methode horen"><label><input type="radio" name="bs-meth" value="basis"><span>Basisopname</span></label><label><input type="radio" name="bs-meth" value="detail"><span>Detailopname</span></label><label><input type="radio" name="bs-meth" value=""><span>Nog niet bekend</span></label></div>
-   <button class="btn sec mini" type="button" id="bs-new" title="Alles leegmaken en met een nieuw adres beginnen">+ Nieuw project</button>
-   <button class="btn mini" type="button" id="bs-pdf" title="PDF met alle ruimten en de gevolgde route">PDF voor het dossier</button>
-  </div>
-  <div class="bsh-step" style="margin-top:14px"><span class="step">2</span><b>Wat wil je uitzoeken?</b></div>
+  <div class="bsh-step"><b>Wat wil je uitzoeken?</b></div>
   <div class="bsh-modes">
    <button type="button" class="bsh-mode" data-bsmode="ruimte" hidden style="display:none"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg></span><span><b>Hoort een ruimte bij de verwarmde zone?</b><small>Voor bergingen, zolders, garages, kelders, trappenhuizen, serres, technische ruimten en ruimten bij de buren (ISSO §6.3).</small></span></button>
-   <button type="button" class="bsh-mode" data-bsmode="overig"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h4"/></svg></span><span><b>Beslisschema kiezen</b><small>Alle beslisschema’s per categorie in één keuzelijst: thermische zone (ruimten), opnamemethode, zonering, bouwkundig, installaties en meer.</small></span></button>
-   <button type="button" class="bsh-mode" data-bsmode="check"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg></span><span><b>Check object</b><small>Per beslisschema aangeven of het van toepassing is en daarna met één knop alle schema’s doorlopen die van toepassing zijn.</small></span></button>
+   <button type="button" class="bsh-mode" data-bsmode="overig"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h4"/></svg></span><span><b>Beslisschema kiezen</b><small>Kies eerst basis- of detailopname, dan de categorie en daarna het beslisschema.</small></span></button>
+   <button type="button" class="bsh-mode" data-bsmode="check"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg></span><span><b>Check object</b><small>Met adres, woning of utiliteit en opnamemethode. Per beslisschema aangeven of het van toepassing is en daarna met één knop alle schema’s doorlopen die van toepassing zijn.</small></span></button>
   </div>
  </div>
  <div id="bsm-overig" hidden>
@@ -1081,7 +1073,16 @@ body.v-opname{background-image:none!important}
    <div class="card" id="bs-main"></div>
   </div>
  </div>
- <div id="bsm-check" hidden><div class="card" style="margin-top:12px" id="bsc"></div></div>
+ <div id="bsm-check" hidden><div class="card" style="margin-top:12px">
+  <div class="bsh-step"><b>Project</b> <span class="sub">– adres, soort gebouw (ISSO 82.1 of 75.1) en opnamemethode</span></div>
+  <div class="sp-obj" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+   <div class="addrow" style="flex:1;min-width:300px"><input type="text" id="bs-addr" placeholder="Adres – begin te typen, bijv. Stationsweg 41, Hillegom" autocomplete="off"><button class="btn sec" type="button" id="bs-addr-btn">Zoek</button></div>
+   <div class="seg" id="bs-type" style="min-width:300px"><label><input type="radio" name="bs-type" value="woning" checked><span>Woning (ISSO 82.1)</span></label><label><input type="radio" name="bs-type" value="utiliteit"><span>Utiliteit (ISSO 75.1)</span></label></div>
+   <div class="seg" id="bs-meth" title="Opnamemethode: verbergt schema’s die alleen bij de andere methode horen"><label><input type="radio" name="bs-meth" value="basis"><span>Basisopname</span></label><label><input type="radio" name="bs-meth" value="detail"><span>Detailopname</span></label><label><input type="radio" name="bs-meth" value=""><span>Nog niet bekend</span></label></div>
+   <button class="btn sec mini" type="button" id="bs-new" title="Alles leegmaken en met een nieuw adres beginnen">+ Nieuw project</button>
+   <button class="btn mini" type="button" id="bs-pdf" title="PDF met alle ruimten en de gevolgde route">PDF voor het dossier</button>
+  </div>
+ </div><div class="card" style="margin-top:12px" id="bsc"></div></div>
  <div class="msg" id="bs-msg"></div>
 </section>
 
@@ -4698,11 +4699,12 @@ function bsxRender(){const box=$('bsx');if(!box)return;const q=norm(($('bsx-q')|
  const groups=[...new Set(L.map(s=>s.g))];
  const RZ='__ruimte',rzOn=bsxSel===RZ,optS=s=>{const st=bsxState(s);return'<option value="'+s.id+'"'+(s.id===bsxSel?' selected':'')+'>'+esc(s.t)+(st.done?' ✓':st.started?' …':'')+'</option>'};
  let h='<h3>Beslisschema’s '+(bs.type==='woning'?'woning (ISSO 82.1)':'utiliteit (ISSO 75.1)')+'</h3>'+(L.length?'':'<div class="empty-state">Geen schema gevonden. Probeer een ander woord.</div>')+
-  (()=>{const TZ='Thermische zone',cur=rzOn?TZ:(L.find(x=>x.id===bsxSel)||{}).g;if(cur)bsxCat=cur;if(bsxCat&&bsxCat!==TZ&&!groups.includes(bsxCat))bsxCat='';const cats=(q?[]:[TZ]).concat(groups);
-   let k='<div class="bsx-kies"><label class="sub" for="bsx-cat">1. Kies een categorie</label><select id="bsx-cat"'+(q?' disabled':'')+'><option value="">'+(q?'zoekresultaten':'– kies een categorie –')+'</option>'+cats.map(c=>'<option'+(c===bsxCat&&!q?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div>';
+  (()=>{const mk=bs.mk||bs.methode;return'<div class="bsx-kies"><span class="sub">1. Opnamemethode</span><div class="bsx-seg">'+[['basis','Basisopname'],['detail','Detailopname'],['','Nog niet bekend']].map(([v,t])=>'<button type="button" data-bsxm="'+v+'" class="'+(mk&&(bs.methode||'')===v?'on':'')+'">'+t+'</button>').join('')+'</div><div class="bsx-seg sm">'+[['woning','Woning (ISSO 82.1)'],['utiliteit','Utiliteit (ISSO 75.1)']].map(([v,t])=>'<button type="button" data-bsxt="'+v+'" class="'+(bs.type===v?'on':'')+'">'+t+'</button>').join('')+'</div></div>'})()+
+  (!(bs.mk||bs.methode)?'':(()=>{const TZ='Thermische zone',cur=rzOn?TZ:(L.find(x=>x.id===bsxSel)||{}).g;if(cur)bsxCat=cur;if(bsxCat&&bsxCat!==TZ&&!groups.includes(bsxCat))bsxCat='';const cats=(q?[]:[TZ]).concat(groups);
+   let k='<div class="bsx-kies"><label class="sub" for="bsx-cat">2. Kies een categorie</label><select id="bsx-cat"'+(q?' disabled':'')+'><option value="">'+(q?'zoekresultaten':'– kies een categorie –')+'</option>'+cats.map(c=>'<option'+(c===bsxCat&&!q?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div>';
    const show=q?groups:(bsxCat&&bsxCat!==TZ?[bsxCat]:[]);
-   if(show.length)k+='<div class="bsx-kies"><label class="sub" for="bsx-sel">2. Kies het beslisschema</label><select id="bsx-sel"><option value="">– kies een beslisschema –</option>'+show.map(g=>(q?'<optgroup label="'+esc(g)+'">':'')+L.filter(s=>s.g===g).map(optS).join('')+(q?'</optgroup>':'')).join('')+'</select></div>';
-   return k})()+
+   if(show.length)k+='<div class="bsx-kies"><label class="sub" for="bsx-sel">3. Kies het beslisschema</label><select id="bsx-sel"><option value="">– kies een beslisschema –</option>'+show.map(g=>(q?'<optgroup label="'+esc(g)+'">':'')+L.filter(s=>s.g===g).map(optS).join('')+(q?'</optgroup>':'')).join('')+'</select></div>';
+   return k})())+
   '<div class="bsx-wrap"><div class="bsx-main">';
  const s=L.find(x=>x.id===bsxSel);
  if(rzOn)h+='<div class="sub" style="margin:4px 0 0">Voeg hieronder ruimten toe en beantwoord per ruimte de vragen (schema 1–4, garages, AVR / AOR, sterk geventileerd).</div>';
@@ -4716,7 +4718,8 @@ function bsxRender(){const box=$('bsx');if(!box)return;const q=norm(($('bsx-q')|
  if(s){const st2=bsxState(s);h+=(st2.started?'<div style="margin-top:10px"><button class="btn sec" type="button" data-bsxa="reset">Antwoorden wissen en opnieuw beginnen</button></div>':'')+'<details class="bt" open><summary>Beslisboom</summary><div class="bt-in">'+bsxTreeHTML(s)+'</div></details>'}
  box.innerHTML=h+'</div></div><div class="sub" style="margin-top:8px">Bron: ISSO 82.1 (versie in je map EPA, gebaseerd op NTA 8800). '+(bs.type==='utiliteit'?'Bij utiliteit staan alleen de schema’s die ISSO 75.1 ook heeft; de inhoud is overgenomen uit ISSO 82.1 en aangevuld met de wijzigingen 2023 van ISSO 75.1. ':'')+'Controleer bij twijfel met de actuele druk.</div>'}
 $('bsx').addEventListener('change',e=>{if(e.target.id==='bsx-cat'){bsxCat=e.target.value;if(bsxCat==='Thermische zone'){bsMode('ruimte');return}bsxSel=null;bsMode('overig');return}if(e.target.id!=='bsx-sel')return;const v=e.target.value;bsxSel=v||null;if(v==='__ruimte'){bsMode('ruimte');return}if($('bsm-ruimte'))$('bsm-ruimte').hidden=true;bsxRender()});
-$('bsx').addEventListener('click',e=>{const b=e.target.closest('[data-bsx],[data-bsxv],[data-bsxa]');if(!b)return;
+$('bsx').addEventListener('click',e=>{const m=e.target.closest('[data-bsxm]'),t=e.target.closest('[data-bsxt]');if(m||t){bs.mk=1;const inp=document.querySelector(m?'input[name="bs-meth"][value="'+m.dataset.bsxm+'"]':'input[name="bs-type"][value="'+t.dataset.bsxt+'"]');if(inp&&!inp.checked){inp.checked=true;inp.dispatchEvent(new Event('change',{bubbles:true}))}bsSave();bsxRender();return}
+const b=e.target.closest('[data-bsx],[data-bsxv],[data-bsxa]');if(!b)return;
  if(b.dataset.bsxa==='lijst'){const was=bsxSel;bsxSel=null;bsxRender();const t=document.querySelector('[data-bsx="'+was+'"]');if(t)t.scrollIntoView({block:'center'});return}
  if(b.dataset.bsx){bsxSel=b.dataset.bsx;bsxRender();if(matchMedia('(max-width:760px)').matches){const m=document.querySelector('#bsx .bsx-main');if(m)m.scrollIntoView({block:'start'})}return}
  const s=BSX.find(x=>x.id===bsxSel);if(!s)return;bs.x=bs.x||{};const x=bs.x[s.id]=bs.x[s.id]||{path:[]};
