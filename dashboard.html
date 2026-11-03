@@ -4682,7 +4682,7 @@ function bsxCalc(c,v){if(bs.type!=='woning')return'';
 const BS_METH={glw_b:'basis',glw_d:'detail',tien:'detail',znv:'detail',inst:'detail',ll:'detail'};
 const bsxList=()=>BSX.filter(s=>(bs.type==='woning'||s.afb.u||s.own)&&(!bs.methode||!BS_METH[s.id]||BS_METH[s.id]===bs.methode));
 const bsxAfb=s=>s.own?s.own:(bs.type==='woning'?'ISSO 82.1 afb. '+s.afb.w:'ISSO 75.1 afb. '+s.afb.u);
-let bsxSel=null;
+let bsxSel=null,bsxCat='';
 function bsxState(s){const x=(bs.x||{})[s.id]||{path:[]},v={},steps=[];let id=s.start;
  for(const p of x.path){const nd=s.n[id];if(!nd||nd.e)break;
   if(nd.k){v[nd.k]=p;steps.push([nd.t,p]);id=nd.next}else if(nd.s){steps.push([nd.t,'✓']);id=nd.next}else if(nd.opts){const o=nd.opts.find(o=>o[0]===p);if(!o)break;steps.push([nd.t,p]);id=o[1]}else{steps.push([nd.t,p==='ja'?'Ja':'Nee']);id=p==='ja'?nd.ja:nd.nee}}
@@ -4698,11 +4698,15 @@ function bsxRender(){const box=$('bsx');if(!box)return;const q=norm(($('bsx-q')|
  const groups=[...new Set(L.map(s=>s.g))];
  const RZ='__ruimte',rzOn=bsxSel===RZ,optS=s=>{const st=bsxState(s);return'<option value="'+s.id+'"'+(s.id===bsxSel?' selected':'')+'>'+esc(s.t)+(st.done?' ✓':st.started?' …':'')+'</option>'};
  let h='<h3>Beslisschema’s '+(bs.type==='woning'?'woning (ISSO 82.1)':'utiliteit (ISSO 75.1)')+'</h3>'+(L.length?'':'<div class="empty-state">Geen schema gevonden. Probeer een ander woord.</div>')+
-  '<div class="bsx-kies"><label class="sub" for="bsx-sel">Kies een beslisschema</label><select id="bsx-sel"><option value="">– kies een beslisschema –</option>'+(q?'':'<optgroup label="Thermische zone"><option value="'+RZ+'"'+(rzOn?' selected':'')+'>Hoort een ruimte bij de verwarmde zone? (per ruimte)</option></optgroup>')+groups.map(g=>'<optgroup label="'+esc(g)+'">'+L.filter(s=>s.g===g).map(optS).join('')+'</optgroup>').join('')+'</select></div>'+
+  (()=>{const TZ='Thermische zone',cur=rzOn?TZ:(L.find(x=>x.id===bsxSel)||{}).g;if(cur)bsxCat=cur;if(bsxCat&&bsxCat!==TZ&&!groups.includes(bsxCat))bsxCat='';const cats=(q?[]:[TZ]).concat(groups);
+   let k='<div class="bsx-kies"><label class="sub" for="bsx-cat">1. Kies een categorie</label><select id="bsx-cat"'+(q?' disabled':'')+'><option value="">'+(q?'zoekresultaten':'– kies een categorie –')+'</option>'+cats.map(c=>'<option'+(c===bsxCat&&!q?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div>';
+   const show=q?groups:(bsxCat&&bsxCat!==TZ?[bsxCat]:[]);
+   if(show.length)k+='<div class="bsx-kies"><label class="sub" for="bsx-sel">2. Kies het beslisschema</label><select id="bsx-sel"><option value="">– kies een beslisschema –</option>'+show.map(g=>(q?'<optgroup label="'+esc(g)+'">':'')+L.filter(s=>s.g===g).map(optS).join('')+(q?'</optgroup>':'')).join('')+'</select></div>';
+   return k})()+
   '<div class="bsx-wrap"><div class="bsx-main">';
  const s=L.find(x=>x.id===bsxSel);
  if(rzOn)h+='<div class="sub" style="margin:4px 0 0">Voeg hieronder ruimten toe en beantwoord per ruimte de vragen (schema 1–4, garages, AVR / AOR, sterk geventileerd).</div>';
- else if(!s)h+='<div class="empty-state bsx-empty"><b>Kies hierboven een beslisschema</b><br>Je krijgt dan stap voor stap vragen die je met Ja of Nee (of een keuze) beantwoordt. Onderaan staat de uitkomst die je in de opname gebruikt.</div>';
+ else if(!s)h+='<div class="empty-state bsx-empty"><b>Kies hierboven eerst een categorie en daarna het beslisschema</b><br>Je krijgt dan stap voor stap vragen die je met Ja of Nee (of een keuze) beantwoordt. Onderaan staat de uitkomst die je in de opname gebruikt.</div>';
  else{const st=bsxState(s),nd=st.cur;h+='<div class="sub" style="margin-bottom:6px"><b>'+esc(s.t)+'</b> · '+esc(bsxAfb(s))+' · <button class="link-btn" type="button" data-bsxa="reset">opnieuw</button>'+(st.started?' · <button class="link-btn" type="button" data-bsxa="back">← vorige</button>':'')+'</div>';
   if(s.intro)h+='<div class="note" style="font-size:12.5px;color:var(--muted);border-left:3px solid var(--g300);padding:6px 10px;background:#f7fbf8">'+esc(s.intro)+'</div>';
   if(st.steps.length)h+='<ol class="bs-path">'+st.steps.map(x=>'<li>'+esc(x[0])+' <span class="a">→ '+esc(x[1])+'</span></li>').join('')+'</ol>';
@@ -4711,7 +4715,7 @@ function bsxRender(){const box=$('bsx');if(!box)return;const q=norm(($('bsx-q')|
   else{h+='<div class="bs-q"><div class="qt">'+esc(nd.t)+'</div>'+bsxNotes(s,nd)+'<div class="ans">'+(nd.s?'<button class="btn" data-bsxv="ok">Gedaan – verder</button>':nd.k?nd.opts.map(o=>'<button class="btn sec" data-bsxv="'+esc(o)+'">'+esc(o)+'</button>').join(''):nd.opts?nd.opts.map(o=>'<button class="btn sec" data-bsxv="'+esc(o[0])+'">'+esc(o[0])+'</button>').join(''):'<button class="btn" data-bsxv="ja">Ja</button><button class="btn sec" data-bsxv="nee">Nee</button>')+'</div></div>'}}
  if(s){const st2=bsxState(s);h+=(st2.started?'<div style="margin-top:10px"><button class="btn sec" type="button" data-bsxa="reset">Antwoorden wissen en opnieuw beginnen</button></div>':'')+'<details class="bt" open><summary>Beslisboom</summary><div class="bt-in">'+bsxTreeHTML(s)+'</div></details>'}
  box.innerHTML=h+'</div></div><div class="sub" style="margin-top:8px">Bron: ISSO 82.1 (versie in je map EPA, gebaseerd op NTA 8800). '+(bs.type==='utiliteit'?'Bij utiliteit staan alleen de schema’s die ISSO 75.1 ook heeft; de inhoud is overgenomen uit ISSO 82.1 en aangevuld met de wijzigingen 2023 van ISSO 75.1. ':'')+'Controleer bij twijfel met de actuele druk.</div>'}
-$('bsx').addEventListener('change',e=>{if(e.target.id!=='bsx-sel')return;const v=e.target.value;bsxSel=v||null;if(v==='__ruimte'){bsMode('ruimte');return}if($('bsm-ruimte'))$('bsm-ruimte').hidden=true;bsxRender()});
+$('bsx').addEventListener('change',e=>{if(e.target.id==='bsx-cat'){bsxCat=e.target.value;if(bsxCat==='Thermische zone'){bsMode('ruimte');return}bsxSel=null;bsMode('overig');return}if(e.target.id!=='bsx-sel')return;const v=e.target.value;bsxSel=v||null;if(v==='__ruimte'){bsMode('ruimte');return}if($('bsm-ruimte'))$('bsm-ruimte').hidden=true;bsxRender()});
 $('bsx').addEventListener('click',e=>{const b=e.target.closest('[data-bsx],[data-bsxv],[data-bsxa]');if(!b)return;
  if(b.dataset.bsxa==='lijst'){const was=bsxSel;bsxSel=null;bsxRender();const t=document.querySelector('[data-bsx="'+was+'"]');if(t)t.scrollIntoView({block:'center'});return}
  if(b.dataset.bsx){bsxSel=b.dataset.bsx;bsxRender();if(matchMedia('(max-width:760px)').matches){const m=document.querySelector('#bsx .bsx-main');if(m)m.scrollIntoView({block:'start'})}return}
