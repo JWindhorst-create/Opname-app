@@ -55,7 +55,7 @@ button.del{border-color:var(--warn);color:var(--warn);background:transparent}
 #mkeuze label.ck input{width:20px;height:20px;flex:0 0 auto;margin:0}
 .sug{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden}
 .err{color:var(--warn);font-size:14px}
-#cSum table{width:100%;border-collapse:collapse;font-size:14px}#cSum td{padding:5px 2px;border-bottom:1px solid var(--line)}#cSum td:last-child{text-align:right;font-weight:600;white-space:nowrap}#cSum tr.s td{font-size:12px;color:var(--muted);font-weight:700;padding-top:10px;border-bottom:1px solid var(--line)}#cSum tr.s td:last-child{text-align:left}#cSum tr.h td{background:var(--acc2);color:var(--acc);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+#cSum table{width:100%;border-collapse:collapse;font-size:14px}#cSum td{padding:5px 2px;border-bottom:1px solid var(--line)}#cSum td:last-child{text-align:right;font-weight:600;white-space:nowrap}#cSum tr.s td{font-size:12px;color:var(--muted);font-weight:700;padding-top:10px;border-bottom:1px solid var(--line)}#cSum tr.s td:last-child,#cSum tr.h td:last-child{text-align:left;white-space:normal}#cSum tr.h td{background:var(--acc2);color:var(--acc);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--muted);margin-top:8px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
 .item.dicht{padding:8px 10px}.item.dicht .ihead>span+span{display:none!important}.samv{font-size:13px;color:var(--muted);margin-top:4px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chev{display:inline-block;width:14px;color:var(--acc)}
 body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body.dhonly{padding:0;background:#f4f6f5}body.dhonly #calc{position:static;display:block!important;background:none;padding:12px}body.dhonly .dhwide{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:6px}body.dhonly .dhwide .dhleft{min-width:0}body.dhonly .dhwide #csvg{max-width:480px;margin:0 auto;display:block}body.dhonly .dhwide #dh3dBox{margin:0;position:sticky;top:8px;min-width:0}body.dhonly .dhwide #dh3d{width:100%!important}body.dhonly .dhwide #dh3d{aspect-ratio:1/0.72}body.dhonly.wide #calc .box{max-width:1180px}body.dhonly #calc .box{margin:0 auto;max-width:760px;border-radius:14px;max-height:none;overflow:visible;box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -71,7 +71,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 #dhShapes button svg{width:36px;height:22px;background:none}
 #dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
 #dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
-.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#dhAdrKader{margin-top:6px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:7px 10px;background:#f8fbf9;font-size:12.5px;line-height:1.45;color:var(--muted,#5d6e63)}#dhAdrKader .dhhel{margin-top:3px;gap:5px}#dhAdrKader .dhchip{font-size:12.5px;padding:2px 9px}#dhAdrKader .note{font-size:12.5px;margin:2px 0 0}#dhAdrKader .dhal{margin-top:4px}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
+.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}#cDuKant button{flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#dhAdrKader{margin-top:6px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:7px 10px;background:#f8fbf9;font-size:12.5px;line-height:1.45;color:var(--muted,#5d6e63)}#dhAdrKader .dhhel{margin-top:3px;gap:5px}#dhAdrKader .dhchip{font-size:12.5px;padding:2px 9px}#dhAdrKader .note{font-size:12.5px;margin:2px 0 0}#dhAdrKader .dhal{margin-top:4px}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
 </head>
 <body>
 <header><h1 id="titel">Opname Energielabel</h1><div class="steps" id="steps"></div></header>
@@ -102,7 +102,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div id="cNok" hidden><label>Nokrichting</label><div class="choice" id="cNokCh">
 <button type="button" data-nok="par" class="on">Evenwijdig aan voorgevel<br><small>muur → muur, gevels voor/achter</small></button>
 <button type="button" data-nok="haaks">Haaks op voorgevel<br><small>voor → achter, kopgevels voor/achter</small></button></div></div>
-<div class="grid2"><div id="cLwrap"><label id="cLlab">Lengte dak (evenwijdig aan nok, m)</label><input id="c_L" inputmode="decimal" autocomplete="off"></div>
+<div class="grid2" style="align-items:end"><div id="cLwrap"><label id="cLlab">Lengte dak (evenwijdig aan nok, m)</label><input id="c_L" inputmode="decimal" autocomplete="off"></div>
 <div id="cHkwrap"><label>Opstand vloer → goot (m)</label><input id="c_hk" inputmode="decimal" autocomplete="off" placeholder="0 = geen"></div></div>
 <div id="cDuwrap" style="margin-top:2px"><label>Óf: goot ligt onder de vloer (m, verticaal vloer → goot)</label><input id="c_du" inputmode="decimal" autocomplete="off" placeholder="0 = nee"><div class="choice" id="cDuKant" hidden style="margin-top:6px"><button type="button" data-duk="beide" class="on">Beide kanten</button><button type="button" data-duk="voor">Alleen voor</button><button type="button" data-duk="achter">Alleen achter</button></div></div>
 <div class="note" id="cKop" style="margin-top:6px"></div>
@@ -710,6 +710,7 @@ function dhKopTekst(){const n=kopAantal(),sh=DH.shape,haaks=(sh==='zadel'||sh===
  $('#cLlab').textContent=haaks?'Lengte dak (voor → achter, m)':sh==='zadel'||sh==='lessenaar'||sh==='mansarde'?'Lengte dak (bouwmuur → bouwmuur, m)':'Lengte dak (evenwijdig aan nok, m)';
  let t=lig;if(sh==='zadel'||sh==='mansarde')t+=haaks?` → kopgevels voor + achter${num($('#c_hk').value)>0?`, ${n} gevel${n===1?'':'s'} onder goot`:''}`:` → ${n} kopgevel${n===1?'':'s'}${num($('#c_hk').value)>0?', opstanden voor + achter':''}`;
  else if(sh==='lessenaar')t+=haaks?` → zijgevels voor + achter${n>=2?', hoge en lage kant':n===1?', 1 zijkant (wordt gevraagd)':''}`:` → hoge gevel${num($('#c_hk').value)>0?' + lage gevel':''}, ${n} zijgevel${n===1?'':'s'}`;
+ if(dhZijMode()){const Z=dhZij();if(Z)t=lig+' → '+n+' kopgevel'+(n===1?'':'s')+(Z.hk>0?', opstand '+Z.N.kant:'')}
  $('#cKop').textContent=t}
 $('#c_L').addEventListener('input',()=>{dhSolve()});$('#c_hk').addEventListener('input',()=>{if(num($('#c_hk').value)>0&&!dhZijMode())$('#c_du').value='';dhKopTekst();dhSolve()});$('#c_du').addEventListener('input',()=>{if(num($('#c_du').value)>0&&(DH.duKant||'beide')==='beide')$('#c_hk').value='';dhKopTekst();dhSolve()});
 DH.nok='par';document.querySelectorAll('#cNokCh [data-nok]').forEach(bt=>bt.onclick=()=>{DH.nok=bt.dataset.nok;document.querySelectorAll('#cNokCh [data-nok]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhInfo()});
@@ -907,6 +908,19 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
       labels=[[[0,T,hz],'nok '+f(T,2)+' m',0,-14],[[-a/2,mh+b/2,hz],'c '+f(r.c,2)+' m',0,-12],[[a*0.7,mh,hz],'α '+f(r.al,1)+'°',1,-12],
         [[-A+mx/2,mh/2,hz],'knik '+f(mh,2)+' m',0,0],[[A-mx*0.2,0,hz],f(r.ma,0)+'°',1,-12],
         [[0,0,hz],'diepte '+f(2*A,2)+' m',0,14],[[A,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
+    } else if(sh==='zadel'&&model.prof){
+      const {vn,hL,hR,tA}=model.prof,sA=Math.sin(Math.atan(tA)),xL=-(vn-hL)/tA,xR=(vn-hR)/tA,fl=hL>=0?xL:-vn/tA,fr=hR>=0?xR:vn/tA;
+      const gab=z=>{const p=[[fl,0,z]];if(hL>0)p.push([xL,hL,z]);p.push([0,vn,z]);if(hR>0)p.push([xR,hR,z]);p.push([fr,0,z]);return p};
+      faces=[{p:[[fl,0,-hz],[fr,0,-hz],[fr,0,hz],[fl,0,hz]],c:F},{p:gab(hz),c:G},{p:gab(-hz),c:G},
+        {p:[[xL,hL,-hz],[0,vn,-hz],[0,vn,hz],[xL,hL,hz]],c:R1,al:.8},{p:[[xR,hR,-hz],[0,vn,-hz],[0,vn,hz],[xR,hR,hz]],c:R2,al:.8}];
+      if(hL>0)faces.push({p:[[xL,0,-hz],[xL,hL,-hz],[xL,hL,hz],[xL,0,hz]],c:'#e2d5bb'});
+      if(hR>0)faces.push({p:[[xR,0,-hz],[xR,hR,-hz],[xR,hR,hz],[xR,0,hz]],c:'#e2d5bb'});
+      if(hL<0)[hz,-hz].forEach(z=>faces.push({p:[[xL,hL,z],[fl,0,z],[fl,hL,z]],c:'#d9dcd8',al:.75}));
+      if(hR<0)[hz,-hz].forEach(z=>faces.push({p:[[xR,hR,z],[fr,0,z],[fr,hR,z]],c:'#d9dcd8',al:.75}));
+      if(vn>1.5){const x1=hL>=1.5?xL:-(vn-1.5)/tA,x2=hR>=1.5?xR:(vn-1.5)/tA;lines15=[[x1,-hz,x2,hz]]}
+      labels=[[[0,vn,hz],'nok '+f(vn,2)+' m',0,-14],[[xL/2,(hL+vn)/2,hz],'c '+f((vn-hL)/sA,2)+' m',0,-12],[[xR*0.62,hR*0.4,hz],'α '+f(r.al,1)+'°',1,-12],
+        [[(fl+fr)/2,0,hz],'vloer '+f(fr-fl,2)+' m',0,14],[[fr,0,0],'lengte '+f(L,2)+' m'+(len?'':' *'),0,14]];
+      if(hL<0)labels.push([[xL,hL,hz],'goot −'+f(-hL,2)+' m',0,14]);if(hR<0)labels.push([[xR,hR,-hz],'goot −'+f(-hR,2)+' m',0,14]);
     } else if(sh==='zadel'){
       faces=[{p:[[-a,0,-hz],[a,0,-hz],[a,0,hz],[-a,0,hz]],c:F},
         {p:[[-a,0,hz],[a,0,hz],[0,b,hz]],c:G},{p:[[-a,0,-hz],[a,0,-hz],[0,b,-hz]],c:G},
@@ -978,6 +992,7 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
     const dep= sh==='lessenaar'? r.a : sh==='mansarde'? 2*(r.a+r.mx) : 2*r.a;
     const Ht= sh==='mansarde'? r.mh+r.b : r.b;
     model={a:r.a,b:r.b,H:Ht,L,r,len:sh==='tent'?1:len,sh,size:Math.max(dep,Ht,L)};
+    if(sh==='zadel'&&r.prof){const q=r.prof;model.prof=q;model.H=q.vn;model.size=Math.max((q.vn-q.hL)/q.tA+(q.vn-q.hR)/q.tA,q.vn-Math.min(0,q.hL,q.hR),L)}
     render();
   };
 
@@ -1061,7 +1076,8 @@ function vlakkenPdfRijen(){const v=DH.vlakken;if(!v||!v.daken.length)return[];re
 DH.shape='zadel';DH.duKant='beide';
 function dhZetKant(k){DH.duKant=k;document.querySelectorAll('#cDuKant [data-duk]').forEach(x=>x.classList.toggle('on',x.dataset.duk===k))}
 document.querySelectorAll('#cDuKant [data-duk]').forEach(bt=>bt.onclick=()=>{dhZetKant(bt.dataset.duk);dhKopTekst();dhSolve()});
-function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res,br>0?br:null,DH.shape)}
+function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res&&DH.shape==='zadel'?{...DH.res,prof:dhProf()}:DH.res,br>0?br:null,DH.shape)}
+function dhProf(){if(!DH.res)return null;const tA=Math.tan(DH.res.al*Math.PI/180),vn=DH.res.b+(DH.off||0);if(dhZijMode()){const du=num($('#c_du').value),hk=Math.max(0,num($('#c_hk').value)||0);return DH.duKant==='voor'?{vn,tA,hL:-du,hR:hk}:{vn,tA,hL:hk,hR:-du}}const h=dhHkS();return{vn,tA,hL:h,hR:h}}
 $('#dh3dBtn').onclick=()=>{const b=$('#dh3dBox');b.hidden=!b.hidden;$('#dh3dBtn').textContent=b.hidden?'3D-model ▾':'3D-model ▴';if(!b.hidden){window.dh3dResize();dh3d();setTimeout(()=>$('#dh3d').scrollIntoView({block:'nearest',behavior:'smooth'}),50)}};
 document.querySelectorAll('#dhShapes [data-s3]').forEach(bt=>bt.onclick=()=>{DH.shape=bt.dataset.s3;document.querySelectorAll('#dhShapes [data-s3]').forEach(x=>x.classList.toggle('on',x===bt));dhKopTekst();dhSolve()});
 
