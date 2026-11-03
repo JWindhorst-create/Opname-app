@@ -383,7 +383,7 @@ body.v-opname .topbar-in{max-width:1480px}
 .ftd-b{padding:16px 18px;font-size:14px;line-height:1.5;color:#1e2933}
 .ftd-note{margin-top:12px;padding:10px 12px;background:#eef6f1;border-left:4px solid var(--g700,#245c45);border-radius:6px;font-size:13px}
 .ftd-f{display:flex;justify-content:flex-end;gap:8px;padding:0 18px 16px}
-.bsx-wrap{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:14px;align-items:start}.bsx-list{display:flex;flex-direction:column;gap:4px}.bsx-main{min-width:0}
+.bsx-wrap{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:14px;align-items:start}.bsx-list{display:flex;flex-direction:column;gap:4px}.bsx-main{min-width:0}.bsx-terug{display:none}@media (max-width:760px){.bsx-wrap.sel .bsx-list{display:none}.bsx-terug{display:inline-flex;margin-bottom:10px}}
 @media (max-width:760px){.bsx-wrap{grid-template-columns:1fr}}
 .eband.wide{grid-template-columns:1fr!important}
 .sk-area.first{height:min(78vh,760px)!important}
@@ -4591,10 +4591,10 @@ function bsxState(s){const x=(bs.x||{})[s.id]||{path:[]},v={},steps=[];let id=s.
 function bsxNotes(s,nd){const ks=[...(nd.nt||[]),...(bs.type==='utiliteit'?(nd.ntU||[]):[])];return ks.filter(k=>s.nt&&s.nt[k]).map(k=>'<div class="note"><b>'+(k==='u'?'75.1':'('+k+')')+'</b> '+esc(s.nt[k])+'</div>').join('')}
 function bsxRender(){const box=$('bsx');if(!box)return;const q=norm(($('bsx-q')||{}).value||''),L0=bsxList(),L=q?L0.filter(s=>norm(s.t+' '+s.g+' '+(s.intro||'')).includes(q)):L0;{const n=$('bsx-n');if(n)n.textContent=q?L.length+' van '+L0.length+' schema’s':L0.length+' schema’s'}if(bsxSel&&!L.find(s=>s.id===bsxSel))bsxSel=null;
  const groups=[...new Set(L.map(s=>s.g))];
- let h='<h3>Beslisschema’s '+(bs.type==='woning'?'woning (ISSO 82.1)':'utiliteit (ISSO 75.1)')+'</h3>'+(L.length?'':'<div class="empty-state">Geen schema gevonden. Probeer een ander woord.</div>')+'<div class="bsx-wrap"><div class="bsx-list">'+groups.map(g=>'<div class="sub" style="margin:8px 0 4px">'+esc(g)+'</div>'+L.filter(s=>s.g===g).map(s=>{const st=bsxState(s);return'<button type="button" class="bs-room'+(s.id===bsxSel?' on':'')+'" data-bsx="'+s.id+'"><b>'+esc(s.t)+'<small>'+esc((s.own?'eigen schema':s.afb[bs.type==='woning'?'w':'u']?'afb. '+s.afb[bs.type==='woning'?'w':'u']:'')+(st.done?' · klaar':st.started?' · bezig…':''))+'</small></b></button>'}).join('')).join('')+'</div><div class="bsx-main">';
+ let h='<h3>Beslisschema’s '+(bs.type==='woning'?'woning (ISSO 82.1)':'utiliteit (ISSO 75.1)')+'</h3>'+(L.length?'':'<div class="empty-state">Geen schema gevonden. Probeer een ander woord.</div>')+'<div class="bsx-wrap'+(L.find(x=>x.id===bsxSel)?' sel':'')+'"><div class="bsx-list">'+groups.map(g=>'<div class="sub" style="margin:8px 0 4px">'+esc(g)+'</div>'+L.filter(s=>s.g===g).map(s=>{const st=bsxState(s);return'<button type="button" class="bs-room'+(s.id===bsxSel?' on':'')+'" data-bsx="'+s.id+'"><b>'+esc(s.t)+'<small>'+esc((s.own?'eigen schema':s.afb[bs.type==='woning'?'w':'u']?'afb. '+s.afb[bs.type==='woning'?'w':'u']:'')+(st.done?' · klaar':st.started?' · bezig…':''))+'</small></b></button>'}).join('')).join('')+'</div><div class="bsx-main">';
  const s=L.find(x=>x.id===bsxSel);
  if(!s)h+='<div class="empty-state bsx-empty"><b>Kies links het onderwerp</b><br>Je krijgt dan stap voor stap vragen die je met Ja of Nee (of een keuze) beantwoordt. Onderaan staat de uitkomst die je in de opname gebruikt.</div>';
- else{const st=bsxState(s),nd=st.cur;h+='<div class="sub" style="margin-bottom:6px"><b>'+esc(s.t)+'</b> · '+esc(bsxAfb(s))+' · <button class="link-btn" type="button" data-bsxa="reset">opnieuw</button>'+(st.started?' · <button class="link-btn" type="button" data-bsxa="back">← vorige</button>':'')+'</div>';
+ else{const st=bsxState(s),nd=st.cur;h+='<button class="btn sec bsx-terug" type="button" data-bsxa="lijst">← Alle schema’s</button><div class="sub" style="margin-bottom:6px"><b>'+esc(s.t)+'</b> · '+esc(bsxAfb(s))+' · <button class="link-btn" type="button" data-bsxa="reset">opnieuw</button>'+(st.started?' · <button class="link-btn" type="button" data-bsxa="back">← vorige</button>':'')+'</div>';
   if(s.intro)h+='<div class="note" style="font-size:12.5px;color:var(--muted);border-left:3px solid var(--g300);padding:6px 10px;background:#f7fbf8">'+esc(s.intro)+'</div>';
   if(st.steps.length)h+='<ol class="bs-path">'+st.steps.map(x=>'<li>'+esc(x[0])+' <span class="a">→ '+esc(x[1])+'</span></li>').join('')+'</ol>';
   if(!nd)h+='<div class="note">Schema niet compleet.</div>';
@@ -4602,10 +4602,11 @@ function bsxRender(){const box=$('bsx');if(!box)return;const q=norm(($('bsx-q')|
   else{h+='<div class="bs-q"><div class="qt">'+esc(nd.t)+'</div>'+bsxNotes(s,nd)+'<div class="ans">'+(nd.s?'<button class="btn" data-bsxv="ok">Gedaan – verder</button>':nd.k?nd.opts.map(o=>'<button class="btn sec" data-bsxv="'+esc(o)+'">'+esc(o)+'</button>').join(''):nd.opts?nd.opts.map(o=>'<button class="btn sec" data-bsxv="'+esc(o[0])+'">'+esc(o[0])+'</button>').join(''):'<button class="btn" data-bsxv="ja">Ja</button><button class="btn sec" data-bsxv="nee">Nee</button>')+'</div></div>'}}
  box.innerHTML=h+'</div></div><div class="sub" style="margin-top:8px">Bron: ISSO 82.1 (versie in je map EPA, gebaseerd op NTA 8800). '+(bs.type==='utiliteit'?'Bij utiliteit staan alleen de schema’s die ISSO 75.1 ook heeft; de inhoud is overgenomen uit ISSO 82.1 en aangevuld met de wijzigingen 2023 van ISSO 75.1. ':'')+'Controleer bij twijfel met de actuele druk.</div>'}
 $('bsx').addEventListener('click',e=>{const b=e.target.closest('[data-bsx],[data-bsxv],[data-bsxa]');if(!b)return;
- if(b.dataset.bsx){bsxSel=b.dataset.bsx;bsxRender();return}
+ if(b.dataset.bsxa==='lijst'){const was=bsxSel;bsxSel=null;bsxRender();const t=document.querySelector('[data-bsx="'+was+'"]');if(t)t.scrollIntoView({block:'center'});return}
+ if(b.dataset.bsx){bsxSel=b.dataset.bsx;bsxRender();if(matchMedia('(max-width:760px)').matches){const m=document.querySelector('#bsx .bsx-main');if(m)m.scrollIntoView({block:'start'})}return}
  const s=BSX.find(x=>x.id===bsxSel);if(!s)return;bs.x=bs.x||{};const x=bs.x[s.id]=bs.x[s.id]||{path:[]};
  if(b.dataset.bsxa==='reset')x.path=[];else if(b.dataset.bsxa==='back')x.path.pop();else x.path.push(b.dataset.bsxv);
- bsSave();bsxRender()});
+ bsSave();bsxRender();if(matchMedia('(max-width:760px)').matches){const q=document.querySelector('#bsx .bs-q,#bsx .bs-res');if(q){const r=q.getBoundingClientRect();if(r.bottom>innerHeight||r.top<60)q.scrollIntoView({block:'center'})}}});
 
 
 // ---------- Woningcheck: alle beslisschema's langs, per schema van toepassing ja/nee ----------
