@@ -150,7 +150,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
   <div class="kr-row" id="kd-velden"></div>
   <div class="kd-afg" id="kd-afg"></div>
   <div class="kd-modelbox"><div id="kd-model"></div><div class="kd-draai" id="kd-draai"><span class="kr-f" style="margin:0">Sleep om te draaien en kantelen, knijp of scroll om te zoomen.</span><button type="button" class="small ghost" data-kdr="0">Standaard aanzicht</button></div></div>
-  <div id="kd-uit"></div>
+  <div id="kd-uit"></div><div id="dvKnoppen" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"><button type="button" id="dvOver" hidden>Overnemen in opname</button><button type="button" class="ghost" id="dvPdf" style="border:1px solid var(--line)">📄 PDF voor dossier (vlakken, GO, model en onderbouwing)</button></div>
   <div class="kr-f">De nummers in het model horen bij de regels in de tabel; de nummers achter elk invulveld laten zien voor welke vlakken die maat nodig is. Oppervlakten worden uit het model zelf berekend (vlak voor vlak), dus tekening en m² kloppen altijd met elkaar. Gevelvlakken gaan tot de goot (zolderniveau).</div>
  </div>
 </div>
@@ -799,7 +799,7 @@ $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const 
  if(P.gev.some(g=>g.vraagKant)){const k=await kies(`${ligLabel()}: welke zijkant van het lessenaarsdak is buitengevel?`,['Hoge kant (hoge gevel)','Lage kant (goot)']);if(k==null)return;
   const keep=k===0?'hoog':'laag';P.gev=P.gev.filter(g=>!g.vraagKant||g.kant===keep);if(keep==='laag'&&!P.gev.some(g=>g.kant==='laag'))toast('Lage kant: geen gevel onder goot ingevuld')}
  const opd=x=>x.l*x.b,somD=P.dak.reduce((s,x)=>s+opd(x),0),somG=P.gev.reduce((s,x)=>s+(gevM2(x,0)??x.b*x.h),0);
- const naam=DAKNAAM[P.sh];
+ const naam=P.naam||DAKNAAM[P.sh];
  let txt=`${naam} overnemen:\n\n• ${P.dak.length} dakvla${P.dak.length>1?'kken':'k'}: ${f2(somD)} m² (helling ${al}°)`;
  if(P.gev.length)txt+=`\n• ${P.gev.length} gevelvla${P.gev.length>1?'kken':'k'}: ${f2(somG)} m²`;
  if((P.sh==='zadel'||P.sh==='mansarde')&&!P.haaks&&!P.nKop)txt+=`\n• geen kopgevels (${ligLabel().toLowerCase()}: woningscheidend)`;
@@ -814,7 +814,7 @@ $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const 
  const id=DH.itemId,lijst=r.lijst,base=r.it.orient||cur.orient?.voor||'',src=r.it;if(!r.it.orient&&base)zetO(r.it,base);
  for(let i=lijst.length-1;i>=0;i--)if(lijst[i].dhGroup===id)lijst.splice(i,1);
  const zetDak=(it,d)=>{it.lengte=fS(d.l);it.breedte=fS(d.b);it.breedte_x=d.corr?x:0;it.helling=d.hel||al;it.dhVorm=P.sh;it.hkGO=d.hk!=null?(d.hk?String(d.hk).replace('.',','):''):((P.sh==='zadel'||P.sh==='lessenaar')&&dhHkS()!==0?String(dhHkS()).replace('.',','):'');if(d.opm)it.opm=d.opm;else if(it.opm&&/^(Trapezium|Schild|Tentdak|Piramidedak|Mansarde)/.test(it.opm))it.opm=''};
- zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhX=JSON.stringify(DH.x[DH.shape]||{});src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhVd=$('#c_vd').value;src.dhDuKant=DH.duKant||'beide';src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
+ zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dvX=P.dv?JSON.stringify(dvState()):'';src.dhX=JSON.stringify(DH.x[DH.shape]||{});src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhVd=$('#c_vd').value;src.dhDuKant=DH.duKant||'beide';src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
  let pos=lijst.indexOf(src)+1;
  P.dak.slice(1).forEach(d=>{const it=nieuwItem('dakvlak');['isolatie','rc','bewijs'].forEach(k=>{if(src[k]!=null)it[k]=src[k]});zetDak(it,d);zetO(it,rotO(base,d.rot));it.dhGroup=id;lijst.splice(pos++,0,it)});
  P.gev.forEach(g=>{const it=nieuwItem('gevel');it.breedte=fS(g.b);it.breedte_x=g.corr?x:0;it.hoogte=fS(g.h);const gm=gevM2(g,x);if(gm!=null)it.m2=fS(gm);it.opm=g.opm;zetO(it,rotO(base,g.rot));it.dhGroup=id;lijst.push(it)});
@@ -1372,9 +1372,60 @@ dhModus((()=>{try{return localStorage.getItem('dhModus')||'dh'}catch(e){return'd
    else if(pts.size===2&&pinch>0){const [a,b]=[...pts.values()];st.zoom=Math.max(0.5,Math.min(3,z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch));req()}});
   const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=0;if(!pts.size)sv()};box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up);
   box.addEventListener('wheel',e=>{e.preventDefault();st.zoom=Math.max(0.5,Math.min(3,(st.zoom||1)*(1-e.deltaY*0.001)));req();clearTimeout(box._t);box._t=setTimeout(sv,300)},{passive:false})}
+
+ // ---- export voor PDF en overnemen ----
+ window.dvState=()=>({v:st.v,m:Object.fromEntries(Object.entries(st.m).filter(([k])=>k.startsWith(st.v+'.')))});
+ window.dvSet=o=>{if(!o||!T[o.v])return;st.v=o.v;Object.assign(st.m,o.m||{});sv();velden()};
+ window.dvPlan=()=>{const {fs,err}=bouw();if(leegVeld())return{fatal:'Vul eerst alle maten in.'};if(err.length)return{fatal:err[0]};if(!fs.length)return null;
+  const R2=Math.PI/180,YA=fs.flatMap(f=>f.p.map(p=>p[1])),YM=(Math.min(...YA)+Math.max(...YA))/2,XA=fs.flatMap(f=>f.p.map(p=>p[0])),XM=(Math.min(...XA)+Math.max(...XA))/2,dak=[],gev=[];
+  const map={zadel:'zadel',lessenaar:'lessenaar',mansarde:'mansarde',schild:'schild',piramide:'tent'};
+  fs.forEach((f,i)=>{let n=[0,0,0];const p=f.p;for(let k=0;k<p.length;k++){const a=p[k],b=p[(k+1)%p.length];n[0]+=(a[1]-b[1])*(a[2]+b[2]);n[1]+=(a[2]-b[2])*(a[0]+b[0]);n[2]+=(a[0]-b[0])*(a[1]+b[1])}const A=area(p)+(f.extra||0),nr=(i+1)+'. ';
+   if(f.t==='dak'){if(n[2]<0)n=n.map(v=>-v);const hel=Math.acos(Math.min(1,Math.abs(n[2])/Math.hypot(...n)))/R2,zs=p.map(q=>q[2]),dz=Math.max(...zs)-Math.min(...zs),l=hel>0.5&&dz>0?dz/Math.sin(hel*R2):Math.sqrt(A),rot=Math.abs(n[1])>=Math.abs(n[0])?(n[1]<0?0:4):(n[0]<0?2:6);
+    dak.push({l,b:A/l,rot,hk:0,naam:nr+f.n,hel:String(+hel.toFixed(1)).replace('.',','),opm:T[st.v].t+': '+f.n})}
+   else{const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),zs=p.map(q=>q[2]),dx=Math.max(...xs)-Math.min(...xs),dy=Math.max(...ys)-Math.min(...ys),rot=dx<1e-6?(xs[0]<XM?2:6):(ys[0]<=YM?0:4);
+    gev.push({b:Math.max(dx,dy),h:Math.max(...zs)-Math.min(...zs),area:()=>A,corr:0,rot,naam:nr+f.n,opm:T[st.v].t+': '+f.n})}});
+  const al=val('al');return{sh:map[st.v]||'zadel',naam:T[st.v].t,dak,gev,goTot:KDGO?KDGO.go:null,vloer:KDGO?.vloer,vol:KDGO?.vol,L:val('L'),W:0,corrL:0,corrW:0,nKop:2,n:2,haaks:false,al:al||null,dv:1,meet:V().v.map(x=>[x.k?x.l:x[1],x.k?(x.opts.find(o=>o[0]===val(x.k))||[])[1]:String(st.m[st.v+'.'+x[0]]??'').replace('.',',')])}};
  velden()})();
 
 
+
+
+// ---------- Dakvormen: PDF en overnemen ----------
+{const _f=dhPlan;dhPlan=function(){return DH.forcePlan||_f.apply(this,arguments)}}
+{const _o=openDriehoek;openDriehoek=function(id){const r=vind(id);const res=_o.apply(this,arguments);if(r?.it?.dvX){try{window.dvSet&&dvSet(JSON.parse(r.it.dvX))}catch(e){}dhModus('dv')}dvKnoppen();return res}}
+function dvKnoppen(){const b=$('#dvOver');if(b)b.hidden=!(DH.itemId&&typeof cur!=='undefined'&&cur)}
+$('#dvOver')&&($('#dvOver').onclick=async()=>{const P=window.dvPlan&&dvPlan();if(!P){toast('Kies een dakvorm en vul de maten in');return}if(P.fatal){toast(P.fatal);return}
+ const keep=DH.res;if(!DH.res&&P.al)DH.res={a:1,b:1,c:1,al:P.al};if(!DH.res)DH.res={a:1,b:1,c:1,al:45};DH.forcePlan=P;
+ try{await $('#cok').onclick()}finally{DH.forcePlan=null;if(DH.res&&!keep&&$('#calc').style.display==='none')DH.res=keep}});
+async function dvPdf(){const P=window.dvPlan&&dvPlan();if(!P){toast('Kies een dakvorm en vul de maten in');return}if(P.fatal){toast(P.fatal);return}
+ toast('PDF maken…');try{await laadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')}catch(e){toast('PDF-bibliotheek niet geladen (internet?)');return}
+ const svg=$('#kd-model svg');let img=null;try{img=svg?await svgNaarPng(svg,640,460):null}catch(e){}
+ const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});const W=210,Hh=297,ML=18,CW=W-36;let y=0,page=1;
+ const adr=(DH.los&&DH.adres)||(typeof cur!=='undefined'&&cur?.adres)||DH.adres,bag=(DH.los&&DH.adres)?DH.bag:(typeof cur!=='undefined'?cur?.bag:null)||DH.bag;
+ const bp=()=>{try{doc.addImage(BP_WM,'JPEG',0,Hh-70,95,70,undefined,'FAST')}catch(e){}try{doc.addImage(BP_LOGO,'JPEG',W-18-30,8,30,30,undefined,'FAST')}catch(e){}doc.setFontSize(8);doc.setTextColor(120);doc.text(pdfT(`Onderbouwing dakvlakken en GO · ${adr?.naam||'zonder adres'} · pagina ${page}`),ML,Hh-8)};
+ const np=()=>{doc.addPage();page++;bp();y=44};
+ const kop=(t,sz=13)=>{if(y>Hh-40)np();doc.setFont('helvetica','bold');doc.setFontSize(sz);doc.setTextColor(36,80,58);doc.text(pdfT(t),ML,y);y+=sz*0.5+2;doc.setTextColor(23,32,29)};
+ const tekst=(t,sz=9.5)=>{doc.setFont('helvetica','normal');doc.setFontSize(sz);doc.splitTextToSize(pdfT(t),CW).forEach(l=>{if(y>Hh-22)np();doc.text(l,ML,y);y+=sz*0.45});y+=1.5};
+ const tabel=(rows,col=92)=>{doc.setFontSize(9.5);rows.forEach(([k,v,b])=>{if(y>Hh-22)np();doc.setFont('helvetica',b?'bold':'normal');doc.text(pdfT(k),ML,y);const ls=doc.splitTextToSize(pdfT(v),CW-col);doc.text(ls,ML+col,y);y+=Math.max(1,ls.length)*4.4;doc.setDrawColor(220);doc.line(ML,y-3,ML+CW,y-3)});y+=2};
+ bp();doc.setFont('helvetica','bold');doc.setFontSize(17);doc.setTextColor(36,80,58);doc.text('Onderbouwing dakvlakken en',ML,20);doc.text('gebruiksoppervlakte (GO) zolder',ML,27);
+ doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(90);doc.text(pdfT(`Opgesteld ${new Date().toLocaleDateString('nl-NL')} · ${P.naam} · NTA 8800 / ISSO 82.1`),ML,34);y=44;
+ kop('1. Object');tabel([['Adres',adr?.naam||'-'],['BAG pand-ID',String(bag?.pandId||'-')],['Bouwjaar (BAG)',String(bag?.bouwjaar??'-')],['Dakvorm',P.naam]]);
+ kop('2. Gemeten maten (binnenwerks)');tabel(P.meet.map(([k,v])=>[k,v||'-']));
+ kop('3. Dak- en gevelvlakken');const sd=P.dak.reduce((t,d)=>t+d.l*d.b,0),sg=P.gev.reduce((t,g)=>t+g.area(),0);
+ tabel([...P.dak.map(d=>['   '+d.naam,`${f2(d.l*d.b)} m2 · helling ${d.hel} graden`]),['Totaal dakvlakken',f2(sd)+' m2',true],...P.gev.map(g=>['   '+g.naam,f2(g.area())+' m2']),...(P.gev.length?[['Totaal gevelvlakken (zolderniveau)',f2(sg)+' m2',true]]:[])]);
+ if(P.goTot!=null){kop('4. Zolder en GO');tabel([['Zoldervloer (hoogte > 0)',f2(P.vloer)+' m2'],['GO zolder (netto hoogte >= 1,5 m)',f2(P.goTot)+' m2',true],['Volume onder dak',f2(P.vol)+' m3']])}
+ if(img){if(y>Hh-110)np();kop((P.goTot!=null?'5':'4')+'. Model');doc.addImage(img,'PNG',ML,y,CW*0.75,CW*0.75*460/640);y+=CW*0.75*460/640+4;tekst('Genummerde vlakken horen bij de regels in hoofdstuk 3. Groen = vloerdeel met netto hoogte >= 1,5 m (GO).',8.5)}
+ np();kop('Onderbouwing',15);
+ tekst('Rekenmethode: het dak wordt als 3D-model opgebouwd uit de binnenwerks gemeten maten (hellingshoek met hellingmeter of uit 3DBAG, hoogtes verticaal vanaf de zoldervloer, lengte tussen de bouwmuren). Elk dak- en gevelvlak is een vlakke veelhoek; de oppervlakte wordt per vlak exact berekend. Schuine lengtes volgen uit hoogte / sin(helling).');
+ tekst('Gebruiksoppervlakte: volgens NEN 2580 (par. 4.5.2) telt het vloerdeel waarboven de netto hoogte kleiner is dan 1,5 m niet mee voor de gebruiksoppervlakte; ISSO 82.1 par. 7.4 / ISSO 75.1 par. 7.7 volgen deze bepaling. Het GO-deel is bepaald door elk dakvlak af te snijden op 1,5 m boven de zoldervloer en de projectie op de vloer op te tellen.');
+ tekst('Maatvoering: constructies binnenwerks opgemeten (ISSO 82.1 par. 8.2). Voor de thermische schil worden lengtes tussen woningscheidende constructies tot hart constructie genomen (bouwmuurcorrectie); voor de GO binnenwerks.');
+ y+=4;tekst('Ondertekening EP-adviseur: ______________________________     Datum: ______________',9.5);
+ const naam=('Dakvlakken-GO_'+(adr?.postcode||'')+'_'+(adr?.huisnummer||'')).replace(/\s/g,'').replace(/_+$/,'').replace(/^Dakvlakken-GO$/,'Dakvlakken-GO_'+new Date().toISOString().slice(0,10))+'.pdf';
+ const blob=doc.output('blob'),file=new File([blob],naam,{type:'application/pdf'});
+ if(window.claude?.use){try{const dl=await window.claude.use('downloads');if(!dl){toast('Opslaan is hier niet beschikbaar');return}await dl.save({filename:naam,data:blob});toast('PDF opgeslagen: '+naam)}catch(e){toast(e?.code==='declined'?'Opslaan geannuleerd':'Opslaan lukte niet')}return}
+ const mob=matchMedia('(pointer:coarse)').matches&&window.parent===window;try{if(mob&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:naam});return}}catch(e){if(e.name==='AbortError')return}
+ const u=URL.createObjectURL(blob);const el=document.createElement('a');el.href=u;el.download=naam;document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast('PDF opgeslagen: '+naam)}
+$('#dvPdf')&&($('#dvPdf').onclick=dvPdf);dvKnoppen();
 
 render();
 if(location.hash==='#driehoek'||window.DRIEHOEK_ONLY)setTimeout(openDriehoekLos,50);window.addEventListener('hashchange',()=>{if(location.hash==='#driehoek')openDriehoekLos()});
