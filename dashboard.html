@@ -1358,7 +1358,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-04-0730';
+const ELN_BUILD='2026-11-04-0810';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1823,15 +1823,13 @@ $('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
 /* --- Uitleg per onderdeel (?-knop bovenin en op elke tegel) --- */
 const HELP={
  klein:[
-  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen. Met <b>← Alle rekenhulpen</b> ga je terug naar dit overzicht.'},
-  {at:'#kr-ramen',t:'Ramen en deuren',b:'Kies de vorm van de opening, vul de maten in en zet hem op de lijst. Onderaan staat het totaal in m². De formule staat bij de uitkomst.'}],
+  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li></ul>Dakvormen staan nu bij <b>Driehoek &amp; dak</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
  home:[
-  {t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Klik op het <b>?</b> rechtsboven op een tegel: het onderdeel opent en je krijgt een rondleiding met pijlen langs de knoppen.'},
-  {at:'#top-help',t:'Terug en uitleg',b:'Met <b>← Dashboard</b> bovenin ga je altijd terug naar dit overzicht. Het <b>?</b> ernaast geeft op elke pagina de uitleg van díe pagina.'},
-  {t:'Waar staat je werk?',b:'Wat je invoert wordt in deze browser bewaard (niet online). Gebruik op een andere computer of telefoon dus niet dezelfde gegevens zonder back-up of export.'}],
+  {at:'.tile',t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Op elke pagina staat bovenin <b>← Dashboard</b> om terug te gaan en een <b>?</b> met de uitleg van díe pagina, met pijlen langs de knoppen.'},
+  {t:'Waar staat je werk?',b:'Wat je invoert wordt in deze browser bewaard (niet online). Op een andere computer of telefoon zie je het dus niet, tenzij je een back-up of export meeneemt.<br><br>Open je het dashboard opnieuw, dan zijn de adresvelden leeg; je bewaarde werk blijft gewoon staan.'}],
  gevel:[
   {at:'gevel-frame|#search-card',t:'1. Adres zoeken',b:'Typ een adres of postcode + huisnummer en klik op <b>Zoek adres</b>. De BAG-gegevens (bouwjaar, oppervlakte, pand) en het 3DBAG-model worden opgehaald.'},
-  {at:'gevel-frame|#map',t:'2. Voorgevel aanklikken',b:'Klik op de kaart op de <b>voorgevel</b>. De oriëntatie van alle gevels wordt dan bepaald (in graden en windrichting).'},
+  {at:'gevel-frame|#map || gevel-frame|[data-mt="kaart"]',t:'2. Voorgevel aanklikken',b:'Klik op de kaart op de <b>voorgevel</b>. De oriëntatie van alle gevels wordt dan bepaald (in graden en windrichting). Op de telefoon staat de kaart onder het tabblad <b>Kaart</b>.'},
   {at:'gevel-frame|#sidebar-footer',t:'3. Rapporten en bestanden',b:'<ul><li><b>Dossier INNAX / Dossier los</b> – PDF voor één adres.</li><li><b>Dossiers INNAX / los</b> – voor meerdere adressen.</li><li><b>Vabi-project (.epa)</b> – direct te openen in Vabi.</li></ul>'},
   {at:'gevel-frame|#make-opname',t:'4. Opnameformulier',b:'Met <b>Opnameformulier →</b> ga je door naar het formulier; adres, BAG-gegevens en voorgevel staan dan al ingevuld.'}],
  uitvoer:[
@@ -1858,20 +1856,14 @@ const HELP={
   {at:'#sp-main',t:'Oppervlakten',b:'Oppervlakten mag je als som invullen, bijv. <b>42,92+9,2+6,2</b>.'},
   {at:'#sp-xls',t:'Opslaan en export',b:'Je werk staat in de historie in deze browser. Exporteer naar <b>Excel</b> of <b>PDF</b>; met <b>Excel importeren</b> lees je een eerdere export weer in.'}],
  beslis:[
-  {at:'#bs-type',t:'1. Project',b:'Vul het adres in, kies woning (ISSO 82.1) of utiliteit (ISSO 75.1) en de opnamemethode.'},
-  {at:'[data-bsmode="overig"]',t:'2. Wat wil je uitzoeken?',b:'<ul><li><b>Beslisschema kiezen</b> – één keuzelijst met alle schema’s per categorie, ook <i>Hoort een ruimte bij de verwarmde zone?</i></li><li><b>Check object</b> – per schema aangeven of het van toepassing is en ze daarna achter elkaar doorlopen.</li></ul>'},
-  {at:'#bs-add',t:'3. Ruimten doorlopen',b:'Voeg een ruimte toe, kies de soort en beantwoord de vragen met <b>Ja / Nee</b>. Begin bij een ruimte die grenst aan een al verwarmde ruimte.'},
-  {at:'#bs-pdf',t:'4. PDF',b:'Klik op <b>PDF voor het dossier</b>: daarin staat de gevolgde route per ruimte.'}],
+  {at:'[data-bsmode="overig"]',t:'Wat wil je uitzoeken?',b:'<ul><li><b>Beslisschema kiezen</b> – kies de opnamemethode, dan de categorie en dan het schema. Je ziet de vragen én de beslisboom.</li><li><b>Check object</b> – vul het project in (adres, woning/utiliteit, methode), geef per schema aan of het van toepassing is en loop ze daarna achter elkaar door.</li></ul>Tik na je keuze nog eens op <b>?</b> voor de uitleg van dat deel.'}],
  interp:[
   {at:'text:BCRG-databank',t:'1. Bron kiezen',b:'Kies <b>Handmatig</b>, de <b>BCRG-databank</b>, of lees een <b>BCRG-PDF</b> in. Voor een warmtepomp is er <b>+ Warmtepomp (verklaring)</b>.'},
   {at:'#ip-rows',t:'2. Waarden invullen',b:'Vul bij twee (of meer) bekende waarden X en Y in. Bij <b>gezocht</b> vul je de X in; de Y verschijnt ernaast.<br><br>Bijv. 1200 → 2500 en 1500 → 3000: bij 1350 hoort 2750.'},
   {at:'#view-interp select',t:'3. Afronden en grenzen',b:'Kies hoe de uitkomst wordt afgerond. Standaard wordt niet geëxtrapoleerd: buiten de tabel geldt de verklaring niet.'},
   {at:'#ip-pdf',t:'4. PDF',b:'Klik op <b>PDF</b> voor de onderbouwing in het dossier.'}],
  driehoek:[
-  {at:'driehoek-frame|#c_al',t:'1. Twee waarden',b:'Vul 2 waarden in: de <b>hellingshoek</b> + één maat, of <b>twee maten</b> (bijv. breedte a en hoogte b). De rest wordt berekend.'},
-  {at:'driehoek-frame|#dhShapes',t:'2. Dakvorm en maten',b:'Kies de dakvorm en de nokrichting, en vul de <b>lengte dak</b> (bouwmuur → bouwmuur) en de hoogte onder de goot in. Dan worden dakvlakken en gevels uitgerekend.'},
-  {at:'driehoek-frame|#dh3dBox',t:'3. 3D en GO',b:'Sleep om het model te draaien. Groen = vloer met hoogte ≥ 1,5 m (GO); oranje = de 1,5 m-lijn.'},
-  {at:'driehoek-frame|#dhPdf',t:'4. PDF',b:'Klik op <b>PDF voor dossier</b>: berekening, 3D-beeld en onderbouwing.'}],
+  {at:'driehoek-frame|#dhModus',t:'Driehoekmeter of Dakvormen',b:'Kies bovenaan wat je doet:<ul><li><b>Driehoekmeter</b> – hellingshoek + één maat (of twee maten) van één dakdoorsnede; met GO en PDF.</li><li><b>Dakvormen</b> – kies een van de 10 dakvormen, vul de maten in en krijg de m² per genummerd vlak.</li></ul>Tik daarna nog eens op <b>?</b> voor de uitleg van die keuze.'}],
  fundering:[
   {at:'fundering-frame|#s-adres',t:'1. Adres en BAG',b:'Typ het adres en kies uit de suggesties. Bouwjaar, gebruiksdoel, pand-ID, pandhoogte en maaiveld (m NAP) komen uit de BAG en 3DBAG; de funderingsoppervlakte wordt uit de BAG-contour berekend.'},
   {at:'fundering-frame|#s-kaart',t:'2. Funderingsviewer',b:'De officiële kaart <b>indicatieve aandachtsgebieden funderingsproblematiek</b> (RVO/KCAF) over de luchtfoto, met de cijfers van de postcode.'},
@@ -1902,10 +1894,58 @@ const HELP={
   {at:'#so-run',t:'3. Sorteren',b:'Klik op <b>Sorteer bestanden</b> en kies de map met dossiers. Niet zeker? Dan gaat het naar <b>_Controleren</b>. Er wordt nooit iets overschreven.'}],
  bronnen:[
   {at:'#view-bronnen table',t:'Geldende bronnen',b:'Overzicht van de geldende NTA 8800, ISSO 75.1 / 82.1, BRL 9500, errata, wijzigingsdocumenten en KEGO. Klik op een bron om die te openen.'},
-  {at:'#watch-card',t:'Controle op nieuws',b:'Op de achtergrond wordt elke 4 uur gecontroleerd op nieuwe KEGO-antwoorden, errata en BRL-documenten. Alleen als er iets nieuws is, zie je een melding.'},
+  {at:'#watch-card || #view-bronnen table',t:'Controle op nieuws',b:'Op de achtergrond wordt elke 4 uur gecontroleerd op nieuwe KEGO-antwoorden, errata en BRL-documenten. Alleen als er iets nieuws is, zie je een melding.'},
   {t:'Eigen documenten',b:'Documenten in de map <b>Bronnen</b> naast het dashboard werken ook zonder internet. In de online versie zijn die niet beschikbaar.'}]
 };
-function helpFor(v){return v==='mappen'?[{t:'Projectmappen aanmaken',b:'<b>1.</b> Zet de adressen in de lijst (Excel, printscreen of plakken).<br><b>2.</b> Controleer ze in de tabel.<br><b>3.</b> Kies het soort mappen en klik op <b>Maak mappen</b>.<br><br>Bij stap 3 staat een eigen <b>?</b> met de uitleg in stappen.'}].concat(MK_WT):HELP[v]||HELP.home}
+/* uitleg die meeschakelt met wat er open staat */
+const HELP_KR={
+ 'kr-ramen':[{at:'#kr-vormen',t:'1. Vorm kiezen',b:'Kies de vorm van de opening (rechthoek, boog, driehoek, trapezium …). Samengestelde vormen splits je op in deze basisvormen.'},
+  {at:'#kr-velden',t:'2. Maten',b:'Vul de maten in meters in, eventueel een omschrijving en het aantal. De tekening eronder wordt op deze maten getekend.'},
+  {at:'#kr-uit',t:'3. Uitkomst',b:'De oppervlakte met de gebruikte formule. Met <b>+ Op de lijst</b> zet je de opening op de lijst.'},
+  {at:'#kr-lijst',t:'4. Lijst en totaal',b:'Alle openingen met het totaal in m². Met het kruisje haal je een regel weg.'}],
+ 'kr-glas':[{at:'#kg-db',t:'1. Deur en glas',b:'Vul de breedte en hoogte van de deur in, en van het glas met het aantal ruiten van die maat. Weet je alleen het totale glasoppervlak, vul dan <b>Óf glas totaal (m²)</b> in.'},
+  {at:'#kg-uit',t:'2. Uitkomst',b:'Het percentage glas en het oppervlak van het dichte deel. Gebruik dit bij de keuze voor de U-waarde (beslisschema U-waarde deuren).'}],
+ 'kr-pv':[{at:'#pv-n',t:'1. Gedeelde panelen',b:'Vul het aantal panelen in dat op de hoofdmeter of een collectieve installatie zit. Wp en m² per paneel zijn optioneel. Staan niet alle aangesloten woningen in de lijst, vul dan de totale Ag in.'},
+  {at:'#pv-rows',t:'2. Woningen',b:'Zet per woning het adres en de Ag erin met <b>+ Woning</b>, of plak een lijst (adres + Ag) met <b>Lijst plakken</b>.'},
+  {at:'#pv-uit',t:'3. Verdeling',b:'Per woning het aandeel panelen (en Wp/m²) naar rato van de Ag, volgens ISSO 82.1 / 75.1 §7.4 en KEGO. Panelen met een eigen aansluiting tellen alleen voor die woning.'}],
+ 'kr-ep2':[{at:'#ep-t',t:'1. Soort gebouw',b:'Kies woning of utiliteit en vul eventueel het EP2 in (kWh/m²·jr).'},
+  {at:'#ep-rows',t:'2. Gebruiksfuncties',b:'Bij utiliteit voeg je per gebruiksfunctie de Ag toe met <b>+ Gebruiksfunctie</b>. Bij meer functies worden de grenzen naar Ag gewogen; dat is een benadering, controleer het bij twijfel.'},
+  {at:'#ep-uit',t:'3. Labelgrenzen',b:'De tabel met de grenzen per labelklasse (Regeling energieprestatie gebouwen). Met een EP2 zie je het label en hoeveel er af moet voor de volgende klasse.'}],
+ 'kr-kwh':[{at:'#ke-v',t:'Omrekenen',b:'Vul een waarde in en kies de eenheid: je ziet hem direct in kWh, MJ en GJ. 1 kWh = 3,6 MJ en 1 GJ = 1000 MJ.'}]};
+function helpBeslis(){const zie=id=>{const e=$(id);return e&&!e.hidden&&e.offsetParent!==null};
+ if(zie('bsm-check'))return[
+  {at:'#bs-addr',t:'1. Project',b:'Vul het adres in en klik op <b>Zoek</b>. Kies woning (ISSO 82.1) of utiliteit (ISSO 75.1) en de opnamemethode.'},
+  {at:'[data-bscv]',t:'2. Van toepassing?',b:'Geef per beslisschema aan of het <b>van toepassing</b> is. Met <b>Alles wat nog open staat: niet van toepassing</b> zet je de rest in één keer op nee.'},
+  {at:'[data-bsca="run"]',t:'3. Object doorlopen',b:'Loop alle schema’s die van toepassing zijn achter elkaar door met <b>Ja / Nee</b>. Met <b>Check wissen</b> begin je opnieuw.'},
+  {at:'#bs-pdf',t:'4. PDF',b:'Klik op <b>PDF voor het dossier</b>: de gevolgde route per schema. Met <b>+ Nieuw project</b> maak je alles leeg voor een volgend adres.'}];
+ if(zie('bsm-ruimte'))return[
+  {at:'#bs-add',t:'Hoort een ruimte bij de verwarmde zone?',b:'Voeg een ruimte toe, kies de soort (berging, zolder, garage, kelder, trappenhuis …) en beantwoord de vragen met <b>Ja / Nee</b> (ISSO §6.3). Begin bij een ruimte die grenst aan een al verwarmde ruimte.'}];
+ if(zie('bsm-overig')){if(document.querySelector('#bsm-overig [data-bsxv]'))return[
+  {at:'[data-bsxv]',t:'1. Vragen beantwoorden',b:'Beantwoord de vraag met <b>Ja</b> of <b>Nee</b>; de volgende vraag of de uitkomst verschijnt vanzelf. Voetnoten staan eronder.'},
+  {at:'#bsm-overig .bt',t:'2. Beslisboom',b:'Hier zie je de hele boom met de route die je hebt gekozen.'},
+  {at:'text:opnieuw',t:'3. Opnieuw of terug',b:'Met <b>opnieuw</b> wis je de antwoorden van dit schema; met <b>← Alle beslisschema’s</b> ga je terug naar de lijst.'}];
+  return[
+  {at:'[data-bsxm]',t:'1. Opnamemethode',b:'Kies eerst <b>basis</b>- of <b>detailopname</b> (of nog niet bekend), en woning of utiliteit. De lijst toont dan alleen de schema’s die daarbij horen.'},
+  {at:'#bsx-cat',t:'2. Categorie',b:'Kies een categorie (thermische zone, zonering, bouwkundig, installaties …) of laat <b>Alle categorieën</b> staan.'},
+  {at:'[data-bsx] || [data-bsxrz]',t:'3. Schema openen',b:'Klik op <b>Openen →</b> bij het schema. Op de telefoon opent het als eigen scherm.'}]}
+ return HELP.beslis}
+function helpDriehoek(){let dv=false;try{const d=$('driehoek-frame').contentDocument;dv=!!(d&&d.querySelector('#calc .box.dvmode'))}catch(e){}
+ return dv?[
+  {at:'driehoek-frame|#dhModus',t:'Dakvormen',b:'Je zit in <b>Dakvormen</b>. Met <b>Driehoekmeter</b> ga je terug naar de losse dakdoorsnede.'},
+  {at:'driehoek-frame|#kd-vormen',t:'1. Dakvorm',b:'Kies de dakvorm: lessenaar, zadel, mansarde, aangekapt, wolfseind, schild, piramide, gekoppeld (L/T), dakkapel of erker.'},
+  {at:'driehoek-frame|#kd-velden',t:'2. Maten',b:'Vul de maten in die je binnen meet (ISSO 82.1, binnenwerks). De nummers achter elk veld laten zien voor welke vlakken die maat nodig is. Afgeleide lengtes worden zelf uitgerekend (regel <b>Uitgerekend</b>).'},
+  {at:'driehoek-frame|#kd-model',t:'3. Model',b:'Tot alle velden zijn ingevuld zie je een <b>voorbeeld</b>; daarna past het model zich aan. Sleep om te draaien en kantelen, knijp of scroll om te zoomen. <b>Standaard aanzicht</b> zet het terug.'},
+  {at:'driehoek-frame|#kd-uit',t:'4. Uitkomst',b:'De m² per genummerd vlak (dakvlakken en gevels tot de goot), de zoldervloer, de <b>GO ≥ 1,5 m</b> en het volume.'},
+  {at:'driehoek-frame|#dvPdf',t:'5. PDF',b:'Klik op <b>PDF voor dossier</b>: vlakken, GO, model en onderbouwing. In de opname-app kun je de uitkomst ook <b>overnemen</b>.'}]:[
+  {at:'driehoek-frame|#dhModus',t:'Driehoekmeter',b:'Je zit in de <b>Driehoekmeter</b>. Met <b>Dakvormen</b> kies je een hele dakvorm met m² per vlak.'},
+  {at:'driehoek-frame|#dhAdr',t:'1. Adres (optioneel)',b:'Vul het adres in voor de PDF. Bouwjaar en de hellingshoeken uit 3DBAG verschijnen in het kader.'},
+  {at:'driehoek-frame|#c_al',t:'2. Twee waarden',b:'Vul 2 waarden in: de <b>hellingshoek α</b> + één maat, of <b>twee maten</b>. a = horizontaal (½ diepte), b = hoogte <b>vloer → nok</b>, c = lengte nok → goot. De rest wordt berekend.'},
+  {at:'driehoek-frame|#dhShapes',t:'3. Dakvorm en maten',b:'Kies de dakvorm en vul de <b>lengte dak</b> (bouwmuur → bouwmuur) en de <b>opstand vloer → goot</b> in. Loopt het dak door onder de zoldervloer, vul dan <b>goot onder de vloer</b> in; de dikte zoldervloer staat op 0,20 m (ISSO).'},
+  {at:'driehoek-frame|#dh3dBox || driehoek-frame|#dh3dmsg || driehoek-frame|#dh3dBtn',t:'4. 3D en GO',b:'Sleep om het model te draaien, knijp om te zoomen; op de telefoon open je het met de 3D-knop. Groen = vloer met hoogte ≥ 1,5 m (GO); oranje = de 1,5 m-lijn.'},
+  {at:'driehoek-frame|#dhPdf',t:'5. PDF',b:'Klik op <b>PDF voor dossier</b>: berekening, 3D-beeld en onderbouwing. Met <b>Wissen</b> begin je opnieuw.'}]}
+function helpKlein(){const c=[...document.querySelectorAll('#view-klein .kr-card')].find(c=>!c.hidden&&c.offsetParent!==null);const st=c&&HELP_KR[c.id];
+ return st?[...st,{at:'.kr-terug',t:'Terug naar het overzicht',b:'Met <b>← Alle rekenhulpen</b> ga je terug naar de knoppen.'}]:HELP.klein}
+function helpFor(v){if(v==='klein')return helpKlein();if(v==='beslis')return helpBeslis();if(v==='driehoek')return helpDriehoek();return v==='mappen'?[{t:'Projectmappen aanmaken',b:'<b>1.</b> Zet de adressen in de lijst (Excel, printscreen of plakken).<br><b>2.</b> Controleer ze in de tabel.<br><b>3.</b> Kies het soort mappen en klik op <b>Maak mappen</b>.<br><br>Bij stap 3 staat een eigen <b>?</b> met de uitleg in stappen.'}].concat(MK_WT):HELP[v]||HELP.home}
 $('top-help').addEventListener('click',()=>{const v=typeof curView!=='undefined'?curView:'home';helpOpen(helpFor(v),TITLES[v]||'Dashboard')});
 document.querySelectorAll('.tile[data-open]').forEach(t=>{const v=t.dataset.open;if(!helpFor(v)||v==='home')return;
  const q=document.createElement('span');q.className='tile-help';q.textContent='?';q.title='Uitleg';q.setAttribute('role','button');q.setAttribute('aria-label','Uitleg '+(TITLES[v]||''));q.tabIndex=0;
