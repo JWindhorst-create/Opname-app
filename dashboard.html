@@ -3863,7 +3863,7 @@ function ofEpaBuild(B){
     '-',['Leidinglengte tapwater',['≤ 3 M','> 3 M']],['Circulatieleiding','circ'],['Sport- / zwemzaal','sport'],
     ['@Doorvoeren (standleidingen, HWA, VWA)'],['Doorvoeren aanwezig',['Ja','Nee','Onbekend']],['Aantal door therm. schil','n']]
    :[['@Tapwater'],['Systeem keuken',SYS],['Systeem badkamer',SYS],
-    '-',['Toestel tapwater',['Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Afleverset']],['Gaskeur',['Met','Zonder','Gaskeur HR & CW','Onbekend']],['CW-klasse',['Onbekend','1','2','3','4/5/6']],['Type + inhoud vat','vat'],['Boiler aanwezig','boiler'],
+    '-',['Toestel badkamer',['Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Afleverset']],['Toestel keuken',['Zelfde als badkamer','Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Afleverset']],['Gaskeur',['Met','Zonder','Gaskeur HR & CW','Onbekend']],['CW-klasse',['Onbekend','1','2','3','4/5/6']],['Type + inhoud vat','vat'],['Boiler aanwezig','boiler'],
     '-',['Douche-WTW','dwtw'],
     '-',['Leidinglengte KK',LL],['Leidinglengte BK',LL],['Bouwlagen rekenzone','n'],
     ['@Doorvoeren (standleidingen, HWA, VWA)'],['Doorvoeren aanwezig',['Ja','Nee','Onbekend']],['Aantal door therm. schil','n']];
@@ -3906,7 +3906,7 @@ function ofEpaBuild(B){
   p.lab(o+4,'A','A','Hellingshoek');p.parts(o+4,'B','C',[{o:['Horizontaal'],on:ofDakType()==='Plat dak'?'Horizontaal':''},{s:'of'},{f:'*',n:1,v:ofDakHelling()},{s:'graden'}]);
   p.sub(o+5,'A','C','Vloer:');
   p.lab(o+6,'A','A','Vloer aanwezig');p.opt(o+6,'B','B',['Ja','Nee']);p.parts(o+6,'C','C',[{s:'Perimeter:'},{f:'*',n:1}]);
-  p.lab(o+7,'A','A','Vloer grenst aan:');p.opt(o+7,'B','C',['Kruipruimte','Grond','Buitenlucht','AOR','AOS','Water','Kelder']);
+  p.lab(o+7,'A','A','Vloer grenst aan:');p.opt(o+7,'B','C',['Kruipruimte','Grond','Buitenlucht','AOR','AOS','Water','Kelder','Garage']);
   p.lab(o+8,'A','A','Vloerhoogte t.o.v. MV');p.val(o+8,'B','C','',{num:1});
   p.lab(o+9,'A','A','Kruipluik te openen:');p.opt(o+9,'B','C',JN);
   // per onderdeel twee regels: isolatie, daaronder dikte/jaar en luchtspouw
