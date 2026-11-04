@@ -649,6 +649,20 @@ body.v-opname{background-image:none!important}
  .pg0 .eside .epg:has(.eps){flex:1 1 100%}
  .pg0 .eside .epg .ei.ein{flex:0 0 78px;width:78px}
 }
+
+/* opnameformulier kozijnen: kaarten op de telefoon */
+.kz-cards{display:grid;gap:10px}
+.kz-card.ec{display:block;border:1px solid #dde5df;border-radius:10px;padding:10px;background:#fff}
+.kz-card .kz-h,.kz-card .kz-row{display:grid;grid-template-columns:100px 1fr 1fr;gap:8px;align-items:center;padding:4px 0}
+.kz-card .kz-h{grid-template-columns:100px 1fr;border-bottom:1px solid #edf1ee;padding-bottom:8px;margin-bottom:4px}
+.kz-card .kz-h .kz-l{font-weight:700;color:#1d4a37}
+.kz-card .kz-l{font-size:13px;color:#3d4a43}
+.kz-card .kz-m{display:flex;align-items:center;gap:6px;font-size:13px;color:#55615a}
+.kz-card .kz-m .ei{flex:1;min-width:0}
+.kz-card .ec .ei,.kz-card .ei{width:100%;border:1px solid #d5ddd8;border-radius:6px;background:#fafcfb;padding:5px 8px;font:inherit;font-size:14px;color:#14306e;font-weight:600;height:38px;box-sizing:border-box}
+.kz-card .kz-opt{grid-template-columns:100px 1fr}
+.kz-card .eos{display:grid!important;grid-template-columns:repeat(4,1fr);gap:5px;width:100%}
+.kz-card .eo{width:100%;min-height:36px;font-size:12.5px!important;text-align:center!important;justify-content:center;display:flex;align-items:center;padding:2px!important}
 </style>
 </head>
 <body>
@@ -3985,6 +3999,16 @@ function ofCellHtml(c){const inp=(k,d)=>'<input class="ei" data-k="'+k+'" value=
   case'notes':return['en','<textarea class="ei" rows="4" data-k="'+c.key+'" placeholder="Aantekeningen / opmerkingen">'+esc(ofGet(c.key,''))+'</textarea>'+(c.etage?'<div class="etage">'+[1,2].map(i=>'<label>Etage '+inp(c.key+'_e'+i,'')+'</label><label>H = '+inp(c.key+'_h'+i,'')+'</label>').join('')+'</div>':'')]}return['','']}
 const ofClosed=new Set();
 const ofSec=(id,title,inner)=>'<details class="esec" data-sec="'+esc(id)+'"'+(ofClosed.has(id)?'':' open')+'><summary class="efull ec eb">'+esc(title)+'</summary><div class="esec-body">'+inner+'</div></details>';
+const ofSmall=()=>window.matchMedia('(max-width:700px)').matches;
+function ofKozCards(kp){const ZW=['KNIK','UITV','SCR','JAL','RL','VZ','GW'],KLR=['DK','WIT','OV','ON'],h=c=>ofCellHtml(c)[1];let out='<div class="kz-cards">';
+ for(let i=0;i<12;i++){const r=6+i,k=c=>'p'+kp+'_'+r+c,v=c=>h({k:'val',key:k(c),d:''});
+  out+='<div class="kz-card ec"><div class="kz-h"><span class="kz-l">Kozijn '+(i+1)+'</span>'+v('A')+'</div>'+
+   '<div class="kz-row"><span class="kz-l">Overstek</span><label class="kz-m">H'+v('B')+'</label><label class="kz-m">L'+v('C')+'</label></div>'+
+   '<div class="kz-row"><span class="kz-l">Zijbelemmering</span><label class="kz-m">B'+v('D')+'</label><label class="kz-m">L'+v('E')+'</label></div>'+
+   '<div class="kz-row kz-opt"><span class="kz-l">Zonwering</span>'+h({k:'opt',key:k('F'),o:ZW,d:''})+'</div>'+
+   '<div class="kz-row kz-opt"><span class="kz-l">Kleur</span>'+h({k:'opt',key:k('G'),o:KLR,d:''})+'</div></div>'}
+ return out+'</div>'}
+try{let ofWasSmall=ofSmall();window.matchMedia('(max-width:700px)').addEventListener('change',()=>{const n=ofSmall();if(n!==ofWasSmall){ofWasSmall=n;if(document.getElementById('of-form')&&document.getElementById('of-form').innerHTML)ofRender()}})}catch(e){}
 function ofRender(){const pages=ofCollect();
  const side=s=>!s?'<div class="eside empty"></div>':'<div class="eside c'+s.ws.length+'" style="grid-template-columns:'+(s.scr||s.ws.map(w=>w+'fr')).join(' ')+';grid-template-rows:'+Array.from({length:s.rows},(_,i)=>{const r=i+1,cs=s.cells.filter(c=>c.rr<=r&&c.rr+c.n-1>=r);return!cs.length?'14px':cs.some(c=>c.rr===r&&(c.k==='bar'||c.k==='sub'))?'auto':'minmax(34px,auto)'}).join(' ')+' 1fr">'+s.cells.map(c=>{const [cls,h]=ofCellHtml(c);return'<div class="ec '+cls+'" style="grid-row:'+c.rr+(c.n>1?' / span '+c.n:'')+';grid-column:'+(c.ca+1)+' / '+(c.cb+2)+'">'+h+'</div>'}).join('')+'</div>';
  $('of-form').innerHTML=pages.map((pg,pi)=>{const secs=[];let cur={id:'p'+pi+'_start',title:pi?'':'Project- en gebouwgegevens',html:''};
@@ -3992,6 +4016,7 @@ function ofRender(){const pages=ofCollect();
    if(bl.full&&bl.full.k==='notes'&&!cur.title){cur.title='Aantekeningen'}
    if(bl.full){const [cls,h]=ofCellHtml(bl.full);cur.html+='<div class="efull ec '+cls+'">'+h+'</div>'}else cur.html+=bl.wide?'<div class="eband wide">'+side(bl.L)+'</div>':'<div class="eband">'+side(bl.L)+side(bl.R)+'</div>'});
   if(cur.html)secs.push(cur);
+  if(pi>=2&&ofSmall()){const ks=secs.find(x=>/^Kozijnen/.test(x.title||''));if(ks)ks.html=ofKozCards(pi+1)}
   if(pi>=2){secs.unshift({id:'p'+pi+'_schets',title:(of.sk[pi-2]&&of.sk[pi-2].title)||'Schets / plattegrond',html:'<div class="sk-first of-skbox" data-sk="'+(pi-2)+'"></div>'})}
   return'<div class="epa-page pg'+pi+'"><div class="epa-title"><span>'+esc(pg.title)+'</span>'+(document.querySelector('.topbar img')?'<img class="epa-logo" src="'+document.querySelector('.topbar img').src+'" alt="">':'')+'</div><div class="epa-body">'+secs.map(s=>s.title?ofSec(s.id,s.title,s.html):s.html).join('')+'</div></div>'}).join('');ofRenderSk()}
 $('of-mainx').addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('esec'))return;d.open?ofClosed.delete(d.dataset.sec):ofClosed.add(d.dataset.sec)},true);
