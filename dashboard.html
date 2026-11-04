@@ -3775,31 +3775,32 @@ let of={addr:null,bag:null,vals:{},defs:{},sk:[{title:'Schets / plattegrond',img
 // elke start begint met een leeg formulier (geen gegevens van een eerdere zoekopdracht)
 try{localStorage.removeItem(OF_KEY)}catch(e){}
 function ofSave(){try{localStorage.setItem(OF_KEY,JSON.stringify({vals:of.vals,addr:of.addr,bag:of.bag,geo:of.geo,gevel:of.gevel,sk:of.sk.map(s=>({t:s.title,n:s.note||''}))}))}catch(e){}}
+const ofOpnDef=D=>{const bj=parseInt(String(ofGet('p1_3G',D&&D.bj)).replace(/\D/g,''),10);return bj>=2021?'Detail':'Basis'};
 const ofGet=(k,d)=>Object.prototype.hasOwnProperty.call(of.vals,k)?of.vals[k]:(d==null?'':String(d));
 
 // ---------- formulier (één indeling voor scherm en PDF) ----------
 function ofAuto(){const a=of.addr||{},b=of.bag||{},full=a.weergavenaam||'';
  const straat=a.straatnaam?(a.straatnaam+' '+(a.huisnummer??'')+(a.huisletter||'')+(a.huisnummertoevoeging?'-'+a.huisnummertoevoeging:'')).trim():full.split(',')[0]||'';
  const plaats=a.woonplaatsnaam||(full.split(',')[1]||'').replace(/^\s*\d{4}\s?[A-Z]{2}\s*/,'').trim();
- return{straat,plaats,h3d:of.h3d||'',bj:b.bouwjaar||'',go:b.opp!=null&&b.opp!==''?b.opp+' m2':'',type:b.doel?(/woonfunctie/i.test(b.doel)&&!/,/.test(b.doel)?'WONING':'BOG'):''}}
+ return{straat,plaats,h3d:of.h3d||'',bj:b.bouwjaar||'',go:b.opp!=null&&b.opp!==''?b.opp+' m2':'',type:b.doel?(/woonfunctie/i.test(b.doel)&&!/,/.test(b.doel)?'WONING':'UTILITEIT'):''}}
 function ofEpaBuild(B){
  const D=ofAuto(),JN=['Ja','Nee'],ISO=['Ja','Nageïsoleerd','Nee','Onbekend'],SYS=['Individueel','Collectief','Derden'],OR=['Z','ZW','W','NW','N','NO','O','ZO'],LL=['0-2','2-4','4-6','6-8','8-10','10-12','12-14','>14'];
  // ===== blad 1 =====
  {const p=B.page(1,[37.7,15.5,28.2,2.7,26.7,20.2,17.5,36.2],4.15,'Opnameformulier EPA',[27,16,31,2,22,21,21,42],['fit-content(230px)','16fr','31fr','14px','fit-content(230px)','21fr','21fr','42fr']);
   p.bar(2,'A','C','Projectgegevens');p.bar(2,'F','H','Gebouwgegevens');
-  p.lab(3,'A','A','Type object');p.opt(3,'B','C',['WONING','BOG'],D.type);
+  p.lab(3,'A','A','Type object');p.opt(3,'B','C',['WONING','UTILITEIT'],D.type);
   p.lab(4,'A','A','Adres');p.val(4,'B','C',D.straat);p.lab(5,'A','A','Plaats');p.val(5,'B','C',D.plaats);
   p.lab(6,'A','A','Opnamedatum');p.val(6,'B','C','');p.lab(7,'A','A','Opnemer');p.opt(7,'B','C',['T. Dollee','J. Windhorst']);
   p.lab(8,'A','A','Totaal GO:');p.val(8,'B','B','',{num:1});p.parts(8,'C','C',[{s:'GO BAG:'},{f:'*',v:D.go,n:1}]);
   p.lab(3,'F','F','Bouwjaar:');p.val(3,'G','G',D.bj,{num:1});p.parts(3,'H','H',[{s:'Renovatiejaar:'},{f:'*',n:1}]);
-  if(ofGet('p1_3B',D.type)==='BOG'){p.lab(4,'F','F','Gebruik:');p.opt(4,'G','H',['Eigenaar-gebruiker','Verhuurd','(Deels) leegstand'],'',{key:'u_geb'})}else{p.lab(4,'F','F','Woonsituatie:');p.opt(4,'G','H',['Huurder particulier','Huurder sociaal','Eigenaar'])}
+  if(ofGet('p1_3B',D.type)==='UTILITEIT'){p.lab(4,'F','F','Gebruik:');p.opt(4,'G','H',['Eigenaar-gebruiker','Verhuurd','(Deels) leegstand'],'',{key:'u_geb'})}else{p.lab(4,'F','F','Woonsituatie:');p.opt(4,'G','H',['Huurder particulier','Huurder sociaal','Eigenaar'])}
   p.lab(5,'F','F','Gebouwhoogte:');p.val(5,'G','H',D.h3d,{num:1});
   p.sub(6,'F','H','Bouwwijze (NTA 8800 / ISSO 75.1):');
   p.lab(7,'F','F','Type vloeren');p.opt(7,'G','H',['Licht','Zwaar','Zeer zwaar'],'',{key:'m_vl'});
   p.lab(8,'F','F','Type wanden');p.opt(8,'G','H',['Licht','Zwaar','Zeer zwaar'],'',{key:'m_wa'});
   p.lab(9,'F','F','(Zeer) zware vloer met lichter plafond');p.opt(9,'G','H',['Ja','Nee'],'',{key:'m_pl'});
   p.txt(10,'F','H','Vloer: licht = hout/hsb/binnen geïsoleerd · zwaar = kanaalplaat/staal-beton · zeer zwaar = massief beton. Wand: licht = hsb/staal/binnen geïsoleerd · zwaar = metselwerk/kolom-ligger · zeer zwaar = beton wand-vloer');
-  if(ofGet('p1_3B',D.type)==='BOG'){p.sub(11,'F','H','Gebouwtype utiliteit:');
+  if(ofGet('p1_3B',D.type)==='UTILITEIT'){p.sub(11,'F','H','Gebouwtype utiliteit:');
    p.lab(12,'F','F','Opname');p.opt(12,'G','H',['Geheel gebouw','Deel van gebouw (unit)'],'',{key:'u_opn'});
    p.lab(13,'F','F','Bouwlagen gebouw');p.opt(13,'G','H',['Eenlaags','Meerlaags'],'',{key:'u_lagen'});
    p.lab(14,'F','F','Ligging gebouw');p.opt(14,'G','H',['Vrijstaand','Aangebouwd / tussenligging'],'',{key:'u_lig'});
@@ -3812,13 +3813,14 @@ function ofEpaBuild(B){
   p.lab(16,'F','F','Ligging horizontaal');p.opt(16,'G','H',['Hoek','Tussen'],'',{key:'w_ah'});
   p.lab(17,'F','F','Ligging verticaal');p.opt(17,'G','H',['Vloer (onderste)','Tussen','Dak (bovenste)','Dak + vloer'],'',{key:'w_av'});}
   // overige algemene gegevens (NTA 8800)
-  {const U=ofGet('p1_3B',D.type)==='BOG',J2=['Ja','Nee'];
-   p.sub(9,'A','C','Overige algemene gegevens:');
-   p.lab(10,'A','A','Aantal bouwlagen');p.val(10,'B','C','',{num:1});
-   p.lab(11,'A','A','Fossiele brandstof op perceel');p.opt(11,'B','C',['Nee','Aardgas','Propaan','Butaan','Olie'])}
-  p.compass(12,15,'A','C');
+  {const U=ofGet('p1_3B',D.type)==='UTILITEIT',J2=['Ja','Nee'];
+   p.lab(9,'A','A','Opname');p.opt(9,'B','C',['Basis','Detail'],ofOpnDef(D),{key:'opn_m'});
+   p.sub(10,'A','C','Overige algemene gegevens:');
+   p.lab(11,'A','A','Aantal bouwlagen');p.val(11,'B','C','',{num:1});
+   p.lab(12,'A','A','Geen fossiele brandstof op perceel');p.opt(12,'B','C',['Ja'],'',{key:'fossiel'})}
+  p.compass(13,16,'A','C');
   // ===== Installaties – volgorde zoals de invoer in Vabi: ventilatie, verwarming, tapwater, koeling, zonne-energie =====
-  const isU=ofGet('p1_3B',D.type)==='BOG';
+  const isU=ofGet('p1_3B',D.type)==='UTILITEIT';
   const VENT=[['@Ventilatie'],['Systeem ventilatie',['Individueel','Collectief']],['Type ventilatie',['NV','MVT','MVA','Balans','Combi']],
    ...(isU?[['Regeling luchthoeveelheid',['Geen','Tijdklok','Aanwezigheid','CO2 / VOC']],['Luchtbehandelingskast',['Ja','Nee']],['ZR-rooster','zr']]:[['Sturing ventilatie',['Standaard (3-standen)','Drukgestuurd','Tijdsturing','CO2-sturing']],['CO2-sensor','co2'],['ZR-rooster','zr']]),
    ['WTW aanwezig',JN],['Zo ja, type WTW',['Tegenstroom','Kruisstroom','Platen/buizen','Roterend','Anders']],...(isU?[['Rendement WTW (%)','n']]:[]),
@@ -3827,8 +3829,8 @@ function ofEpaBuild(B){
    '-',['CV-ketel aanwezig',['Ja','Nee']],['Merk en type installatie','v'],['Fabricagejaar toestel','n'],['Type CV-ketel',['CR','VR','HR100','HR104','HR107']],
    '-',['Warmtepomp aanwezig',['Ja','Nee']],['Bron warmtepomp',['Buitenlucht','Bodem','Grondwater','Ventilatielucht','Opp.water']],['Collectieve bron (°C)',['Geen','15–20','20–40','≥ 40']],['Bijstook/hybride?',['Ja','Nee']],
    '-',['Overige opwekker aanwezig',['Ja','Nee']],['Type overige opwekker',['Elektrisch','Gas-/oliekachel','Biomassa','WKK','Luchtverwarmer','Externe levering']],
-   '-',['Ontwerptemperatuur','temp'],['Aanvoertemperatuur',['Stooklijn','Constant']],['Pijpsysteem',['1-Pijps','2-Pijps','Gerenoveerd 1-pijps']],['Binnen thermische schil?',JN],['Leidingen geïsoleerd',['Ja','Nee','Onbekend']],['Leidingen in onverwarmde ruimte','aor'],['Bouwlagen met leidingen','n'],['Aantal warmtemeters','n'],...(isU?[['GACS (> 290 kW)',['Ja','Nee','N.v.t.']]]:[]),
-   '-',['Afgiftesysteem',['Radiatoren','Vloerverwarming','Wand/plafond','Ventilatorconvector','Luchtverwarming','Straling']],['Opstelling radiatoren',['Binnenwand','Buitenwand','Voor raam']],...(isU?[]:[['Radiatoren (bij 1-pijps)','n']]),['Regeling',['Kamerthermostaat','Centraal + naregeling','Per ruimte','Overig']]];
+   '-',['Ontwerptemperatuur','temp'],['Pijpsysteem',['1-Pijps','2-Pijps','Gerenoveerd 1-pijps']],['Binnen thermische schil?',JN],['Leidingen geïsoleerd',['Ja','Nee','Onbekend']],['Leidingen in onverwarmde ruimte','aor'],['Bouwlagen met leidingen','n'],['Aantal warmtemeters','n'],...(isU?[['GACS (> 290 kW)',['Ja','Nee','N.v.t.']]]:[]),
+   '-',['Afgiftesysteem',['Radiatoren','Vloerverwarming','Wand/plafond','Ventilatorconvector','Luchtverwarming','Straling']],['Opstelling radiatoren (1-pijps)',['Binnenwand','Buitenwand','Voor raam']],...(isU?[]:[['Radiatoren (bij 1-pijps)','n']]),['Regeling',['Kamerthermostaat','Centraal + naregeling','Per ruimte','Overig']]];
   const TAP=isU?[['@Tapwater (ISSO 75.1)'],['Systeem tapwater',SYS],['Meerdere tapwatersystemen','msys'],
     '-',['Toestel tapwater',['Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Doorstromer']],['Gaskeur',['Met','Zonder','Gaskeur HR','Onbekend']],['Type + inhoud vat','vat'],
     '-',['Douche-WTW','dwtw'],['Douches totaal / DWTW','bk'],
@@ -3888,7 +3890,7 @@ function ofEpaBuild(B){
   p.sep(o+12,'E','H');p.lab(o+12,'E','E','Bodem kruipruimte');p.opt(o+12,'F','H',['Geïsoleerd','Niet geïsoleerd','Onbekend']);
   p.lab(o+13,'E','E','');p.parts(o+13,'F','H',[{s:'Dikte (mm):'},{f:'*',n:1}]);
   e=o+14}
-  if(ofGet('p1_3B',D.type)==='BOG'){const J2=['Ja','Nee'];p.bar(e,'A','H','Utiliteit (ISSO 75.1)');p.sub(e+1,'A','C','Gebruiksfuncties (Ag in m2)');p.sub(e+1,'E','H','Verlichting');
+  if(ofGet('p1_3B',D.type)==='UTILITEIT'){const J2=['Ja','Nee'];p.bar(e,'A','H','Utiliteit (ISSO 75.1)');p.sub(e+1,'A','C','Gebruiksfuncties (Ag in m2)');p.sub(e+1,'E','H','Verlichting');
    const GF=[['Kantoor','Winkel'],['Gezondheidszorg 2A (klinisch)','Gezondheidszorg 2B (overig)'],['Bijeenkomst 3A (kinderopvang)','Bijeenkomst 3B (overig)'],['Logies','Onderwijs'],['Sport','Cel']];
    GF.forEach(([a,b],i)=>{p.lab(e+2+i,'A','A',a);p.parts(e+2+i,'B','C',[{f:'*',n:1},{s:'m2'},{s:b+':'},{f:'*',n:1},{s:'m2'}])});
    const V=[['Lichtbron (overwegend)',['LED','TL5','HF-TL','Spaarlamp','Halogeen','Gloeilamp','Onbekend']],['Aanwezigheids-regeling',['Geen','Handm. aan / auto uit','Auto aan / uit','Veegschakeling']],['Daglichtregeling',['Geen','Schakeling','Dimming','Onbekend']],['Bevochtiging','bev']];
@@ -3967,7 +3969,8 @@ function ofRender(){const pages=ofCollect();
   if(pi>=2){secs.unshift({id:'p'+pi+'_schets',title:(of.sk[pi-2]&&of.sk[pi-2].title)||'Schets / plattegrond',html:'<div class="sk-first of-skbox" data-sk="'+(pi-2)+'"></div>'})}
   return'<div class="epa-page"><div class="epa-title"><span>'+esc(pg.title)+'</span>'+(document.querySelector('.topbar img')?'<img class="epa-logo" src="'+document.querySelector('.topbar img').src+'" alt="">':'')+'</div><div class="epa-body">'+secs.map(s=>s.title?ofSec(s.id,s.title,s.html):s.html).join('')+'</div></div>'}).join('');ofRenderSk()}
 $('of-mainx').addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('esec'))return;d.open?ofClosed.delete(d.dataset.sec):ofClosed.add(d.dataset.sec)},true);
-$('of-form').addEventListener('input',e=>{const k=e.target.dataset.k;if(k){of.vals[k]=e.target.value;ofSave()}});
+$('of-form').addEventListener('input',e=>{const k=e.target.dataset.k;if(k){of.vals[k]=e.target.value;ofSave()}
+ if(k==='p1_3G'&&!Object.prototype.hasOwnProperty.call(of.vals,'p1_opn_m')){const nv=ofOpnDef(ofAuto());of.defs['p1_opn_m']=nv;document.querySelectorAll('#of-form .eo[data-k="p1_opn_m"]').forEach(x=>x.classList.toggle('on',x.dataset.v===nv))}});
 $('of-form').addEventListener('click',e=>{const b=e.target.closest('.eo');if(!b)return;const k=b.dataset.k,v=b.dataset.v,nv=ofGet(k,of.defs[k])===v?'':v;of.vals[k]=nv;document.querySelectorAll('#of-form .eo[data-k="'+k+'"]').forEach(x=>x.classList.toggle('on',x.dataset.v===nv));ofSave();if(k==='p1_3B')ofRender()});
 
 // ---------- gevelorientatie (BAG-pand, kaart, windroos) ----------
@@ -4291,7 +4294,7 @@ async function ofMakePdf(){
   try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js')}catch(e){}elnDosFinish(doc,T);
   const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(120);doc.text('Pagina '+i+' van '+n,W-M,H-5,{align:'right'})}
   const clean=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]+/gi,'_').replace(/^_+|_+$/g,'');
-  const type=ofGet('p1_3B',D.type)==='BOG'?'utiliteit':'woning';
+  const type=ofGet('p1_3B',D.type)==='UTILITEIT'?'utiliteit':'woning';
   doc.save('04_Opnameformulier_'+type+'_'+(adr?clean(adr):'leeg')+'.pdf');msg('of-msg','Opnameformulier opgeslagen ('+n+' pagina\'s).','ok');
  }catch(e){console.error(e);msg('of-msg','PDF maken is niet gelukt: '+esc(e.message),'err')}
  finally{btn.disabled=false;btn.textContent='Maak opnameformulier (PDF)'}
