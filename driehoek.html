@@ -65,11 +65,11 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 #calc input.calc,#kapel input.calc{background:var(--acc2);color:var(--acc);font-weight:600;border-color:transparent}
 #calc input.user,#kapel input.user{border:2px solid var(--acc)}
 #calc .cmsg{font-size:14px;color:var(--muted);min-height:20px;margin-top:8px}#calc .cmsg.err{color:var(--warn);font-weight:600}
-#dhShapes{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0 0 4px}
+#dhShapes{display:grid;grid-template-columns:repeat(5,1fr);row-gap:4px;gap:4px;margin:0 0 4px}
 #dhShapes button small{display:block;font-size:9.5px;font-weight:500;opacity:.8;margin-top:-2px}
 #dhShapes button{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:5px 1px;font-size:10.5px;font-weight:600;line-height:1.15;display:flex;flex-direction:column;align-items:center;gap:2px}
 #dhShapes button svg{width:36px;height:22px;background:none}
-#dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
+#cX .dhx-rel{display:inline-flex;gap:2px;vertical-align:middle}#cX .dhx-rel i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid #17463a;background:#fff;font-size:10px;font-weight:700;color:#17463a}#dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
 #dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
 .dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}#cDuKant button{flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#dhAdrKader{margin-top:6px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:7px 10px;background:#f8fbf9;font-size:12.5px;line-height:1.45;color:var(--muted,#5d6e63)}#dhAdrKader .dhhel{margin-top:3px;gap:5px}#dhAdrKader .dhchip{font-size:12.5px;padding:2px 9px}#dhAdrKader .note{font-size:12.5px;margin:2px 0 0}#dhAdrKader .dhal{margin-top:4px}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
 </head>
@@ -93,12 +93,13 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div class="cmsg" id="cmsg"></div>
 <div id="c15" hidden style="margin-top:8px;padding:10px;border-radius:10px;background:#fdf1e6;border:1px solid #f2cfa9;font-size:14px;line-height:1.5"></div>
 <label style="margin-top:12px">Dakvorm</label>
-<div id="dhShapes"><button type="button" data-s3="zadel" class="on"><svg viewBox="0 0 44 28"><polygon points="4,24 16,6 28,6 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="16" y1="6" x2="22" y2="24" stroke="#17463a" stroke-width="1.2"/></svg>Zadeldak<small>symmetrisch</small></button><button type="button" data-s3="mansarde"><svg viewBox="0 0 44 28"><polygon points="4,24 9,12 18,5 26,5 35,12 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="9" y1="12" x2="35" y2="12" stroke="#17463a" stroke-width="1.2"/></svg>Mansardedak</button><button type="button" data-s3="lessenaar"><svg viewBox="0 0 44 28"><polygon points="4,24 34,6 40,6 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/></svg>Lessenaarsdak</button><button type="button" data-s3="tent"><svg viewBox="0 0 44 28"><polygon points="6,24 22,4 38,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="22" y1="4" x2="22" y2="24" stroke="#17463a" stroke-width="1.2"/></svg>Piramidedak</button><button type="button" data-s3="schild"><svg viewBox="0 0 44 28"><polygon points="4,24 14,8 30,8 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="14" y1="8" x2="10" y2="24" stroke="#17463a" stroke-width="1.2"/><line x1="30" y1="8" x2="34" y2="24" stroke="#17463a" stroke-width="1.2"/></svg>Schilddak</button></div>
+<div id="dhShapes"><button type="button" data-s3="zadel" class="on"><svg viewBox="0 0 44 28"><polygon points="4,24 16,6 28,6 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="16" y1="6" x2="22" y2="24" stroke="#17463a" stroke-width="1.2"/></svg>Zadeldak<small>symmetrisch</small></button><button type="button" data-s3="mansarde"><svg viewBox="0 0 44 28"><polygon points="4,24 9,12 18,5 26,5 35,12 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="9" y1="12" x2="35" y2="12" stroke="#17463a" stroke-width="1.2"/></svg>Mansardedak</button><button type="button" data-s3="lessenaar"><svg viewBox="0 0 44 28"><polygon points="4,24 34,6 40,6 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/></svg>Lessenaarsdak</button><button type="button" data-s3="tent"><svg viewBox="0 0 44 28"><polygon points="6,24 22,4 38,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="22" y1="4" x2="22" y2="24" stroke="#17463a" stroke-width="1.2"/></svg>Piramidedak</button><button type="button" data-s3="schild"><svg viewBox="0 0 44 28"><polygon points="4,24 14,8 30,8 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><line x1="14" y1="8" x2="10" y2="24" stroke="#17463a" stroke-width="1.2"/><line x1="30" y1="8" x2="34" y2="24" stroke="#17463a" stroke-width="1.2"/></svg>Schilddak</button><button type="button" data-s3="aangekapt"><svg viewBox="0 0 44 28"><polygon points="2,24 8,20 16,6 28,6 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/></svg>Aangekapt</button><button type="button" data-s3="wolf"><svg viewBox="0 0 44 28"><polygon points="4,24 14,8 30,8 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><polygon points="30,8 36,12 40,24" fill="#8f3a28" stroke="#17463a" stroke-width="1.2"/></svg>Wolfseind</button><button type="button" data-s3="gekoppeld"><svg viewBox="0 0 44 28"><polygon points="2,24 12,8 22,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><polygon points="18,24 30,6 42,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/></svg>Gekoppeld<small>L / T</small></button><button type="button" data-s3="dakkapel"><svg viewBox="0 0 44 28"><polygon points="4,24 22,4 40,24" fill="#b5523b" stroke="#17463a" stroke-width="1.5" stroke-linejoin="round"/><rect x="15" y="13" width="14" height="7" fill="#fff" stroke="#17463a" stroke-width="1.2"/></svg>Dakkapel</button></div>
 <div id="cMan" hidden style="margin-top:6px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)">
 <div class="note" style="margin-bottom:2px"><b>Mansardedak:</b> de driehoek hierboven is het <b>bovenste</b> dakdeel (a = knik → nok). Vul hier het steile onderste dakvlak in.</div>
 <div class="grid2"><div><label>Hoogte goot → knik (m)</label><input id="c_mh" inputmode="decimal" autocomplete="off"></div>
 <div><label>Helling onderste dakvlak (°)</label><input id="c_ma" inputmode="decimal" autocomplete="off" placeholder="bijv. 70"></div></div>
 <div class="note" id="cManRes" style="margin-top:6px"></div></div>
+<div id="cX" hidden style="margin-top:6px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)"></div>
 <div id="cNok" hidden><label>Nokrichting</label><div class="choice" id="cNokCh">
 <button type="button" data-nok="par" class="on">Evenwijdig aan voorgevel<br><small>muur → muur, gevels voor/achter</small></button>
 <button type="button" data-nok="haaks">Haaks op voorgevel<br><small>voor → achter, kopgevels voor/achter</small></button></div></div>
@@ -739,7 +740,7 @@ $('#cok').onclick=async()=>{const r=vind(DH.itemId);if(!r||!DH.res)return;const 
  const id=DH.itemId,lijst=r.lijst,base=r.it.orient||cur.orient?.voor||'',src=r.it;if(!r.it.orient&&base)zetO(r.it,base);
  for(let i=lijst.length-1;i>=0;i--)if(lijst[i].dhGroup===id)lijst.splice(i,1);
  const zetDak=(it,d)=>{it.lengte=fS(d.l);it.breedte=fS(d.b);it.breedte_x=d.corr?x:0;it.helling=d.hel||al;it.dhVorm=P.sh;it.hkGO=d.hk!=null?(d.hk?String(d.hk).replace('.',','):''):((P.sh==='zadel'||P.sh==='lessenaar')&&dhHkS()!==0?String(dhHkS()).replace('.',','):'');if(d.opm)it.opm=d.opm;else if(it.opm&&/^(Trapezium|Schild|Tentdak|Piramidedak|Mansarde)/.test(it.opm))it.opm=''};
- zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhVd=$('#c_vd').value;src.dhDuKant=DH.duKant||'beide';src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
+ zetDak(src,P.dak[0]);src.goTot=P.goTot;src.dhSrc=dhSrcObj();src.dhX=JSON.stringify(DH.x[DH.shape]||{});src.dhNok=DH.nok;src.dhHk=$('#c_hk').value;src.dhDu=$('#c_du').value;src.dhVd=$('#c_vd').value;src.dhDuKant=DH.duKant||'beide';src.dhMh=$('#c_mh').value;src.dhMa=$('#c_ma').value;
  let pos=lijst.indexOf(src)+1;
  P.dak.slice(1).forEach(d=>{const it=nieuwItem('dakvlak');['isolatie','rc','bewijs'].forEach(k=>{if(src[k]!=null)it[k]=src[k]});zetDak(it,d);zetO(it,rotO(base,d.rot));it.dhGroup=id;lijst.splice(pos++,0,it)});
  P.gev.forEach(g=>{const it=nieuwItem('gevel');it.breedte=fS(g.b);it.breedte_x=g.corr?x:0;it.hoogte=fS(g.h);const gm=gevM2(g,x);if(gm!=null)it.m2=fS(gm);it.opm=g.opm;zetO(it,rotO(base,g.rot));it.dhGroup=id;lijst.push(it)});
@@ -838,11 +839,11 @@ async function maakDriehoekPdf(){
  kop('2. Invoer (gemeten) en berekende waarden');
  const gem=DH.order.slice(-2),lab={a:DH.green?'a - horizontale maat (op vloerniveau)':'a - horizontale maat',b:'b - hoogte vloer -> nok',c:DH.green?'c - lengte dakhelling nok -> vloer':'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(DH.green?DH.green[k]:k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
-  ...(DH.green?[['Dakvlak doorlopend onder de vloer',`+ ${f2(DH.res.c-DH.green.c)} m -> totaal nok -> goot ${f2(DH.res.c)} m`]]:[]),['Dakvorm',DAKNAAM[sh]],
+  ...(DH.green?[['Dakvlak doorlopend onder de vloer',`+ ${f2(DH.res.c-DH.green.c)} m -> totaal nok -> goot ${f2(DH.res.c)} m`]]:[]),['Dakvorm',DAKNAAM[sh]],...(dhxActief()?DHX[sh].v.map(x=>[x.l||x[1],String((DH.x[sh]||{})[x.k||x[0]]??(x.o?x.o[0][1]:'-'))]):[]),
   ...(M?[['Onderste dakvlak mansarde',`hoogte goot -> knik ${f2(M.mh)} m · helling ${M.ma} graden · lengte ${f2(M.ml)} m · horizontaal ${f2(M.mx)} m`]]:[]),
   ['Lengte dak',L>0?f2(L)+' m':'niet ingevuld'],['Opstand vloer -> goot',Math.max(0,num($('#c_hk').value)||0)>0&&(hk>0||dhZijMode())?f2(num($('#c_hk').value))+' m'+(dhZijMode()?' (kant '+dhZij().N.kant+')':''):'geen'],...(hk<0?[['Dak loopt door onder zoldervloer',f2(-hk)+' m onder bovenkant zoldervloer (gemeten '+f2(num($('#c_du').value))+' m plafond verdieping -> goot + vloerdikte '+f2(-hk-num($('#c_du').value))+' m), '+(dhZijMode()?'alleen kant '+DH.duKant:'beide kanten')+'; dakvlak volledig, zoldervloer/GO/gevels alleen boven de vloer']]:[]),['Totale diepte',f2(sh==='lessenaar'?a:2*(a+(M?M.mx:0)))+' m'],['Nokhoogte boven zoldervloer',f2(H)+' m']]);
  kop('3. 1,5 m-lijn en gebruiksoppervlakte (GO)');const Zp=dhZij();
- if(Zp)tabel(Zp.vn>1.5?[['Strook >= 1,5 m kant '+Zp.D.kant,f2(Zp.D.strook)+' m (dak loopt '+f2(Zp.du)+' m door onder de vloer)'],['Strook >= 1,5 m kant '+Zp.N.kant,f2(Zp.N.strook)+' m'],['GO-breedte',f2(Zp.goB)+' m'],['Breedte zoldervloer',f2(Zp.W)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':'vul lengte dak in',true]]:[['Netto hoogte',`maximaal ${f2(Zp.vn)} m: geen GO zolder`,true]]);else
+ if(P&&P.dhx)tabel([['GO zolder (>= 1,5 m, berekend uit het dakmodel)',f2(P.goTot)+' m2',true],['Zoldervloer (hoogte > 0)',f2(P.vloer)+' m2'],['Volume onder dak',f2(P.vol)+' m3']]);else if(Zp)tabel(Zp.vn>1.5?[['Strook >= 1,5 m kant '+Zp.D.kant,f2(Zp.D.strook)+' m (dak loopt '+f2(Zp.du)+' m door onder de vloer)'],['Strook >= 1,5 m kant '+Zp.N.kant,f2(Zp.N.strook)+' m'],['GO-breedte',f2(Zp.goB)+' m'],['Breedte zoldervloer',f2(Zp.W)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':'vul lengte dak in',true]]:[['Netto hoogte',`maximaal ${f2(Zp.vn)} m: geen GO zolder`,true]]);else
  tabel(H>1.5?[['Afstand 1,5 m-lijn uit de goot (horizontaal)',f2(t)+' m'],['Strook >= 1,5 m per dakzijde',f2(st)+' m'],['GO-breedte',f2(gb)+' m'],['GO zolder (>= 1,5 m)',ok&&P.goTot!=null?f2(P.goTot)+' m2':(L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde')?f2(gb*L)+' m2':'vul lengte dak in'),true]]:[['Netto hoogte',`maximaal ${f2(H)} m: geen vloerdeel met netto hoogte >= 1,5 m -> GO zolder 0 m2`,true]]);
  if(ok){kop('4. Overzicht vlakken');const sd=P.dak.reduce((q,x)=>q+x.l*x.b,0),gv=P.gev.filter(g=>!g.vraagKant),sg=gv.reduce((q,g)=>q+(gevM2(g,0)??g.b*g.h),0);
   tabel([...P.dak.map(d=>['   '+dakNaam(P,d),`${f2(d.l*d.b)} m2 (${f2(d.l)} x ${f2(d.b)} m${d.hel?' · '+d.hel+' graden':''}${d.opm?' · '+d.opm:''})`]),['Totaal dakvlakken ('+P.dak.length+')',f2(sd)+' m2',true],...gv.map(g=>['   '+gevNaam(P,g),`${gevM2(g,0)!=null?f2(gevM2(g,0)):f2(g.b*g.h)} m2 (${f2(g.b)} x ${f2(g.h)} m · ${g.opm||''})`]),['Totaal gevelvlakken zolderniveau ('+gv.length+')',f2(sg)+' m2',true],
@@ -900,7 +901,10 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
     const R1='#b5523b', R2='#a3462f', G='#efe4cf', F='#d8c39c';
     let faces=[], lines15=[], labels=[];
     const k=b>1.5? 1.5/b : null;
-    if(sh==='mansarde'){
+    if(sh==='poly'){const PP=model.polys,xs=PP.flatMap(f=>f.p.map(p=>p[0])),ys=PP.flatMap(f=>f.p.map(p=>p[1])),xm=(Math.min(...xs)+Math.max(...xs))/2,ym=(Math.min(...ys)+Math.max(...ys))/2,T=p=>[p[1]-ym,p[2],p[0]-xm];
+      faces=PP.map((f,i)=>({p:f.p.map(T),c:f.dak?(i%2?R2:R1):G,al:f.dak?.85:1}));
+      labels=PP.map(f=>{const q=f.p.map(T),c=q.reduce((t,p)=>[t[0]+p[0]/q.length,t[1]+p[1]/q.length,t[2]+p[2]/q.length],[0,0,0]);return[c,String(f.nr),0,0]});
+    } else if(sh==='mansarde'){
       const mx=r.mx,mh=r.mh,A=a+mx,T=mh+b;
       faces=[{p:[[-A,0,-hz],[A,0,-hz],[A,0,hz],[-A,0,hz]],c:F},
         {p:[[-A,0,hz],[A,0,hz],[a,mh,hz],[0,T,hz],[-a,mh,hz]],c:G},{p:[[-A,0,-hz],[A,0,-hz],[a,mh,-hz],[0,T,-hz],[-a,mh,-hz]],c:G},
@@ -990,6 +994,7 @@ $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use)
     sh=sh||'zadel';
     if(!r){ model=null; note.style.display='flex'; render(); return; }
     note.style.display='none';
+    if(sh==='poly'&&r.polys){const al2=r.polys.flatMap(f=>f.p),ext=k=>Math.max(...al2.map(p=>p[k]))-Math.min(...al2.map(p=>p[k]));model={a:r.a,b:r.b,H:Math.max(...al2.map(p=>p[2])),L:len||1,r,len:len||1,sh,polys:r.polys,size:Math.max(ext(0),ext(1),ext(2))};render();return}
     let L;
     if(sh==='mansarde'&&!(r.mh>0&&r.ma>0)) sh='zadel';
     if(sh==='tent') L=2*r.a;
@@ -1081,6 +1086,79 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-dhal]');if
 function vlakkenPdfRijen(){const v=DH.vlakken;if(!v||!v.daken.length)return[];return[['Hellingshoek schuine daken (3DBAG)',v.daken.map(d=>RICHT8L[d.r]+' '+String(d.slope).replace('.',',')+' graden').join(' · ')]]}
 
 DH.shape='zadel';DH.duKant='beide';
+// ---------- extra dakvormen (aangekapt, wolfseind, gekoppeld, dakkapel, schild met eigen helling) ----------
+const DHX={aangekapt:{t:'Aangekapt dak',v:[['ga','Helling aankapping γ (°)'],['d','Diepte aankapping, horizontaal (m)'],{k:'kant',l:'Aankapping aan',o:[['voor','voorkant'],['achter','achterkant'],['beide','beide kanten']]}]},
+ wolf:{t:'Zadeldak met wolfseind',v:[['be','Helling wolfseind β (°)'],['hg','Vloer → bovenkant kopgevelmuur (m)'],{k:'n',l:'Wolfseinden',o:[['2','aan beide kanten'],['1','aan één kant']]}]},
+ gekoppeld:{t:'Gekoppelde daken (L/T)',v:[['al2','Helling zijtak α₂ (°)'],['h2','Vloer → nok zijtak (m)'],['L2','Lengte zijtak tot gevellijn hoofddak (m)'],['p','Hart zijtak tot zijkant hoofddak (m)']]},
+ dakkapel:{t:'Zadeldak met dakkapel',v:[['b','Breedte dakkapel (m)'],['hv','Hoogte voorzijde dakkapel (m)'],['ho','Vloer → onderkant dakkapel (m)']]},
+ schild:{t:'Schilddak',v:[['be','Helling schilden β (°) · leeg = gelijk aan α']]}};
+const DHXREL={aangekapt:{ga:/Aankapping/,d:/Aankapping/,kant:/Aankapping/},wolf:{be:/Wolfseind/,hg:/Wolfseind|Kopgevel/,n:/Wolfseind/},gekoppeld:{al2:/Zijtak/,h2:/Zijtak|zijtak|minus/,L2:/Zijtak|zijtak/,p:/minus/},dakkapel:{b:/Dakkapel|minus/,hv:/Dakkapel|minus/,ho:/Dakkapel/},schild:{be:/Schild/}};
+DH.x=(()=>{try{return JSON.parse(localStorage.getItem('dhx')||'{}')}catch(e){return{}}})();
+const dhxBewaar=()=>{try{localStorage.setItem('dhx',JSON.stringify(DH.x))}catch(e){}};
+const dhxV=k=>{const o=(DH.x[DH.shape]||{});const def=(DHX[DH.shape]?.v||[]).find(x=>x.k===k);return o[k]??(def?def.o[0][0]:null)};
+function dhxActief(){const sh=DH.shape;if(sh==='schild')return num(dhxV('be'))>0&&Math.abs(num(dhxV('be'))-(DH.res?.al||0))>0.05;return['aangekapt','wolf','gekoppeld','dakkapel'].includes(sh)}
+function dhxFaces(){const sh=DH.shape,r=DH.res,R=Math.PI/180,al=r.al,h=r.b,L=num($('#c_L').value),q=k=>num(dhxV(k)),fs=[],err=[];const D=(n,p,t,extra)=>fs.push({n,p,t,extra});const tg=a=>Math.tan(a*R),P=(x,y,z)=>[x,y,z],a=h/tg(al);
+ if(!(L>0))return{err:'Vul de lengte van het dak in.'};
+ if(sh==='aangekapt'){const ga=q('ga'),d=q('d'),k=dhxV('kant');if(!(ga>0&&d>0))return{fatal:'Vul helling en diepte van de aankapping in.'};if(ga>=al)err.push('De aankapping is flauwer dan het hoofddak (γ < α).');const dr=d*tg(ga);
+  D('Dakvlak voor',[P(0,0,0),P(L,0,0),P(L,a,h),P(0,a,h)],'dak');D('Dakvlak achter',[P(0,2*a,0),P(L,2*a,0),P(L,a,h),P(0,a,h)],'dak');
+  if(k!=='achter')D('Aankapping voor',[P(0,-d,-dr),P(L,-d,-dr),P(L,0,0),P(0,0,0)],'dak');
+  if(k!=='voor')D('Aankapping achter',[P(0,2*a,0),P(L,2*a,0),P(L,2*a+d,-dr),P(0,2*a+d,-dr)],'dak');
+  D('Kopgevel links',[P(0,0,0),P(0,a,h),P(0,2*a,0)],'gevel');D('Kopgevel rechts',[P(L,0,0),P(L,a,h),P(L,2*a,0)],'gevel')}
+ else if(sh==='wolf'){const be=q('be'),hg=q('hg'),n=+dhxV('n');if(!(be>0&&hg>0))return{fatal:'Vul helling wolfseind en hoogte kopgevelmuur in.'};if(!(hg<h))err.push('Bovenkant kopgevelmuur moet lager zijn dan de nok.');
+  const hw=h-hg,w=hw/tg(al),dw=hw/tg(be);if(dw*n>=L)err.push('De wolfseinden zijn te diep voor deze daklengte.');const e1=n===2?dw:0;
+  D('Dakvlak voor',[P(0,0,0),P(L,0,0),...(e1?[P(L,a-w,hg),P(L-e1,a,h)]:[P(L,a,h)]),P(dw,a,h),P(0,a-w,hg)],'dak');
+  D('Dakvlak achter',[P(0,2*a,0),P(L,2*a,0),...(e1?[P(L,a+w,hg),P(L-e1,a,h)]:[P(L,a,h)]),P(dw,a,h),P(0,a+w,hg)],'dak');
+  D('Wolfseind links',[P(0,a-w,hg),P(0,a+w,hg),P(dw,a,h)],'dak');if(e1)D('Wolfseind rechts',[P(L,a-w,hg),P(L,a+w,hg),P(L-e1,a,h)],'dak');
+  D('Kopgevel links',[P(0,0,0),P(0,2*a,0),P(0,a+w,hg),P(0,a-w,hg)],'gevel');D('Kopgevel rechts',e1?[P(L,0,0),P(L,2*a,0),P(L,a+w,hg),P(L,a-w,hg)]:[P(L,0,0),P(L,2*a,0),P(L,a,h)],'gevel')}
+ else if(sh==='schild'){const be=q('be'),e=h/tg(be);if(2*e>L)err.push('Het dak is te kort voor deze schildhelling.');const e2=Math.min(e,L/2);
+  D('Dakvlak voor (trapezium)',[P(0,0,0),P(L,0,0),P(L-e2,a,h),P(e2,a,h)],'dak');D('Dakvlak achter (trapezium)',[P(0,2*a,0),P(L,2*a,0),P(L-e2,a,h),P(e2,a,h)],'dak');D('Schild links',[P(0,0,0),P(0,2*a,0),P(e2,a,h)],'dak');D('Schild rechts',[P(L,0,0),P(L,2*a,0),P(L-e2,a,h)],'dak')}
+ else if(sh==='gekoppeld'){const a2=q('al2'),h2=q('h2'),L2=q('L2'),p=q('p');if(!(a2>0&&h2>0&&L2>0&&p>0))return{fatal:'Vul helling, nokhoogte, lengte en plaats van de zijtak in.'};const w2=h2/tg(a2),yv=h2/tg(al);
+  if(h2>h)err.push('De nok van de zijtak ligt hoger dan de nok van het hoofddak.');if(p-w2<-1e-9||p+w2>L+1e-9)err.push('De zijtak steekt buiten het hoofddak. Pas de plaats aan.');
+  D('Hoofddak voor (minus zijtak)',[P(0,0,0),P(p-w2,0,0),P(p,yv,h2),P(p+w2,0,0),P(L,0,0),P(L,a,h),P(0,a,h)],'dak');D('Hoofddak achter',[P(0,2*a,0),P(L,2*a,0),P(L,a,h),P(0,a,h)],'dak');
+  D('Zijtak dakvlak links',[P(p-w2,-L2,0),P(p-w2,0,0),P(p,yv,h2),P(p,-L2,h2)],'dak');D('Zijtak dakvlak rechts',[P(p+w2,-L2,0),P(p+w2,0,0),P(p,yv,h2),P(p,-L2,h2)],'dak');
+  D('Kopgevel links',[P(0,0,0),P(0,2*a,0),P(0,a,h)],'gevel');D('Kopgevel rechts',[P(L,0,0),P(L,2*a,0),P(L,a,h)],'gevel');D('Kopgevel zijtak',[P(p-w2,-L2,0),P(p+w2,-L2,0),P(p,-L2,h2)],'gevel')}
+ else if(sh==='dakkapel'){const b=q('b'),hv=q('hv'),ho=q('ho')||0;if(!(b>0&&hv>0))return{fatal:'Vul breedte en hoogte van de dakkapel in.'};const x0=(L-b)/2,y0=ho/tg(al),dd=hv/tg(al),yt=y0+dd,zt=ho+hv;
+  if(zt>h)err.push('De dakkapel komt boven de nok uit.');if(b>L)err.push('De dakkapel is breder dan het dak.');
+  D('Dakvlak voor (minus dakkapel)',[P(0,0,0),P(L,0,0),P(L,a,h),P(0,a,h)],'dak',-(b*hv/Math.sin(al*R)));D('Dakvlak achter',[P(0,2*a,0),P(L,2*a,0),P(L,a,h),P(0,a,h)],'dak');
+  D('Dakkapel dak (plat)',[P(x0,y0,zt),P(x0+b,y0,zt),P(x0+b,yt,zt),P(x0,yt,zt)],'dak');
+  D('Kopgevel links',[P(0,0,0),P(0,2*a,0),P(0,a,h)],'gevel');D('Kopgevel rechts',[P(L,0,0),P(L,2*a,0),P(L,a,h)],'gevel');
+  D('Dakkapel voorzijde',[P(x0,y0,ho),P(x0+b,y0,ho),P(x0+b,y0,zt),P(x0,y0,zt)],'gevel');D('Dakkapel wang links',[P(x0,y0,ho),P(x0,yt,zt),P(x0,y0,zt)],'gevel');D('Dakkapel wang rechts',[P(x0+b,y0,ho),P(x0+b,yt,zt),P(x0+b,y0,zt)],'gevel')}
+ // kopgevels weglaten bij belending (opname-app)
+ const nk=kopAantal();let seen=0;const out=fs.filter(f=>{if(!/^Kopgevel (links|rechts)$/.test(f.n))return true;seen++;return seen<=nk});
+ out.sort((x,y)=>(x.t==='dak'?0:1)-(y.t==='dak'?0:1));
+ return{fs:out,err}}
+const dhxArea=p=>{let x=0,y=0,z=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];x+=(a[1]-b[1])*(a[2]+b[2]);y+=(a[2]-b[2])*(a[0]+b[0]);z+=(a[0]-b[0])*(a[1]+b[1])}return{A:Math.hypot(x,y,z)/2,n:[x,y,z]}};
+function dhxGO(fs){const dak=fs.filter(f=>f.t==='dak').map(f=>{const{n}=dhxArea(f.p);return{p:f.p,n}}).filter(f=>Math.abs(f.n[2])>1e-9),all=dak.flatMap(f=>f.p);
+ const mx=Math.min(...all.map(p=>p[0])),Mx=Math.max(...all.map(p=>p[0])),my=Math.min(...all.map(p=>p[1])),My=Math.max(...all.map(p=>p[1])),st=Math.max(Mx-mx,My-my)/240,c=st*st;let vl=0,go=0,vol=0;
+ const inP=(x,y,p)=>{let o=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])o=!o}return o};
+ for(let x=mx+st/2;x<Mx;x+=st)for(let y=my+st/2;y<My;y+=st){let hz=null;for(const f of dak){if(!inP(x,y,f.p))continue;const p0=f.p[0],z=p0[2]-(f.n[0]*(x-p0[0])+f.n[1]*(y-p0[1]))/f.n[2];if(hz==null||z>hz)hz=z}
+  if(hz!=null&&hz>0){vl+=c;vol+=hz*c;if(hz>=1.5-1e-9)go+=c}}
+ return{vloer:vl,go,vol}}
+function dhxPlan(){if(!DH.res)return null;const R=dhxFaces();if(R.err&&typeof R.err==='string')return{err:R.err};if(R.fatal)return{fatal:R.fatal};if(R.err.length)return{fatal:R.err[0]};
+ const fs=R.fs,dak=[],gev=[],R2=Math.PI/180,YA=fs.flatMap(f=>f.p.map(p=>p[1])),YM=(Math.min(...YA)+Math.max(...YA))/2;
+ fs.forEach((f,i)=>{const{A,n}=dhxArea(f.p),Ax=A+(f.extra||0),nr=(i+1)+'. ';if(f.t==='dak'){const hel=Math.acos(Math.min(1,Math.abs(n[2])/Math.hypot(...n)))/R2,zs=f.p.map(p=>p[2]),dz=Math.max(...zs)-Math.min(...zs),l=hel>0.5&&dz>0?dz/Math.sin(hel*R2):Math.sqrt(Ax);
+   const ny=n[1]*(n[2]<0?-1:1),nx=n[0]*(n[2]<0?-1:1),rot=Math.abs(ny)>=Math.abs(nx)?(ny<0?0:4):(nx<0?2:6);dak.push({l,b:Ax/l,rot,naam:nr+f.n,hel:String(+hel.toFixed(1)).replace('.',','),opm:DHX[DH.shape].t+': '+f.n,poly:f.p})}
+  else{const xs=f.p.map(p=>p[0]),ys=f.p.map(p=>p[1]),zs=f.p.map(p=>p[2]),bw=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)),hh=Math.max(...zs)-Math.min(...zs),rot=(Math.max(...xs)-Math.min(...xs))<1e-6?(xs[0]<(num($('#c_L').value)||0)/2?2:6):(ys[0]<=YM?0:4);
+   gev.push({b:bw,h:hh,area:()=>Ax,corr:0,rot,naam:nr+f.n,opm:DHX[DH.shape].t+': '+f.n,poly:f.p})}});
+ const G=dhxGO(fs),zs=fs.flatMap(f=>f.p.map(p=>p[2]));
+ return{sh:DH.shape,dak,gev,nKop:kopAantal(),haaks:false,goTot:G.go,vloer:G.vloer,vol:G.vol,Htot:Math.max(...zs),L:num($('#c_L').value),W:0,corrL:0,corrW:0,polys:fs,dhx:1}}
+// hooks
+{const _p=dhPlan;dhPlan=function(){return dhxActief()?dhxPlan():_p.apply(this,arguments)}}
+{const _d=dakNaam;dakNaam=function(P,d){return d.naam||_d(P,d)}}
+{const _g=gevNaam;gevNaam=function(P,g){return g.naam||_g(P,g)}}
+Object.assign(DAKNAAM,{aangekapt:'Aangekapt dak',wolf:'Zadeldak met wolfseind',gekoppeld:'Gekoppelde daken',dakkapel:'Zadeldak met dakkapel'});
+function dhxVelden(){const sh=DH.shape,d=DHX[sh],box=$('#cX');if(!box)return;if(!d){box.hidden=true;box.innerHTML='';return}box.hidden=false;const o=DH.x[sh]||{};
+ box.innerHTML='<div class="note" style="margin-bottom:4px"><b>'+d.t+'</b>'+(sh==='schild'?'':' · α, vloer → nok en lengte hierboven gelden voor het hoofddak')+'</div><div class="grid2" style="align-items:end">'+d.v.map(x=>x.k?'<div><label>'+x.l+' <span class="dhx-rel" data-dhxrel="'+x.k+'"></span></label><select data-dhx="'+x.k+'">'+x.o.map(([v,t])=>'<option value="'+v+'"'+(String(o[x.k]??x.o[0][0])===v?' selected':'')+'>'+t+'</option>').join('')+'</select></div>':'<div><label>'+x[1]+' <span class="dhx-rel" data-dhxrel="'+x[0]+'"></span></label><input data-dhx="'+x[0]+'" inputmode="decimal" autocomplete="off" value="'+(o[x[0]]??'')+'"></div>').join('')+'</div>'}
+function dhxRel(P){document.querySelectorAll('#cX [data-dhxrel]').forEach(el=>{const re=(DHXREL[DH.shape]||{})[el.dataset.dhxrel];if(!P||!P.dhx||!re){el.innerHTML='';return}const all=[...P.dak,...P.gev];el.innerHTML=all.map((f,i)=>re.test(f.naam)?'<i>'+(i+1)+'</i>':'').join('')})}
+document.addEventListener('input',e=>{const k=e.target.dataset?.dhx;if(!k)return;(DH.x[DH.shape]=DH.x[DH.shape]||{})[k]=e.target.value;dhxBewaar();dhKopTekst();dhSolve()});
+document.addEventListener('change',e=>{const k=e.target.dataset?.dhx;if(!k||e.target.tagName!=='SELECT')return;(DH.x[DH.shape]=DH.x[DH.shape]||{})[k]=e.target.value;dhxBewaar();dhKopTekst();dhSolve()});
+{const _k=dhKopTekst;dhKopTekst=function(){_k.apply(this,arguments);const ex=['aangekapt','wolf','gekoppeld','dakkapel'].includes(DH.shape);if(!$('#cX')||$('#cX').dataset.sh!==DH.shape){dhxVelden();if($('#cX'))$('#cX').dataset.sh=DH.shape}
+ if(ex){$('#cHkwrap').style.visibility='hidden';$('#cDuwrap').hidden=true;$('#cLlab').textContent='Lengte hoofddak langs de nok (bouwmuur → bouwmuur, m)';$('#cKop').textContent=(cur?.type?(ligLabel()||'')+' → ':'')+kopAantal()+' kopgevel'+(kopAantal()===1?'':'s')+' van het hoofddak'}}}
+{const _i=dhInfo;dhInfo=function(){_i.apply(this,arguments);const P=DH.res&&dhxActief()?dhPlan():null;dhxRel(P);if(P&&P.dhx){$('#c15').innerHTML='<b>GO ≥ 1,5 m</b> (uit het dakmodel): <b>'+f2(P.goTot)+' m²</b> · zoldervloer '+f2(P.vloer)+' m² · volume '+f2(P.vol)+' m³';$('#c15').hidden=false}
+ else if(dhxActief()&&DH.res){const Q=dhPlan();if(Q&&(Q.fatal||Q.err)){$('#c15').innerHTML='<span style="color:#b3261e">'+(Q.fatal||Q.err)+'</span>';$('#c15').hidden=false}}}}
+{const _3=dh3d;dh3d=function(){if(DH.res&&dhxActief()&&!$('#dh3dBox').hidden&&window.dhUpdate3d){const P=dhPlan();if(P&&P.dhx){window.dhUpdate3d({...DH.res,polys:[...P.dak,...P.gev].map((f,i)=>({p:f.poly,dak:i<P.dak.length,nr:i+1}))},P.L,'poly');return}}return _3.apply(this,arguments)}}
+{const _o=openDriehoek;openDriehoek=function(id){const r=vind(id);if(r?.it?.dhX)try{const o=JSON.parse(r.it.dhX);if(r.it.dhVorm)DH.x[r.it.dhVorm]=o}catch(e){}_o.apply(this,arguments);if($('#cX'))$('#cX').dataset.sh='';dhKopTekst();dhSolve()}}
+
 function dhZetKant(k){DH.duKant=k;document.querySelectorAll('#cDuKant [data-duk]').forEach(x=>x.classList.toggle('on',x.dataset.duk===k))}
 document.querySelectorAll('#cDuKant [data-duk]').forEach(bt=>bt.onclick=()=>{dhZetKant(bt.dataset.duk);dhKopTekst();dhSolve()});
 function dh3d(){if($('#dh3dBox').hidden||!window.dhUpdate3d)return;const br=num($('#c_L').value);const M=manVals();if(DH.res&&DH.shape==='mansarde'&&M){window.dhUpdate3d({...DH.res,...M},br>0?br:null,'mansarde');return}window.dhUpdate3d(DH.res&&DH.shape==='zadel'?{...DH.res,prof:dhProf()}:DH.res,br>0?br:null,DH.shape)}
