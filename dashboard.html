@@ -1219,7 +1219,7 @@ body.v-opname{background-image:none!important}
 .kr-tab td:last-child{text-align:right;white-space:nowrap}
 .kr-tab tr.t td{font-weight:700;border-bottom:0}
 .kr-x{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
-.kr-err{color:#b3261e;font-size:13px}.kd-meet{font-size:13px;color:#24503a;background:#f3f8f4;border:1px solid #cfe2d5;border-radius:8px;padding:6px 10px;margin:0 0 10px}.kd-modelbox{position:relative;margin:4px 0 8px}#kd-model.vb svg{opacity:.55}#kd-model.vb::after{content:'voorbeeld';position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #cfe2d5;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:#24503a}#kd-model{position:relative}#kd-model svg{display:block;width:100%;max-width:520px;height:auto;margin:0 auto;background:#f7faf8;border:1px solid var(--line);border-radius:10px}.kd-draai{display:flex;gap:6px;justify-content:center;margin-top:6px}.kd-nr{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid #24503a;font-size:10.5px;font-weight:700;color:#24503a;margin-right:6px;flex:none}.kr-menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.kr-menu button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;color:#24503a}.kr-menu button b{font-size:16px}.kr-menu button small{color:var(--muted);font-size:13px}.kr-menu button:hover{border-color:#2e6b4f;background:#f3f8f4}#kr-grid{grid-template-columns:1fr;max-width:720px;margin:0 auto}.kr-terug{margin-bottom:10px}.kr-menu[hidden],#kr-grid[hidden],.kr-card[hidden]{display:none!important}#kr-model svg{display:block;width:100%;max-width:420px;height:auto;margin:4px auto 0;background:#f7faf8;border:1px solid var(--line);border-radius:10px}
+.kr-err{color:#b3261e;font-size:13px}.pv-in input{width:100%;box-sizing:border-box;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:7px}.pv-in td{padding:3px 3px}.pv-in td:last-child{width:28px}.ep-r{grid-template-columns:2fr 1fr;align-items:end}.ep-r .kr-x{float:right;padding:0}.ep-tab tr.ep-on td{background:#e6f2ea;font-weight:700}.ep-l{display:inline-block;min-width:56px;text-align:center;border-radius:4px;padding:1px 6px;color:#fff;font-weight:700;font-size:12px;background:#2e7d32}.ep-l.ep-B{background:#7cb342}.ep-l.ep-C{background:#c0ca33}.ep-l.ep-D{background:#fdd835;color:#333}.ep-l.ep-E{background:#fb8c00}.ep-l.ep-F{background:#f4511e}.ep-l.ep-G{background:#d32f2f}.ep-l.ep-A{background:#43a047}.kd-meet{font-size:13px;color:#24503a;background:#f3f8f4;border:1px solid #cfe2d5;border-radius:8px;padding:6px 10px;margin:0 0 10px}.kd-modelbox{position:relative;margin:4px 0 8px}#kd-model.vb svg{opacity:.55}#kd-model.vb::after{content:'voorbeeld';position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #cfe2d5;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:#24503a}#kd-model{position:relative}#kd-model svg{display:block;width:100%;max-width:520px;height:auto;margin:0 auto;background:#f7faf8;border:1px solid var(--line);border-radius:10px}.kd-draai{display:flex;gap:6px;justify-content:center;margin-top:6px}.kd-nr{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid #24503a;font-size:10.5px;font-weight:700;color:#24503a;margin-right:6px;flex:none}.kr-menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.kr-menu button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;color:#24503a}.kr-menu button b{font-size:16px}.kr-menu button small{color:var(--muted);font-size:13px}.kr-menu button:hover{border-color:#2e6b4f;background:#f3f8f4}#kr-grid{grid-template-columns:1fr;max-width:720px;margin:0 auto}.kr-terug{margin-bottom:10px}.kr-menu[hidden],#kr-grid[hidden],.kr-card[hidden]{display:none!important}#kr-model svg{display:block;width:100%;max-width:420px;height:auto;margin:4px auto 0;background:#f7faf8;border:1px solid var(--line);border-radius:10px}
 </style>
 <div class="kr-menu" id="kr-menu">
  <button type="button" data-krgo="kr-dak"><b>Dakvormen</b><small>Dak- en gevelvlakken van 10 dakvormen met model, van binnenuit gemeten</small></button>
@@ -1228,6 +1228,9 @@ body.v-opname{background-image:none!important}
  <button type="button" data-krgo="kr-dakf"><b>Dakfactor</b><small>Dakoppervlak uit horizontale projectie</small></button>
  <button type="button" data-krgo="kr-glas"><b>Glas in deur</b><small>Percentage glas en dicht deel</small></button>
  <button type="button" data-krgo="kr-versp"><b>Verspringende woning</b><small>Vrije zijgevel bij verspringing</small></button>
+ <button type="button" data-krgo="kr-pv"><b>PV verdeler</b><small>Gedeelde zonnepanelen naar rato van Ag over de woningen</small></button>
+ <button type="button" data-krgo="kr-ep2"><b>EP2-bandbreedte</b><small>Labelgrenzen per gebruiksfunctie en label bij een EP2-waarde</small></button>
+ <button type="button" data-krgo="kr-ww"><b>Woningwaarde</b><small>Indicatieve waardestijging bij een beter label</small></button>
  <button type="button" data-krgo="kr-kwh"><b>kWh, MJ en GJ</b><small>Energie-eenheden omrekenen</small></button>
 </div>
 <div class="kr-grid" id="kr-grid" hidden>
@@ -1286,6 +1289,31 @@ body.v-opname{background-image:none!important}
   <div>Diepte woning (m, gevel tot gevel)<input id="kv-w" inputmode="decimal" placeholder="alleen bij kap"></div><div>Hellingshoek kap (°)<input id="kv-al" inputmode="decimal" placeholder="leeg = geen kap"></div></div>
   <div class="kr-res" id="kv-uit">Vul verspringing en hoogte in.</div>
  </div>
+
+ <div class="kr-card" id="kr-pv">
+  <h3>PV verdeler</h3>
+  <p class="kr-sub">Zonnepanelen op de hoofdmeter of een collectieve installatie worden naar rato van de gebruiksoppervlakte over de aangesloten woningen verdeeld (ISSO 82.1 / 75.1 §7.4 en §15; KEGO). Panelen met een eigen, exclusieve aansluiting tellen alleen voor die woning.</p>
+  <div class="kr-row"><div>Aantal gedeelde panelen<input id="pv-n" inputmode="decimal"></div><div>Wp per paneel (optioneel)<input id="pv-wp" inputmode="decimal"></div>
+  <div>m² per paneel (optioneel)<input id="pv-m2" inputmode="decimal"></div><div>Ag alle aangesloten woningen (m², als niet alle woningen hieronder staan)<input id="pv-agt" inputmode="decimal"></div></div>
+  <div id="pv-rows"></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><button type="button" class="btn sec mini" id="pv-add">+ Woning</button><button type="button" class="btn sec mini" id="pv-plak">Lijst plakken (adres + Ag)</button></div>
+  <div id="pv-uit"></div>
+ </div>
+ <div class="kr-card" id="kr-ep2">
+  <h3>EP2-bandbreedte</h3>
+  <p class="kr-sub">Labelklasse-grenzen voor het primair fossiel energiegebruik (EP2) volgens de Regeling energieprestatie gebouwen: bijlage Ia (utiliteit, per gebruiksfunctie) en bijlage I (woningen). Vul het EP2 in om te zien welk label het is en hoeveel er af moet voor de volgende klasse.</p>
+  <div class="kr-row"><div>Soort gebouw<select id="ep-t"><option value="u">Utiliteit</option><option value="w">Woning</option></select></div><div>EP2 (kWh/m²·jr, optioneel)<input id="ep-ep2" inputmode="decimal"></div></div>
+  <div id="ep-ut"><div id="ep-rows"></div><button type="button" class="btn sec mini" id="ep-add" style="margin:2px 0 8px">+ Gebruiksfunctie</button></div>
+  <div id="ep-uit"></div>
+ </div>
+ <div class="kr-card" id="kr-ww">
+  <h3>Woningwaarde bij een beter label</h3>
+  <p class="kr-sub">Indicatie van de meerwaarde van een beter energielabel, op basis van marktonderzoek. Geen taxatie.</p>
+  <div class="kr-row"><div>Huidige woningwaarde (€)<input id="ww-v" inputmode="decimal"></div><div>Bron<select id="ww-bron"><option value="brainbay">Brainbay 2025: A t.o.v. G +17%</option><option value="calcasa">Calcasa 2025: gemiddeld +4,1%</option><option value="eigen">Eigen percentage</option></select></div>
+  <div>Van label<select id="ww-van"><option>G</option><option>F</option><option selected>E</option><option>D</option><option>C</option><option>B</option><option>A</option></select></div><div>Naar label<select id="ww-naar"><option>G</option><option>F</option><option>E</option><option>D</option><option>C</option><option>B</option><option selected>A</option></select></div>
+  <div id="ww-eigenw" hidden>A t.o.v. G (%)<input id="ww-eigen" inputmode="decimal"></div></div>
+  <div id="ww-uit"></div>
+ </div>
  <div class="kr-card" id="kr-kwh">
   <h3>kWh, MJ en GJ omrekenen</h3>
   <p class="kr-sub">1 kWh = 3,6 MJ · 1 GJ = 1000 MJ.</p>
@@ -1324,7 +1352,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-04-0115';
+const ELN_BUILD='2026-11-04-0130';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -5649,6 +5677,51 @@ ftRender();
  g('kd-velden').addEventListener('change',e=>{const k=e.target.dataset.kdm;if(!k)return;st.m[st.v+'.'+k]=e.target.value;sv();reken()});
  g('kd-draai').addEventListener('click',e=>{const b=e.target.closest('[data-kdr]');if(!b)return;st.rot=(st.rot+(+b.dataset.kdr)+360)%360;sv();reken()});
  velden()})();
+
+/* ========== PV verdeler, EP2-bandbreedte, woningwaarde ========== */
+(function(){const g=document.getElementById.bind(document);if(!g('kr-pv'))return;
+ const K='eln-kr3',nm=v=>{const n=parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:null},F=(x,d=2)=>x.toLocaleString('nl-NL',{minimumFractionDigits:d,maximumFractionDigits:d}),E=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}st.pv=st.pv||{rows:[{a:'',ag:'',eigen:''},{a:'',ag:'',eigen:''}]};st.ep=st.ep||{rows:[{f:'1',ag:''}]};st.ww=st.ww||{};
+ const sv=()=>{try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}};
+ /* ---------- PV verdeler ---------- */
+ function pvRows(){const r=st.pv.rows;g('pv-rows').innerHTML='<table class="kr-tab pv-in"><tr><td><b>Adres / woning</b></td><td><b>Ag (m²)</b></td><td><b>Eigen panelen</b></td><td></td></tr>'+r.map((x,i)=>'<tr><td><input data-pv="a" data-i="'+i+'" value="'+E(x.a)+'" placeholder="bijv. nr 12"></td><td><input data-pv="ag" data-i="'+i+'" inputmode="decimal" value="'+E(x.ag)+'"></td><td><input data-pv="eigen" data-i="'+i+'" inputmode="decimal" value="'+E(x.eigen)+'"></td><td><button type="button" class="kr-x" data-pvdel="'+i+'" title="Verwijderen">✕</button></td></tr>').join('')+'</table>';pv()}
+ function pv(){const P=st.pv,n=nm(P.n),wp=nm(P.wp),m2=nm(P.m2),rows=P.rows.map(x=>({a:x.a,ag:nm(x.ag),eigen:nm(x.eigen)||0})).filter(x=>x.ag>0),tot=rows.reduce((t,x)=>t+x.ag,0),agT=nm(P.agT)>0?nm(P.agT):tot;
+  if(!(n>0)||!rows.length){g('pv-uit').innerHTML='Vul het aantal gedeelde panelen en per woning de gebruiksoppervlakte (Ag) in.';return}
+  if(agT<tot-1e-6){g('pv-uit').innerHTML='<span class="kr-err">De totale Ag van alle aangesloten woningen is kleiner dan de som van de woningen hieronder.</span>';return}
+  let h='<table class="kr-tab"><tr><td><b>Woning</b></td><td><b>Aandeel</b></td><td><b>Panelen</b></td>'+(wp>0?'<td><b>Wp</b></td>':'')+(m2>0?'<td><b>m²</b></td>':'')+'</tr>';
+  rows.forEach(x=>{const f=x.ag/agT,pn=n*f+x.eigen;h+='<tr><td>'+E(x.a||'–')+'<div class="kr-f">'+F(x.ag,1)+' m²'+(x.eigen?' · '+F(x.eigen,0)+' eigen':'')+'</div></td><td>'+F(f*100,2)+'%</td><td>'+F(pn,2)+'</td>'+(wp>0?'<td>'+F(pn*wp,0)+'</td>':'')+(m2>0?'<td>'+F(pn*m2,2)+'</td>':'')+'</tr>'});
+  h+='</table><div class="kr-f">Gedeelde panelen × Ag woning / Ag van alle aangesloten woningen (totaal '+F(agT,1)+' m²)'+(agT>tot+1e-6?'; de woningen hierboven zijn een deel van het complex':'')+'. Eigen panelen met een exclusieve aansluiting tellen volledig mee voor die woning.</div>';g('pv-uit').innerHTML=h}
+ ['pv-n','pv-wp','pv-m2','pv-agt'].forEach(id=>{const k={'pv-n':'n','pv-wp':'wp','pv-m2':'m2','pv-agt':'agT'}[id];g(id).value=st.pv[k]??'';g(id).addEventListener('input',()=>{st.pv[k]=g(id).value;sv();pv()})});
+ g('pv-rows').addEventListener('input',e=>{const t=e.target;if(t.dataset.pv==null)return;st.pv.rows[+t.dataset.i][t.dataset.pv]=t.value;sv();pv()});
+ g('pv-rows').addEventListener('click',e=>{const b=e.target.closest('[data-pvdel]');if(!b)return;st.pv.rows.splice(+b.dataset.pvdel,1);if(!st.pv.rows.length)st.pv.rows.push({a:'',ag:'',eigen:''});sv();pvRows()});
+ g('pv-add').addEventListener('click',()=>{st.pv.rows.push({a:'',ag:'',eigen:''});sv();pvRows()});
+ g('pv-plak').addEventListener('click',()=>{const t=prompt('Plak regels uit Excel: adres en Ag (tab, puntkomma of twee spaties ertussen), één woning per regel.');if(!t)return;const r=t.split(/\r?\n/).map(l=>l.split(/\t|;|\s{2,}/).map(s=>s.trim())).filter(c=>c.length>=2&&nm(c[c.length-1])>0).map(c=>({a:c.slice(0,-1).join(' '),ag:c[c.length-1],eigen:''}));if(r.length){st.pv.rows=r;sv();pvRows()}});
+ pvRows();
+ /* ---------- EP2-bandbreedte (Regeling energieprestatie gebouwen, bijlage Ia; woningen bijlage I) ---------- */
+ const LBL=['A+++++','A++++','A+++','A++','A+','A','B','C','D','E','F','G'];
+ const UT={'1':['Kantoorfunctie',[0,40,80,120,160,180,200,225,250,275,300]],'2':['Bijeenkomstfunctie (zonder kinderopvang)',[0,50,100,150,200,230,255,285,320,355,385]],'3':['Bijeenkomstfunctie (kinderopvang)',[0,55,110,165,220,265,290,330,365,405,445]],'4':['Onderwijsfunctie',[0,50,100,150,200,235,260,295,330,360,395]],'5':['Gezondheidszorg zonder bed',[0,45,90,135,180,210,230,260,295,325,355]],'6':['Gezondheidszorg met bed',[0,90,180,270,360,430,470,530,595,655,715]],'7':['Winkelfunctie',[0,60,120,180,240,285,315,355,395,435,475]],'8':['Sportfunctie',[0,35,70,105,140,155,170,195,215,240,260]],'9':['Logiesfunctie',[0,50,100,150,200,230,255,285,320,355,385]],'10':['Celfunctie',[0,60,120,180,240,300,330,370,415,455,500]]};
+ const WON=[null,0,50,75,105,160,190,250,290,335,380];
+ function epRows(){g('ep-rows').innerHTML=st.ep.rows.map((x,i)=>'<div class="kr-row ep-r"><div>Gebruiksfunctie<select data-ep="f" data-i="'+i+'">'+Object.entries(UT).map(([k,v])=>'<option value="'+k+'"'+(k===x.f?' selected':'')+'>'+v[0]+'</option>').join('')+'</select></div><div>Ag (m²)'+(st.ep.rows.length>1?' <button type="button" class="kr-x" data-epdel="'+i+'">✕</button>':'')+'<input data-ep="ag" data-i="'+i+'" inputmode="decimal" value="'+E(x.ag)+'"></div></div>').join('');ep()}
+ function ep(){const won=st.ep.t==='w',e2=nm(st.ep.ep2);g('ep-ut').hidden=won;let B,info='';
+  if(won){B=WON.slice(1);info='Woningen: vaste grenzen (Regeling energieprestatie gebouwen, bijlage I).'}
+  else{const rows=st.ep.rows.map(x=>({f:x.f,ag:nm(x.ag)})),one=rows.length===1,ok=rows.filter(x=>x.ag>0),tot=ok.reduce((t,x)=>t+x.ag,0);
+   if(one)B=UT[rows[0].f][1].slice(1);else{if(!tot){g('ep-uit').innerHTML='Vul per gebruiksfunctie de gebruiksoppervlakte in.';return}B=UT['1'][1].slice(1).map((_,j)=>ok.reduce((t,x)=>t+UT[x.f][1][j+1]*x.ag,0)/tot);info='Combinatiegebouw: grenzen gewogen naar de gebruiksoppervlakte per functie ('+ok.map(x=>UT[x.f][0].split(' ')[0].toLowerCase()+' '+F(x.ag/tot*100,0)+'%').join(', ')+'). Controleer de klasse op het geregistreerde label.'}
+   if(one)info='Utiliteit, '+UT[rows[0].f][0].toLowerCase()+' (Regeling energieprestatie gebouwen, bijlage Ia).'}
+  const lab=v=>{if(!won&&v<=0)return'A+++++';for(let j=0;j<B.length;j++)if(v<=B[j]+1e-9)return LBL[j+1];return'G'};
+  let h='<table class="kr-tab ep-tab"><tr><td><b>Klasse</b></td><td><b>EP2 (kWh/m²·jr)</b></td></tr>'+LBL.map((L,j)=>{if(won&&L==='A+++++')return'';const lo=j===0?null:(j===1?0:B[j-2]),hi=j===0?0:(j<B.length+1?B[j-1]:null),txt=j===0?'≤ 0,00':hi==null?'> '+F(lo):F(lo+(j===1?0.01:0.01))+' t/m '+F(hi);return'<tr'+(e2!=null&&lab(e2)===L?' class="ep-on"':'')+'><td><span class="ep-l ep-'+L.replace(/\+/g,'p')+'">'+L+'</span></td><td>'+(won&&L==='A++++'?'≤ 0,00':txt)+'</td></tr>'}).join('')+'</table>';
+  if(e2!=null){const L=lab(e2),j=LBL.indexOf(L),beter=j>1?B[j-2]:(j===1&&!won)?0:null;h='<div class="kr-res">EP2 '+F(e2)+' kWh/m²·jr → <b>label '+L+'</b>'+(beter!=null&&j>0?'<br>Naar '+LBL[j-1]+': <b>'+F(e2-beter)+'</b> kWh/m²·jr lager (≤ '+F(beter)+')':'')+'</div>'+h}
+  g('ep-uit').innerHTML=h+'<div class="kr-f">'+info+'</div>'}
+ g('ep-t').value=st.ep.t||'u';g('ep-t').addEventListener('change',()=>{st.ep.t=g('ep-t').value;sv();ep()});g('ep-ep2').value=st.ep.ep2??'';g('ep-ep2').addEventListener('input',()=>{st.ep.ep2=g('ep-ep2').value;sv();ep()});
+ g('ep-rows').addEventListener('input',e=>{const t=e.target;if(t.dataset.ep==null)return;st.ep.rows[+t.dataset.i][t.dataset.ep]=t.value;sv();ep()});g('ep-rows').addEventListener('change',e=>{const t=e.target;if(t.dataset.ep==null)return;st.ep.rows[+t.dataset.i][t.dataset.ep]=t.value;sv();ep()});
+ g('ep-rows').addEventListener('click',e=>{const b=e.target.closest('[data-epdel]');if(!b)return;st.ep.rows.splice(+b.dataset.epdel,1);sv();epRows()});
+ g('ep-add').addEventListener('click',()=>{st.ep.rows.push({f:'7',ag:''});sv();epRows()});epRows();
+ /* ---------- Woningwaarde ---------- */
+ const WL=['G','F','E','D','C','B','A'];
+ function ww(){const W=st.ww,v=nm(W.v),van=W.van||'E',naar=W.naar||'A',pct=W.bron==='calcasa'?4.1:nm(W.eigen)>0&&W.bron==='eigen'?nm(W.eigen):17;g('ww-eigenw').hidden=W.bron!=='eigen';
+  if(!(v>0)){g('ww-uit').innerHTML='Vul de huidige woningwaarde in.';return}
+  const r=pct/100,f=L=>Math.pow(1+r,WL.indexOf(L)/6),d=f(naar)/f(van)-1;
+  g('ww-uit').innerHTML='<div class="kr-res">Van label '+van+' naar '+naar+': <b>'+(d>=0?'+':'')+F(d*100,1)+'%</b> · ca. <b>€ '+F(Math.round(v*d/500)*500,0)+'</b><br>Nieuwe waarde ca. € '+F(Math.round(v*(1+d)/500)*500,0)+'</div><div class="kr-f">Uitgangspunt: woning met label A is '+F(pct,1)+'% meer waard dan dezelfde woning met label G ('+(W.bron==='calcasa'?'Calcasa 2025: gemiddeld prijsverschil zuinig vs. minder zuinig':W.bron==='eigen'?'eigen percentage':'Brainbay Woningwaarde-index 2025, NVM-data')+'), gelijkmatig verdeeld over de 6 labelstappen. Labels hoger dan A tellen als A. Indicatief: ligging, staat en regio wegen zwaarder; geen taxatie.</div>'}
+ ['ww-v','ww-van','ww-naar','ww-bron','ww-eigen'].forEach(id=>{const k=id.slice(3);if(st.ww[k]!=null)g(id).value=st.ww[k];['input','change'].forEach(ev=>g(id).addEventListener(ev,()=>{st.ww[k]=g(id).value;sv();ww()}))});ww()})();
 
 /* ========== Kleine rekenhulpen ========== */
 (function(){const K='eln-klein-v1';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}st.lijst=st.lijst||[];st.vorm=st.vorm||'boog';
