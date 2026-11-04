@@ -623,6 +623,32 @@ body.v-opname{background-image:none!important}
  .view .link-btn{padding:6px 2px}
  .view input[type=checkbox],.view input[type=radio]{width:20px;height:20px}
 }
+
+/* ===== opnameformulier blad 1: strakke uitlijning (vaste labelkolom, knoppen in een raster) ===== */
+.pg0 .eside.c3{grid-template-columns:var(--oflab,190px) 1fr 1fr!important}
+.pg0 .eside.c4{grid-template-columns:var(--oflab,190px) 1fr 1fr 1fr!important}
+.pg0 .eside .ec{padding:6px 10px;align-items:center}
+.pg0 .eside .ec.el{line-height:1.25;font-weight:500}
+.pg0 .eside .eos,.pg0 .eside .epg:not(:has(.eps,.ei)){display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(var(--ofchip,118px),46%),1fr));gap:6px;width:100%;flex:1 1 100%}
+.pg0 .eside .epg:has(.eos){flex:1 1 100%;flex-wrap:wrap}
+.pg0 .eside .ec .eo{width:100%;margin:0;text-align:center!important;display:flex;align-items:center;justify-content:center;min-height:var(--ofh,30px)}
+.pg0 .eside .ec.eop>.eo{width:var(--ofchip,118px);max-width:46%;flex:0 0 auto}
+.pg0 .eside .ec.ep .epg>.eo{width:var(--ofchip,118px);flex:0 0 auto}
+.pg0 .eside .ec .ei{height:var(--ofh,30px)}
+.pg0 .eside .ec.ep{gap:6px 10px}
+.pg0 .eside .epg{gap:6px}
+@media (max-width:700px){
+ #of-form{--oflab:100px;--ofchip:68px;--ofh:38px}
+ .pg0 .eside{grid-auto-rows:minmax(48px,auto)}
+ .pg0 .eside .ec{padding:6px 8px;font-size:13px}
+ .pg0 .eside .ec.el{font-size:13px;min-width:0!important}
+ .pg0 .eside .ec .eo{font-size:12px!important;padding:3px 2px!important;overflow-wrap:break-word;hyphens:manual}
+ .pg0 .eside .ec.el{overflow-wrap:break-word;hyphens:manual}
+ .pg0 .eside .eos,.pg0 .eside .epg:not(:has(.eps,.ei)){gap:5px}
+ .pg0 .eside .ec.ep{flex-wrap:wrap}
+ .pg0 .eside .epg:has(.eps){flex:1 1 100%}
+ .pg0 .eside .epg .ei.ein{flex:0 0 78px;width:78px}
+}
 </style>
 </head>
 <body>
@@ -3822,7 +3848,7 @@ function ofEpaBuild(B){
   // ===== Installaties – volgorde zoals de invoer in Vabi: ventilatie, verwarming, tapwater, koeling, zonne-energie =====
   const isU=ofGet('p1_3B',D.type)==='UTILITEIT';
   const VENT=[['@Ventilatie'],['Systeem ventilatie',['Individueel','Collectief']],['Type ventilatie',['NV','MVT','MVA','Balans','Combi']],
-   ...(isU?[['Regeling luchthoeveelheid',['Geen','Tijdklok','Aanwezigheid','CO2 / VOC']],['Luchtbehandelingskast',['Ja','Nee']],['ZR-rooster','zr']]:[['Sturing ventilatie',['Standaard (3-standen)','Drukgestuurd','Tijdsturing','CO2-sturing']],['CO2-sensor','co2'],['ZR-rooster','zr']]),
+   ...(isU?[['Regeling luchthoeveelheid',['Geen','Tijdklok','Aanwezigheid','CO2 / VOC']],['Luchtbehandelingskast',['Ja','Nee']],['ZR-rooster (zelfregelend)','zr']]:[['Sturing ventilatie',['Standaard (3-standen)','Drukgestuurd','Tijdsturing','CO2-sturing']],['CO2-sensor in','co2'],['ZR-rooster (zelfregelend)','zr']]),
    ['WTW aanwezig',JN],['Zo ja, type WTW',['Tegenstroom','Kruisstroom','Platen/buizen','Roterend','Anders']],...(isU?[['Rendement WTW (%)','n']]:[]),
    ['Type ventilator',['Gelijkstroom','Wisselstroom','Draaistroom','Onbekend']]];
   const VERW=[['@Verwarming'],['Systeem',SYS],...(isU?[]:[['Blokverwarming','blok']]),
@@ -3858,8 +3884,8 @@ function ofEpaBuild(B){
     else if(k==='v')p.val(r,C.a,C.z,'');
     else if(k==='n')p.val(r,C.a,C.z,'',{num:1});
     else if(k==='blok'){p.parts(r,a0,a1,[{f:'*',n:1},{s:'m2'}]);p.parts(r,b0,b1,[{s:'Totaal vermogen'},{f:'*',n:1},{s:'kW'}])}
-    else if(k==='co2')p.parts(r,C.a,C.z,[{s:'in:'},{o:['SLK']},{o:['WK']}]);
-    else if(k==='zr')p.parts(r,C.a,C.z,[{s:'zelfregelend rooster:'},{o:['Aanwezig']}]);
+    else if(k==='co2')p.parts(r,C.a,C.z,[{o:['SLK']},{o:['WK']}]);
+    else if(k==='zr')p.parts(r,C.a,C.z,[{o:['Aanwezig']}]);
     else if(k==='aor')p.parts(r,C.a,C.z,[{s:'(AOR - AOS of KRUIPRUIMTE)'},{o:JN}]);
     else if(k==='vat')p.parts(r,C.a,C.z,[{s:'type:'},{f:'*',w:3},{s:'inhoud:'},{f:'*',n:1},{s:'L'}])
     else if(k==='bk')p.parts(r,C.a,C.z,[{f:'*',n:1},{s:'/'},{f:'*',n:1}]);
@@ -3950,7 +3976,7 @@ function ofCollect(){const pages=[];of.defs={};
 
 // ---------- scherm ----------
 function ofCellHtml(c){const inp=(k,d)=>'<input class="ei" data-k="'+k+'" value="'+esc(ofGet(k,d))+'">';
- const chip=(k,t,cur)=>'<button type="button" class="eo'+(cur===t?' on':'')+'" data-k="'+k+'" data-v="'+esc(t)+'">'+esc(t.trim())+'</button>';
+ const chip=(k,t,cur)=>'<button type="button" class="eo'+(cur===t?' on':'')+'" data-k="'+k+'" data-v="'+esc(t)+'">'+esc(t.trim()).replace(/\//g,'/<wbr>')+'</button>';
  const chips=(k,o,d)=>{const cur=ofGet(k,d);return o.length===1?chip(k,o[0],cur):'<span class="eos">'+o.map(t=>chip(k,t,cur)).join('')+'</span>'};
  switch(c.k){case'bar':return['eb',esc(c.t)];case'sub':return['es'+(c.c?' ctr':''),esc(c.t).replace(/\n/g,'<br>')];case'lab':return['el',esc(c.t)];case'txt':return['et'+(c.c?' ctr':''),esc(c.t)];case'box':return['ex',''];case'sep':return['esep',''];case'vl':return['evline',''];
   case'val':return['ev'+(c.num?' evnum':''),inp(c.key,c.d)];case'opt':return['eop'+(c.cls?' '+c.cls:''),chips(c.key,c.o,c.d)];
@@ -3960,14 +3986,14 @@ function ofCellHtml(c){const inp=(k,d)=>'<input class="ei" data-k="'+k+'" value=
 const ofClosed=new Set();
 const ofSec=(id,title,inner)=>'<details class="esec" data-sec="'+esc(id)+'"'+(ofClosed.has(id)?'':' open')+'><summary class="efull ec eb">'+esc(title)+'</summary><div class="esec-body">'+inner+'</div></details>';
 function ofRender(){const pages=ofCollect();
- const side=s=>!s?'<div class="eside empty"></div>':'<div class="eside" style="grid-template-columns:'+(s.scr||s.ws.map(w=>w+'fr')).join(' ')+';grid-template-rows:'+Array.from({length:s.rows},(_,i)=>{const r=i+1,cs=s.cells.filter(c=>c.rr<=r&&c.rr+c.n-1>=r);return!cs.length?'14px':cs.some(c=>c.rr===r&&(c.k==='bar'||c.k==='sub'))?'auto':'minmax(34px,auto)'}).join(' ')+' 1fr">'+s.cells.map(c=>{const [cls,h]=ofCellHtml(c);return'<div class="ec '+cls+'" style="grid-row:'+c.rr+(c.n>1?' / span '+c.n:'')+';grid-column:'+(c.ca+1)+' / '+(c.cb+2)+'">'+h+'</div>'}).join('')+'</div>';
+ const side=s=>!s?'<div class="eside empty"></div>':'<div class="eside c'+s.ws.length+'" style="grid-template-columns:'+(s.scr||s.ws.map(w=>w+'fr')).join(' ')+';grid-template-rows:'+Array.from({length:s.rows},(_,i)=>{const r=i+1,cs=s.cells.filter(c=>c.rr<=r&&c.rr+c.n-1>=r);return!cs.length?'14px':cs.some(c=>c.rr===r&&(c.k==='bar'||c.k==='sub'))?'auto':'minmax(34px,auto)'}).join(' ')+' 1fr">'+s.cells.map(c=>{const [cls,h]=ofCellHtml(c);return'<div class="ec '+cls+'" style="grid-row:'+c.rr+(c.n>1?' / span '+c.n:'')+';grid-column:'+(c.ca+1)+' / '+(c.cb+2)+'">'+h+'</div>'}).join('')+'</div>';
  $('of-form').innerHTML=pages.map((pg,pi)=>{const secs=[];let cur={id:'p'+pi+'_start',title:pi?'':'Project- en gebouwgegevens',html:''};
   pg.blocks.forEach(bl=>{if(bl.full&&bl.full.k==='bar'){if(cur.html)secs.push(cur);cur={id:'p'+pi+'_'+bl.full.t,title:bl.full.t.replace(/:$/,''),html:''};return}
    if(bl.full&&bl.full.k==='notes'&&!cur.title){cur.title='Aantekeningen'}
    if(bl.full){const [cls,h]=ofCellHtml(bl.full);cur.html+='<div class="efull ec '+cls+'">'+h+'</div>'}else cur.html+=bl.wide?'<div class="eband wide">'+side(bl.L)+'</div>':'<div class="eband">'+side(bl.L)+side(bl.R)+'</div>'});
   if(cur.html)secs.push(cur);
   if(pi>=2){secs.unshift({id:'p'+pi+'_schets',title:(of.sk[pi-2]&&of.sk[pi-2].title)||'Schets / plattegrond',html:'<div class="sk-first of-skbox" data-sk="'+(pi-2)+'"></div>'})}
-  return'<div class="epa-page"><div class="epa-title"><span>'+esc(pg.title)+'</span>'+(document.querySelector('.topbar img')?'<img class="epa-logo" src="'+document.querySelector('.topbar img').src+'" alt="">':'')+'</div><div class="epa-body">'+secs.map(s=>s.title?ofSec(s.id,s.title,s.html):s.html).join('')+'</div></div>'}).join('');ofRenderSk()}
+  return'<div class="epa-page pg'+pi+'"><div class="epa-title"><span>'+esc(pg.title)+'</span>'+(document.querySelector('.topbar img')?'<img class="epa-logo" src="'+document.querySelector('.topbar img').src+'" alt="">':'')+'</div><div class="epa-body">'+secs.map(s=>s.title?ofSec(s.id,s.title,s.html):s.html).join('')+'</div></div>'}).join('');ofRenderSk()}
 $('of-mainx').addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('esec'))return;d.open?ofClosed.delete(d.dataset.sec):ofClosed.add(d.dataset.sec)},true);
 $('of-form').addEventListener('input',e=>{const k=e.target.dataset.k;if(k){of.vals[k]=e.target.value;ofSave()}
  if(k==='p1_3G'&&!Object.prototype.hasOwnProperty.call(of.vals,'p1_opn_m')){const nv=ofOpnDef(ofAuto());of.defs['p1_opn_m']=nv;document.querySelectorAll('#of-form .eo[data-k="p1_opn_m"]').forEach(x=>x.classList.toggle('on',x.dataset.v===nv))}});
