@@ -689,7 +689,7 @@ body.v-opname{background-image:none!important}
   <button class="tile" type="button" data-open="klein">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
    <h2>Kleine rekenhulpen</h2>
-   <p>Ramen en deuren met afwijkende vorm, correctie dakvlak bij na-isolatie, dakfactor, glas in deur, verspringende woning en kWh/MJ omrekenen.</p>
+   <p>Dakvormen met model, ramen en deuren met afwijkende vorm, glas in deur, PV verdeler, EP2-bandbreedte en kWh/MJ omrekenen.</p>
    <span class="go">Openen →</span>
   </button>
   <button class="tile" type="button" data-open="schetsen">
@@ -1224,13 +1224,9 @@ body.v-opname{background-image:none!important}
 <div class="kr-menu" id="kr-menu">
  <button type="button" data-krgo="kr-dak"><b>Dakvormen</b><small>Dak- en gevelvlakken van 10 dakvormen met model, van binnenuit gemeten</small></button>
  <button type="button" data-krgo="kr-ramen"><b>Ramen en deuren</b><small>Oppervlakte van openingen met afwijkende vorm, met tekening</small></button>
- <button type="button" data-krgo="kr-corr"><b>Correctie dakvlak na-isolatie</b><small>Dakvlaklengte bij isolatie aan de binnenkant</small></button>
- <button type="button" data-krgo="kr-dakf"><b>Dakfactor</b><small>Dakoppervlak uit horizontale projectie</small></button>
  <button type="button" data-krgo="kr-glas"><b>Glas in deur</b><small>Percentage glas en dicht deel</small></button>
- <button type="button" data-krgo="kr-versp"><b>Verspringende woning</b><small>Vrije zijgevel bij verspringing</small></button>
  <button type="button" data-krgo="kr-pv"><b>PV verdeler</b><small>Gedeelde zonnepanelen naar rato van Ag over de woningen</small></button>
  <button type="button" data-krgo="kr-ep2"><b>EP2-bandbreedte</b><small>Labelgrenzen per gebruiksfunctie en label bij een EP2-waarde</small></button>
- <button type="button" data-krgo="kr-ww"><b>Woningwaarde</b><small>Indicatieve waardestijging bij een beter label</small></button>
  <button type="button" data-krgo="kr-kwh"><b>kWh, MJ en GJ</b><small>Energie-eenheden omrekenen</small></button>
 </div>
 <div class="kr-grid" id="kr-grid" hidden>
@@ -1352,7 +1348,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-04-0130';
+const ELN_BUILD='2026-11-04-0135';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1819,10 +1815,7 @@ const HELP={
  klein:[
   {at:'#kr-menu',t:'Dakvormen',b:'Onder <b>Dakvormen</b> kies je een van de 10 dakvormen, vult de binnen gemeten maten in en ziet direct een model met genummerde vlakken en de m² per vlak.'},
   {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen. Met <b>← Alle rekenhulpen</b> ga je terug naar dit overzicht.'},
-  {at:'#kr-dakf',t:'Dakfactor',b:'Dakoppervlak uit de horizontale projectie en de hellingshoek.'},
-  {at:'#kr-versp',t:'Verspringende woning',b:'Vrij stuk zijgevel bij een woning die verspringt ten opzichte van de buren.'},
   {at:'#kr-ramen',t:'Ramen en deuren',b:'Kies de vorm van de opening, vul de maten in en zet hem op de lijst. Onderaan staat het totaal in m². De formule staat bij de uitkomst.'},
-  {at:'#kr-corr',t:'Correctie dakvlak',b:'Na-isolatie aan de binnenkant maakt het dakvlak dat je binnen meet korter. Vul hellingshoek, isolatiedikte en de gemeten lengte in en kies waar het dakvlak onder en boven eindigt.'}],
  home:[
   {t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Klik op het <b>?</b> rechtsboven op een tegel: het onderdeel opent en je krijgt een rondleiding met pijlen langs de knoppen.'},
   {at:'#top-help',t:'Terug en uitleg',b:'Met <b>← Dashboard</b> bovenin ga je altijd terug naar dit overzicht. Het <b>?</b> ernaast geeft op elke pagina de uitleg van díe pagina.'},
