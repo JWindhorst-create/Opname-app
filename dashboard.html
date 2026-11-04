@@ -632,7 +632,7 @@ body.v-opname{background-image:none!important}
 .pg0 .eside .eos,.pg0 .eside .epg:not(:has(.eps,.ei)){display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(var(--ofchip,118px),46%),1fr));gap:6px;width:100%;flex:1 1 100%}
 .pg0 .eside .epg:has(.eos){flex:1 1 100%;flex-wrap:wrap}
 .pg0 .eside .ec .eo{width:100%;margin:0;text-align:center!important;display:flex;align-items:center;justify-content:center;min-height:var(--ofh,30px)}
-.pg0 .eside .ec.eop>.eo{width:var(--ofchip,118px);max-width:46%;flex:0 0 auto}
+.pg0 .eside .ec.eop>.eo{width:100%;max-width:100%;flex:1 1 auto}
 .pg0 .eside .ec.ep .epg>.eo{width:var(--ofchip,118px);flex:0 0 auto}
 .pg0 .eside .ec .ei{height:var(--ofh,30px)}
 .pg0 .eside .ec.ep{gap:6px 10px}
@@ -663,6 +663,19 @@ body.v-opname{background-image:none!important}
 .kz-card .kz-opt{grid-template-columns:100px 1fr}
 .kz-card .eos{display:grid!important;grid-template-columns:repeat(4,1fr);gap:5px;width:100%}
 .kz-card .eo{width:100%;min-height:36px;font-size:12.5px!important;text-align:center!important;justify-content:center;display:flex;align-items:center;padding:2px!important}
+
+/* lange woorden laten passen (afbreken met koppelteken, knoppen schalen met hun cel) */
+.pg0 .eside .ec{container-type:inline-size}
+.pg0 .eside .ec.el,.pg0 .eside .ec .eo,.pg0 .eside .eps{hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:10 5 4;overflow-wrap:break-word}
+@media (max-width:700px){
+ #of-form{--oflab:112px}
+ .pg0 .eside .ec.el{padding-left:7px!important;padding-right:5px!important}
+ .pg0 .eside .ec.el{font-size:12.5px!important}
+ .pg0 .eside .eos,.pg0 .eside .epg:not(:has(.eps,.ei)){grid-template-columns:repeat(auto-fill,minmax(min(70px,100%),1fr))!important}
+ .pg0 .eside .eps{white-space:normal!important}
+ .pg0 .eside .ec .eo{font-size:11.5px!important}
+}
+@container (max-width:160px){.pg0 .eside .eos,.pg0 .eside .epg:not(:has(.eps,.ei)){grid-template-columns:repeat(auto-fill,minmax(48px,1fr))!important}}
 </style>
 </head>
 <body>
@@ -3992,7 +4005,7 @@ function ofCollect(){const pages=[];of.defs={};
 function ofCellHtml(c){const inp=(k,d)=>'<input class="ei" data-k="'+k+'" value="'+esc(ofGet(k,d))+'">';
  const chip=(k,t,cur)=>'<button type="button" class="eo'+(cur===t?' on':'')+'" data-k="'+k+'" data-v="'+esc(t)+'">'+esc(t.trim()).replace(/\//g,'/<wbr>')+'</button>';
  const chips=(k,o,d)=>{const cur=ofGet(k,d);return o.length===1?chip(k,o[0],cur):'<span class="eos">'+o.map(t=>chip(k,t,cur)).join('')+'</span>'};
- switch(c.k){case'bar':return['eb',esc(c.t)];case'sub':return['es'+(c.c?' ctr':''),esc(c.t).replace(/\n/g,'<br>')];case'lab':return['el',esc(c.t)];case'txt':return['et'+(c.c?' ctr':''),esc(c.t)];case'box':return['ex',''];case'sep':return['esep',''];case'vl':return['evline',''];
+ switch(c.k){case'bar':return['eb',esc(c.t)];case'sub':return['es'+(c.c?' ctr':''),esc(c.t).replace(/\n/g,'<br>')];case'lab':return['el',esc(c.t).replace(/\//g,'/<wbr>').replace(/(\d)-/g,'$1&#8209;')];case'txt':return['et'+(c.c?' ctr':''),esc(c.t)];case'box':return['ex',''];case'sep':return['esep',''];case'vl':return['evline',''];
   case'val':return['ev'+(c.num?' evnum':''),inp(c.key,c.d)];case'opt':return['eop'+(c.cls?' '+c.cls:''),chips(c.key,c.o,c.d)];
   case'parts':return['ep',c.gs.map(g=>'<span class="epg">'+g.map(it=>it.s!=null?'<span class="eps">'+esc(it.s)+'</span>':it.f?inp(it.key,it.d).replace('class="ei"',it.num?'class="ei ein"':'class="ei" style="flex-grow:'+(it.w||1)+'"'):chips(it.key,it.o,it.d)).join('')+'</span>').join('')];
   case'compass':return['ecomp',ofArrowSvg()+ofRoseLegend()];
