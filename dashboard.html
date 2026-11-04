@@ -516,7 +516,7 @@ body.v-opname{background-image:none!important}
 .rc-bijl{margin-top:10px}.rc-bijl-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}.rc-bijl-it{display:flex;gap:8px;align-items:center}.rc-bijl-it img{width:70px;height:50px;object-fit:contain;border:1px solid var(--line);border-radius:5px;background:#fff}.rc-bijl-it input{flex:1}
 .bsh-step{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px;color:#2D6042}
 .bsh-modes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}@media(max-width:1100px){.bsh-modes{grid-template-columns:1fr 1fr}}@media(max-width:800px){.bsh-modes{grid-template-columns:1fr}}
-.bsh-mode{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;border:2px solid var(--g200);border-radius:12px;padding:14px 16px;cursor:pointer;font:inherit;color:inherit;transition:border-color .12s,box-shadow .12s}
+.bsh-modes{grid-template-columns:1fr 1fr!important}@media(max-width:640px){.bsh-mode{flex-direction:column;gap:8px;padding:12px!important}.bsh-mode small{font-size:12.5px!important;line-height:1.35}}.bsh-mode{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;border:2px solid var(--g200);border-radius:12px;padding:14px 16px;cursor:pointer;font:inherit;color:inherit;transition:border-color .12s,box-shadow .12s}
 .bsh-mode:hover{border-color:var(--g300);box-shadow:0 6px 18px rgba(45,96,66,.1)}.bsh-mode.on{border-color:#2D6042;background:#F2F8F4;box-shadow:0 0 0 3px rgba(45,96,66,.12)}
 .bsh-mode .ic{font-size:26px;line-height:1}.bsh-mode b{display:block;font-size:15.5px;color:#2D6042;margin-bottom:3px}.bsh-mode small{color:var(--muted);font-size:12.5px;line-height:1.4}
 .bsh-how{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 0;padding:9px 14px;background:#F2F8F4;border:1px solid var(--g200);border-radius:10px;font-size:13px}
@@ -1059,8 +1059,8 @@ body.v-opname{background-image:none!important}
   <div class="bsh-step"><b>Wat wil je uitzoeken?</b></div>
   <div class="bsh-modes">
    <button type="button" class="bsh-mode" data-bsmode="ruimte" hidden style="display:none"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg></span><span><b>Hoort een ruimte bij de verwarmde zone?</b><small>Voor bergingen, zolders, garages, kelders, trappenhuizen, serres, technische ruimten en ruimten bij de buren (ISSO §6.3).</small></span></button>
-   <button type="button" class="bsh-mode" data-bsmode="overig"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h4"/></svg></span><span><b>Beslisschema kiezen</b><small>Kies eerst basis- of detailopname, dan de categorie en daarna het beslisschema.</small></span></button>
-   <button type="button" class="bsh-mode" data-bsmode="check"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg></span><span><b>Check object</b><small>Met adres, woning of utiliteit en opnamemethode. Per beslisschema aangeven of het van toepassing is en daarna met één knop alle schema’s doorlopen die van toepassing zijn.</small></span></button>
+   <button type="button" class="bsh-mode" data-bsmode="overig"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h4"/></svg></span><span><b>Beslisschema kiezen</b><small>Methode, categorie en dan het schema.</small></span></button>
+   <button type="button" class="bsh-mode" data-bsmode="check"><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg></span><span><b>Check object</b><small>Adres en methode, per schema van toepassing ja/nee, dan alles doorlopen.</small></span></button>
   </div>
  </div>
  <div id="bsm-overig" hidden>
@@ -1348,7 +1348,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-04-0235';
+const ELN_BUILD='2026-11-04-0250';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
