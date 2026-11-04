@@ -614,6 +614,16 @@ body.v-opname{background-image:none!important}
  .view table,.eside{background:linear-gradient(90deg,#fff 30%,rgba(255,255,255,0)) left/36px 100% no-repeat local,linear-gradient(270deg,#fff 30%,rgba(255,255,255,0)) right/36px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.18),transparent) left/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.18),transparent) right/12px 100% no-repeat scroll;background-color:#fff}
 }
 </style>
+<style id="mobiel-tik">
+@media(max-width:640px){
+ .view .tablewrap table td:last-child,.view .tablewrap table th:last-child,.sp-tab td:last-child,.sp-tab th:last-child{position:sticky;right:0;background:#fff;box-shadow:-6px 0 6px -6px rgba(0,0,0,.25);z-index:1}
+ .view button:not(.tile):not(.bsh-mode),.view .btn{min-height:38px}
+ .view .btn.mini,.view button.mini{min-height:36px;padding-top:7px;padding-bottom:7px}
+ .view td a,.view .src-tab a,.view li a{display:inline-block;padding:6px 0;min-height:30px}
+ .view .link-btn{padding:6px 2px}
+ .view input[type=checkbox],.view input[type=radio]{width:20px;height:20px}
+}
+</style>
 </head>
 <body>
 <div id="tour" hidden><svg id="tour-svg" aria-hidden="true"><defs><marker id="tour-ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FFC83D"/></marker></defs><path id="tour-arrow" fill="none" stroke="#FFC83D" stroke-width="4" stroke-linecap="round" marker-end="url(#tour-ah)"/></svg><div id="tour-hole"></div>
@@ -1348,7 +1358,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-04-0250';
+const ELN_BUILD='2026-11-04-0300';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
