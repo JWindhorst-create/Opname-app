@@ -3817,7 +3817,7 @@ function ofEpaBuild(B){
    p.lab(9,'A','A','Opname');p.opt(9,'B','C',['Basis','Detail'],ofOpnDef(D),{key:'opn_m'});
    p.sub(10,'A','C','Overige algemene gegevens:');
    p.lab(11,'A','A','Aantal bouwlagen');p.val(11,'B','C','',{num:1});
-   p.lab(12,'A','A','Geen fossiele brandstof op perceel');p.opt(12,'B','C',['Ja'],'',{key:'fossiel'})}
+   p.lab(12,'A','A','Fossiele brandstof op perceel');p.opt(12,'B','C',['Ja','Nee'],'',{key:'fossiel'})}
   p.compass(13,16,'A','C');
   // ===== Installaties – volgorde zoals de invoer in Vabi: ventilatie, verwarming, tapwater, koeling, zonne-energie =====
   const isU=ofGet('p1_3B',D.type)==='UTILITEIT';
