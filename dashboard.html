@@ -3820,7 +3820,7 @@ function ofEpaBuild(B){
   // ===== Installaties – volgorde zoals de invoer in Vabi: ventilatie, verwarming, tapwater, koeling, zonne-energie =====
   const isU=ofGet('p1_3B',D.type)==='BOG';
   const VENT=[['@Ventilatie'],['Systeem ventilatie',['Individueel','Collectief']],['Type ventilatie',['NV','MVT','MVA','Balans','Combi']],
-   ...(isU?[['Regeling luchthoeveelheid',['Geen','Tijdklok','Aanwezigheid','CO2 / VOC']],['Luchtbehandelingskast',['Ja','Nee']]]:[['Sturing ventilatie',['Standaard (3-standen)','Drukgestuurd','Tijdsturing','CO2-sturing']]]),
+   ...(isU?[['Regeling luchthoeveelheid',['Geen','Tijdklok','Aanwezigheid','CO2 / VOC']],['Luchtbehandelingskast',['Ja','Nee']],['ZR-rooster','zr']]:[['Sturing ventilatie',['Standaard (3-standen)','Drukgestuurd','Tijdsturing','CO2-sturing']],['CO2-sensor','co2'],['ZR-rooster','zr']]),
    ['WTW aanwezig',JN],['Zo ja, type WTW',['Tegenstroom','Kruisstroom','Platen/buizen','Roterend','Anders']],...(isU?[['Rendement WTW (%)','n']]:[]),
    ['Type ventilator',['Gelijkstroom','Wisselstroom','Draaistroom','Onbekend']]];
   const VERW=[['@Verwarming'],['Systeem',SYS],...(isU?[]:[['Blokverwarming','blok']]),
@@ -3830,12 +3830,12 @@ function ofEpaBuild(B){
    '-',['Ontwerptemperatuur','temp'],['Aanvoertemperatuur',['Stooklijn','Constant']],['Pijpsysteem',['1-Pijps','2-Pijps','Gerenoveerd 1-pijps']],['Binnen thermische schil?',JN],['Leidingen geïsoleerd',['Ja','Nee','Onbekend']],['Leidingen in onverwarmde ruimte','aor'],['Bouwlagen met leidingen','n'],['Aantal warmtemeters','n'],...(isU?[['GACS (> 290 kW)',['Ja','Nee','N.v.t.']]]:[]),
    '-',['Afgiftesysteem',['Radiatoren','Vloerverwarming','Wand/plafond','Ventilatorconvector','Luchtverwarming','Straling']],['Opstelling radiatoren',['Binnenwand','Buitenwand','Voor raam']],...(isU?[]:[['Radiatoren (bij 1-pijps)','n']]),['Regeling',['Kamerthermostaat','Centraal + naregeling','Per ruimte','Overig']]];
   const TAP=isU?[['@Tapwater (ISSO 75.1)'],['Systeem tapwater',SYS],['Meerdere tapwatersystemen','msys'],
-    '-',['Toestel tapwater',['Combi','Geiser','Elektroboiler','WP-boiler','Indirect vat','Doorstromer']],['Gaskeur',['Met','Zonder','Gaskeur HR','Onbekend']],['Type + inhoud vat','vat'],
+    '-',['Toestel tapwater',['Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Doorstromer']],['Gaskeur',['Met','Zonder','Gaskeur HR','Onbekend']],['Type + inhoud vat','vat'],
     '-',['Douche-WTW','dwtw'],['Douches totaal / DWTW','bk'],
     '-',['Leidinglengte tapwater',['≤ 3 M','> 3 M']],['Circulatieleiding','circ'],['Sport- / zwemzaal','sport'],
     ['@Doorvoeren (standleidingen, HWA, VWA)'],['Doorvoeren aanwezig',['Ja','Nee','Onbekend']],['Aantal door therm. schil','n']]
    :[['@Tapwater'],['Systeem keuken',SYS],['Systeem badkamer',SYS],
-    '-',['Toestel tapwater',['Combi','Geiser','Elektroboiler','WP-boiler','Indirect vat','Afleverset']],['Gaskeur',['Met','Zonder','Gaskeur HR & CW','Onbekend']],['CW-klasse',['Onbekend','1','2','3','4/5/6']],['Type + inhoud vat','vat'],['Boiler aanwezig','boiler'],
+    '-',['Toestel tapwater',['Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Afleverset']],['Gaskeur',['Met','Zonder','Gaskeur HR & CW','Onbekend']],['CW-klasse',['Onbekend','1','2','3','4/5/6']],['Type + inhoud vat','vat'],['Boiler aanwezig','boiler'],
     '-',['Douche-WTW','dwtw'],
     '-',['Leidinglengte KK',LL],['Leidinglengte BK',LL],['Bouwlagen rekenzone','n'],
     ['@Doorvoeren (standleidingen, HWA, VWA)'],['Doorvoeren aanwezig',['Ja','Nee','Onbekend']],['Aantal door therm. schil','n']];
@@ -3856,6 +3856,8 @@ function ofEpaBuild(B){
     else if(k==='v')p.val(r,C.a,C.z,'');
     else if(k==='n')p.val(r,C.a,C.z,'',{num:1});
     else if(k==='blok'){p.parts(r,a0,a1,[{f:'*',n:1},{s:'m2'}]);p.parts(r,b0,b1,[{s:'Totaal vermogen'},{f:'*',n:1},{s:'kW'}])}
+    else if(k==='co2')p.parts(r,C.a,C.z,[{s:'in:'},{o:['SLK']},{o:['WK']}]);
+    else if(k==='zr')p.parts(r,C.a,C.z,[{s:'zelfregelend rooster:'},{o:['Aanwezig']}]);
     else if(k==='aor')p.parts(r,C.a,C.z,[{s:'(AOR - AOS of KRUIPRUIMTE)'},{o:JN}]);
     else if(k==='vat')p.parts(r,C.a,C.z,[{s:'type:'},{f:'*',w:3},{s:'inhoud:'},{f:'*',n:1},{s:'L'}])
     else if(k==='bk')p.parts(r,C.a,C.z,[{f:'*',n:1},{s:'/'},{f:'*',n:1}]);
