@@ -3789,7 +3789,7 @@ function ofEpaBuild(B){
   p.bar(2,'A','C','Projectgegevens');p.bar(2,'F','H','Gebouwgegevens');
   p.lab(3,'A','A','Type object');p.opt(3,'B','C',['WONING','BOG'],D.type);
   p.lab(4,'A','A','Adres');p.val(4,'B','C',D.straat);p.lab(5,'A','A','Plaats');p.val(5,'B','C',D.plaats);
-  p.lab(6,'A','A','Opnamedatum');p.val(6,'B','C','');p.lab(7,'A','A','Adviseur');p.val(7,'B','C','');
+  p.lab(6,'A','A','Opnamedatum');p.val(6,'B','C','');p.lab(7,'A','A','Opnemer');p.opt(7,'B','C',['T. Dollee','J. Windhorst']);
   p.lab(8,'A','A','Totaal GO:');p.val(8,'B','B','',{num:1});p.parts(8,'C','C',[{s:'GO BAG:'},{f:'*',v:D.go,n:1}]);
   p.lab(3,'F','F','Bouwjaar:');p.val(3,'G','G',D.bj,{num:1});p.parts(3,'H','H',[{s:'Renovatiejaar:'},{f:'*',n:1}]);
   if(ofGet('p1_3B',D.type)==='BOG'){p.lab(4,'F','F','Gebruik:');p.opt(4,'G','H',['Eigenaar-gebruiker','Verhuurd','(Deels) leegstand'],'',{key:'u_geb'})}else{p.lab(4,'F','F','Woonsituatie:');p.opt(4,'G','H',['Huurder particulier','Huurder sociaal','Eigenaar'])}
