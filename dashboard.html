@@ -1287,6 +1287,7 @@ body.v-opname{background-image:none!important}
  </div>
  <div class="card">
   <button class="btn" type="button" id="ob-praat">🎤 Start inspreken</button>
+  <button class="btn sec" type="button" id="ob-kb" style="width:100%;margin-top:8px">⌨️ Inspreken via de microfoon van je toetsenbord</button>
   <div id="ob-live"></div>
   <label class="f" for="ob-tekst" style="margin-top:8px">Ingesproken tekst</label>
   <textarea id="ob-tekst" rows="7" placeholder="Hier komt alles wat je inspreekt. Je kunt ook typen of aanvullen." style="width:100%"></textarea>
@@ -1500,7 +1501,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1830';
+const ELN_BUILD='2026-11-05-1745';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6213,18 +6214,23 @@ function obRender(){const m=ob.meta;const set=(id,v)=>{const e=$(id);if(e&&docum
  $('ob-resultaat').hidden=!ob.notes.length;const oo=$('ob-obj');if(oo)oo.innerHTML=obObjHtml()}
 // ---- inspreken (doorlopend) ----
 let obRec=null,obAan=false,obBasis='';
-function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je de tekst typen.','err');return}
+function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je de tekst typen of de microfoon van je toetsenbord gebruiken.','err');return}
  if(obAan){obAan=false;try{obRec.stop()}catch(e){}obKnop();setTimeout(obInterpreteer,400);return}
  obAan=true;const tx=$('ob-tekst');obBasis=tx.value.trim();
- const android=/Android/i.test(navigator.userAgent),nz=x=>OBN(x).replace(/[.,!?]/g,'');let stukken=[];
- obRec=new SR();obRec.lang='nl-NL';obRec.continuous=!android;obRec.interimResults=true;
- const toon=tus=>{const t=stukken.join(' ');tx.value=[obBasis,t,tus].filter(Boolean).join(' ');tx.scrollTop=tx.scrollHeight;ob.tekst=[obBasis,t].filter(Boolean).join(' ');obSave()};
- obRec.onresult=e=>{let tus='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i],f=r[0].transcript.trim();if(!r.isFinal){tus=f;continue}if(!f)continue;
-   const L=stukken.length?nz(stukken[stukken.length-1]):'',F=nz(f);if(L&&F.startsWith(L))stukken[stukken.length-1]=f;else if(L&&L.startsWith(F)){}else stukken.push(f)}
-  toon(tus)};
- obRec.onend=()=>{obBasis=[obBasis,stukken.join(' ')].filter(Boolean).join(' ');stukken=[];if(obAan){try{obRec.start()}catch(e){obAan=false;obKnop()}}};
- obRec.onerror=e=>{if(e.error==='no-speech')return;if(e.error==='not-allowed'){obAan=false;obKnop();msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
+ const nz=x=>OBN(x).replace(/[.,!?]/g,'').replace(/\s+/g,' ').trim();let sessie='';
+ // doorlopend luisteren (ook op Android): minder herstarts = geen piepjes, radio wordt minder vaak onderbroken en er vallen geen woorden weg.
+ // Android stuurt eerdere zinnen soms opnieuw mee; daarom de sessietekst steeds opnieuw opbouwen uit alle resultaten en dubbelingen eruit halen.
+ obRec=new SR();obRec.lang='nl-NL';obRec.continuous=true;obRec.interimResults=true;try{obRec.maxAlternatives=1}catch(e){}
+ const toon=tus=>{tx.value=[obBasis,sessie,tus].filter(Boolean).join(' ');tx.scrollTop=tx.scrollHeight;ob.tekst=[obBasis,sessie].filter(Boolean).join(' ');obSave()};
+ obRec.onresult=e=>{const st=[];let tus='';for(let i=0;i<e.results.length;i++){const r=e.results[i],f=r[0].transcript.trim();if(!f)continue;if(!r.isFinal){if(i>=e.resultIndex)tus=f;continue}
+   const L=st.length?nz(st[st.length-1]):'',F=nz(f),A=nz(st.join(' '));
+   if(A&&F.startsWith(A)){st.length=0;st.push(f)}else if(L&&F.startsWith(L))st[st.length-1]=f;else if(A&&(A.endsWith(F)||A.includes(F)&&F.length>12)){}else st.push(f)}
+  sessie=st.join(' ');const S=nz(sessie),T=nz(tus);if(T&&S&&(S.endsWith(T)))tus='';else if(T&&S&&T.startsWith(S))tus=tus.slice(sessie.length).trim();toon(tus)};
+ obRec.onend=()=>{obBasis=[obBasis,sessie].filter(Boolean).join(' ');sessie='';if(obAan){try{obRec.start()}catch(e){setTimeout(()=>{if(obAan)try{obRec.start()}catch(x){obAan=false;obKnop()}},250)}}};
+ obRec.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;if(e.error==='not-allowed'){obAan=false;obKnop();msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
  try{obRec.start()}catch(e){obAan=false}obKnop()}
+// dicteren met de microfoon van het toetsenbord (Gboard e.d.): luistert zonder onderbrekingen
+function obToetsenbord(){const tx=$('ob-tekst');if(obAan)obStart();tx.focus();const n=tx.value.length;try{tx.setSelectionRange(n,n)}catch(e){}if(n&&!/\s$/.test(tx.value)){tx.value+=' ';tx.setSelectionRange(n+1,n+1)}obToetsenbord.start=ob.verwerkt||'';msg('ob-msg','Tik op het <b>microfoontje van je toetsenbord</b> en praat door. Klaar? Tik buiten het tekstvak of op <b>Verwerk tot onderbouwing</b>.','ok')}
 function obKnop(){const b=$('ob-praat');b.classList.toggle('aan',obAan);b.innerHTML=obAan?'■ Stop – maak onderbouwing':'🎤 Start inspreken';$('ob-live').textContent=obAan?'Luisteren… praat gewoon door, tik op Stop als je klaar bent.':''}
 
 // ---- koppeling met het objectdossier: laadt zelf het adres in het objectdossier (op de achtergrond) ----
@@ -6365,7 +6371,7 @@ function obInit(){if(!$('view-onderbouwing')||obInit.ok)return;obInit.ok=1;
  $('ob-addr-btn').addEventListener('click',async()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();if(!ob.meta.adres)return;msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);ob.meta.bag={vbo:r.vbo,pand:r.pand,doel:r.doel,bj:r.bj};$('ob-bj').value=r.bj;obSave();obRender();msg('ob-msg','Bouwjaar uit de BAG: <b>'+r.bj+'</b> ('+esc(r.adres)+'). De forfaitaire Rc-waarden rekenen hiermee.','ok')}else msg('ob-msg','Bouwjaar niet gevonden in de BAG; vul het zelf in.','err');if(!ob.obj||obAdrSleutel(ob.obj.adres||'')!==obAdrSleutel(ob.meta.adres)){ob.obj=null;obKoppel(false)}});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
  ['ob-gebouw','ob-methode'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;ob.meta[id==='ob-gebouw'?'gebouw':'methode']=b.dataset.v;obSave();obRender()}));
  $('ob-praat').addEventListener('click',obStart);try{obDocsInit()}catch(e){console.warn(e)}
- $('ob-maak').addEventListener('click',obInterpreteer);$('ob-tekst').addEventListener('input',e=>{ob.tekst=e.target.value;obSave()});
+ $('ob-maak').addEventListener('click',obInterpreteer);{const kb=$('ob-kb');if(kb)kb.addEventListener('click',obToetsenbord)}$('ob-tekst').addEventListener('blur',()=>{if(obToetsenbord.start!==undefined&&!obAan){const t=$('ob-tekst').value.trim();obToetsenbord.start=undefined;if(t&&t!==(ob.verwerkt||'').trim())setTimeout(()=>{if($('ob-tekst').value.trim()!==(ob.verwerkt||'').trim())obInterpreteer()},150)}});$('ob-tekst').addEventListener('input',e=>{ob.tekst=e.target.value;obSave()});
  $('ob-pdf').addEventListener('click',()=>obPdf('save'));$('ob-prev').addEventListener('click',()=>obPdf('preview'));$('ob-objbtn').addEventListener('click',()=>obKoppel(false));$('ob-obj').addEventListener('click',async e=>{const b=e.target.closest('[data-obvoor]');if(!b)return;if(b.dataset.obvoor==='-1'){if(ob.obj){ob.obj.voor=null;ob.obj.gevels=[];ob.obj.dak=null;try{(await obGevelW()).eval('selectedEdge=-1;renderBoxes();highlightSelected()')}catch(x){}const w=await obGevelW();const d=obObjLees(w);if(d){d.datum=ob.obj.datum;ob.obj=d}obSave();obRender()}return}obKiesVoor(b.dataset.obvoor)});$('ob-objopen').addEventListener('click',()=>{const t=document.querySelector('[data-open="gevel"]');if(t)t.click();else show('gevel')});
  $('ob-nieuw').addEventListener('click',()=>{if(ob.notes.length&&!confirm('Huidige onderbouwing leegmaken en opnieuw beginnen?'))return;ob={meta:{adres:'',datum:new Date().toISOString().slice(0,10),opnemer:ob.meta.opnemer||'J. Windhorst',gebouw:ob.meta.gebouw||'W',methode:ob.meta.methode||'basis',bouwjaar:''},notes:[],tekst:'',verwerkt:'',cur:'object',docs:[]};(window.obDocsWis||(()=>{}))();$('ob-tekst').value='';obSave();obRender();msg('ob-msg','Nieuwe onderbouwing gestart.','ok')});
  $('ob-secties').addEventListener('click',e=>{const d=e.target.closest('[data-obdel]'),c=e.target.closest('[data-obkies]');if(d){ob.notes=ob.notes.filter(n=>n.id!==d.dataset.obdel);obSave();obRender()}if(c){ob.cur=c.dataset.obkies;obSave();obRender()}});
