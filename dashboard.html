@@ -1262,7 +1262,7 @@ body.v-opname{background-image:none!important}
  #ob-praat{width:100%;min-height:58px;font-size:18px}#ob-praat.aan{background:#c0392b;border-color:#c0392b;animation:obp 1.2s infinite}@keyframes obp{0%{box-shadow:0 0 0 0 rgba(192,57,43,.5)}100%{box-shadow:0 0 0 14px rgba(192,57,43,0)}}
  #ob-live{min-height:22px;color:#4a6b5a;font-style:italic;margin:8px 0 2px}.ob-sec.cur{border-color:#245c45;box-shadow:0 0 0 2px rgba(36,92,69,.15)}.ob-kop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.ob-kop h3{margin:0}
  .ob-notes{margin:8px 0 0;padding-left:0;list-style:none}.ob-notes li{display:flex;gap:6px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #e3ece6}.ob-notes li span{flex:1;outline:none;padding:2px 4px;border-radius:4px}.ob-notes li span:focus{background:#f1f7f3}.ob-notes select{max-width:120px;font-size:12px}.ob-notes button{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
- .ob-auto{background:#eef6f0;border:1px solid #cfe2d5;border-radius:8px;padding:8px 10px;margin-top:8px}.ob-auto ul{margin:4px 0 0;padding-left:18px}.ob-ref{margin-top:6px}.btn.sm{padding:5px 10px;font-size:13px}.ob-plus{width:100%;margin-top:8px;border:1px dashed #b9d0c0;border-radius:8px;padding:8px;font:inherit;background:#fbfdfb}</style>
+ .ob-auto{background:#eef6f0;border:1px solid #cfe2d5;border-radius:8px;padding:8px 10px;margin-top:8px}.ob-auto ul{margin:4px 0 0;padding-left:18px}.ob-ref{margin-top:6px}.btn.sm{padding:5px 10px;font-size:13px}#ob-voorbeeld{position:fixed;inset:0;z-index:6500;background:rgba(20,30,25,.92);display:flex;flex-direction:column}#ob-voorbeeld[hidden]{display:none}.obv-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#17463a;color:#fff}.obv-knoppen{display:flex;gap:6px;flex-wrap:wrap}#obv-pag{flex:1;overflow:auto;padding:10px 8px 40px;display:flex;flex-direction:column;align-items:center;gap:10px}#obv-pag canvas{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.4);max-width:100%}.ob-plus{width:100%;margin-top:8px;border:1px dashed #b9d0c0;border-radius:8px;padding:8px;font:inherit;background:#fbfdfb}</style>
  <div class="card">
   <h3>Onderbouwing van de opname</h3>
   <p class="hint" style="margin:0 0 10px">Vertel wat je ziet; elke zin komt onder het juiste onderdeel en krijgt de standaard onderbouwing met de bron uit het opnameprotocol (ISSO 82.1 woningbouw / ISSO 75.1 utiliteit) en NTA 8800. Controleer de tekst voordat je de PDF maakt.</p>
@@ -1272,8 +1272,13 @@ body.v-opname{background-image:none!important}
    <div><label class="f" for="ob-opnemer">Opnemer</label><input type="text" id="ob-opnemer" list="ob-opn-l"><datalist id="ob-opn-l"><option value="J. Windhorst"><option value="T. Dollee"></datalist></div>
    <div><label class="f" for="ob-bj">Bouwjaar</label><input type="text" id="ob-bj" inputmode="numeric" placeholder="bijv. 1965"></div>
    <div><label class="f">Gebouw</label><div class="ob-seg" id="ob-gebouw"><button type="button" data-v="W">Woning (82.1)</button><button type="button" data-v="U">Utiliteit (75.1)</button></div></div>
+   <div><label class="f" for="ob-status">Status</label><select id="ob-status"><option value="concept">Concept</option><option value="definitief">Definitief</option></select></div>
    <div><label class="f">Opname</label><div class="ob-seg" id="ob-methode"><button type="button" data-v="basis">Basis</button><button type="button" data-v="detail">Detail</button></div></div>
   </div>
+ </div>
+ <div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">Objectdossier</h3><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sec" type="button" id="ob-objopen">Objectdossier openen</button><button class="btn" type="button" id="ob-objbtn">📍 Overnemen</button></span></div>
+  <div id="ob-obj"></div>
  </div>
  <div class="card">
   <button class="btn" type="button" id="ob-praat">🎤 Start inspreken</button>
@@ -1284,7 +1289,7 @@ body.v-opname{background-image:none!important}
   <div class="hint" style="margin:8px 0 0">Praat gewoon door over de hele woning (gevels, dak, ramen, installaties …) en tik op <b>Stop</b>: de tekst wordt dan verwerkt tot een onderbouwing per onderdeel. Het blijft een levend document: spreek later gerust meer in of typ erbij en tik op <b>Verwerk</b> – alleen het nieuwe deel wordt toegevoegd, je aanpassingen blijven staan.</div>
  </div>
  <div id="ob-resultaat" hidden><div id="ob-secties"></div></div>
- <div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="ob-pdf">📄 PDF onderbouwing</button><button class="btn sec" type="button" id="ob-nieuw">Nieuwe onderbouwing</button></div><div class="msg" id="ob-msg"></div></div>
+ <div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sec" type="button" id="ob-prev">👁 Voorbeeld bekijken</button><button class="btn" type="button" id="ob-pdf">📄 PDF opslaan</button><button class="btn sec" type="button" id="ob-nieuw">Nieuwe onderbouwing</button></div><div class="msg" id="ob-msg"></div></div>
 </section>
 <section class="view" id="view-kompas" hidden>
  <div class="card">
@@ -1490,7 +1495,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1720';
+const ELN_BUILD='2026-11-05-1720b';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2002,7 +2007,7 @@ const HELP={
   {at:'#ob-addr',t:'1. Object',b:'Vul adres, datum, opnemer en bouwjaar in en kies woning (ISSO 82.1) of utiliteit (ISSO 75.1) en basis- of detailopname. Dat bepaalt de bronverwijzingen in de tekst.'},
   {at:'#ob-praat',t:'2. Inspreken',b:'Tik op <b>Start inspreken</b> en vertel in één keer alles wat je ziet, bijv. <i>“de gevel is een spouwmuur met zes centimeter isolatie volgens factuur, het dak heeft tien centimeter isolatie tegen het dakbeschot, ramen HR plus plus …”</i>. Tik op <b>Stop</b>: de tekst wordt verwerkt tot een onderbouwing per onderdeel. Later meer inspreken of typen en op <b>Verwerk</b> tikken voegt alleen het nieuwe deel toe.'},
   {at:'#ob-secties',t:'3. Controleren',b:'Per onderdeel zie je je waarnemingen (tik erop om te verbeteren, of verplaats ze met de keuzelijst) en de automatische <b>onderbouwing</b>: bijv. de Rc volgens de basismethode bij een isolatiedikte, de glassoort, het ventilatiesysteem of het bewijs, met de paragraaf uit het opnameprotocol.'},
-  {at:'#ob-pdf',t:'4. PDF',b:'Klik op <b>PDF onderbouwing</b>: op briefpapier, met objectgegevens en per onderdeel Waarneming, Onderbouwing en Bron. Met <b>Nieuwe onderbouwing</b> begin je opnieuw.'}],
+  {at:'#ob-prev',t:'4. Voorbeeld en PDF',b:'Met <b>Voorbeeld bekijken</b> lees je de PDF eerst door; daarna <b>Opslaan (concept)</b> of <b>Opslaan als definitief</b>, of terug om aan te passen. <b>PDF opslaan</b> slaat direct op. Is het objectdossier van hetzelfde adres open (voorgevel aangeklikt), dan komen oriëntatie, dakvlakken, hoogte en de gevelkaart er vanzelf in. De PDF: op briefpapier, met objectgegevens en per onderdeel Waarneming, Onderbouwing en Bron. Met <b>Nieuwe onderbouwing</b> begin je opnieuw.'}],
  klein:[
   {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li></ul>Dakvormen staan nu bij <b>Driehoek &amp; dak</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
  home:[
@@ -6132,7 +6137,7 @@ function obSegmenten(tekst){const uit=[];let t=obGetallen(String(tekst||'').repl
    const v1=N[i-1]||'',v2=N[i-2]||'';const geblokt=OB_VZ.has(v1)||(OB_LIDW.has(v1)&&OB_VZ.has(v2))||(ck==='verwarming'&&k==='tapwater'&&/combi/.test(N.slice(start,i).join(' ')))||(ck==='deuren'&&k==='ramen')||(ck==='ramen'&&k==='deuren'&&OB_VZ.has(v1));
    if(!ck){ck=k;continue}if(geblokt)continue;
    const QUAL=w=>OB_TERUG.has(w)&&!OB_VERB.has(w)&&!OB_CONN.has(w)||isGetal(w);let j=i;while(j-1>start&&QUAL(N[j-1]))j--;
-   {let j2=j,con=false;while(j2-1>start&&(OB_VERB.has(N[j2-1])||OB_CONN.has(N[j2-1])||QUAL(N[j2-1]))){j2--;if(OB_CONN.has(N[j2]))con=true}if(con&&j2>start)j=j2;else if(con&&j2===start){}}
+   {let j2=j,con=false;while(j2-1>start&&(OB_VERB.has(N[j2-1])||OB_CONN.has(N[j2-1])||QUAL(N[j2-1]))){j2--;if(OB_CONN.has(N[j2]))con=true}if((con||['er','ik','we','wij'].includes(N[j2]))&&j2>start)j=j2}
    if(j<=start)j=Math.min(i,start+1);
    if(j-start>=2||(j-start>=1&&OB_TRIG[N[start]])){uit.push(w.slice(start,j).join(' '));start=j;ck=k}}
   if(start<w.length)uit.push(w.slice(start).join(' '))});
@@ -6141,7 +6146,7 @@ async function obInterpreteer(){const t=$('ob-tekst').value;ob.tekst=t;const oud
  if(oud&&t.startsWith(oud)){nieuw=t.slice(oud.length)}else{if(oud&&ob.notes.length&&!confirm('Je hebt eerder ingesproken tekst aangepast. Alles opnieuw verwerken? (aanpassingen in de onderdelen gaan dan verloren)'))return;ob.notes=[];nieuw=t}
  ob.verwerkt=t;if(!nieuw.trim()){obSave();obRender();msg('ob-msg','Geen nieuwe tekst. Spreek iets in of typ erbij en tik op Verwerk.','err');return}
  if(!ob.meta.bouwjaar){const mj=OBN(nieuw).match(/(?:bouwjaar|gebouwd in|uit|van)\s+(1[89]\d\d|20[0-3]\d)\b/);if(mj){ob.meta.bouwjaar=mj[1];$('ob-bj').value=mj[1]}}
- if(!ob.meta.bouwjaar&&ob.meta.adres){msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);$('ob-bj').value=r.bj}}
+ if(!ob.meta.bouwjaar&&ob.meta.adres){msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);ob.meta.bag={vbo:r.vbo,pand:r.pand,doel:r.doel,bj:r.bj};$('ob-bj').value=r.bj}}
  const segs=obSegmenten(nieuw);const voor=ob.notes.length;let last=ob.notes.length?ob.notes[ob.notes.length-1].k:'object';
  segs.forEach(sg=>{const r=obIndeel(sg);if(!r||!r.t)return;let k=r.k;if(k==='overig'||(!OBS.find(s=>s.k===k)))k=last;
   // bewijs-zinnen bij het onderdeel ervoor laten
@@ -6155,7 +6160,7 @@ const OB_ONGEIS={gevel:[.19,.35],dak:[.22,.35],vloer:[.15,.33]};
 function obForf(el,bj){bj=parseInt(bj,10);if(!(bj>1500))return null;if(bj<1965)return{rc:OB_ONGEIS[el][0],kl:'vóór 1965',tab:'tabel 8.9'};const r=OB_FORF[el].find(([a,b])=>bj>=a&&bj<b);return r?{rc:r[2],kl:r[1]>=9999?'vanaf '+r[0]:r[0]+' tot '+r[1],tab:'tabel 8.10'}:null}
 async function obBagBouwjaar(adres){try{const j=await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?'+new URLSearchParams({q:adres,fq:'type:adres',rows:'1',fl:'*'})).then(r=>r.json());const a=j.response&&j.response.docs&&j.response.docs[0];if(!a)return null;
  const vf=await bagVbo(a);if(!vf)return null;const hrefs=[].concat(vf.properties['pand.href']||[]);const p=(await Promise.all(hrefs.slice(0,3).map(h=>fetch(h+(h.includes('?')?'&':'?')+'f=json').then(r=>r.ok?r.json():null).catch(()=>null)))).filter(Boolean).map(x=>x.properties||{});
- const bj=p.map(x=>x.bouwjaar).filter(Boolean).map(Number);return bj.length?{bj:Math.min(...bj),adres:a.weergavenaam}:null}catch(e){return null}}
+ const bj=p.map(x=>x.bouwjaar).filter(Boolean).map(Number);return bj.length?{bj:Math.min(...bj),adres:a.weergavenaam,vbo:vf.properties.identificatie||a.adresseerbaarobject_id||'',pand:p.map(x=>x.identificatie).filter(Boolean).join(', '),doel:vf.properties.gebruiksdoel||''}:null}catch(e){return null}}
 // ---- automatische onderbouwing per onderdeel ----
 const F2=x=>Number(x).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
 function obAuto(k,notes){const a=[],txt=OBN(notes.map(x=>x.t).join(' ')),has=re=>re.test(txt),P=isso(),bas=ob.meta.methode!=='detail';
@@ -6200,7 +6205,7 @@ function obRender(){const m=ob.meta;const set=(id,v)=>{const e=$(id);if(e&&docum
  $('ob-secties').innerHTML=ks.map(s=>{const ns=ob.notes.filter(n=>n.k===s.k),au=obAuto(s.k,ns);return'<div class="card ob-sec" data-k="'+s.k+'"><div class="ob-kop"><h3>'+esc(s.t)+'</h3></div>'+
   (ns.length?'<ul class="ob-notes">'+ns.map(n=>'<li><span contenteditable="true" data-obedit="'+n.id+'">'+esc(n.t)+'</span><select data-obmove="'+n.id+'" title="Verplaats naar ander onderdeel">'+OBS.map(o=>'<option value="'+o.k+'"'+(o.k===n.k?' selected':'')+'>'+esc(o.t)+'</option>').join('')+'</select><button type="button" data-obdel="'+n.id+'" title="Weghalen">✕</button></li>').join('')+'</ul>':'<p class="hint" style="margin:6px 0">Nog niets ingesproken voor dit onderdeel.</p>')+
   (au.length?'<div class="ob-auto"><b>Onderbouwing</b><ul>'+au.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'')+'<input class="ob-plus" data-obplus="'+s.k+'" placeholder="+ regel toevoegen bij '+esc(s.t.toLowerCase())+' (Enter)"><div class="hint ob-ref">Bron: '+esc(refTxt(s.k))+'</div></div>'}).join('');
- $('ob-resultaat').hidden=!ob.notes.length}
+ $('ob-resultaat').hidden=!ob.notes.length;const oo=$('ob-obj');if(oo)oo.innerHTML=obObjHtml()}
 // ---- inspreken (doorlopend) ----
 let obRec=null,obAan=false,obBasis='';
 function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je de tekst typen.','err');return}
@@ -6216,26 +6221,103 @@ function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecogni
  obRec.onerror=e=>{if(e.error==='no-speech')return;if(e.error==='not-allowed'){obAan=false;obKnop();msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
  try{obRec.start()}catch(e){obAan=false}obKnop()}
 function obKnop(){const b=$('ob-praat');b.classList.toggle('aan',obAan);b.innerHTML=obAan?'■ Stop – maak onderbouwing':'🎤 Start inspreken';$('ob-live').textContent=obAan?'Luisteren… praat gewoon door, tik op Stop als je klaar bent.':''}
-// ---- PDF op briefpapier ----
-async function obPdf(){if(!ob.notes.length){msg('ob-msg','Spreek eerst iets in.','err');return}
- try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
- const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),T=s=>pdTxt(String(s??'')),m=ob.meta,P=isso();
- const CT=elnCtrl(doc,{title:'Onderbouwing van de opname',sub:[m.adres,m.datum?m.datum.split('-').reverse().join('-'):''].filter(Boolean).join('  |  '),T});
- doc.autoTable({startY:CT.TOP1,theme:'plain',styles:{fontSize:9.5,cellPadding:1.3},columnStyles:{0:{fontStyle:'bold',cellWidth:42}},margin:{left:14,right:14,top:CT.TOP,bottom:22},
-  body:[['Adres',T(m.adres||'-')],['Datum opname',T(m.datum?m.datum.split('-').reverse().join('-'):'-')],['Opnemer',T(m.opnemer||'-')],['Gebouw',T(m.gebouw==='U'?'Utiliteit (EP-U)':'Woning (EP-W)')],['Opname',T((m.methode==='detail'?'Detailopname':'Basisopname')+' volgens '+P)],...(m.bouwjaar?[['Bouwjaar',T(m.bouwjaar)]]:[])]});
- let y=doc.lastAutoTable.finalY+4;doc.setFontSize(9);doc.setTextColor(60);const intro=doc.splitTextToSize(T('Deze onderbouwing legt per onderdeel vast wat tijdens de opname is waargenomen en op welke grond de invoer is bepaald. De opname is uitgevoerd volgens het opnameprotocol '+P+(m.gebouw==='U'?' (utiliteitsbouw)':' (woningbouw)')+'; de energieprestatie is berekend volgens NTA 8800. Bewijsstukken zijn opgenomen in het projectdossier.'),182);doc.text(intro,14,y);y+=intro.length*4+3;doc.setTextColor(23,37,28);
- for(const s of OBS){const ns=ob.notes.filter(n=>n.k===s.k);if(!ns.length)continue;const au=obAuto(s.k,ns);
-  doc.autoTable({startY:y,head:[[{content:T(s.t),colSpan:2}]],body:[['Waarneming',T(ns.map(n=>'– '+n.t).join('\n'))],...(au.length?[['Onderbouwing',T(au.map(x=>'– '+x).join('\n'))]]:[]),['Bron',T(refTxt(s.k))]],theme:'grid',styles:{fontSize:9,cellPadding:2.2,lineColor:[197,217,202],lineWidth:.2,valign:'top'},columnStyles:{0:{fontStyle:'bold',cellWidth:30,textColor:[70,90,80]}},headStyles:ELN_HS,margin:{left:14,right:14,top:CT.TOP,bottom:22}});y=doc.lastAutoTable.finalY+4}
- elnCtrlFoot(doc,'Onderbouwing '+(m.adres||''),T);
- const clean=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]+/gi,'_').replace(/^_+|_+$/g,'');doc.save('Onderbouwing_van_de_opname_'+(clean(m.adres)||'zonder_adres')+'.pdf');msg('ob-msg','PDF opgeslagen.','ok')}catch(e){console.error(e);msg('ob-msg','PDF maken lukte niet: '+esc(e.message),'err')}}
+
+// ---- koppeling met het objectdossier (zelfde dashboard, ander tabblad) ----
+const obAdrSleutel=a=>{const t=OBN(a).replace(/\s/g,''),pc=(t.match(/\d{4}[a-z]{2}/)||[''])[0],nr=(OBN(a).match(/\b(\d+)\s*[a-z]?\b/)||['',''])[1];return pc&&nr?pc+'-'+nr:t};
+async function obObjectdossier(stil){const fr=$('gevel-frame'),w=fr&&fr.contentWindow;if(!w||!w.document||!w.document.getElementById('address-line'))return{fout:'Het objectdossier is nog niet geopend. Open het objectdossier, zoek het adres en klik de voorgevel aan.'};
+ let d;try{d=w.eval(`(()=>{if(!buildingData)return null;const t=id=>((document.getElementById(id)||{}).textContent||'').trim();const voor=selectedEdge>=0&&edges[selectedEdge]?edges[selectedEdge].deg:null;const fs=facadeSet();let R=null;try{R=roofGroups()}catch(e){}
+  const rol=f=>f.role==='voorgevel'?'Voorgevel':f.role==='achtergevel'?'Achtergevel':f.off===90?'Linkergevel':f.off===270?'Rechtergevel':'Zijgevel';
+  return JSON.stringify({adres:[t('address-line'),[t('address-postcode'),t('address-city')].filter(Boolean).join(' ')].filter(Boolean).join(', '),voor,
+   gevels:fs.map(f=>({rol:rol(f),deg:f.deg,dir:dirName(f.deg),len:Math.round(f.length*10)/10})),
+   dak:R?{vlakken:R.vlakken.map(v=>({az:v.az,dir:dirName(v.az),slope:v.slope,area:v.area,side:roofSideName(v.az,voor)})),plat:R.plat}:null,
+   hoogte:(threeDBAGMaxZ!=null&&threeDBAGGroundHeight!=null)?Math.round((threeDBAGMaxZ-threeDBAGGroundHeight)*100)/100:null,
+   bouwjaar:(buildingData.properties&&(buildingData.properties.bouwjaar||buildingData.properties.oorspronkelijkBouwjaar))||null,pand:(buildingData.properties&&buildingData.properties.identificatie)||'',vbo:woningObjectId||''})})()`)}catch(e){return{fout:'Objectdossier uitlezen lukte niet: '+e.message}}
+ if(!d)return{fout:'Zoek in het objectdossier eerst het adres op.'};d=JSON.parse(d);if(d.voor==null)return{fout:'Klik in het objectdossier eerst de voorgevel aan (op de kaart).',d};
+ d.datum=new Date().toLocaleDateString('nl-NL');return{d}}
+async function obKoppel(stil){const r=await obObjectdossier();if(r.fout){if(!stil)msg('ob-msg',esc(r.fout),'err');return false}const d=r.d;
+ if(ob.meta.adres&&obAdrSleutel(ob.meta.adres)!==obAdrSleutel(d.adres)){if(stil)return false;if(!confirm('Het objectdossier staat op '+d.adres+', de onderbouwing op '+ob.meta.adres+'. Toch overnemen?'))return false}
+ ob.obj=d;if(!ob.meta.adres){ob.meta.adres=d.adres;$('ob-addr').value=d.adres}if(d.bouwjaar&&!ob.meta.bouwjaar){ob.meta.bouwjaar=String(d.bouwjaar);$('ob-bj').value=d.bouwjaar}
+ if(d.bouwjaar||d.vbo||d.pand)ob.meta.bag=Object.assign({},ob.meta.bag||{},{vbo:d.vbo||(ob.meta.bag||{}).vbo,pand:d.pand||(ob.meta.bag||{}).pand,bj:d.bouwjaar||(ob.meta.bag||{}).bj});
+ obSave();obRender();if(!stil)msg('ob-msg','Objectdossier gekoppeld: oriëntatie van '+d.gevels.length+' gevels'+(d.dak&&d.dak.vlakken.length?', '+d.dak.vlakken.length+' dakvlak(ken)':'')+(d.hoogte?', hoogte '+String(d.hoogte).replace('.',',')+' m':'')+'. Dit komt in de PDF (met de gevelkaart als bijlage).','ok');return true}
+function obObjHtml(){const d=ob.obj;if(!d)return'<p class="hint" style="margin:6px 0 0">Nog niet gekoppeld. Open het objectdossier voor dit adres, klik de voorgevel aan en tik hier op <b>Overnemen</b>. Bij het maken van de PDF probeert de app het ook zelf.</p>';
+ return'<div class="hint" style="margin:6px 0 0"><b>'+esc(d.adres)+'</b> · overgenomen '+esc(d.datum)+'<br>'+d.gevels.map(g=>esc(g.rol)+' '+g.dir+' '+g.deg+'°').join(' · ')+(d.dak&&d.dak.vlakken.length?'<br>Dak: '+d.dak.vlakken.map(v=>esc(v.side)+' '+v.dir+' '+v.slope+'°').join(' · '):'')+(d.dak&&d.dak.plat>=1?' · plat '+String(d.dak.plat).replace('.',',')+' m²':'')+(d.hoogte?'<br>Hoogste punt '+String(d.hoogte).replace('.',',')+' m boven maaiveld (3DBAG)':'')+'</div>'}
+// ---- PDF op briefpapier, opbouw zoals de onderbouwing Stationsweg 41 ----
+const OB_OPEN=/\b(opvragen|opgevraagd|navragen|nagevraagd|nog niet|ontbreekt|ontbreken|niet aangeleverd|niet ontvangen|open punt|nog controleren|moet nog|volgt nog|nakijken)\b/;
+const OB_LBL={gevel:'Gevel',dak:'Dak',vloer:'Vloer',ramen:'Ramen',deuren:'Deuren',verwarming:'Verwarming',koeling:'Koeling',tapwater:'Tapwater',ventilatie:'Ventilatie',pv:'PV',verlichting:'Verlichting',zone:'Zonering',geometrie:'Geometrie',object:'Object',bewijs:'Bewijs',overig:'Overig'};
+const OB_VW={gevel:'§8.7',dak:'§8.7',vloer:'§8.4, §8.7',ramen:'§8.7, §8.8',deuren:'§8.7',verwarming:'H9',koeling:'H10',tapwater:'H13',ventilatie:'H11',pv:'§15.4',verlichting:'H14',zone:'§6.3',geometrie:'§8.2',object:'§7.1',overig:''};
+async function obPdf(mode){mode=mode==='preview'?'preview':'save';if(!ob.notes.length){msg('ob-msg','Spreek eerst iets in.','err');return}
+ try{await obKoppel(true);await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+ const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),T=s=>pdTxt(String(s??'')),m=ob.meta,P=isso(),U=m.gebouw==='U',W=210,ML=14,CW=W-2*ML,datum=m.datum?m.datum.split('-').reverse().join('-'):'';
+ const status=(m.status||'concept')==='concept'?'CONCEPT':'';const kort=(m.adres||'').split(',').slice(0,2).join(',').trim();
+ const CT=elnCtrl(doc,{title:'Onderbouwing energielabel '+(U?'utiliteit':'woning'),sub:[m.adres,datum?'opname '+datum:'',m.methode==='detail'?'detailopname':'basisopname',m.opnemer?'EP-adviseur '+m.opnemer:'',status].filter(Boolean).join('  |  '),T});
+ const MRG={left:ML,right:ML,top:CT.TOP,bottom:22},HS=Object.assign({},ELN_HS),ST={fontSize:8.6,cellPadding:1.8,lineColor:[205,222,210],lineWidth:.2,valign:'top'};
+ let y=CT.TOP1,hn=0;const H=t=>{if(y>255){doc.addPage();y=CT.TOP+4}doc.setFont('helvetica','bold');doc.setFontSize(12.5);doc.setTextColor(45,96,66);doc.text(T((++hn)+'. '+t),ML,y+4);y+=8;doc.setTextColor(23,37,28)};
+ const P_=t=>{if(!t)return;doc.setFont('helvetica','normal');doc.setFontSize(9);const l=doc.splitTextToSize(T(t),CW);if(y+l.length*4>275){doc.addPage();y=CT.TOP+4}doc.text(l,ML,y+1);y+=l.length*4+2};
+ const TB=(head,body,cs)=>{doc.autoTable({startY:y,head:[head.map(T)],body:body.map(r=>r.map(T)),theme:'grid',styles:ST,headStyles:HS,columnStyles:cs||{},margin:MRG});y=doc.lastAutoTable.finalY+4};
+ // open punten verzamelen
+ const open=[];const markeer=n=>{if(!OB_OPEN.test(OBN(n.t)))return n.t;const i=open.findIndex(o=>o.id===n.id);const nr=i>=0?i+1:open.push({id:n.id,t:n.t});return n.t+' [open '+nr+']'};
+ const ns=k=>ob.notes.filter(n=>n.k===k),heeft=k=>ns(k).length>0;
+ const rijen=(ks,lbl)=>{const out=[];ks.forEach(k=>{const lst=ns(k);lst.forEach((n,i)=>{const au=obAuto(k,[n]).filter(x=>!/^Bewijs:/.test(x));out.push([lbl?lbl(k,i,lst.length):(OB_LBL[k]+(lst.length>1?' '+(i+1):'')),markeer(n)+(au.length?'\n'+au.join('\n'):''),(P+' '+(OB_VW[k]||'')).trim()])})});return out};
+ // 1. Object en uitgangspunten
+ H('Object en uitgangspunten');const bag=m.bag||{};const o1=[];
+ if(heeft('object'))o1.push(['Object',ns('object').map(markeer).join(' ')]);
+ o1.push(['Adres',(m.adres||'-')+(bag.vbo?' (BAG-verblijfsobject '+bag.vbo+')':'')]);
+ if(bag.doel)o1.push(['Gebruiksdoel BAG',bag.doel]);
+ if(m.bouwjaar)o1.push(['Bouwjaar',m.bouwjaar+(bag.bj&&String(bag.bj)===String(m.bouwjaar)?': oorspronkelijk bouwjaar volgens BAG'+(bag.pand?' (pand '+bag.pand+')':'')+' ('+P+' §7.1).':'.')]);
+ o1.push(['Opname',(m.methode==='detail'?'Detailopname':'Basisopname')+', NTA 8800, '+P+', BRL 9500-'+(U?'U':'W')+'.']);
+ o1.push(['Zonnepanelen',heeft('pv')?'Aanwezig, zie het hoofdstuk Zonne-energie.':'Geen zonnepanelen waargenomen.']);
+ TB(['Onderdeel','Uitgangspunt'],o1,{0:{cellWidth:38,fontStyle:'bold'}});
+ const OD=ob.obj;
+ if(OD){H('Oriëntatie en gevels');P_('Oriëntatie volgens het objectdossier van '+OD.datum+' (BAG-pandcontour en 3DBAG, bijlage 1). Gevelnamen gezien vanaf de straat met de voorgevel voor je.');
+  TB(['Gevel','Richting','Graden','Lengte BAG [m]'],OD.gevels.map(g=>[g.rol,g.dir,g.deg+'°',g.len?String(g.len).replace('.',','):'-']),{0:{cellWidth:45,fontStyle:'bold'}});
+  if(OD.dak&&(OD.dak.vlakken.length||OD.dak.plat>=1)){P_('Dakvlakken volgens 3DBAG (LoD 2.2); helling < 15° is plat dak (horizontaal), > 75° is gevel ('+P+' §8.6).');TB(['Dakvlak','Richting','Helling','Oppervlak 3DBAG [m²]'],OD.dak.vlakken.map(v=>[v.side,v.dir+' '+v.az+'°',v.slope+'°',String(v.area).replace('.',',')]).concat(OD.dak.plat>=1?[['Plat dak','Horizontaal','< 15°',String(OD.dak.plat).replace('.',',')]]:[]),{0:{cellWidth:45,fontStyle:'bold'}})}
+  if(OD.hoogte)P_('Hoogste punt '+String(OD.hoogte).replace('.',',')+' m boven maaiveld (3DBAG).')}
+ // 2. Oppervlakte / geometrie
+ if(heeft('geometrie')){H(U?'Gebruiksfuncties en oppervlakte':'Gebruiksoppervlakte en geometrie');P_('Oppervlakten binnenwerks bepaald volgens '+P+' §8.2; oriëntatie volgens het objectdossier (BAG-pandcontour).');TB(['Onderdeel','Opname','Verwijzing'],rijen(['geometrie']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ // 3. Zonering
+ if(heeft('zone')){H('Zonering');P_('De thermische zone is bepaald met de beslisschema’s van '+P+' §6.3.');TB(['Onderdeel','Opname','Verwijzing'],rijen(['zone'],(k,i,n)=>'Ruimte'+(n>1?' '+(i+1):'')),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ // 4. Thermische schil
+ if(['gevel','dak','vloer'].some(heeft)){H('Thermische schil: gevels, dak en vloer');P_('Opname van de constructies volgens '+P+' §8.1 en §8.7. De Rc-waarden komen overeen met de invoer in Vabi; is de isolatie niet vast te stellen, dan is de forfaitaire waarde op basis van het bouwjaar gebruikt (NTA 8800 bijlage I).');TB(['Constructie','Opname en invoer','Verwijzing'],rijen(['gevel','dak','vloer']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ // 5. Ramen en deuren
+ if(['ramen','deuren'].some(heeft)){H('Ramen en deuren');TB(['Element','Opname en invoer','Verwijzing'],rijen(['ramen','deuren']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}});P_('Kozijnen en beglazing volgens '+P+' §8.7; zonwering, overstekken en belemmeringen volgens §8.8, §8.9 en hoofdstuk 16.')}
+ // 6. Verwarming en koeling
+ if(['verwarming','koeling'].some(heeft)){H(heeft('koeling')?'Verwarming en koeling':'Verwarming');TB(['Onderdeel','Opname','Verwijzing'],rijen(['verwarming','koeling']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ if(heeft('tapwater')){H('Warm tapwater');TB(['Onderdeel','Opname','Verwijzing'],rijen(['tapwater']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ if(heeft('ventilatie')){H('Ventilatie');TB(['Onderdeel','Opname','Verwijzing'],rijen(['ventilatie']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ if(heeft('pv')){H('Zonne-energie');TB(['Onderdeel','Opname','Verwijzing'],rijen(['pv']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ if(U&&heeft('verlichting')){H('Verlichting');P_('Alleen gebouwgebonden binnenverlichting ('+P+' hoofdstuk 14).');TB(['Onderdeel','Opname','Verwijzing'],rijen(['verlichting']),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ if(heeft('overig')){H('Overige opmerkingen');TB(['Onderdeel','Opname','Verwijzing'],rijen(['overig'],(k,i)=>'Opmerking '+(i+1)),{0:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:30}})}
+ // Bewijslast
+ const bw=[];const bwTxt=k=>{const t=OBN(ns(k).map(n=>n.t).join(' ')+' '+ns('bewijs').map(n=>n.t).join(' ')),b=[];if(/factuur|werkbon/.test(t))b.push('factuur/werkbon');if(/\bfoto/.test(t))b.push('foto’s');if(/tekening|bestek|opleverdossier/.test(t))b.push('bouwtekening/bestek');if(/kwaliteitsverklaring|bcrg/.test(t))b.push('kwaliteitsverklaring (BCRG)');if(/typeplaat/.test(t))b.push('typeplaatje');if(/afstandhouder|stempel/.test(t))b.push('foto afstandhouderprofiel');return b};
+ bw.push(['Oriëntatie en BAG',OD?'Objectdossier '+OD.datum+' (bijlage 1)'+(bag.vbo?', BAG-verblijfsobject '+bag.vbo:''):(bag.vbo?'BAG-registratie (verblijfsobject '+bag.vbo+')':'BAG-registratie')]);
+ [['Constructies',['gevel','dak','vloer']],['Ramen en deuren',['ramen','deuren']],['Installaties',['verwarming','koeling','tapwater','ventilatie','pv']]].forEach(([l,ks])=>{if(!ks.some(heeft))return;const b=[...new Set(ks.flatMap(k=>heeft(k)?bwTxt(k):[]))];bw.push([l,b.length?b.join(', '):'waarneming tijdens de opname'])});
+ ns('bewijs').forEach(n=>bw.push(['Overig',markeer(n)]));
+ H('Bewijslast');TB(['Onderwerp','Bewijs'],bw,{0:{cellWidth:45,fontStyle:'bold'}});
+ // Open punten
+ if(open.length){H('Open punten');TB(['Nr.','Open punt'],open.map((o,i)=>[String(i+1),o.t]),{0:{cellWidth:14,halign:'center'}})}
+ if(OD){try{const fr=$('gevel-frame').contentWindow;const img=await fr.eval('captureMap()');if(img&&img.url&&img.url.length>100){doc.addPage();let yy=CT.TOP+6;doc.setFont('helvetica','bold');doc.setFontSize(12.5);doc.setTextColor(45,96,66);doc.text(T('Bijlage 1 - Gevelkaart en oriëntatie (objectdossier '+OD.datum+')'),ML,yy);doc.setTextColor(23,37,28);const ww=CW,hh=Math.min(200,ww*img.h/img.w);doc.addImage(img.url,'JPEG',ML,yy+5,hh===200?200*img.w/img.h:ww,hh);doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(T('Pandcontour en gevellijnen volgens BAG; rood = gekozen voorgevel.'),ML,yy+hh+10)}}catch(e){console.warn('gevelkaart',e)}}
+ elnCtrlFoot(doc,'Onderbouwing '+kort,T);
+ const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(110);doc.text(T('Onderbouwing '+kort+(status?' - concept':'')),ML,297-13)}
+ const clean=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]+/gi,'_').replace(/^_+|_+$/g,'');const naam='Onderbouwing_'+(clean(kort)||'zonder_adres')+(status?'_CONCEPT':'')+'.pdf';if(mode==='preview'){await obVoorbeeld(doc.output('arraybuffer'),naam)}else{doc.save(naam);msg('ob-msg','PDF opgeslagen: '+esc(naam),'ok')}}catch(e){console.error(e);msg('ob-msg','PDF maken lukte niet: '+esc(e.message),'err')}}
+
+// ---- voorbeeld van de PDF (werkt ook op Android: pagina's als afbeelding via pdf.js) ----
+async function obVoorbeeld(buf,naam){let ov=$('ob-voorbeeld');if(!ov){document.body.insertAdjacentHTML('beforeend','<div id="ob-voorbeeld" hidden><div class="obv-bar"><b id="obv-titel">Voorbeeld</b><span class="obv-knoppen"><button class="btn sec" type="button" id="obv-terug">← Aanpassen</button><button class="btn sec" type="button" id="obv-concept">Opslaan (concept)</button><button class="btn" type="button" id="obv-def">Opslaan als definitief</button></span></div><div id="obv-pag"></div></div>');ov=$('ob-voorbeeld');
+  $('obv-terug').onclick=()=>{ov.hidden=true;document.body.style.overflow=''};
+  $('obv-concept').onclick=async()=>{ov.hidden=true;document.body.style.overflow='';ob.meta.status='concept';$('ob-status').value='concept';obSave();await obPdf('save')};
+  $('obv-def').onclick=async()=>{ov.hidden=true;document.body.style.overflow='';ob.meta.status='definitief';$('ob-status').value='definitief';obSave();await obPdf('save')}}
+ ov.hidden=false;document.body.style.overflow='hidden';$('obv-titel').textContent='Voorbeeld · '+naam.replace(/_/g,' ').replace(/\.pdf$/,'');const box=$('obv-pag');box.innerHTML='<p class="hint" style="color:#fff">Voorbeeld laden…</p>';
+ try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');const lib=window.pdfjsLib;if(!lib.GlobalWorkerOptions.workerSrc){try{const src=await fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js').then(r=>r.text());lib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([src],{type:'text/javascript'}))}catch(e){lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}}
+  const pdf=await lib.getDocument({data:new Uint8Array(buf)}).promise;box.innerHTML='';const bw=Math.min(900,box.clientWidth-16||360);
+  for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),v0=pg.getViewport({scale:1}),sc=bw/v0.width*(window.devicePixelRatio||1),v=pg.getViewport({scale:sc}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;c.style.width=bw+'px';box.appendChild(c);await pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise}}
+ catch(e){console.warn(e);const u=URL.createObjectURL(new Blob([buf],{type:'application/pdf'}));box.innerHTML='<iframe src="'+u+'" style="width:100%;height:80vh;border:0;background:#fff"></iframe>'}}
 // ---- koppelen ----
 function obInit(){if(!$('view-onderbouwing')||obInit.ok)return;obInit.ok=1;
- const mm=(id,k)=>$(id).addEventListener('input',e=>{ob.meta[k]=e.target.value;obSave()});mm('ob-addr','adres');mm('ob-datum','datum');mm('ob-opnemer','opnemer');mm('ob-bj','bouwjaar');$('ob-bj').addEventListener('change',()=>obRender());
- $('ob-addr-btn').addEventListener('click',async()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();if(!ob.meta.adres)return;msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);$('ob-bj').value=r.bj;obSave();obRender();msg('ob-msg','Bouwjaar uit de BAG: <b>'+r.bj+'</b> ('+esc(r.adres)+'). De forfaitaire Rc-waarden rekenen hiermee.','ok')}else msg('ob-msg','Bouwjaar niet gevonden in de BAG; vul het zelf in.','err')});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
+ const mm=(id,k)=>$(id).addEventListener('input',e=>{ob.meta[k]=e.target.value;obSave()});mm('ob-addr','adres');mm('ob-datum','datum');mm('ob-opnemer','opnemer');mm('ob-bj','bouwjaar');{const st=$('ob-status');if(st){st.value=ob.meta.status||'concept';st.addEventListener('change',e=>{ob.meta.status=e.target.value;obSave()})}}$('ob-bj').addEventListener('change',()=>obRender());
+ $('ob-addr-btn').addEventListener('click',async()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();if(!ob.meta.adres)return;msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);ob.meta.bag={vbo:r.vbo,pand:r.pand,doel:r.doel,bj:r.bj};$('ob-bj').value=r.bj;obSave();obRender();msg('ob-msg','Bouwjaar uit de BAG: <b>'+r.bj+'</b> ('+esc(r.adres)+'). De forfaitaire Rc-waarden rekenen hiermee.','ok')}else msg('ob-msg','Bouwjaar niet gevonden in de BAG; vul het zelf in.','err')});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
  ['ob-gebouw','ob-methode'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;ob.meta[id==='ob-gebouw'?'gebouw':'methode']=b.dataset.v;obSave();obRender()}));
  $('ob-praat').addEventListener('click',obStart);
  $('ob-maak').addEventListener('click',obInterpreteer);$('ob-tekst').addEventListener('input',e=>{ob.tekst=e.target.value;obSave()});
- $('ob-pdf').addEventListener('click',obPdf);
+ $('ob-pdf').addEventListener('click',()=>obPdf('save'));$('ob-prev').addEventListener('click',()=>obPdf('preview'));$('ob-objbtn').addEventListener('click',()=>obKoppel(false));$('ob-objopen').addEventListener('click',()=>{const t=document.querySelector('[data-open="gevel"]');if(t)t.click();else show('gevel')});
  $('ob-nieuw').addEventListener('click',()=>{if(ob.notes.length&&!confirm('Huidige onderbouwing leegmaken en opnieuw beginnen?'))return;ob={meta:{adres:'',datum:new Date().toISOString().slice(0,10),opnemer:ob.meta.opnemer||'J. Windhorst',gebouw:ob.meta.gebouw||'W',methode:ob.meta.methode||'basis',bouwjaar:''},notes:[],tekst:'',verwerkt:'',cur:'object'};$('ob-tekst').value='';obSave();obRender();msg('ob-msg','Nieuwe onderbouwing gestart.','ok')});
  $('ob-secties').addEventListener('click',e=>{const d=e.target.closest('[data-obdel]'),c=e.target.closest('[data-obkies]');if(d){ob.notes=ob.notes.filter(n=>n.id!==d.dataset.obdel);obSave();obRender()}if(c){ob.cur=c.dataset.obkies;obSave();obRender()}});
  $('ob-secties').addEventListener('keydown',e=>{const i=e.target.closest('[data-obplus]');if(!i||e.key!=='Enter')return;e.preventDefault();const v=i.value.trim();if(!v)return;ob.notes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),k:i.dataset.obplus,t:obZin(obGetallen(v))});obSave();obRender();const n=document.querySelector('[data-obplus="'+i.dataset.obplus+'"]');if(n)n.focus()});
