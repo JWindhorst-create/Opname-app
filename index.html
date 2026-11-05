@@ -948,7 +948,6 @@ async function maakDriehoekPdf(){
  const blob=doc.output('blob'),file=new File([blob],naam,{type:'application/pdf'});
  if(window.claude?.use){try{const dl=await window.claude.use('downloads');if(!dl){toast('Opslaan is hier niet beschikbaar');return}
    await dl.save({filename:naam,data:blob});toast('PDF opgeslagen: '+naam)}catch(e){toast(e?.code==='declined'?'Opslaan geannuleerd':'Opslaan lukte niet ('+(e?.code||e?.message||'fout')+')')}return}
- const mob=matchMedia('(pointer:coarse)').matches&&window.parent===window;try{if(mob&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:naam});return}}catch(e){if(e.name==='AbortError')return}
  const u=URL.createObjectURL(blob);const el=document.createElement('a');el.href=u;el.download=naam;document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast('PDF opgeslagen: '+naam)}
 function ex2(){try{return cur?.type?extraMaat():0}catch(e){return 0}}
 $('#dhPdf').onclick=maakDriehoekPdf;if(window.DRIEHOEK_ONLY&&window.claude?.use){$('#dhPdf').hidden=true;try{window.claude?.use?.('downloads').then(dl=>{if(dl)$('#dhPdf').hidden=false}).catch(()=>{})}catch(e){}}
@@ -1404,7 +1403,7 @@ dhModus((()=>{try{return localStorage.getItem('dhModus')||'dh'}catch(e){return'd
  function relRot(f,fs){const vz=st.m[st.v+'.vz']||'',r=vlakRot(f,fs);return vz&&r!=null?(r-ZIJ[vz]+8)%8:null}
  // naam: algemeen (gevelvlak / dakvlak); met gekozen voorgevel ook voor/achter/links/rechts
  function naamV(f,fs){const n=f.n,par=(n.match(/\([^)]*\)/g)||[]).join(' '),rel=relRot(f,fs);
-  if(f.t==='gevel'){const k=/erker|Zijkant/i.test(n)?' erker':/zijtak/i.test(n)?' zijtak':/opbouw/i.test(n)?' opbouw':'';return(rel==null?'Gevelvlak':{0:'Voorgevel',2:'Linkergevel',4:'Achtergevel',6:'Rechtergevel'}[rel])+k+(par?' '+par:'')}
+  if(f.t==='gevel'){const k=/erker|Zijkant/i.test(n)?' erker':/zijtak/i.test(n)?' zijtak':/opbouw/i.test(n)?' opbouw':'';const zl={0:'A',6:'B',4:'C',2:'D'}[vlakRot(f,fs)];return(rel==null?'Gevelvlak':(rel===2||rel===6)?'Gevelvlak'+(zl?' zijde '+zl:''):{0:'Voorgevel',4:'Achtergevel'}[rel])+k+(par?' '+par:'')}
   const b=f.t==='kapel'?(/wang/i.test(n)?'Dakkapel wang':'Dakkapel voorwand'):/Wolfseind/.test(n)?'Wolfseind':/Schild/.test(n)?'Schild':/Aankapping/.test(n)?'Aankapping':/Onderste/.test(n)?'Onderste dakvlak':/Bovenste/.test(n)?'Bovenste dakvlak':/^Zijtak/.test(n)?'Dakvlak zijtak':/^Hoofddak/.test(n)?'Dakvlak hoofddak':/Dakkapel dak/.test(n)?'Dak dakkapel':/^Dak opbouw/.test(n)?'Dak opbouw':/erker/i.test(n)?'Dak erker':'Dakvlak';
   return b+(rel==null?'':' '+{0:'voorzijde',2:'linkerzijde',4:'achterzijde',6:'rechterzijde'}[rel])+(par?' '+par:'')}
  function leegVeld(){return V().v.some(x=>!x.k&&!(st.v==='erker'&&x[0]==='al'&&val('dak')!=='les')&&nm(st.m[st.v+'.'+x[0]])==null)}
@@ -1498,7 +1497,6 @@ async function dvPdf(){const P=window.dvPlan&&dvPlan();if(!P){toast('Kies een da
  const naam=('Dakvlakken-GO_'+(adr?.postcode||'')+'_'+(adr?.huisnummer||'')).replace(/\s/g,'').replace(/_+$/,'').replace(/^Dakvlakken-GO$/,'Dakvlakken-GO_'+new Date().toISOString().slice(0,10))+'.pdf';
  const blob=doc.output('blob'),file=new File([blob],naam,{type:'application/pdf'});
  if(window.claude?.use){try{const dl=await window.claude.use('downloads');if(!dl){toast('Opslaan is hier niet beschikbaar');return}await dl.save({filename:naam,data:blob});toast('PDF opgeslagen: '+naam)}catch(e){toast(e?.code==='declined'?'Opslaan geannuleerd':'Opslaan lukte niet')}return}
- const mob=matchMedia('(pointer:coarse)').matches&&window.parent===window;try{if(mob&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:naam});return}}catch(e){if(e.name==='AbortError')return}
  const u=URL.createObjectURL(blob);const el=document.createElement('a');el.href=u;el.download=naam;document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast('PDF opgeslagen: '+naam)}
 $('#dvPdf')&&($('#dvPdf').onclick=dvPdf);dvKnoppen();
 
