@@ -710,6 +710,12 @@ body.v-opname{background-image:none!important}
    <p>Printscreen met adressen inlezen, aanvinken wat nog opgevraagd moet worden (CV, MV, TP, PV, isolatie) en de lijst als PDF.</p>
    <span class="go">Openen →</span>
   </button>
+  <button class="tile" type="button" data-open="onderbouwing">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4M8 21h8"/></svg></div>
+   <h2>Onderbouwing</h2>
+   <p>Al pratend je waarnemingen inspreken; per onderdeel een onderbouwing met ISSO 82.1 / 75.1 en NTA 8800, als PDF op briefpapier.</p>
+   <span class="go">Openen →</span>
+  </button>
   <button class="tile" type="button" data-open="projectdossier">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 11h6M9 15h6M9 7h6"/></svg></div>
    <h2>Vooropname documenten <span class="badge">in voorbereiding</span></h2>
@@ -1251,6 +1257,35 @@ body.v-opname{background-image:none!important}
   <p class="hint">Gecontroleerd in NTA 8800:2025+C1:2026 (30-10-2026): paragraafverwijzingen interpolatie (§9.4.2 tabel 9.15, §9.6.3.2 en bijlage Q, §13.8.4.1/formule 13.154a, bijlage W.4), Rad (bijlage I), λ metselwerk/beton/cellenbeton (tabel E.14–E.17), spouwen (tabel C.3/C.4) en isolatie (tabel E.10) – ongewijzigd. Aangepast: biobased materialen en riet volgens tabel E.11. Nog niet te controleren: de rijen van Bijlage 4 (checklist opdrachtgever) in BRL 9500:2026.</p>
  </div>
 </section>
+<section class="view" id="view-onderbouwing" hidden>
+ <style>.ob-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 14px}.ob-seg{display:flex;gap:6px;flex-wrap:wrap}.ob-seg button{flex:1;min-height:40px;border:1px solid #c5d9ca;background:#fff;border-radius:8px;cursor:pointer;font:inherit}.ob-seg button.on{background:#245c45;color:#fff;border-color:#245c45}
+ #ob-praat{width:100%;min-height:58px;font-size:18px}#ob-praat.aan{background:#c0392b;border-color:#c0392b;animation:obp 1.2s infinite}@keyframes obp{0%{box-shadow:0 0 0 0 rgba(192,57,43,.5)}100%{box-shadow:0 0 0 14px rgba(192,57,43,0)}}
+ #ob-live{min-height:22px;color:#4a6b5a;font-style:italic;margin:8px 0 2px}.ob-sec.cur{border-color:#245c45;box-shadow:0 0 0 2px rgba(36,92,69,.15)}.ob-kop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.ob-kop h3{margin:0}
+ .ob-notes{margin:8px 0 0;padding-left:0;list-style:none}.ob-notes li{display:flex;gap:6px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #e3ece6}.ob-notes li span{flex:1;outline:none;padding:2px 4px;border-radius:4px}.ob-notes li span:focus{background:#f1f7f3}.ob-notes select{max-width:120px;font-size:12px}.ob-notes button{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
+ .ob-auto{background:#eef6f0;border:1px solid #cfe2d5;border-radius:8px;padding:8px 10px;margin-top:8px}.ob-auto ul{margin:4px 0 0;padding-left:18px}.ob-ref{margin-top:6px}.btn.sm{padding:5px 10px;font-size:13px}</style>
+ <div class="card">
+  <h3>Onderbouwing van de opname</h3>
+  <p class="hint" style="margin:0 0 10px">Vertel wat je ziet; elke zin komt onder het juiste onderdeel en krijgt de standaard onderbouwing met de bron uit het opnameprotocol (ISSO 82.1 woningbouw / ISSO 75.1 utiliteit) en NTA 8800. Controleer de tekst voordat je de PDF maakt.</p>
+  <div class="ob-grid">
+   <div><label class="f" for="ob-addr">Adres</label><div class="addrow"><input type="text" id="ob-addr" placeholder="Bijv. Stationsweg 41, Hillegom" autocomplete="off"><button class="btn sec" type="button" id="ob-addr-btn">Zoek</button></div></div>
+   <div><label class="f" for="ob-datum">Datum opname</label><input type="date" id="ob-datum"></div>
+   <div><label class="f" for="ob-opnemer">Opnemer</label><input type="text" id="ob-opnemer" list="ob-opn-l"><datalist id="ob-opn-l"><option value="J. Windhorst"><option value="T. Dollee"></datalist></div>
+   <div><label class="f" for="ob-bj">Bouwjaar</label><input type="text" id="ob-bj" inputmode="numeric" placeholder="bijv. 1965"></div>
+   <div><label class="f">Gebouw</label><div class="ob-seg" id="ob-gebouw"><button type="button" data-v="W">Woning (82.1)</button><button type="button" data-v="U">Utiliteit (75.1)</button></div></div>
+   <div><label class="f">Opname</label><div class="ob-seg" id="ob-methode"><button type="button" data-v="basis">Basis</button><button type="button" data-v="detail">Detail</button></div></div>
+  </div>
+ </div>
+ <div class="card">
+  <button class="btn" type="button" id="ob-praat">🎤 Start inspreken</button>
+  <div id="ob-live"></div>
+  <div class="hint" style="margin:4px 0 10px">Begin een zin met het onderdeel, bijv. <i>“Gevel: spouwmuur met 6 centimeter isolatie volgens factuur”</i> of <i>“Ramen HR plus plus, kunststof kozijnen, stempel op de afstandhouder”</i>. Zonder onderdeel kiest de app het zelf aan de hand van de woorden, anders gaat het naar het gekozen onderdeel. Zeg <i>“nieuw onderdeel ventilatie”</i> om te wisselen.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label class="f" for="ob-cur" style="margin:0">Huidig onderdeel</label><select id="ob-cur" style="flex:1;min-width:180px"></select><span class="hint" id="ob-n" style="margin:0"></span></div>
+  <textarea id="ob-los" rows="2" placeholder="Of typ hier (één regel per waarneming) en tik op Toevoegen" style="width:100%;margin-top:8px"></textarea>
+  <button class="btn sec" type="button" id="ob-add">Toevoegen</button>
+ </div>
+ <div id="ob-secties"></div>
+ <div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="ob-pdf">📄 PDF onderbouwing</button><button class="btn sec" type="button" id="ob-nieuw">Nieuwe onderbouwing</button></div><div class="msg" id="ob-msg"></div></div>
+</section>
 <section class="view" id="view-kompas" hidden>
  <div class="card">
   <h3>Gevelkompas</h3>
@@ -1455,14 +1490,14 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1430';
+const ELN_BUILD='2026-11-05-1530';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector('script[src="'+src+'"]'))return res();const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Kon '+src.split('/').pop()+' niet laden (internet?)'));document.head.appendChild(s)})}
 
 /* ========== Navigatie ========== */
-const TITLES={home:'Dashboard',klein:'Kleine rekenhulpen',bronnen:'Bronnen',uitvoer:'Uitvoerlijst woningen',gevel:'Objectdossier',mappen:'Projectmappen aanmaken',sorteren:'Bestanden naar dossier',projectdossier:'Vooropname documenten',rc:'Rc-berekening constructies',opname:'Opnameformulier',stappen:'Zonering utiliteit',beslis:'Beslisschema’s',interp:'Interpoleren',driehoek:'Driehoek & dak',schetsen:'Complexgegevens',kompas:'Gevelkompas',fundering:'Funderingsdossier',dossier:'Dossierbundel',fotos:'Foto\'s sorteren'};
+const TITLES={home:'Dashboard',onderbouwing:'Onderbouwing',klein:'Kleine rekenhulpen',bronnen:'Bronnen',uitvoer:'Uitvoerlijst woningen',gevel:'Objectdossier',mappen:'Projectmappen aanmaken',sorteren:'Bestanden naar dossier',projectdossier:'Vooropname documenten',rc:'Rc-berekening constructies',opname:'Opnameformulier',stappen:'Zonering utiliteit',beslis:'Beslisschema’s',interp:'Interpoleren',driehoek:'Driehoek & dak',schetsen:'Complexgegevens',kompas:'Gevelkompas',fundering:'Funderingsdossier',dossier:'Dossierbundel',fotos:'Foto\'s sorteren'};
 // laatst gebruikte adres meenemen naar de andere onderdelen
 const VIEW_ADDR={projectdossier:'pd-addr',rc:'rc-addr',opname:'of-addr',stappen:'sp-addr',beslis:'bs-addr',interp:'ip-addr'},VIEW_ADDR_BTN={projectdossier:'pd-addr-btn',rc:'rc-addr-btn',stappen:'sp-addr-btn'};
 let curView='home';
@@ -1963,6 +1998,11 @@ $('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
 
 /* --- Uitleg per onderdeel (?-knop bovenin en op elke tegel) --- */
 const HELP={
+ onderbouwing:[
+  {at:'#ob-addr',t:'1. Object',b:'Vul adres, datum, opnemer en bouwjaar in en kies woning (ISSO 82.1) of utiliteit (ISSO 75.1) en basis- of detailopname. Dat bepaalt de bronverwijzingen in de tekst.'},
+  {at:'#ob-praat',t:'2. Inspreken',b:'Tik op <b>Start inspreken</b> en vertel per onderdeel wat je ziet, bijv. <i>“Dak: 10 centimeter isolatie tegen het dakbeschot, foto’s gemaakt”</i>. Elke zin komt onder het juiste kopje. Tik op <b>Stop</b> als je klaar bent. Typen in het vak eronder kan ook.'},
+  {at:'#ob-secties',t:'3. Controleren',b:'Per onderdeel zie je je waarnemingen (tik erop om te verbeteren, of verplaats ze met de keuzelijst) en de automatische <b>onderbouwing</b>: bijv. de Rc volgens de basismethode bij een isolatiedikte, de glassoort, het ventilatiesysteem of het bewijs, met de paragraaf uit het opnameprotocol.'},
+  {at:'#ob-pdf',t:'4. PDF',b:'Klik op <b>PDF onderbouwing</b>: op briefpapier, met objectgegevens en per onderdeel Waarneming, Onderbouwing en Bron. Met <b>Nieuwe onderbouwing</b> begin je opnieuw.'}],
  klein:[
   {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li></ul>Dakvormen staan nu bij <b>Driehoek &amp; dak</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
  home:[
@@ -6027,9 +6067,128 @@ ftRender();
   g('ke-uit').innerHTML='<b>'+F(mj/3.6,2)+' kWh</b> · <b>'+F(mj,1)+' MJ</b> · <b>'+F(mj/1000,3)+' GJ</b>'}
  const all=()=>{dakf();glas();versp();kwh();sv()};ids.forEach(i=>{g(i).addEventListener('input',all);g(i).addEventListener('change',all)});all()})();
 </script>
+<script id="ob-js">
+/* ========== Onderbouwing van de opname (inspreken → onderbouwing op briefpapier) ========== */
+(function(){
+const OB_KEY='eln-onderbouwing-v1';
+const OBN=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9+,. ]/g,' ').replace(/\s+/g,' ').trim();
+// onderdelen met trefwoorden en bronverwijzing (hoofdstuk/paragraaf opnameprotocol; berekening NTA 8800)
+const OBS=[
+ {k:'object',t:'Object en opname',pre:['object','algemeen','woning','gebouw'],kw:['bouwjaar','woningtype','tussenwoning','hoekwoning','vrijstaand','twee onder een kap','2 onder 1 kap','appartement','bovenwoning','benedenwoning','gebruiksoppervlakte','gebruiksoppervlak','bouwlagen','bouwlaag','bewoner','eigenaar','basisopname','detailopname','renovatie','verbouwd'],ref:'§5.2 basis- of detailopname, §5.4 opname op locatie, §7.1 algemene gegevens'},
+ {k:'zone',t:'Thermische zone en begrenzing',pre:['thermische zone','zone','begrenzing'],kw:['thermische zone','verwarmde zone','onverwarmd','verwarmd','berging','garage','kelder','serre','trappenhuis','aor','avr','aangrenzende','vliering'],ref:'§6.1 EP-plichtig deel, §6.3 thermische zone (beslisschema’s)'},
+ {k:'geometrie',t:'Geometrie en oppervlakten',pre:['geometrie','oppervlakte','oppervlakten','afmetingen'],kw:['gemeten','binnenwerks','oriëntatie','orientatie','hellingshoek','nokhoogte','lengte','breedte','laser','meetlint'],ref:'§8.2 oppervlakten van constructies, §8.5 oriëntatie, §8.6 hellingshoek'},
+ {k:'gevel',t:'Gevels',pre:['gevel','gevels','buitengevel','buitenmuur'],kw:['gevel','spouw','spouwmuur','buitenmuur','metselwerk','voorzetwand','gevelisolatie','borstwering','kopgevel'],ref:'§8.1 thermische schil, §8.7 thermische eigenschappen',el:'gevel'},
+ {k:'dak',t:'Daken',pre:['dak','daken','dakvlak'],kw:['dak','dakbeschot','pannen','dakisolatie','plat dak','hellend dak','zoldervloer','vlieringvloer','dakkapel','spanten','gordingen'],ref:'§8.1 thermische schil, §8.7 thermische eigenschappen',el:'dak'},
+ {k:'vloer',t:'Vloeren',pre:['vloer','vloeren','begane grondvloer'],kw:['vloer','kruipruimte','vloerisolatie','begane grond','souterrain','bodemisolatie','tonzon'],ref:'§8.1 thermische schil, §8.4 begrenzing, §8.7 thermische eigenschappen',el:'vloer'},
+ {k:'ramen',t:'Ramen, glas en kozijnen',pre:['ramen','raam','glas','kozijnen','kozijn'],kw:['raam','ramen','glas','kozijn','kozijnen','hr++','hr+','hr ','dubbel glas','dubbelglas','enkel glas','enkelglas','triple','afstandhouder','zonwering','rolluik','screens','overstek','dakraam','lichtkoepel'],ref:'§8.7 thermische eigenschappen (U- en g-waarde), §8.8 zonwering, §8.9 en H16 overstekken en belemmeringen'},
+ {k:'deuren',t:'Deuren',pre:['deur','deuren','voordeur','achterdeur'],kw:['deur','voordeur','achterdeur','tuindeur','schuifpui','openslaande'],ref:'§8.7 thermische eigenschappen'},
+ {k:'verwarming',t:'Verwarming',pre:['verwarming','cv','ketel','installatie verwarming'],kw:['cv','cv-ketel','cv ketel','ketel','combiketel','hr-ketel','hr ketel','hr107','warmtepomp','hybride','radiator','radiatoren','vloerverwarming','convector','stadsverwarming','warmtenet','blokverwarming','collectieve verwarming','kachel','gaskachel','thermostaat','aanvoertemperatuur'],ref:'H9 ruimteverwarming (§9.2 systeem, §9.3 opwekking, §9.4 distributie, §9.5 afgifte)'},
+ {k:'tapwater',t:'Warm tapwater',pre:['tapwater','warm tapwater','warm water'],kw:['tapwater','warm water','boiler','geiser','doorstromer','close-in','douche wtw','douchewtw','douche-wtw','douchewarmtewisselaar','zonneboiler','voorraadvat'],ref:'H13 warm tapwater (opwekking, opslag, distributie, douche-WTW)'},
+ {k:'ventilatie',t:'Ventilatie',pre:['ventilatie','luchtbehandeling'],kw:['ventilatie','mechanische ventilatie','mechanische afzuiging','afzuiging','wtw','balansventilatie','balans','roosters','ventilatieroosters','natuurlijke ventilatie','ventilatiebox','co2','vraaggestuurd'],ref:'H11 ventilatie'},
+ {k:'koeling',t:'Koeling',pre:['koeling','airco'],kw:['koeling','airco','airconditioning','koelen','split unit','splitunit'],ref:'H10 ruimtekoeling'},
+ {k:'pv',t:'Zonne-energie (PV en zonneboiler)',pre:['zonnepanelen','pv','zonne energie','zonne-energie'],kw:['zonnepanelen','zonnepaneel','pv','panelen','wattpiek','wp','omvormer','collector','zonnecollector','pvt'],ref:'H15 gebouwgebonden energieopwekking (§15.4 collectoren en panelen), H16 beschaduwing'},
+ {k:'verlichting',t:'Verlichting (utiliteit)',pre:['verlichting'],kw:['verlichting','armaturen','armatuur','led','tl','daglichtregeling','aanwezigheidsdetectie'],ref:'H14 verlichtingsinstallaties',u:1},
+ {k:'bewijs',t:'Bewijsvoering en dossier',pre:['bewijs','dossier','bewijsvoering'],kw:['factuur','werkbon','offerte','foto','fotos','bouwtekening','tekening','bestek','kwaliteitsverklaring','bcrg','typeplaatje','verklaring','opleverdossier'],ref:'§5.3 opname op basis van tekeningen, §5.7 projectdossier'},
+ {k:'overig',t:'Overige opmerkingen',pre:['overig','opmerking','opmerkingen'],kw:[],ref:''}];
+let ob={meta:{adres:'',datum:new Date().toISOString().slice(0,10),opnemer:'J. Windhorst',gebouw:'W',methode:'basis',bouwjaar:''},notes:[],cur:'object'};
+try{const x=JSON.parse(localStorage.getItem(OB_KEY)||'null');if(x&&x.meta)ob=x}catch(e){}
+const obSave=()=>{try{localStorage.setItem(OB_KEY,JSON.stringify(ob))}catch(e){}};
+const isso=()=>ob.meta.gebouw==='U'?'ISSO 75.1':'ISSO 82.1';
+const sec=k=>OBS.find(s=>s.k===k);
+function obIndeel(tekst){let t=String(tekst||'').trim();if(!t)return null;let n=OBN(t);
+ let m=n.match(/^(?:nieuw onderdeel|onderdeel|ga naar|kopje)\s+(.+)$/);if(m){const s=OBS.find(s=>s.pre.some(p=>m[1].startsWith(p))||OBN(s.t).startsWith(m[1]));if(s){ob.cur=s.k;return{k:s.k,t:'',wissel:1}}}
+ for(const s of OBS)for(const p of s.pre){if(n===p)return{k:s.k,t:'',wissel:1};if(n.startsWith(p+' ')||n.startsWith(p+':')||n.startsWith(p+',')){const mm=t.match(/^([^:]{1,40}):\s*(.+)$/);return{k:s.k,t:mm&&OBN(mm[1])===p?mm[2]:t}}}
+ let best=null,bs=0;for(const s of OBS){if(s.u&&ob.meta.gebouw!=='U')continue;let sc=0;for(const w of s.kw){const ww=OBN(w);if((' '+n+' ').includes(' '+ww+' '))sc+=ww.length>4?2:1}if(sc>bs){bs=sc;best=s}}
+ return{k:best?best.k:ob.cur||'overig',t}}
+function obZin(t){t=String(t).trim();if(!t)return t;t=t.charAt(0).toUpperCase()+t.slice(1);if(!/[.!?]$/.test(t))t+='.';return t}
+function obVoeg(tekst){const r=obIndeel(tekst);if(!r)return null;ob.cur=r.k;if(r.t){ob.notes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),k:r.k,t:obZin(r.t)})}obSave();obRender();return r}
+// ---- automatische onderbouwing per onderdeel ----
+const F2=x=>Number(x).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
+function obAuto(k,notes){const a=[],txt=OBN(notes.map(x=>x.t).join(' ')),has=re=>re.test(txt),P=isso(),bas=ob.meta.methode!=='detail';
+ const bewijs=()=>{const b=[];if(has(/factuur|werkbon/))b.push('factuur/werkbon');if(has(/\bfoto/))b.push('foto’s');if(has(/tekening|bestek|opleverdossier/))b.push('bouwtekening/bestek');if(has(/kwaliteitsverklaring|bcrg/))b.push('kwaliteitsverklaring (BCRG)');if(has(/typeplaatje/))b.push('typeplaatje');return b};
+ if(['gevel','dak','vloer'].includes(k)){const el=sec(k).el,rad={gevel:.36,dak:.22,vloer:.15}[el];
+  const m=txt.match(/(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b/);const rcm=txt.match(/\brc\s*(?:waarde\s*)?(?:is|=|van)?\s*(\d+(?:[.,]\d+)?)/);
+  if(has(/\b(geen isolatie|ongeisoleerd|niet geisoleerd)\b/))a.push('Geen isolatie waargenomen: de constructie is als ongeïsoleerd ingevoerd met de forfaitaire Rc op basis van het bouwjaar ('+P+' §8.7).');
+  else if(rcm)a.push('Rc = '+rcm[1].replace('.',',')+' m²K/W overgenomen uit het bewijsstuk ('+P+' §8.7).');
+  else if(m){let d=parseFloat(m[1].replace(',','.'))*(/^c/.test(m[2])?10:1);const fact=has(/factuur|werkbon|bcrg|kwaliteitsverklaring/),dr=fact?d:Math.floor((d+5)/10)*10;
+   if(bas&&dr>=40){const rc=dr/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+(fact?' (volgens bewijsstuk, niet afgerond)':' waargenomen'+(dr!==d?', afgerond op '+dr+' mm':''))+'. Basismethode: Rc = d / λ + Rad = '+(dr/1000).toFixed(3).replace('.',',')+' / 0,045 + '+F2(rad)+' = '+F2(rc)+' m²K/W ('+P+' §8.7, Rad tabel 8.8).')}
+   else if(bas&&dr>=10)a.push('Isolatiedikte '+dr+' mm (< 40 mm): Rc uit '+P+' tabel 8.11.');
+   else a.push('Isolatiedikte '+String(d).replace('.',',')+' mm; Rc bepaald volgens '+P+' §8.7'+(bas?'':' (detailopname: per laag d/λ, bijlage NTA 8800 hoofdstuk 8)')+'.')}
+  else if(has(/onbekend|niet te bepalen|niet vast te stellen|niet zichtbaar/))a.push('Isolatie niet vast te stellen: de optie ‘onbekend’ met de forfaitaire Rc op basis van het bouwjaar is gebruikt ('+P+' §8.7).');
+  if(has(/nageisoleerd|na geisoleerd|na-geisoleerd|spouwmuurisolatie|spouw gevuld/))a.push('Na-isolatie: alleen meegenomen met bewijs van uitvoering; zonder bewijs geldt de forfaitaire waarde ('+P+' §8.7).')}
+ if(k==='ramen'){const g=[['triple|drievoudig','drievoudig HR-glas'],['hr\\+\\+|hr plus plus','HR++-glas'],['hr\\+|hr plus\\b','HR+-glas'],['\\bhr glas|\\bhr\\b','HR-glas'],['dubbel','dubbelglas'],['enkel','enkelglas']].filter(([r])=>new RegExp(r).test(txt)).map(x=>x[1]);
+  if(g.length)a.push('Glassoort vastgesteld als '+g[0]+'; U- en g-waarde forfaitair op basis van glassoort en kozijnmateriaal ('+P+' §8.7).');
+  if(has(/afstandhouder|stempel|profiel/))a.push('HR++ aangetoond met de tekst op het afstandhouderprofiel (foto in het dossier).');
+  const kz=[['kunststof','kunststof'],['\\bhout|houten','hout'],['alumin','aluminium'],['staal|stalen','staal']].filter(([r])=>new RegExp(r).test(txt)).map(x=>x[1]);if(kz.length)a.push('Kozijnmateriaal: '+[...new Set(kz)].join(', ')+'.');
+  if(has(/zonwering|rolluik|screen|overstek|belemmering/))a.push('Zonwering, overstekken en belemmeringen opgenomen volgens '+P+' §8.8 en hoofdstuk 16.')}
+ if(k==='deuren'){if(has(/geisoleerd/)&&!has(/niet geisoleerd|ongeisoleerd/))a.push('Geïsoleerde deur; U-waarde forfaitair volgens '+P+' §8.7 (beslisschema U-waarde deuren).');else if(has(/niet geisoleerd|ongeisoleerd|houten deur|dichte deur/))a.push('Niet-geïsoleerde deur; U-waarde forfaitair volgens '+P+' §8.7.');if(has(/glas/)&&!has(/zonder glas|geen glas/))a.push('Deur met glas: het glasdeel is bepaald en meegenomen volgens het beslisschema deuren ('+P+' §8.7).')}
+ const jr=txt.match(/\b(19[5-9]\d|20[0-3]\d)\b/);
+ if(k==='verwarming'){if(has(/warmtepomp/))a.push((has(/hybride/)?'Hybride warmtepomp':'Warmtepomp')+' als opwekker vastgesteld ('+P+' §9.3).');if(has(/hr ?107|hr ?ketel|hr-ketel|cv ?ketel|combi/))a.push('Gasgestookte HR-ketel als opwekker vastgesteld ('+P+' §9.3).');if(has(/stadsverwarming|warmtenet|blokverwarming|collectie/))a.push('Externe/collectieve warmtelevering; gegevens leverancier of forfaitair ('+P+' §9.3).');if(has(/kachel/))a.push('Lokale verwarming (kachel) opgenomen ('+P+' §9.3).');
+  const af=[];if(has(/radiator/))af.push('radiatoren');if(has(/vloerverwarming/))af.push('vloerverwarming');if(has(/convector/))af.push('convectoren');if(af.length)a.push('Afgifte: '+af.join(' en ')+' ('+P+' §9.5).');if(jr)a.push('Fabricagejaar opwekker '+jr[1]+(has(/typeplaatje/)?' (typeplaatje)':'')+'.')}
+ if(k==='tapwater'){if(has(/combi/))a.push('Warm tapwater via de combiketel ('+P+' H13).');if(has(/boiler|voorraadvat/))a.push('Warm tapwater met opslag (boiler/voorraadvat) ('+P+' H13).');if(has(/geiser|doorstromer|close in/))a.push('Warm tapwater met een lokaal toestel ('+P+' H13).');if(has(/douche ?wtw|douchewarmtewisselaar/))a.push('Douche-WTW aanwezig ('+P+' H13).');if(jr)a.push('Fabricagejaar '+jr[1]+'.')}
+ if(k==='ventilatie'){if(has(/balans|wtw/)&&!has(/douche ?wtw/))a.push('Gebalanceerde ventilatie'+(has(/wtw/)?' met warmteterugwinning':'')+' (systeem D) ('+P+' H11).');else if(has(/mechanische afzuiging|afzuiging|ventilatiebox|mechanisch/))a.push('Natuurlijke toevoer en mechanische afvoer (systeem C) ('+P+' H11).');else if(has(/natuurlijk|roosters/))a.push('Natuurlijke ventilatie (systeem A) ('+P+' H11).');if(has(/co2|vraaggestuurd/))a.push('Vraaggestuurde regeling (CO₂) opgenomen ('+P+' H11).');if(jr)a.push('Fabricagejaar '+jr[1]+'.')}
+ if(k==='koeling'&&notes.length)a.push('Koelinstallatie opgenomen ('+P+' H10).');
+ if(k==='pv'){const n=txt.match(/(\d+)\s*(?:zonne)?panelen/),wp=txt.match(/(\d+)\s*(?:wp|wattpiek|watt piek)/);if(n||wp)a.push('PV-systeem: '+(n?n[1]+' panelen':'')+(n&&wp?' van ':'')+(wp?wp[1]+' Wp':'')+(n&&wp?' = '+(n[1]*wp[1]/1000).toLocaleString('nl-NL')+' kWp':'')+' ('+P+' §15.4).');if(has(/oost|west|zuid|noord/))a.push('Oriëntatie en hellingshoek per paneelveld opgenomen ('+P+' §15.4).');if(has(/schaduw|belemmering/))a.push('Beschaduwing beoordeeld volgens '+P+' hoofdstuk 16.');if(jr)a.push('Fabricagejaar '+jr[1]+'.')}
+ if(k==='zone'&&notes.length)a.push('De begrenzing van de thermische zone is beoordeeld met de beslisschema’s van '+P+' §6.3.');
+ if(k==='object'){if(jr)a.push('Bouwjaar '+jr[1]+(has(/bag/)?' (BAG)':'')+'.');if(ob.meta.methode)a.push((ob.meta.methode==='detail'?'Detailopname':'Basisopname')+' volgens '+P+' §5.2.')}
+ const b=bewijs();if(b.length&&k!=='bewijs')a.push('Bewijs: '+b.join(', ')+' (in het projectdossier, '+P+' §5.7).');
+ if(k==='bewijs'&&b.length)a.push('Bewijsstukken in het projectdossier: '+b.join(', ')+' ('+P+' §5.7).');
+ if(has(/onbekend/)&&!['gevel','dak','vloer'].includes(k))a.push('Waar een eigenschap niet is vast te stellen, is de optie ‘onbekend’ (forfaitair) van '+P+' gebruikt.');
+ return a}
+const refTxt=k=>{const s=sec(k);return s.ref?isso()+' '+s.ref+'; berekening volgens NTA 8800':'Berekening volgens NTA 8800'};
+// ---- weergave ----
+function obRender(){const m=ob.meta;const set=(id,v)=>{const e=$(id);if(e&&document.activeElement!==e)e.value=v??''};set('ob-addr',m.adres);set('ob-datum',m.datum);set('ob-opnemer',m.opnemer);set('ob-bj',m.bouwjaar);
+ document.querySelectorAll('#ob-gebouw [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===m.gebouw));document.querySelectorAll('#ob-methode [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===m.methode));
+ $('ob-cur').innerHTML=OBS.filter(s=>!s.u||m.gebouw==='U').map(s=>'<option value="'+s.k+'"'+(s.k===ob.cur?' selected':'')+'>'+esc(s.t)+'</option>').join('');
+ const ks=OBS.filter(s=>ob.notes.some(n=>n.k===s.k)||s.k===ob.cur);
+ $('ob-secties').innerHTML=ks.map(s=>{const ns=ob.notes.filter(n=>n.k===s.k),au=obAuto(s.k,ns);return'<div class="card ob-sec'+(s.k===ob.cur?' cur':'')+'" data-k="'+s.k+'"><div class="ob-kop"><h3>'+esc(s.t)+'</h3><button type="button" class="btn sec sm" data-obkies="'+s.k+'">'+(s.k===ob.cur?'● hierin inspreken':'Hierin inspreken')+'</button></div>'+
+  (ns.length?'<ul class="ob-notes">'+ns.map(n=>'<li><span contenteditable="true" data-obedit="'+n.id+'">'+esc(n.t)+'</span><select data-obmove="'+n.id+'" title="Verplaats naar ander onderdeel">'+OBS.map(o=>'<option value="'+o.k+'"'+(o.k===n.k?' selected':'')+'>'+esc(o.t)+'</option>').join('')+'</select><button type="button" data-obdel="'+n.id+'" title="Weghalen">✕</button></li>').join('')+'</ul>':'<p class="hint" style="margin:6px 0">Nog niets ingesproken voor dit onderdeel.</p>')+
+  (au.length?'<div class="ob-auto"><b>Onderbouwing</b><ul>'+au.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'')+'<div class="hint ob-ref">Bron: '+esc(refTxt(s.k))+'</div></div>'}).join('');
+ $('ob-n').textContent=ob.notes.length?ob.notes.length+' regel'+(ob.notes.length>1?'s':'')+' in '+new Set(ob.notes.map(n=>n.k)).size+' onderde'+(new Set(ob.notes.map(n=>n.k)).size>1?'len':'el'):'Nog niets ingesproken'}
+// ---- inspreken (doorlopend) ----
+let obRec=null,obAan=false;
+function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je typen in het vak hieronder.','err');return}
+ if(obAan){obAan=false;try{obRec.stop()}catch(e){}return}
+ obAan=true;obRec=new SR();obRec.lang='nl-NL';obRec.continuous=true;obRec.interimResults=true;
+ obRec.onresult=e=>{let tus='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal){const x=obVoeg(r[0].transcript);if(x&&x.wissel)msg('ob-msg','Onderdeel: '+sec(x.k).t,'ok')}else tus+=r[0].transcript}$('ob-live').textContent=tus};
+ obRec.onerror=e=>{if(e.error==='no-speech')return;if(e.error==='not-allowed'){obAan=false;msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
+ obRec.onend=()=>{if(obAan){try{obRec.start()}catch(e){obAan=false}}obKnop()};
+ try{obRec.start()}catch(e){obAan=false}obKnop()}
+function obKnop(){const b=$('ob-praat');b.classList.toggle('aan',obAan);b.innerHTML=obAan?'■ Stop met inspreken':'🎤 Start inspreken';$('ob-live').textContent=obAan?($('ob-live').textContent||'Luisteren…'):''}
+// ---- PDF op briefpapier ----
+async function obPdf(){if(!ob.notes.length){msg('ob-msg','Spreek eerst iets in.','err');return}
+ try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+ const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'}),T=s=>pdTxt(String(s??'')),m=ob.meta,P=isso();
+ const CT=elnCtrl(doc,{title:'Onderbouwing van de opname',sub:[m.adres,m.datum?m.datum.split('-').reverse().join('-'):''].filter(Boolean).join('  |  '),T});
+ doc.autoTable({startY:CT.TOP1,theme:'plain',styles:{fontSize:9.5,cellPadding:1.3},columnStyles:{0:{fontStyle:'bold',cellWidth:42}},margin:{left:14,right:14,top:CT.TOP,bottom:22},
+  body:[['Adres',T(m.adres||'-')],['Datum opname',T(m.datum?m.datum.split('-').reverse().join('-'):'-')],['Opnemer',T(m.opnemer||'-')],['Gebouw',T(m.gebouw==='U'?'Utiliteit (EP-U)':'Woning (EP-W)')],['Opname',T((m.methode==='detail'?'Detailopname':'Basisopname')+' volgens '+P)],...(m.bouwjaar?[['Bouwjaar',T(m.bouwjaar)]]:[])]});
+ let y=doc.lastAutoTable.finalY+4;doc.setFontSize(9);doc.setTextColor(60);const intro=doc.splitTextToSize(T('Deze onderbouwing legt per onderdeel vast wat tijdens de opname is waargenomen en op welke grond de invoer is bepaald. De opname is uitgevoerd volgens het opnameprotocol '+P+(m.gebouw==='U'?' (utiliteitsbouw)':' (woningbouw)')+'; de energieprestatie is berekend volgens NTA 8800. Bewijsstukken zijn opgenomen in het projectdossier.'),182);doc.text(intro,14,y);y+=intro.length*4+3;doc.setTextColor(23,37,28);
+ for(const s of OBS){const ns=ob.notes.filter(n=>n.k===s.k);if(!ns.length)continue;const au=obAuto(s.k,ns);
+  doc.autoTable({startY:y,head:[[{content:T(s.t),colSpan:2}]],body:[['Waarneming',T(ns.map(n=>'• '+n.t).join('\n'))],...(au.length?[['Onderbouwing',T(au.map(x=>'• '+x).join('\n'))]]:[]),['Bron',T(refTxt(s.k))]],theme:'grid',styles:{fontSize:9,cellPadding:2.2,lineColor:[197,217,202],lineWidth:.2,valign:'top'},columnStyles:{0:{fontStyle:'bold',cellWidth:30,textColor:[70,90,80]}},headStyles:ELN_HS,margin:{left:14,right:14,top:CT.TOP,bottom:22}});y=doc.lastAutoTable.finalY+4}
+ elnCtrlFoot(doc,'Onderbouwing '+(m.adres||''),T);
+ const clean=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]+/gi,'_').replace(/^_+|_+$/g,'');doc.save('Onderbouwing_van_de_opname_'+(clean(m.adres)||'zonder_adres')+'.pdf');msg('ob-msg','PDF opgeslagen.','ok')}catch(e){console.error(e);msg('ob-msg','PDF maken lukte niet: '+esc(e.message),'err')}}
+// ---- koppelen ----
+function obInit(){if(!$('view-onderbouwing')||obInit.ok)return;obInit.ok=1;
+ const mm=(id,k)=>$(id).addEventListener('input',e=>{ob.meta[k]=e.target.value;obSave()});mm('ob-addr','adres');mm('ob-datum','datum');mm('ob-opnemer','opnemer');mm('ob-bj','bouwjaar');
+ $('ob-addr-btn').addEventListener('click',()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();msg('ob-msg',ob.meta.adres?'Adres: '+esc(ob.meta.adres):'','ok')});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
+ ['ob-gebouw','ob-methode'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;ob.meta[id==='ob-gebouw'?'gebouw':'methode']=b.dataset.v;obSave();obRender()}));
+ $('ob-cur').addEventListener('change',e=>{ob.cur=e.target.value;obSave();obRender()});
+ $('ob-praat').addEventListener('click',obStart);
+ $('ob-add').addEventListener('click',()=>{const v=$('ob-los').value;v.split(/\n+/).forEach(r=>obVoeg(r));$('ob-los').value=''});
+ $('ob-pdf').addEventListener('click',obPdf);
+ $('ob-nieuw').addEventListener('click',()=>{if(ob.notes.length&&!confirm('Huidige onderbouwing leegmaken en opnieuw beginnen?'))return;ob={meta:{adres:'',datum:new Date().toISOString().slice(0,10),opnemer:ob.meta.opnemer||'J. Windhorst',gebouw:ob.meta.gebouw||'W',methode:ob.meta.methode||'basis',bouwjaar:''},notes:[],cur:'object'};obSave();obRender();msg('ob-msg','Nieuwe onderbouwing gestart.','ok')});
+ $('ob-secties').addEventListener('click',e=>{const d=e.target.closest('[data-obdel]'),c=e.target.closest('[data-obkies]');if(d){ob.notes=ob.notes.filter(n=>n.id!==d.dataset.obdel);obSave();obRender()}if(c){ob.cur=c.dataset.obkies;obSave();obRender()}});
+ $('ob-secties').addEventListener('change',e=>{const s=e.target.closest('[data-obmove]');if(!s)return;const n=ob.notes.find(n=>n.id===s.dataset.obmove);if(n){n.k=s.value;obSave();obRender()}});
+ $('ob-secties').addEventListener('focusout',e=>{const s=e.target.closest('[data-obedit]');if(!s)return;const n=ob.notes.find(n=>n.id===s.dataset.obedit);if(!n)return;const v=s.textContent.trim();if(!v)ob.notes=ob.notes.filter(x=>x!==n);else n.t=v;obSave();obRender()});
+ obRender()}
+window.obInit=obInit;window.obVoeg=obVoeg;window.obState=()=>ob;
+if(document.readyState!=='loading')obInit();else document.addEventListener('DOMContentLoaded',obInit);
+})();
+
+</script>
 <script>window.SPRAAK_CMD=function(n,t,fase){const nn=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
  if(fase==='eerst'){if(/^(terug|home|dashboard|start|beginscherm|hoofdmenu)$/.test(n)){show('home');return true}return false}
- const syn={driehoekmeter:'driehoek',driehoek:'driehoek',dakvormen:'driehoek',dakvorm:'driehoek',rekenhulpen:'klein',rekenhulp:'klein',rekenhulpjes:'klein',beslisschemas:'beslis',beslisschema:'beslis',objectdossier:'gevel',orientatie:'gevel',bag:'gevel',complexgegevens:'schetsen',referentiewoningen:'schetsen',referentiewoning:'schetsen',uitvoerlijst:'uitvoer',funderingsdossier:'fundering',fundering:'fundering',gevelkompas:'kompas',kompas:'kompas','rc berekening':'rc',rc:'rc',interpoleren:'interp',zonering:'stappen',opnameformulier:'opname',bronnen:'bronnen','fotos sorteren':'fotos',projectmappen:'mappen',mappen:'mappen',dossierbundel:'dossier'};
+ const syn={onderbouwing:'onderbouwing',driehoekmeter:'driehoek',driehoek:'driehoek',dakvormen:'driehoek',dakvorm:'driehoek',rekenhulpen:'klein',rekenhulp:'klein',rekenhulpjes:'klein',beslisschemas:'beslis',beslisschema:'beslis',objectdossier:'gevel',orientatie:'gevel',bag:'gevel',complexgegevens:'schetsen',referentiewoningen:'schetsen',referentiewoning:'schetsen',uitvoerlijst:'uitvoer',funderingsdossier:'fundering',fundering:'fundering',gevelkompas:'kompas',kompas:'kompas','rc berekening':'rc',rc:'rc',interpoleren:'interp',zonering:'stappen',opnameformulier:'opname',bronnen:'bronnen','fotos sorteren':'fotos',projectmappen:'mappen',mappen:'mappen',dossierbundel:'dossier'};
  let v=Object.keys(syn).sort((a,b)=>b.length-a.length).find(k=>(' '+n+' ').includes(' '+k+' ')||n.replace(/ /g,'').includes(k.replace(/ /g,'')));v=v?syn[v]:Object.keys(TITLES).find(k=>k!=='home'&&(nn(TITLES[k]).includes(n)||n.includes(nn(TITLES[k]))));
  if(!v)return false;const tile=document.querySelector('[data-open="'+v+'"]');if(tile)tile.click();else show(v);return true};</script>
 <script id="spraak-js">
