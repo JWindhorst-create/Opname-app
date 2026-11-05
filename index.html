@@ -1722,5 +1722,67 @@ render();
 })();
 
 </script>
+<script id="spraak-js">
+/* ===== Spraak: praat in elk veld (ook in de tools) of noem een knop/pagina ===== */
+(function(){
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR||window.__spraak||window.top!==window)return;window.__spraak=1;
+const st=document.createElement('style');st.textContent=`#spMic{position:fixed;right:14px;bottom:var(--sp-bottom,18px);z-index:7000;width:54px;height:54px;border-radius:50%;border:0;background:#1f6f5c;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;touch-action:none}
+#spMic svg{width:26px;height:26px}#spMic.aan{background:#c0392b;animation:spp 1.1s infinite}@keyframes spp{0%{box-shadow:0 0 0 0 rgba(192,57,43,.55)}100%{box-shadow:0 0 0 16px rgba(192,57,43,0)}}
+#spBel{position:fixed;right:76px;bottom:calc(var(--sp-bottom,18px) + 6px);z-index:7000;max-width:min(70vw,420px);background:#17463a;color:#fff;border-radius:12px;padding:8px 12px;font:14px/1.35 system-ui,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25)}#spBel[hidden]{display:none}#spBel small{display:block;opacity:.75;font-size:12px;margin-top:2px}
+.sp-doel{outline:3px solid #e0a32e!important;outline-offset:1px}`;document.head.appendChild(st);
+const mic=document.createElement('button');mic.id='spMic';mic.type='button';mic.title='Inspreken (tik in een veld en daarna hier)';mic.setAttribute('aria-label','Inspreken');
+mic.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+const bel=document.createElement('div');bel.id='spBel';bel.hidden=true;document.body.append(mic,bel);
+let laatste=null,tijd=0,rec=null,bezig=false,belT=0;
+const isVeld=el=>el&&el.nodeType===1&&(el.tagName==='TEXTAREA'||el.tagName==='SELECT'||(el.tagName==='INPUT'&&!/^(button|submit|checkbox|radio|file|range|color|hidden|image|reset)$/i.test(el.type)))&&!el.disabled&&!el.readOnly;
+const onthoud=e=>{const el=e.target;if(isVeld(el)){laatste=el;tijd=Date.now()}};
+function haak(doc){if(!doc||doc.__spHaak)return;doc.__spHaak=1;doc.addEventListener('focusin',onthoud,true);doc.addEventListener('pointerdown',e=>{const t=e.target;if(!t||!t.closest||t.closest('#spMic,#spBel'))return;const v=t.closest('input,textarea,select,label');if(!v||!isVeld(v.tagName==='LABEL'?v.control:v))laatste=null},true)}
+haak(document);
+function frames(){document.querySelectorAll('iframe').forEach(f=>{try{haak(f.contentDocument);if(!f.__spL){f.__spL=1;f.addEventListener('load',()=>{try{haak(f.contentDocument)}catch(e){}})}}catch(e){}})}
+frames();new MutationObserver(frames).observe(document.body,{childList:true,subtree:true});setInterval(frames,3000);
+const toon=(t,s,ms)=>{bel.innerHTML=t+(s?'<small>'+s+'</small>':'');bel.hidden=false;clearTimeout(belT);if(ms)belT=setTimeout(()=>bel.hidden=true,ms)};
+const zichtbaar=el=>{try{if(!el.isConnected)return false;const r=el.getBoundingClientRect();if(!(r.width>0&&r.height>0))return false;const w=el.ownerDocument.defaultView;if(w!==window&&w.frameElement){const fr=w.frameElement.getBoundingClientRect();if(!(fr.width>0&&fr.height>0))return false}return true}catch(e){return false}};
+// --- getallen uit gesproken tekst ---
+const W={nul:0,een:1,één:1,twee:2,drie:3,vier:4,vijf:5,zes:6,zeven:7,acht:8,negen:9,tien:10,elf:11,twaalf:12,dertien:13,veertien:14,vijftien:15,zestien:16,zeventien:17,achttien:18,negentien:19,twintig:20,dertig:30,veertig:40,vijftig:50,zestig:60,zeventig:70,tachtig:80,negentig:90,honderd:100,half:0.5};
+function woordGetal(w){w=w.toLowerCase();if(w in W)return W[w];let m=w.match(/^(een|één|twee|drie|vier|vijf|zes|zeven|acht|negen)(?:en|ën)(twintig|dertig|veertig|vijftig|zestig|zeventig|tachtig|negentig)$/);if(m)return W[m[1]]+W[m[2]];m=w.match(/^(twee|drie|vier|vijf|zes|zeven|acht|negen)?honderd(.*)$/);if(m){const r=m[2]?woordGetal(m[2]):0;return r==null?null:(m[1]?W[m[1]]:1)*100+r}return null}
+function getal(t){let s=' '+t.toLowerCase().replace(/(\d)\s*[.,]\s*(\d)/g,'$1,$2')+' ';s=s.replace(/[a-zëé]+/g,w=>{const n=woordGetal(w);return n==null?w:String(n)});
+ s=s.replace(/(\d+)\s+(?:komma|punt)\s+(\d+)/g,'$1,$2').replace(/\b(?:min|minus)\s+(\d)/g,'-$1');const m=s.match(/-?\d+(?:,\d+)?/);return m?m[0]:null}
+function zetWaarde(el,v){const w=el.ownerDocument.defaultView;const proto=el.tagName==='TEXTAREA'?w.HTMLTextAreaElement.prototype:el.tagName==='SELECT'?w.HTMLSelectElement.prototype:w.HTMLInputElement.prototype;const set=Object.getOwnPropertyDescriptor(proto,'value').set;set.call(el,v);el.dispatchEvent(new w.Event('input',{bubbles:true}));el.dispatchEvent(new w.Event('change',{bubbles:true}))}
+function volgende(el){const d=el.ownerDocument,l=[...d.querySelectorAll('input,textarea,select')].filter(x=>isVeld(x)&&zichtbaar(x));const i=l.indexOf(el);const n=l[i+1];if(n){n.focus();laatste=n;tijd=Date.now();try{n.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}return true}return false}
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function vulIn(el,tekst){const t=tekst.trim(),n=norm(t);
+ if(/^(volgende|volgend veld|verder)$/.test(n)){volgende(el)||toast2('Geen volgend veld');return 'volgende veld'}
+ if(/^(wis|wissen|leeg|leegmaken)$/.test(n)){zetWaarde(el,'');return 'veld gewist'}
+ if(el.tagName==='SELECT'){const o=[...el.options];let k=o.find(x=>norm(x.text)===n)||o.find(x=>norm(x.text).startsWith(n))||o.find(x=>n&&norm(x.text).includes(n))||o.find(x=>norm(x.text)&&n.includes(norm(x.text)));if(!k){const g=getal(t);if(g)k=o.find(x=>norm(x.text).includes(g.replace(',',' ')))}if(!k)return null;zetWaarde(el,k.value);return k.text}
+ const num=el.type==='number'||/decimal|numeric/.test(el.inputMode||el.getAttribute('inputmode')||'');
+ if(num){const g=getal(t);if(g==null)return null;zetWaarde(el,el.type==='number'?g.replace(',','.'):g);return g}
+ // tekst: invoegen op de cursor
+ let v=el.value||'',a=el.selectionStart??v.length,b=el.selectionEnd??v.length;let ins=t;if(!v.slice(0,a).trim())ins=ins.charAt(0).toUpperCase()+ins.slice(1);if(a>0&&!/\s$/.test(v.slice(0,a)))ins=' '+ins;
+ zetWaarde(el,v.slice(0,a)+ins+v.slice(b));try{const p=a+ins.length;el.setSelectionRange(p,p)}catch(e){}return t}
+function toast2(t){toon(t,'',2200)}
+function docs(){const l=[document];document.querySelectorAll('iframe').forEach(f=>{try{if(zichtbaar(f)&&f.contentDocument)l.push(f.contentDocument)}catch(e){}});return l}
+function knopZoek(n){if(n.length<3)return null;let best=null,bs=0;for(const d of docs())for(const b of d.querySelectorAll('button,[role=button],a.tab,[data-open],[data-go]')){if(b===mic||b.disabled||!zichtbaar(b))continue;const t=norm(b.textContent||b.getAttribute('aria-label')||b.title||'');if(!t||/(^| )(wis|wissen|verwijder|leeg|reset)( |$)|✕/.test(t)||/[✕×]/.test(b.textContent))continue;
+  let sc=0;if(t===n)sc=100;else if(t.startsWith(n))sc=80;else if((' '+t+' ').includes(' '+n+' '))sc=60;else if(t.includes(n))sc=40;if(sc&&t.length<60)sc+=10;if(sc>bs){bs=sc;best=b}}return best}
+function commando(tekst){const n=norm(tekst).replace(/^(open|ga naar|naar|toon|klik op|klik|druk op)\s+/,'');if(!n)return false;
+ if(typeof window.SPRAAK_CMD==='function'&&window.SPRAAK_CMD(n,tekst,'eerst'))return true;
+ const b=knopZoek(n);if(b){b.click();return true}
+ if(typeof window.SPRAAK_CMD==='function')return window.SPRAAK_CMD(n,tekst,'daarna');return false}
+function start(){if(bezig){try{rec.stop()}catch(e){}return}
+ let doel=laatste&&zichtbaar(laatste)&&Date.now()-tijd<10*60e3?laatste:null;
+ rec=new SR();rec.lang='nl-NL';rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=1;let eind='';
+ rec.onstart=()=>{bezig=true;mic.classList.add('aan');if(doel)doel.classList.add('sp-doel');toon('Luisteren…',doel?'in: '+veldNaam(doel):'zeg een pagina of knop, of tik eerst in een veld')};
+ rec.onresult=e=>{let tx='';for(const r of e.results){tx+=r[0].transcript}eind=tx;toon(tx||'…',doel?'in: '+veldNaam(doel):'')};
+ rec.onerror=e=>{const m={'not-allowed':'Microfoon niet toegestaan: geef de browser toestemming','no-speech':'Niets gehoord','audio-capture':'Geen microfoon gevonden','network':'Spraakherkenning heeft internet nodig'}[e.error]||('Spraak: '+e.error);toon(m,'',3500)};
+ rec.onend=()=>{bezig=false;mic.classList.remove('aan');if(doel)doel.classList.remove('sp-doel');if(!eind)return;
+  if(doel){const r=vulIn(doel,eind);if(r==null)toon('Niet begrepen voor dit veld: “'+eind+'”',veldNaam(doel),3500);else if(r==='volgende veld'){toon('→ '+veldNaam(laatste),'',1800)}else{toon('✓ '+r,veldNaam(doel),2200);laatste=doel;tijd=Date.now()}}
+  else if(!commando(eind))toon('“'+eind+'”','tik eerst in een veld om in te spreken',3500);else toon('✓ '+eind,'',1800)};
+ try{rec.start()}catch(e){toon('Spraak starten lukte niet','',2500)}}
+function veldNaam(el){try{const d=el.ownerDocument;let l=el.id&&d.querySelector('label[for="'+el.id+'"]');if(!l){const p=el.closest('div,label,td');l=p&&p.querySelector('label,span,b')}const t=(l&&l.textContent||el.placeholder||el.getAttribute('aria-label')||'veld').trim();return t.length>50?t.slice(0,48)+'…':t}catch(e){return 'veld'}}
+mic.addEventListener('pointerdown',e=>e.preventDefault());mic.addEventListener('mousedown',e=>e.preventDefault());mic.addEventListener('click',start);
+window.spraakBottom=px=>document.documentElement.style.setProperty('--sp-bottom',px+'px');
+})();
+
+window.spraakBottom&&spraakBottom(86);
+</script>
 </body>
 </html>
