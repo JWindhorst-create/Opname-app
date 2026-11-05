@@ -71,7 +71,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 #dhShapes button svg{width:44px;height:30px;background:none}
 #cX .dhx-rel{display:inline-flex;gap:2px;vertical-align:middle}#cX .dhx-rel i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid #17463a;background:#fff;font-size:10px;font-weight:700;color:#17463a}#dhShapes button.on{border:2px solid var(--acc);background:var(--acc2);color:var(--acc)}
 #dh3d{position:relative;width:100%;aspect-ratio:1/0.8;border-radius:10px;overflow:hidden;background:linear-gradient(#e3ece8,#f7f9f8);border:1px solid var(--line);touch-action:none}
-.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}#cDuKant button{flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#dhAdrKader{margin-top:6px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:7px 10px;background:#f8fbf9;font-size:12.5px;line-height:1.45;color:var(--muted,#5d6e63)}#dhAdrKader .dhhel{margin-top:3px;gap:5px}#dhAdrKader .dhchip{font-size:12.5px;padding:2px 9px}#dhAdrKader .note{font-size:12.5px;margin:2px 0 0}#dhAdrKader .dhal{margin-top:4px}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
+.dhvl{margin-top:8px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:8px 10px;background:#f8fbf9}.dhvl summary{cursor:pointer}.dhvlt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.dhvlt th{text-align:left;font-size:12px;color:#5d6e63;padding:8px 0 2px;border-bottom:1px solid #dfe8e2}.dhvlt td{padding:4px 4px 4px 0;border-bottom:1px solid #edf2ee;vertical-align:middle}.dhvlt .small{padding:3px 8px}#cDuKant button{flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap}.dhhel{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}#dhAdrKader{margin-top:6px;border:1px solid var(--line,#d5e2d9);border-radius:10px;padding:7px 10px;background:#f8fbf9;font-size:12.5px;line-height:1.45;color:var(--muted,#5d6e63)}#dhAdrKader .dhhel{margin-top:3px;gap:5px}#dhAdrKader .dhchip{font-size:12.5px;padding:2px 9px}#dhAdrKader .note{font-size:12.5px;margin:2px 0 0}#dhAdrKader .dhal{margin-top:4px}.dhdv{margin-top:8px;border-top:1px solid var(--line,#d5e2d9);padding-top:6px}.dhdv summary{cursor:pointer;font-weight:700;color:#245C45}.dhdvt{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:12.5px;color:var(--ink,#17201d)}.dhdvt th{text-align:left;font-weight:600;color:var(--muted,#5d6e63);border-bottom:1px solid var(--line,#d5e2d9);padding:3px 4px}.dhdvt td{padding:3px 4px;border-bottom:1px solid #edf2ee}.dhdvt th:nth-child(n+3),.dhdvt td:nth-child(n+3){text-align:right;white-space:nowrap}.dhdvt tfoot td{font-weight:700;border-bottom:0}.dhdvaand{display:flex;align-items:center;gap:8px;margin-top:6px}.dhdvaand label{flex:1;font-size:12.5px;color:var(--ink,#17201d)}.dhdvaand input{width:70px;flex:0 0 70px}.dhdvres{margin-top:4px;color:var(--ink,#17201d)}.dhdvknop{margin-top:6px}.dhchip{border:1px solid var(--line,#cfe2d5);background:#f3f8f4;color:#245C45;border-radius:999px;padding:4px 10px;font:inherit;font-size:13.5px;cursor:pointer}</style>
 <style id="dv-css">
 #dhModus{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 12px}
 #dhModus button{background:var(--card);color:var(--acc);border:1px solid var(--line);border-radius:10px;padding:10px 8px;font-weight:700;font-size:15px;white-space:normal;line-height:1.2}
@@ -908,7 +908,7 @@ async function maakDriehoekPdf(){
  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(90);doc.text(pdfT(`Opgesteld ${new Date().toLocaleDateString('nl-NL')}${cur?.type?.datum?' · opnamedatum '+new Date(cur.type.datum).toLocaleDateString('nl-NL'):''} · methode ${cur?.type?.methode==='U'?'EP-U (ISSO 75.1)':'EP-W (ISSO 82.1)'} · NTA 8800`),ML,34);y=44;
  kop('1. Object');
  tabel([['Adres',adr?.naam||'-'],['BAG pand-ID / vbo-ID',(bag?.pandId||'-')+' / '+(bag?.vboId||'-')],['Bouwjaar (BAG)',String(bag?.bouwjaar??'-')],['Woningtype',cur?.type?(ligLabel()||cur.type.wtype||'-'):'-'],['Dakvlak',it?`${it.orientL||''} ${it.orient||''}`.trim()||'-':'losse berekening']]);
- if(DH.vlakken&&DH.vlakken.daken.length&&bag?.pandId&&DH.vlakken.pid===bag.pandId){tabel(vlakkenPdfRijen())}
+ if(DH.vlakken&&DH.vlakken.dakTot>0&&bag?.pandId&&DH.vlakken.pid===bag.pandId){tabel(vlakkenPdfRijen())}
  kop('2. Invoer (gemeten) en berekende waarden');
  const gem=DH.order.slice(-2),lab={a:DH.green?'a - horizontale maat (op vloerniveau)':'a - horizontale maat',b:'b - hoogte vloer -> nok',c:DH.green?'c - lengte dakhelling nok -> vloer':'c - lengte langs dakhelling (nok -> goot)',al:'alfa - hellingshoek dakvlak'};
  tabel([...['a','b','c','al'].map(k=>[lab[k],(k==='al'?al.toFixed(1)+' graden':f2(DH.green?DH.green[k]:k==='b'?DH.res.b+(DH.off||0):DH.res[k])+' m')+(gem.includes(k)?'  (gemeten)':'  (berekend)'),gem.includes(k)]),
@@ -1153,10 +1153,37 @@ async function dhVlakkenLaden(){const pid=DH.bag?.pandId,box=$('#dhVlakken');if(
   if(DH.bag?.pandId!==pid)return;const v=vlakken3D(j);if(!v){box.innerHTML='';return}v.pid=pid;DH.vlakken=v;dhVlakkenToon()}
  catch(e){box.innerHTML=''}}
 function dhVlakkenToon(){const v=DH.vlakken,box=$('#dhVlakken');if(!box||!v)return;
- box.innerHTML=v.daken.length?`<div class="dhal">Hellingshoek schuine daken (3DBAG):</div><div class="dhhel">${v.daken.map(d=>`<button type="button" class="dhchip" data-dhal="${d.slope}" title="Invullen bij α">${RICHT8L[d.r]} <b>${String(d.slope).replace('.',',')}°</b></button>`).join('')}</div>`:'<p class="note" style="margin:4px 0 0">Geen schuine dakvlakken in 3DBAG voor dit pand.</p>'}
+ box.innerHTML=(v.daken.length?`<div class="dhal">Hellingshoek schuine daken (3DBAG):</div><div class="dhhel">${v.daken.map(d=>`<button type="button" class="dhchip" data-dhal="${d.slope}" title="Invullen bij α">${RICHT8L[d.r]} <b>${String(d.slope).replace('.',',')}°</b></button>`).join('')}</div>`:'<p class="note" style="margin:4px 0 0">Geen schuine dakvlakken in 3DBAG voor dit pand.</p>')+(v.dakTot>0?dhDvHtml(v):'');dhDvReken()}
+// ---------- rekenhulp: alle dakvlakken uit 3D BAG ----------
+const dvGr=a=>String(Math.round(a*10)/10).replace('.',',');
+function dhDvRijen(v){const r=v.daken.map((d,i)=>({n:'D'+(i+1),o:RICHT8L[d.r]+' ('+d.az+'°)',r:d.r,h:d.slope,s:d.area,p:d.area*Math.cos(d.slope*Math.PI/180)}));
+ if(v.plat>=0.5)r.push({n:'P',o:'plat (&lt; 15°)',r:'H',h:0,s:v.plat,p:v.plat});return r}
+function dhDvAand(){const v=DH.vlakken;if(!v)return 100;const a=(DH.dvAand||{})[v.pid];return Number.isFinite(a)&&a>0&&a<=100?a:100}
+function dhDvHtml(v){const R=dhDvRijen(v),sS=v.daken.reduce((t,d)=>t+d.area,0),sP=R.reduce((t,x)=>t+x.p,0),at=v.at||{};
+ const ctl=(at.b3_opp_dak_schuin!=null||at.b3_opp_dak_plat!=null)?`<div class="note">Controle 3D BAG zelf: schuin ${fm2(at.b3_opp_dak_schuin||0)} m² · plat ${fm2(at.b3_opp_dak_plat||0)} m²</div>`:'';
+ return `<details class="dhdv"${DH.dvOpen?' open':''}><summary>Alle dakvlakken uit 3D BAG <small>(rekenhulp)</small></summary>
+<table class="dhdvt"><thead><tr><th>Vlak</th><th>Oriëntatie</th><th>Helling</th><th>m² schuin</th><th>m² horiz.</th></tr></thead><tbody>
+${R.map(x=>`<tr><td><b>${x.n}</b></td><td>${x.o}</td><td>${x.h?dvGr(x.h)+'°':'–'}</td><td>${fm2(x.s)}</td><td>${fm2(x.p)}</td></tr>`).join('')}
+</tbody><tfoot><tr><td colspan="3">Totaal dak</td><td>${fm2(v.dakTot)}</td><td>${fm2(sP)}</td></tr></tfoot></table>
+${ctl}<div class="dhdvaand"><label for="dhDvAand">Aandeel van deze woning in het pand (%)</label><input id="dhDvAand" inputmode="decimal" value="${String(dhDvAand()).replace('.',',')}"></div>
+<div id="dhDvRes"></div>
+<div class="dhdvknop"><button type="button" class="small ghost" data-dvkopie>Kopieer tabel</button></div>
+<p class="note">Bron: 3D BAG (LoD2.2, automatisch gemaakt uit AHN-hoogtedata). Gemeten over de buitenkant van het dak, inclusief overstek; kleine onderdelen (dakkapel, schoorsteen) kunnen ontbreken of versimpeld zijn, en de AHN-opname kan ouder zijn dan een verbouwing. Gebruik dit als onderbouwing als het dak niet bereikbaar is en vermeld de bron; voor de verliesoppervlakte nog corrigeren naar de meetregels van ISSO 82.1.</p></details>`}
+function dhDvReken(){const v=DH.vlakken,el=$('#dhDvRes');if(!el||!v)return;const a=dhDvAand();
+ if(a>=100){el.innerHTML='';return}const f=a/100,sS=v.daken.reduce((t,d)=>t+d.area,0);
+ el.innerHTML=`<div class="dhdvres">Aandeel ${dvGr(a)}%: schuin <b>${fm2(sS*f)} m²</b> · plat <b>${fm2(v.plat*f)} m²</b> · totaal <b>${fm2(v.dakTot*f)} m²</b></div>`}
+document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('dhdv'))DH.dvOpen=e.target.open},true);
+document.addEventListener('input',e=>{if(e.target.id!=='dhDvAand'||!DH.vlakken)return;const a=parseFloat(String(e.target.value).replace(',','.'));DH.dvAand=DH.dvAand||{};DH.dvAand[DH.vlakken.pid]=Number.isFinite(a)?a:100;dhDvReken()});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-dvkopie]'))return;const v=DH.vlakken;if(!v)return;const a=dhDvAand(),f=a/100;
+ const L=[['Vlak','Orientatie','Helling (graden)','m2 schuin','m2 horizontaal'].join('\t')].concat(dhDvRijen(v).map(x=>[x.n,x.o.replace('&lt;','<').replace('°','').replace('°',''),x.h?dvGr(x.h):'',fm2(x.s),fm2(x.p)].join('\t')));
+ L.push(['Totaal','','',fm2(v.dakTot),''].join('\t'));if(a<100)L.push(['Aandeel '+dvGr(a)+'%','','',fm2(v.dakTot*f),''].join('\t'));
+ const t=(DH.adres?.naam?DH.adres.naam+'\n':'')+L.join('\n');
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast&&toast('Tabel gekopieerd')).catch(()=>toast&&toast('Kopiëren lukte niet'))});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-dhal]');if(!b)return;const inp=$('#c_al');inp.value=String(b.dataset.dhal).replace('.',',');inp.dispatchEvent(new Event('input',{bubbles:true}));inp.focus();toast&&toast('Hellingshoek '+inp.value+'° ingevuld')});
 {const _t=dhAdrToon;dhAdrToon=function(){_t.apply(this,arguments);dhVlakkenLaden()}}
-function vlakkenPdfRijen(){const v=DH.vlakken;if(!v||!v.daken.length)return[];return[['Hellingshoek schuine daken (3DBAG)',v.daken.map(d=>RICHT8L[d.r]+' '+String(d.slope).replace('.',',')+' graden').join(' · ')]]}
+function vlakkenPdfRijen(){const v=DH.vlakken;if(!v||!(v.dakTot>0))return[];const a=dhDvAand(),f=a/100;
+ const r=dhDvRijen(v).map(x=>['Dakvlak '+x.n+' (3DBAG)',x.r==='H'?'plat · '+fm2(x.s)+' m2':RICHT8L[x.r]+' · '+dvGr(x.h)+' graden · '+fm2(x.s)+' m2 schuin ('+fm2(x.p)+' m2 horizontaal)']);
+ r.push(['Totaal dak (3DBAG)',fm2(v.dakTot)+' m2 (incl. overstek; bron 3D BAG LoD2.2)',1]);if(a<100)r.push(['Aandeel woning '+dvGr(a)+'%',fm2(v.dakTot*f)+' m2',1]);return r}
 
 DH.shape='zadel';DH.duKant='beide';
 // ---------- extra dakvormen (aangekapt, wolfseind, gekoppeld, dakkapel, schild met eigen helling) ----------
