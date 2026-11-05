@@ -1490,7 +1490,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1600';
+const ELN_BUILD='2026-11-05-1515';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6190,10 +6190,15 @@ function obRender(){const m=ob.meta;const set=(id,v)=>{const e=$(id);if(e&&docum
 let obRec=null,obAan=false,obBasis='';
 function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je de tekst typen.','err');return}
  if(obAan){obAan=false;try{obRec.stop()}catch(e){}obKnop();setTimeout(obInterpreteer,400);return}
- obAan=true;const tx=$('ob-tekst');obBasis=tx.value.trim();obRec=new SR();obRec.lang='nl-NL';obRec.continuous=true;obRec.interimResults=true;
- obRec.onresult=e=>{let tus='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal){obBasis=(obBasis?obBasis+' ':'')+r[0].transcript.trim()}else tus+=r[0].transcript}tx.value=obBasis+(tus?' '+tus:'');tx.scrollTop=tx.scrollHeight;ob.tekst=obBasis;obSave()};
+ obAan=true;const tx=$('ob-tekst');obBasis=tx.value.trim();
+ const android=/Android/i.test(navigator.userAgent),nz=x=>OBN(x).replace(/[.,!?]/g,'');let stukken=[];
+ obRec=new SR();obRec.lang='nl-NL';obRec.continuous=!android;obRec.interimResults=true;
+ const toon=tus=>{const t=stukken.join(' ');tx.value=[obBasis,t,tus].filter(Boolean).join(' ');tx.scrollTop=tx.scrollHeight;ob.tekst=[obBasis,t].filter(Boolean).join(' ');obSave()};
+ obRec.onresult=e=>{let tus='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i],f=r[0].transcript.trim();if(!r.isFinal){tus=f;continue}if(!f)continue;
+   const L=stukken.length?nz(stukken[stukken.length-1]):'',F=nz(f);if(L&&F.startsWith(L))stukken[stukken.length-1]=f;else if(L&&L.startsWith(F)){}else stukken.push(f)}
+  toon(tus)};
+ obRec.onend=()=>{obBasis=[obBasis,stukken.join(' ')].filter(Boolean).join(' ');stukken=[];if(obAan){try{obRec.start()}catch(e){obAan=false;obKnop()}}};
  obRec.onerror=e=>{if(e.error==='no-speech')return;if(e.error==='not-allowed'){obAan=false;obKnop();msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
- obRec.onend=()=>{if(obAan){try{obRec.start()}catch(e){obAan=false;obKnop()}}};
  try{obRec.start()}catch(e){obAan=false}obKnop()}
 function obKnop(){const b=$('ob-praat');b.classList.toggle('aan',obAan);b.innerHTML=obAan?'■ Stop – maak onderbouwing':'🎤 Start inspreken';$('ob-live').textContent=obAan?'Luisteren… praat gewoon door, tik op Stop als je klaar bent.':''}
 // ---- PDF op briefpapier ----
