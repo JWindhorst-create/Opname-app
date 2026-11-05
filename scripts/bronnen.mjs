@@ -27,8 +27,8 @@ async function kego() {
   const base = 'https://portaal.stichtingkego.nl/support/solutions';
   const root = await get(base);
   const arts = new Map(), folders = new Map();
-  const take = (ls, fname) => ls.forEach(({ u, t }) => {
-    const m = u.match(/\/support\/solutions\/articles\/(\d+)/); if (!m || !t) return;
+  const take = (ls, fname) => ls.forEach(({ u, t: t0 }) => { let t = t0;
+    const m = u.match(/\/support\/solutions\/articles\/(\d+)/); t = t.replace(/\s*(Gewijzigd|Gemaakt|Modified|Created) op .*$/i, '').trim(); if (!m || !t) return;
     if (/^(meer|bekijk alle|see all|view all)/i.test(t) && t.length < 25) return;
     if (!arts.has(m[1])) arts.set(m[1], { id: m[1], u: u.split('?')[0], t, folder: fname || '' });
   });
