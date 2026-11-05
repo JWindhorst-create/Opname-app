@@ -1262,7 +1262,7 @@ body.v-opname{background-image:none!important}
  #ob-praat{width:100%;min-height:58px;font-size:18px}#ob-praat.aan{background:#c0392b;border-color:#c0392b;animation:obp 1.2s infinite}@keyframes obp{0%{box-shadow:0 0 0 0 rgba(192,57,43,.5)}100%{box-shadow:0 0 0 14px rgba(192,57,43,0)}}
  #ob-live{min-height:22px;color:#4a6b5a;font-style:italic;margin:8px 0 2px}.ob-sec.cur{border-color:#245c45;box-shadow:0 0 0 2px rgba(36,92,69,.15)}.ob-kop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.ob-kop h3{margin:0}
  .ob-notes{margin:8px 0 0;padding-left:0;list-style:none}.ob-notes li{display:flex;gap:6px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #e3ece6}.ob-notes li span{flex:1;outline:none;padding:2px 4px;border-radius:4px}.ob-notes li span:focus{background:#f1f7f3}.ob-notes select{max-width:120px;font-size:12px}.ob-notes button{border:0;background:none;color:#b3261e;cursor:pointer;font-size:15px}
- .ob-auto{background:#eef6f0;border:1px solid #cfe2d5;border-radius:8px;padding:8px 10px;margin-top:8px}.ob-auto ul{margin:4px 0 0;padding-left:18px}.ob-ref{margin-top:6px}.btn.sm{padding:5px 10px;font-size:13px}</style>
+ .ob-auto{background:#eef6f0;border:1px solid #cfe2d5;border-radius:8px;padding:8px 10px;margin-top:8px}.ob-auto ul{margin:4px 0 0;padding-left:18px}.ob-ref{margin-top:6px}.btn.sm{padding:5px 10px;font-size:13px}.ob-plus{width:100%;margin-top:8px;border:1px dashed #b9d0c0;border-radius:8px;padding:8px;font:inherit;background:#fbfdfb}</style>
  <div class="card">
   <h3>Onderbouwing van de opname</h3>
   <p class="hint" style="margin:0 0 10px">Vertel wat je ziet; elke zin komt onder het juiste onderdeel en krijgt de standaard onderbouwing met de bron uit het opnameprotocol (ISSO 82.1 woningbouw / ISSO 75.1 utiliteit) en NTA 8800. Controleer de tekst voordat je de PDF maakt.</p>
@@ -1278,12 +1278,12 @@ body.v-opname{background-image:none!important}
  <div class="card">
   <button class="btn" type="button" id="ob-praat">🎤 Start inspreken</button>
   <div id="ob-live"></div>
-  <div class="hint" style="margin:4px 0 10px">Begin een zin met het onderdeel, bijv. <i>“Gevel: spouwmuur met 6 centimeter isolatie volgens factuur”</i> of <i>“Ramen HR plus plus, kunststof kozijnen, stempel op de afstandhouder”</i>. Zonder onderdeel kiest de app het zelf aan de hand van de woorden, anders gaat het naar het gekozen onderdeel. Zeg <i>“nieuw onderdeel ventilatie”</i> om te wisselen.</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label class="f" for="ob-cur" style="margin:0">Huidig onderdeel</label><select id="ob-cur" style="flex:1;min-width:180px"></select><span class="hint" id="ob-n" style="margin:0"></span></div>
-  <textarea id="ob-los" rows="2" placeholder="Of typ hier (één regel per waarneming) en tik op Toevoegen" style="width:100%;margin-top:8px"></textarea>
-  <button class="btn sec" type="button" id="ob-add">Toevoegen</button>
+  <label class="f" for="ob-tekst" style="margin-top:8px">Ingesproken tekst</label>
+  <textarea id="ob-tekst" rows="7" placeholder="Hier komt alles wat je inspreekt. Je kunt ook typen of aanvullen." style="width:100%"></textarea>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn sec" type="button" id="ob-maak">✨ Verwerk tot onderbouwing</button></div>
+  <div class="hint" style="margin:8px 0 0">Praat gewoon door over de hele woning (gevels, dak, ramen, installaties …) en tik op <b>Stop</b>: de tekst wordt dan verwerkt tot een onderbouwing per onderdeel. Het blijft een levend document: spreek later gerust meer in of typ erbij en tik op <b>Verwerk</b> – alleen het nieuwe deel wordt toegevoegd, je aanpassingen blijven staan.</div>
  </div>
- <div id="ob-secties"></div>
+ <div id="ob-resultaat" hidden><div id="ob-secties"></div></div>
  <div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="ob-pdf">📄 PDF onderbouwing</button><button class="btn sec" type="button" id="ob-nieuw">Nieuwe onderbouwing</button></div><div class="msg" id="ob-msg"></div></div>
 </section>
 <section class="view" id="view-kompas" hidden>
@@ -1490,7 +1490,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1530';
+const ELN_BUILD='2026-11-05-1600';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2000,7 +2000,7 @@ $('mk-help').addEventListener('click',()=>helpOpen(MK_WT,'Mappen aanmaken'));
 const HELP={
  onderbouwing:[
   {at:'#ob-addr',t:'1. Object',b:'Vul adres, datum, opnemer en bouwjaar in en kies woning (ISSO 82.1) of utiliteit (ISSO 75.1) en basis- of detailopname. Dat bepaalt de bronverwijzingen in de tekst.'},
-  {at:'#ob-praat',t:'2. Inspreken',b:'Tik op <b>Start inspreken</b> en vertel per onderdeel wat je ziet, bijv. <i>“Dak: 10 centimeter isolatie tegen het dakbeschot, foto’s gemaakt”</i>. Elke zin komt onder het juiste kopje. Tik op <b>Stop</b> als je klaar bent. Typen in het vak eronder kan ook.'},
+  {at:'#ob-praat',t:'2. Inspreken',b:'Tik op <b>Start inspreken</b> en vertel in één keer alles wat je ziet, bijv. <i>“de gevel is een spouwmuur met zes centimeter isolatie volgens factuur, het dak heeft tien centimeter isolatie tegen het dakbeschot, ramen HR plus plus …”</i>. Tik op <b>Stop</b>: de tekst wordt verwerkt tot een onderbouwing per onderdeel. Later meer inspreken of typen en op <b>Verwerk</b> tikken voegt alleen het nieuwe deel toe.'},
   {at:'#ob-secties',t:'3. Controleren',b:'Per onderdeel zie je je waarnemingen (tik erop om te verbeteren, of verplaats ze met de keuzelijst) en de automatische <b>onderbouwing</b>: bijv. de Rc volgens de basismethode bij een isolatiedikte, de glassoort, het ventilatiesysteem of het bewijs, met de paragraaf uit het opnameprotocol.'},
   {at:'#ob-pdf',t:'4. PDF',b:'Klik op <b>PDF onderbouwing</b>: op briefpapier, met objectgegevens en per onderdeel Waarneming, Onderbouwing en Bron. Met <b>Nieuwe onderbouwing</b> begin je opnieuw.'}],
  klein:[
@@ -6102,6 +6102,47 @@ function obIndeel(tekst){let t=String(tekst||'').trim();if(!t)return null;let n=
  return{k:best?best.k:ob.cur||'overig',t}}
 function obZin(t){t=String(t).trim();if(!t)return t;t=t.charAt(0).toUpperCase()+t.slice(1);if(!/[.!?]$/.test(t))t+='.';return t}
 function obVoeg(tekst){const r=obIndeel(tekst);if(!r)return null;ob.cur=r.k;if(r.t){ob.notes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),k:r.k,t:obZin(r.t)})}obSave();obRender();return r}
+
+// ---- hele tekst interpreteren: knippen op onderwerpwoorden en indelen ----
+const OB_NUMW={een:1,één:1,twee:2,drie:3,vier:4,vijf:5,zes:6,zeven:7,acht:8,negen:9,tien:10,elf:11,twaalf:12,dertien:13,veertien:14,vijftien:15,zestien:16,zeventien:17,achttien:18,negentien:19,twintig:20,dertig:30,veertig:40,vijftig:50,zestig:60,zeventig:70,tachtig:80,negentig:90,honderd:100};
+function obGetalWoord(w){w=w.toLowerCase();if(w in OB_NUMW)return OB_NUMW[w];const m=w.match(/^(een|twee|drie|vier|vijf|zes|zeven|acht|negen)(?:en|ën)(twintig|dertig|veertig|vijftig|zestig|zeventig|tachtig|negentig)$/);if(m)return OB_NUMW[m[1]]+OB_NUMW[m[2]];const h=w.match(/^(twee|drie|vier|vijf|zes|zeven|acht|negen)?honderd$/);if(h)return(h[1]?OB_NUMW[h[1]]:1)*100;return null}
+function obGetallen(t){return t.replace(/\b(\d+)\s+(?:komma|punt)\s+(\d+)\b/gi,'$1,$2').replace(/\b([a-zëé]+)\s+(cm|centimeter|mm|millimeter|meter|m|panelen|zonnepanelen|wp|wattpiek|watt|graden|procent|jaar|jaren|ruiten|ramen|deuren)\b/gi,(all,w,u)=>{const n=obGetalWoord(w);return n==null?all:n+' '+u}).replace(/\b(\d+)\s+(?:komma|punt)\s+([a-zëé]+)\b/gi,(all,a,w)=>{const n=obGetalWoord(w);return n==null?all:a+','+n})}
+const OB_TRIG=(()=>{const m={};const z=(k,ws)=>ws.forEach(w=>m[w]=k);
+ z('object',['bouwjaar','woningtype','tussenwoning','hoekwoning','vrijstaande','vrijstaand','appartement','bovenwoning','benedenwoning','gebruiksoppervlakte']);
+ z('zone',['zolder','berging','garage','kelder','serre','trappenhuis','vliering']);
+ z('gevel',['gevel','gevels','spouwmuur','spouw','buitenmuur','buitenmuren','gevelisolatie','voorzetwand']);
+ z('dak',['dak','daken','dakvlak','dakisolatie','dakbeschot','zoldervloer','vlieringvloer']);
+ z('vloer',['vloer','vloeren','begane','kruipruimte','vloerisolatie','bodemisolatie']);
+ z('ramen',['ramen','raam','glas','beglazing','kozijnen','kozijn','dakraam','dakramen','lichtkoepel']);
+ z('deuren',['deur','deuren','voordeur','achterdeur','tuindeur','schuifpui']);
+ z('verwarming',['verwarming','cv','cv-ketel','ketel','combiketel','warmtepomp','stadsverwarming','warmtenet','blokverwarming','kachel','radiatoren','vloerverwarming']);
+ z('tapwater',['tapwater','boiler','geiser','doorstromer','douche-wtw','douchewtw']);
+ z('ventilatie',['ventilatie','afzuiging','ventilatiebox','balansventilatie','wtw-unit','ventilatiesysteem']);
+ z('koeling',['koeling','airco','airconditioning']);
+ z('pv',['zonnepanelen','zonnepaneel','pv','pv-panelen','zonneboiler','zonnecollector']);
+ z('verlichting',['verlichting','armaturen']);return m})();
+const OB_VZ=new Set(['in','op','van','met','bij','aan','onder','tegen','achter','naast','zonder','voor','boven','via','door','uit','tot','naar','per']);
+const OB_LIDW=new Set(['de','het','een','geen','alle','die','dat','deze']);
+const OB_TERUG=new Set(['de','het','een','geen','er','is','zijn','hangt','hangen','liggen','ligt','staat','staan','zit','zitten','heeft','hebben','we','ik','ook','verder','dan','daarnaast','en','mechanische','natuurlijke','gebalanceerde','centrale','collectieve','individuele','oude','nieuwe','houten','kunststof','stalen','aluminium','enkele','dubbele','alle','beide','overige','bij','wat','betreft']);
+const isGetal=w=>(/^\d+([.,]\d+)?$/.test(w)&&!/^(1[89]|20)\d\d$/.test(w))||obGetalWoord(w)!=null;
+function obSegmenten(tekst){const uit=[];let t=obGetallen(String(tekst||'').replace(/\s+/g,' ').trim());if(!t)return uit;
+ t.split(/(?<=[.!?;])\s+|\s*\n+\s*/).forEach(zin=>{const w=zin.split(' ').filter(Boolean),N=w.map(x=>OBN(x).replace(/[.,!?;:]+$/,''));let start=0,ck=null;
+  for(let i=0;i<w.length;i++){const k=OB_TRIG[N[i]];if(!k||k===ck||(k==='verlichting'&&ob.meta.gebouw!=='U'))continue;
+   const v1=N[i-1]||'',v2=N[i-2]||'';const geblokt=OB_VZ.has(v1)||(OB_LIDW.has(v1)&&OB_VZ.has(v2))||(ck==='verwarming'&&k==='tapwater'&&/combi/.test(N.slice(start,i).join(' ')))||(ck==='deuren'&&k==='ramen')||(ck==='ramen'&&k==='deuren'&&OB_VZ.has(v1));
+   if(!ck){ck=k;continue}if(geblokt)continue;
+   let j=i;while(j-1>start+1&&(OB_TERUG.has(N[j-1])||isGetal(N[j-1])))j--;
+   if(j-start>=2){uit.push(w.slice(start,j).join(' '));start=j;ck=k}}
+  if(start<w.length)uit.push(w.slice(start).join(' '))});
+ return uit.map(x=>x.replace(/^(?:en|ook|verder|dan|daarnaast)\s+/i,'').replace(/^[\s,.;:-]+|[\s,;:-]+$/g,'')).filter(x=>x.split(' ').length>=2||/\d/.test(x))}
+function obInterpreteer(){const t=$('ob-tekst').value;ob.tekst=t;const oud=ob.verwerkt||'';let nieuw;
+ if(oud&&t.startsWith(oud)){nieuw=t.slice(oud.length)}else{if(oud&&ob.notes.length&&!confirm('Je hebt eerder ingesproken tekst aangepast. Alles opnieuw verwerken? (aanpassingen in de onderdelen gaan dan verloren)'))return;ob.notes=[];nieuw=t}
+ ob.verwerkt=t;if(!nieuw.trim()){obSave();obRender();msg('ob-msg','Geen nieuwe tekst. Spreek iets in of typ erbij en tik op Verwerk.','err');return}
+ const segs=obSegmenten(nieuw);const voor=ob.notes.length;let last=ob.notes.length?ob.notes[ob.notes.length-1].k:'object';
+ segs.forEach(sg=>{const r=obIndeel(sg);if(!r||!r.t)return;let k=r.k;if(k==='overig'||(!OBS.find(s=>s.k===k)))k=last;
+  // bewijs-zinnen bij het onderdeel ervoor laten
+  if(k==='bewijs'&&ob.notes.length)k=last;last=k;ob.notes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),k,t:obZin(r.t)})});
+ obSave();obRender();const bij=ob.notes.length-voor;msg('ob-msg',bij?bij+' regel'+(bij>1?'s':'')+' toegevoegd'+(voor?' aan de onderbouwing':'')+' ('+new Set(ob.notes.map(n=>n.k)).size+' onderdelen). Je kunt steeds meer inspreken of typen; alleen het nieuwe deel wordt erbij gezet.':'Geen tekst om te verwerken.',bij?'ok':'err');
+ const r=$('ob-resultaat');if(r&&ob.notes.length)r.scrollIntoView({behavior:'smooth',block:'start'})}
 // ---- automatische onderbouwing per onderdeel ----
 const F2=x=>Number(x).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
 function obAuto(k,notes){const a=[],txt=OBN(notes.map(x=>x.t).join(' ')),has=re=>re.test(txt),P=isso(),bas=ob.meta.methode!=='detail';
@@ -6139,22 +6180,22 @@ const refTxt=k=>{const s=sec(k);return s.ref?isso()+' '+s.ref+'; berekening volg
 // ---- weergave ----
 function obRender(){const m=ob.meta;const set=(id,v)=>{const e=$(id);if(e&&document.activeElement!==e)e.value=v??''};set('ob-addr',m.adres);set('ob-datum',m.datum);set('ob-opnemer',m.opnemer);set('ob-bj',m.bouwjaar);
  document.querySelectorAll('#ob-gebouw [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===m.gebouw));document.querySelectorAll('#ob-methode [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===m.methode));
- $('ob-cur').innerHTML=OBS.filter(s=>!s.u||m.gebouw==='U').map(s=>'<option value="'+s.k+'"'+(s.k===ob.cur?' selected':'')+'>'+esc(s.t)+'</option>').join('');
- const ks=OBS.filter(s=>ob.notes.some(n=>n.k===s.k)||s.k===ob.cur);
- $('ob-secties').innerHTML=ks.map(s=>{const ns=ob.notes.filter(n=>n.k===s.k),au=obAuto(s.k,ns);return'<div class="card ob-sec'+(s.k===ob.cur?' cur':'')+'" data-k="'+s.k+'"><div class="ob-kop"><h3>'+esc(s.t)+'</h3><button type="button" class="btn sec sm" data-obkies="'+s.k+'">'+(s.k===ob.cur?'● hierin inspreken':'Hierin inspreken')+'</button></div>'+
+ const tx=$('ob-tekst');if(tx&&document.activeElement!==tx&&!obAan)tx.value=ob.tekst||'';
+ const ks=OBS.filter(s=>ob.notes.some(n=>n.k===s.k));
+ $('ob-secties').innerHTML=ks.map(s=>{const ns=ob.notes.filter(n=>n.k===s.k),au=obAuto(s.k,ns);return'<div class="card ob-sec" data-k="'+s.k+'"><div class="ob-kop"><h3>'+esc(s.t)+'</h3></div>'+
   (ns.length?'<ul class="ob-notes">'+ns.map(n=>'<li><span contenteditable="true" data-obedit="'+n.id+'">'+esc(n.t)+'</span><select data-obmove="'+n.id+'" title="Verplaats naar ander onderdeel">'+OBS.map(o=>'<option value="'+o.k+'"'+(o.k===n.k?' selected':'')+'>'+esc(o.t)+'</option>').join('')+'</select><button type="button" data-obdel="'+n.id+'" title="Weghalen">✕</button></li>').join('')+'</ul>':'<p class="hint" style="margin:6px 0">Nog niets ingesproken voor dit onderdeel.</p>')+
-  (au.length?'<div class="ob-auto"><b>Onderbouwing</b><ul>'+au.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'')+'<div class="hint ob-ref">Bron: '+esc(refTxt(s.k))+'</div></div>'}).join('');
- $('ob-n').textContent=ob.notes.length?ob.notes.length+' regel'+(ob.notes.length>1?'s':'')+' in '+new Set(ob.notes.map(n=>n.k)).size+' onderde'+(new Set(ob.notes.map(n=>n.k)).size>1?'len':'el'):'Nog niets ingesproken'}
+  (au.length?'<div class="ob-auto"><b>Onderbouwing</b><ul>'+au.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'')+'<input class="ob-plus" data-obplus="'+s.k+'" placeholder="+ regel toevoegen bij '+esc(s.t.toLowerCase())+' (Enter)"><div class="hint ob-ref">Bron: '+esc(refTxt(s.k))+'</div></div>'}).join('');
+ $('ob-resultaat').hidden=!ob.notes.length}
 // ---- inspreken (doorlopend) ----
-let obRec=null,obAan=false;
-function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je typen in het vak hieronder.','err');return}
- if(obAan){obAan=false;try{obRec.stop()}catch(e){}return}
- obAan=true;obRec=new SR();obRec.lang='nl-NL';obRec.continuous=true;obRec.interimResults=true;
- obRec.onresult=e=>{let tus='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal){const x=obVoeg(r[0].transcript);if(x&&x.wissel)msg('ob-msg','Onderdeel: '+sec(x.k).t,'ok')}else tus+=r[0].transcript}$('ob-live').textContent=tus};
- obRec.onerror=e=>{if(e.error==='no-speech')return;if(e.error==='not-allowed'){obAan=false;msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
- obRec.onend=()=>{if(obAan){try{obRec.start()}catch(e){obAan=false}}obKnop()};
+let obRec=null,obAan=false,obBasis='';
+function obStart(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){msg('ob-msg','Spraak werkt in Chrome (ook op Android). In deze browser kun je de tekst typen.','err');return}
+ if(obAan){obAan=false;try{obRec.stop()}catch(e){}obKnop();setTimeout(obInterpreteer,400);return}
+ obAan=true;const tx=$('ob-tekst');obBasis=tx.value.trim();obRec=new SR();obRec.lang='nl-NL';obRec.continuous=true;obRec.interimResults=true;
+ obRec.onresult=e=>{let tus='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal){obBasis=(obBasis?obBasis+' ':'')+r[0].transcript.trim()}else tus+=r[0].transcript}tx.value=obBasis+(tus?' '+tus:'');tx.scrollTop=tx.scrollHeight;ob.tekst=obBasis;obSave()};
+ obRec.onerror=e=>{if(e.error==='no-speech')return;if(e.error==='not-allowed'){obAan=false;obKnop();msg('ob-msg','Microfoon niet toegestaan; geef de browser toestemming.','err')}};
+ obRec.onend=()=>{if(obAan){try{obRec.start()}catch(e){obAan=false;obKnop()}}};
  try{obRec.start()}catch(e){obAan=false}obKnop()}
-function obKnop(){const b=$('ob-praat');b.classList.toggle('aan',obAan);b.innerHTML=obAan?'■ Stop met inspreken':'🎤 Start inspreken';$('ob-live').textContent=obAan?($('ob-live').textContent||'Luisteren…'):''}
+function obKnop(){const b=$('ob-praat');b.classList.toggle('aan',obAan);b.innerHTML=obAan?'■ Stop – maak onderbouwing':'🎤 Start inspreken';$('ob-live').textContent=obAan?'Luisteren… praat gewoon door, tik op Stop als je klaar bent.':''}
 // ---- PDF op briefpapier ----
 async function obPdf(){if(!ob.notes.length){msg('ob-msg','Spreek eerst iets in.','err');return}
  try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
@@ -6172,12 +6213,12 @@ function obInit(){if(!$('view-onderbouwing')||obInit.ok)return;obInit.ok=1;
  const mm=(id,k)=>$(id).addEventListener('input',e=>{ob.meta[k]=e.target.value;obSave()});mm('ob-addr','adres');mm('ob-datum','datum');mm('ob-opnemer','opnemer');mm('ob-bj','bouwjaar');
  $('ob-addr-btn').addEventListener('click',()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();msg('ob-msg',ob.meta.adres?'Adres: '+esc(ob.meta.adres):'','ok')});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
  ['ob-gebouw','ob-methode'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;ob.meta[id==='ob-gebouw'?'gebouw':'methode']=b.dataset.v;obSave();obRender()}));
- $('ob-cur').addEventListener('change',e=>{ob.cur=e.target.value;obSave();obRender()});
  $('ob-praat').addEventListener('click',obStart);
- $('ob-add').addEventListener('click',()=>{const v=$('ob-los').value;v.split(/\n+/).forEach(r=>obVoeg(r));$('ob-los').value=''});
+ $('ob-maak').addEventListener('click',obInterpreteer);$('ob-tekst').addEventListener('input',e=>{ob.tekst=e.target.value;obSave()});
  $('ob-pdf').addEventListener('click',obPdf);
- $('ob-nieuw').addEventListener('click',()=>{if(ob.notes.length&&!confirm('Huidige onderbouwing leegmaken en opnieuw beginnen?'))return;ob={meta:{adres:'',datum:new Date().toISOString().slice(0,10),opnemer:ob.meta.opnemer||'J. Windhorst',gebouw:ob.meta.gebouw||'W',methode:ob.meta.methode||'basis',bouwjaar:''},notes:[],cur:'object'};obSave();obRender();msg('ob-msg','Nieuwe onderbouwing gestart.','ok')});
+ $('ob-nieuw').addEventListener('click',()=>{if(ob.notes.length&&!confirm('Huidige onderbouwing leegmaken en opnieuw beginnen?'))return;ob={meta:{adres:'',datum:new Date().toISOString().slice(0,10),opnemer:ob.meta.opnemer||'J. Windhorst',gebouw:ob.meta.gebouw||'W',methode:ob.meta.methode||'basis',bouwjaar:''},notes:[],tekst:'',verwerkt:'',cur:'object'};$('ob-tekst').value='';obSave();obRender();msg('ob-msg','Nieuwe onderbouwing gestart.','ok')});
  $('ob-secties').addEventListener('click',e=>{const d=e.target.closest('[data-obdel]'),c=e.target.closest('[data-obkies]');if(d){ob.notes=ob.notes.filter(n=>n.id!==d.dataset.obdel);obSave();obRender()}if(c){ob.cur=c.dataset.obkies;obSave();obRender()}});
+ $('ob-secties').addEventListener('keydown',e=>{const i=e.target.closest('[data-obplus]');if(!i||e.key!=='Enter')return;e.preventDefault();const v=i.value.trim();if(!v)return;ob.notes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),k:i.dataset.obplus,t:obZin(obGetallen(v))});obSave();obRender();const n=document.querySelector('[data-obplus="'+i.dataset.obplus+'"]');if(n)n.focus()});
  $('ob-secties').addEventListener('change',e=>{const s=e.target.closest('[data-obmove]');if(!s)return;const n=ob.notes.find(n=>n.id===s.dataset.obmove);if(n){n.k=s.value;obSave();obRender()}});
  $('ob-secties').addEventListener('focusout',e=>{const s=e.target.closest('[data-obedit]');if(!s)return;const n=ob.notes.find(n=>n.id===s.dataset.obedit);if(!n)return;const v=s.textContent.trim();if(!v)ob.notes=ob.notes.filter(x=>x!==n);else n.t=v;obSave();obRender()});
  obRender()}
