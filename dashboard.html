@@ -6745,7 +6745,7 @@ const st=document.createElement('style');st.textContent=`#spMic{position:fixed;r
 #spBel{position:fixed;right:76px;bottom:calc(var(--sp-bottom,18px) + 6px);z-index:7000;max-width:min(70vw,420px);background:#17463a;color:#fff;border-radius:12px;padding:8px 12px;font:14px/1.35 system-ui,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25)}#spBel[hidden]{display:none}#spBel small{display:block;opacity:.75;font-size:12px;margin-top:2px}
 .sp-doel{outline:3px solid #e0a32e!important;outline-offset:1px}`;document.head.appendChild(st);
 const mic=document.createElement('button');mic.id='spMic';mic.type='button';mic.title='Inspreken (tik in een veld en daarna hier)';mic.setAttribute('aria-label','Inspreken');
-mic.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M8 6.5h2.5M13.5 6.5H16M8 9h2.5M13.5 9H16M8 11.5h2.5M13.5 11.5H16"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8.5 22h7"/></svg>';
+mic.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6.8" y="1.2" width="10.4" height="15" rx="5.2"/><path d="M6.8 6.2h3.4M13.8 6.2h3.4M6.8 9.1h3.4M13.8 9.1h3.4M6.8 12h3.4M13.8 12h3.4"/><path d="M4.4 12.6a7.6 6.6 0 0 0 15.2 0M12 19.2v3.2M7 22.4h10"/></svg>';
 const bel=document.createElement('div');bel.id='spBel';bel.hidden=true;document.body.append(mic,bel);
 let laatste=null,tijd=0,rec=null,bezig=false,belT=0;
 const isVeld=el=>el&&el.nodeType===1&&(el.tagName==='TEXTAREA'||el.tagName==='SELECT'||(el.tagName==='INPUT'&&!/^(button|submit|checkbox|radio|file|range|color|hidden|image|reset)$/i.test(el.type)))&&!el.disabled&&!el.readOnly;
@@ -6836,7 +6836,7 @@ render()})();
 /* ===== Iconen: emoji in knoppen en teksten vervangen door lijn-iconen in de stijl van het dashboard ===== */
 (function(){
 const P={
- mic:'<rect x="8" y="2" width="8" height="13" rx="4"/><path d="M8 6.5h2.5M13.5 6.5H16M8 9h2.5M13.5 9H16M8 11.5h2.5M13.5 11.5H16"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8.5 22h7"/>',
+ mic:'<rect x="6.8" y="1.2" width="10.4" height="15" rx="5.2"/><path d="M6.8 6.2h3.4M13.8 6.2h3.4M6.8 9.1h3.4M13.8 9.1h3.4M6.8 12h3.4M13.8 12h3.4"/><path d="M4.4 12.6a7.6 6.6 0 0 0 15.2 0M12 19.2v3.2M7 22.4h10"/>',
  kb:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 13h.01M12 13h.01M16 13h.01M7 16h10"/>',
  pin:'<path d="M20 10c0 5-8 12-8 12s-8-7-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
  clip:'<path d="m21.4 11-9.2 9.2a6 6 0 0 1-8.5-8.5l8.6-8.6a4 4 0 1 1 5.7 5.7l-8.6 8.6a2 2 0 0 1-2.8-2.8l8.5-8.5"/>',
