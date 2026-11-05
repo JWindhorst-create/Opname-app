@@ -1508,7 +1508,7 @@ const st=document.createElement('style');st.textContent=`#spMic{position:fixed;r
 #spBel{position:fixed;right:76px;bottom:calc(var(--sp-bottom,18px) + 6px);z-index:7000;max-width:min(70vw,420px);background:#17463a;color:#fff;border-radius:12px;padding:8px 12px;font:14px/1.35 system-ui,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25)}#spBel[hidden]{display:none}#spBel small{display:block;opacity:.75;font-size:12px;margin-top:2px}
 .sp-doel{outline:3px solid #e0a32e!important;outline-offset:1px}`;document.head.appendChild(st);
 const mic=document.createElement('button');mic.id='spMic';mic.type='button';mic.title='Inspreken (tik in een veld en daarna hier)';mic.setAttribute('aria-label','Inspreken');
-mic.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+mic.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M8 6.5h2.5M13.5 6.5H16M8 9h2.5M13.5 9H16M8 11.5h2.5M13.5 11.5H16"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8.5 22h7"/></svg>';
 const bel=document.createElement('div');bel.id='spBel';bel.hidden=true;document.body.append(mic,bel);
 let laatste=null,tijd=0,rec=null,bezig=false,belT=0;
 const isVeld=el=>el&&el.nodeType===1&&(el.tagName==='TEXTAREA'||el.tagName==='SELECT'||(el.tagName==='INPUT'&&!/^(button|submit|checkbox|radio|file|range|color|hidden|image|reset)$/i.test(el.type)))&&!el.disabled&&!el.readOnly;
