@@ -1490,7 +1490,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1710';
+const ELN_BUILD='2026-11-05-1720';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6123,17 +6123,20 @@ const OB_TRIG=(()=>{const m={};const z=(k,ws)=>ws.forEach(w=>m[w]=k);
  z('verlichting',['verlichting','armaturen']);return m})();
 const OB_VZ=new Set(['in','op','van','met','bij','aan','onder','tegen','achter','naast','zonder','voor','boven','via','door','uit','tot','naar','per']);
 const OB_LIDW=new Set(['de','het','een','geen','alle','die','dat','deze']);
-const OB_TERUG=new Set(['de','het','een','geen','er','is','zijn','hangt','hangen','liggen','ligt','staat','staan','zit','zitten','heeft','hebben','we','ik','ook','verder','dan','daarnaast','en','mechanische','natuurlijke','gebalanceerde','centrale','collectieve','individuele','oude','nieuwe','houten','kunststof','stalen','aluminium','enkele','dubbele','alle','beide','overige','bij','wat','betreft']);
+const OB_TERUG=new Set(['de','het','een','geen','er','is','zijn','hangt','hangen','liggen','ligt','staat','staan','zit','zitten','heeft','hebben','we','ik','zat','zaten','was','waren','lag','lagen','hing','stond','stonden','had','hadden','bovendien','ook','verder','dan','daarnaast','en','mechanische','natuurlijke','gebalanceerde','centrale','collectieve','individuele','oude','nieuwe','houten','kunststof','stalen','aluminium','enkele','dubbele','alle','beide','overige','bij','wat','betreft','hr','hr+','hr++','plus','dubbel','enkel','drievoudig','triple','hoogrendement']);
+const OB_VERB=new Set(['er','is','zijn','was','waren','hangt','hing','hangen','hingen','liggen','ligt','lag','lagen','staat','stond','staan','stonden','zit','zat','zitten','zaten','heeft','had','hebben','hadden','we','wij','ik','zag','zie','zien']);const OB_CONN=new Set(['en','ook','verder','dan','daarnaast','bovendien']);
 const isGetal=w=>(/^\d+([.,]\d+)?$/.test(w)&&!/^(1[89]|20)\d\d$/.test(w))||obGetalWoord(w)!=null;
 function obSegmenten(tekst){const uit=[];let t=obGetallen(String(tekst||'').replace(/\s+/g,' ').trim());if(!t)return uit;
  t.split(/(?<=[.!?;])\s+|\s*\n+\s*/).forEach(zin=>{const w=zin.split(' ').filter(Boolean),N=w.map(x=>OBN(x).replace(/[.,!?;:]+$/,''));let start=0,ck=null;
-  for(let i=0;i<w.length;i++){const k=OB_TRIG[N[i]];if(!k||k===ck||(k==='verlichting'&&ob.meta.gebouw!=='U'))continue;
+  for(let i=0;i<w.length;i++){const k=OB_TRIG[N[i]]||OB_TRIG[N[i].replace(/ /g,'-')]||OB_TRIG[N[i].replace(/ /g,'')]||OB_TRIG[N[i].split(' ').pop()];if(!k||k===ck||(k==='verlichting'&&ob.meta.gebouw!=='U'))continue;
    const v1=N[i-1]||'',v2=N[i-2]||'';const geblokt=OB_VZ.has(v1)||(OB_LIDW.has(v1)&&OB_VZ.has(v2))||(ck==='verwarming'&&k==='tapwater'&&/combi/.test(N.slice(start,i).join(' ')))||(ck==='deuren'&&k==='ramen')||(ck==='ramen'&&k==='deuren'&&OB_VZ.has(v1));
    if(!ck){ck=k;continue}if(geblokt)continue;
-   let j=i;while(j-1>start+1&&(OB_TERUG.has(N[j-1])||isGetal(N[j-1])))j--;
-   if(j-start>=2){uit.push(w.slice(start,j).join(' '));start=j;ck=k}}
+   const QUAL=w=>OB_TERUG.has(w)&&!OB_VERB.has(w)&&!OB_CONN.has(w)||isGetal(w);let j=i;while(j-1>start&&QUAL(N[j-1]))j--;
+   {let j2=j,con=false;while(j2-1>start&&(OB_VERB.has(N[j2-1])||OB_CONN.has(N[j2-1])||QUAL(N[j2-1]))){j2--;if(OB_CONN.has(N[j2]))con=true}if(con&&j2>start)j=j2;else if(con&&j2===start){}}
+   if(j<=start)j=Math.min(i,start+1);
+   if(j-start>=2||(j-start>=1&&OB_TRIG[N[start]])){uit.push(w.slice(start,j).join(' '));start=j;ck=k}}
   if(start<w.length)uit.push(w.slice(start).join(' '))});
- return uit.map(x=>x.replace(/^(?:en|ook|verder|dan|daarnaast)\s+/i,'').replace(/^[\s,.;:-]+|[\s,;:-]+$/g,'')).filter(x=>x.split(' ').length>=2||/\d/.test(x))}
+ return uit.map(x=>x.replace(/^(?:(?:en|ook|verder|dan|daarnaast|bovendien)\s+)+/i,'').replace(/^[\s,.;:-]+|[\s,;:-]+$/g,'')).filter(x=>x.split(' ').length>=2||/\d/.test(x))}
 async function obInterpreteer(){const t=$('ob-tekst').value;ob.tekst=t;const oud=ob.verwerkt||'';let nieuw;
  if(oud&&t.startsWith(oud)){nieuw=t.slice(oud.length)}else{if(oud&&ob.notes.length&&!confirm('Je hebt eerder ingesproken tekst aangepast. Alles opnieuw verwerken? (aanpassingen in de onderdelen gaan dan verloren)'))return;ob.notes=[];nieuw=t}
  ob.verwerkt=t;if(!nieuw.trim()){obSave();obRender();msg('ob-msg','Geen nieuwe tekst. Spreek iets in of typ erbij en tik op Verwerk.','err');return}
@@ -6222,7 +6225,7 @@ async function obPdf(){if(!ob.notes.length){msg('ob-msg','Spreek eerst iets in.'
   body:[['Adres',T(m.adres||'-')],['Datum opname',T(m.datum?m.datum.split('-').reverse().join('-'):'-')],['Opnemer',T(m.opnemer||'-')],['Gebouw',T(m.gebouw==='U'?'Utiliteit (EP-U)':'Woning (EP-W)')],['Opname',T((m.methode==='detail'?'Detailopname':'Basisopname')+' volgens '+P)],...(m.bouwjaar?[['Bouwjaar',T(m.bouwjaar)]]:[])]});
  let y=doc.lastAutoTable.finalY+4;doc.setFontSize(9);doc.setTextColor(60);const intro=doc.splitTextToSize(T('Deze onderbouwing legt per onderdeel vast wat tijdens de opname is waargenomen en op welke grond de invoer is bepaald. De opname is uitgevoerd volgens het opnameprotocol '+P+(m.gebouw==='U'?' (utiliteitsbouw)':' (woningbouw)')+'; de energieprestatie is berekend volgens NTA 8800. Bewijsstukken zijn opgenomen in het projectdossier.'),182);doc.text(intro,14,y);y+=intro.length*4+3;doc.setTextColor(23,37,28);
  for(const s of OBS){const ns=ob.notes.filter(n=>n.k===s.k);if(!ns.length)continue;const au=obAuto(s.k,ns);
-  doc.autoTable({startY:y,head:[[{content:T(s.t),colSpan:2}]],body:[['Waarneming',T(ns.map(n=>'• '+n.t).join('\n'))],...(au.length?[['Onderbouwing',T(au.map(x=>'• '+x).join('\n'))]]:[]),['Bron',T(refTxt(s.k))]],theme:'grid',styles:{fontSize:9,cellPadding:2.2,lineColor:[197,217,202],lineWidth:.2,valign:'top'},columnStyles:{0:{fontStyle:'bold',cellWidth:30,textColor:[70,90,80]}},headStyles:ELN_HS,margin:{left:14,right:14,top:CT.TOP,bottom:22}});y=doc.lastAutoTable.finalY+4}
+  doc.autoTable({startY:y,head:[[{content:T(s.t),colSpan:2}]],body:[['Waarneming',T(ns.map(n=>'– '+n.t).join('\n'))],...(au.length?[['Onderbouwing',T(au.map(x=>'– '+x).join('\n'))]]:[]),['Bron',T(refTxt(s.k))]],theme:'grid',styles:{fontSize:9,cellPadding:2.2,lineColor:[197,217,202],lineWidth:.2,valign:'top'},columnStyles:{0:{fontStyle:'bold',cellWidth:30,textColor:[70,90,80]}},headStyles:ELN_HS,margin:{left:14,right:14,top:CT.TOP,bottom:22}});y=doc.lastAutoTable.finalY+4}
  elnCtrlFoot(doc,'Onderbouwing '+(m.adres||''),T);
  const clean=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]+/gi,'_').replace(/^_+|_+$/g,'');doc.save('Onderbouwing_van_de_opname_'+(clean(m.adres)||'zonder_adres')+'.pdf');msg('ob-msg','PDF opgeslagen.','ok')}catch(e){console.error(e);msg('ob-msg','PDF maken lukte niet: '+esc(e.message),'err')}}
 // ---- koppelen ----
