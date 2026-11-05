@@ -1490,7 +1490,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1640';
+const ELN_BUILD='2026-11-05-1700';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6157,17 +6157,18 @@ async function obBagBouwjaar(adres){try{const j=await fetch('https://api.pdok.nl
 const F2=x=>Number(x).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
 function obAuto(k,notes){const a=[],txt=OBN(notes.map(x=>x.t).join(' ')),has=re=>re.test(txt),P=isso(),bas=ob.meta.methode!=='detail';
  const bewijs=()=>{const b=[];if(has(/factuur|werkbon/))b.push('factuur/werkbon');if(has(/\bfoto/))b.push('foto’s');if(has(/tekening|bestek|opleverdossier/))b.push('bouwtekening/bestek');if(has(/kwaliteitsverklaring|bcrg/))b.push('kwaliteitsverklaring (BCRG)');if(has(/typeplaatje/))b.push('typeplaatje');return b};
- if(['gevel','dak','vloer'].includes(k)){const el=sec(k).el,rad={gevel:.36,dak:.22,vloer:.15}[el],bj=ob.meta.bouwjaar;
+ if(['gevel','dak','vloer'].includes(k)){const alleTxt=txt;notes.forEach((nt,ni)=>{const txt=OBN(nt.t),has=re=>re.test(txt),a0=a.length;const el=sec(k).el,rad={gevel:.36,dak:.22,vloer:.15}[el],bj=ob.meta.bouwjaar;
   const m=txt.match(/(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b/);const rcm=txt.match(/\brc\s*(?:waarde\s*)?(?:is|=|van)?\s*(\d+(?:[.,]\d+)?)/);
   const opBj=has(/op basis van (het )?bouwjaar|volgens (het )?bouwjaar|bouwjaar aanhouden|forfaitair/),onbekend=has(/onbekend|niet te bepalen|niet vast te stellen|niet zichtbaar|niet te zien|kan ik niet zien/),geen=has(/\b(geen isolatie|ongeisoleerd|niet geisoleerd)\b/);
-  if(opBj||(onbekend&&!m&&!rcm)){const f=obForf(el,bj);a.push(f?'Isolatie niet vast te stellen: Rc forfaitair op basis van bouwjaar '+bj+' (bouwjaarklasse '+f.kl+') = '+F2(f.rc)+' m²K/W ('+P+' '+f.tab+', NTA 8800 bijlage I).':'Isolatie niet vast te stellen: Rc forfaitair op basis van het bouwjaar ('+P+' tabel 8.9/8.10). Vul het bouwjaar in of zoek het adres op om de waarde te tonen.')}
-  else if(geen){const sp=el==='gevel'?has(/spouw/):has(/spouw|luchtspouw/);const r=OB_ONGEIS[el][sp?1:0];a.push('Geen isolatie aanwezig: ongeïsoleerde constructie'+(sp?' met spouw':'')+', Rc = '+F2(r)+' m²K/W ('+P+' tabel 8.9, NTA 8800 bijlage I).')}
+  if(opBj||(onbekend&&!m&&!rcm)){const f=obForf(el,bj);a.push(f?'Isolatie niet vast te stellen: Rc forfaitair op basis van bouwjaar '+bj+' (bouwjaarklasse '+f.kl+') = '+F2(f.rc)+' m²K/W (forfaitaire Rc per bouwjaarklasse, '+P+'; NTA 8800 bijlage I).':'Isolatie niet vast te stellen: Rc forfaitair op basis van het bouwjaar ('+P+'; NTA 8800 bijlage I). Vul het bouwjaar in of zoek het adres op om de waarde te tonen.')}
+  else if(geen){const sp=el==='gevel'?has(/spouw/):has(/spouw|luchtspouw/);const r=OB_ONGEIS[el][sp?1:0];a.push('Geen isolatie aanwezig: ongeïsoleerde constructie'+(sp?' met spouw':'')+', Rc = '+F2(r)+' m²K/W ('+P+', forfaitair; NTA 8800 bijlage I).')}
   else if(rcm)a.push('Rc = '+rcm[1].replace('.',',')+' m²K/W overgenomen uit het bewijsstuk ('+P+' §8.7).');
-  else if(m){const d=parseFloat(m[1].replace(',','.'))*(/^c/.test(m[2])?10:1);
-   if(d>=40){const rc=d/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm. Rc berekend zoals in Vabi (basismethode): Rc = d / 0,045 + Rad = '+(d/1000).toFixed(3).replace('.',',')+' / 0,045 + '+F2(rad)+' = '+F2(rc)+' m²K/W ('+P+' §8.7, Rad tabel 8.8).')}
-   else if(d>=10)a.push('Isolatiedikte '+String(d).replace('.',',')+' mm (< 40 mm): Rc volgens '+P+' tabel 8.11.');
-   else a.push('Isolatiedikte < 10 mm telt niet als isolatie; Rc als ongeïsoleerd ('+P+' tabel 8.9).')}
-  if(has(/nageisoleerd|na geisoleerd|na-geisoleerd|spouwmuurisolatie|spouw gevuld|spouw is gevuld/))a.push('Na-isolatie: alleen meegenomen met bewijs van uitvoering; zonder bewijs geldt de forfaitaire waarde op basis van het bouwjaar ('+P+' §8.7).')}
+  else if(m){const lagen=[...txt.matchAll(/(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b(?=.{0,30}isol)|isol.{0,30}?(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b/g)].map(x=>parseFloat((x[1]||x[3]).replace(',','.'))*(/^c/.test(x[2]||x[4])?10:1));
+   const dl=lagen.length>1?lagen:[parseFloat(m[1].replace(',','.'))*(/^c/.test(m[2])?10:1)],d=dl.reduce((p,q)=>p+q,0),som=dl.length>1?' ('+dl.map(x=>String(x).replace('.',',')).join(' + ')+' mm opgeteld; zonder gecontroleerde verklaring worden de isolatiediktes bij elkaar opgeteld)':'';
+   if(d>=40){const rc=d/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+som+'. Rc = d / 0,045 + R_ad = '+(d/1000).toFixed(3).replace('.',',')+' / 0,045 + '+F2(rad)+' = '+F2(rc)+' m²K/W (basisopname '+P+'; R_ad = thermische weerstand van de overige constructie, '+({gevel:'gevel',dak:'dak',vloer:'vloer'})[el]+' '+F2(rad)+').')}
+   else if(d>=10)a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+som+' (10–30 mm): Rc uit de tabel voor dunne isolatielagen van '+P+'.');
+   else a.push('Isolatiedikte < 10 mm telt niet als isolatie; Rc als ongeïsoleerd ('+P+').')}
+  if(has(/nageisoleerd|na geisoleerd|na-geisoleerd|spouwmuurisolatie|spouw gevuld|spouw is gevuld/))a.push('Na-isolatie: alleen meegenomen met bewijs van uitvoering; zonder bewijs geldt de forfaitaire waarde op basis van het bouwjaar ('+P+' §8.7).');if(notes.length>1)for(let q=a0;q<a.length;q++)a[q]='Waarneming '+(ni+1)+': '+a[q]})}
  if(k==='ramen'){const g=[['triple|drievoudig','drievoudig HR-glas'],['hr\\+\\+|hr plus plus','HR++-glas'],['hr\\+|hr plus\\b','HR+-glas'],['\\bhr glas|\\bhr\\b','HR-glas'],['dubbel','dubbelglas'],['enkel','enkelglas']].filter(([r])=>new RegExp(r).test(txt)).map(x=>x[1]);
   if(g.length)a.push('Glassoort vastgesteld als '+g[0]+'; U- en g-waarde forfaitair op basis van glassoort en kozijnmateriaal ('+P+' §8.7).');
   if(has(/afstandhouder|stempel|profiel/))a.push('HR++ aangetoond met de tekst op het afstandhouderprofiel (foto in het dossier).');
