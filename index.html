@@ -167,7 +167,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 </div>
 <div class="cmsg" id="cmsg"></div>
 <div id="c15" hidden style="margin-top:8px;padding:10px;border-radius:10px;background:#fdf1e6;border:1px solid #f2cfa9;font-size:14px;line-height:1.5"></div>
-<label style="margin-top:12px">Dakvorm</label>
+<div id="dhOnder" hidden style="display:none!important"><!-- dakvorm, lengte, goot en 3D staan bij Dakvormen --><label style="margin-top:12px">Dakvorm</label>
 <div id="dhShapes"><button type="button" data-s3="zadel" class="on"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M4 26V16l18-12 18 12v10z"/></svg>Zadeldak<small>symmetrisch</small></button><button type="button" data-s3="mansarde"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M4 26V18l6-10 12-4 12 4 6 10v8z"/></svg>Mansardedak</button><button type="button" data-s3="lessenaar"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M6 26V12l30-8v22z"/></svg>Lessenaarsdak</button><button type="button" data-s3="tent"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M4 26L22 4l18 22z"/></svg>Piramidedak</button><button type="button" data-s3="schild"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M4 26l10-18h16l10 18z"/></svg>Schilddak</button><button type="button" data-s3="aangekapt"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M2 26v-6l8-4 12-12 18 14v8z"/></svg>Aangekapt</button><button type="button" data-s3="wolf"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M4 26V16l18-12 18 12v10z"/><path d="M14 10l8-6 8 6z" fill="#b9472f"/></svg>Wolfseind</button><button type="button" data-s3="gekoppeld"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M2 22V14l12-8 12 8v8z"/><path d="M22 26V16l9-7 9 7v10z"/></svg>Gekoppeld<small>L / T</small></button><button type="button" data-s3="dakkapel"><svg viewBox="0 0 44 30" fill="#dbe9e0" stroke="#2e6b4f" stroke-width="1.8" stroke-linejoin="round"><path d="M4 26L22 4l18 22z"/><path d="M16 20v-6h12v6z" fill="#fff"/></svg>Dakkapel</button></div>
 <div id="cMan" hidden style="margin-top:6px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)">
 <div class="note" style="margin-bottom:2px"><b>Mansardedak:</b> de driehoek hierboven is het <b>bovenste</b> dakdeel (a = knik → nok). Vul hier het steile onderste dakvlak in.</div>
@@ -190,7 +190,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 <div id="dh3d"><div id="dh3dmsg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;text-align:center;padding:20px">Vul 2 waarden in om het model te zien</div></div>
 <p class="note" id="dh3dHint" style="margin:6px 0 0">Sleep om te draaien, knijp om te zoomen. <b style="color:#1f7a45">Groen vlak</b> = vloer met hoogte ≥ 1,5 m (GO); oranje stippellijnen = 1,5 m-lijn (op 1,5 m, verticaal en op de vloer). Zonder lengte dak wordt een voorbeeldlengte getoond (*).</p>
 </div>
-<div class="row" id="dhKnoppen"><button class="ghost" id="dhPdf" title="Berekening, 3D-model en onderbouwing">📄 PDF voor dossier</button><button class="ghost" id="cwis">Wissen</button><button id="cok" disabled>Overnemen in opname</button></div>
+</div><div class="row" id="dhKnoppen"><button class="ghost" id="dhPdf" title="Berekening, 3D-model en onderbouwing">📄 PDF voor dossier</button><button class="ghost" id="cwis">Wissen</button><button id="cok" disabled>Overnemen in opname</button></div>
 </div></div>
 <div id="kapel"><div class="box"><div class="ihead"><span>🏠 Dakkapel</span><button class="small ghost" id="kdicht">✕</button></div>
 <p class="note" style="margin:4px 0 8px" id="kSub"></p>
@@ -768,13 +768,13 @@ function dhInfo(){const gi=$('#c15'),cs=$('#cSum');if(!DH.res){gi.hidden=true;cs
  const {a,b,al}=DH.res,sh=DH.shape,R=Math.PI/180,tA=Math.tan(al*R),L=num($('#c_L').value);
  const hk=dhHkS();const M=sh==='mansarde'?manVals():null;
  if(sh==='mansarde'&&!M){gi.innerHTML='<b>Mansardedak:</b> vul hoogte goot → knik en helling van het onderste dakvlak in.';gi.hidden=false;cs.hidden=true;return}
- if(dhZijMode()){const Z=dhZij();gi.innerHTML=Z.vn<=1.5?`<b>1,5 m-lijn:</b> hoogte max ${f2(Z.vn)} m → geen GO ≥ 1,5 m.`:`<b>Strook ≥ 1,5 m</b> kant ${Z.D.kant} (dak loopt ${f2(Z.du)} m door onder de vloer): <b>${f2(Z.D.strook)} m</b> · kant ${Z.N.kant}${Z.hk>0?' (opstand '+f2(Z.hk)+' m)':''}: <b>${f2(Z.N.strook)} m</b><br>GO-breedte <b>${f2(Z.goB)} m</b> · zoldervloer ${f2(Z.W)} m breed`+(L>0?`<br>GO zolder: <b>${f2(Z.goB*L)} m²</b>`:'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>');gi.hidden=false}
+ if(dhZijMode()){const Z=dhZij();gi.innerHTML=Z.vn<=1.5?`<b>1,5 m-lijn:</b> hoogte max ${f2(Z.vn)} m → geen GO ≥ 1,5 m.`:`<b>Strook ≥ 1,5 m</b> kant ${Z.D.kant} (dak loopt ${f2(Z.du)} m door onder de vloer): <b>${f2(Z.D.strook)} m</b> · kant ${Z.N.kant}${Z.hk>0?' (opstand '+f2(Z.hk)+' m)':''}: <b>${f2(Z.N.strook)} m</b><br>GO-breedte <b>${f2(Z.goB)} m</b> · zoldervloer ${f2(Z.W)} m breed`+(L>0?`<br>GO zolder: <b>${f2(Z.goB*L)} m²</b>`:'<br><span class="note">Voor de GO in m² (met de lengte van het dak) en het model: gebruik Dakvormen.</span>');gi.hidden=false}
  else{
  const nd=1.5-hk;let t,half,H;
  if(M){half=a+M.mx;H=M.mh+b+hk;t=nd<=0?0:(M.mh>=nd?nd/Math.tan(M.ma*R):M.mx+(nd-M.mh)/tA)}else{half=a;H=b+hk;t=nd<=0?0:nd/tA}
  if(H<=1.5)gi.innerHTML=`<b>1,5 m-lijn:</b> hoogte max ${f2(H)} m → geen GO ≥ 1,5 m.`;
  else{const st=Math.max(0,half-t),gb=sh==='lessenaar'?st:2*st;
-  gi.innerHTML=(hk<0?`<b>1,5 m-lijn</b> ligt <b>${f2(t+hk/tA)} m</b> uit de rand van de vloer (horizontaal)`:`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. opstand vloer → goot':''})`)+`.<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Vul de lengte van het dak in voor de GO in m².</span>')}
+  gi.innerHTML=(hk<0?`<b>1,5 m-lijn</b> ligt <b>${f2(t+hk/tA)} m</b> uit de rand van de vloer (horizontaal)`:`<b>1,5 m-lijn</b> ligt <b>${f2(t)} m</b> uit de goot (horizontaal${hk>0?', incl. opstand vloer → goot':''})`)+`.<br>Strook ≥ 1,5 m per dakzijde: <b>${f2(st)} m</b> · GO-breedte <b>${f2(gb)} m</b>`+((L>0&&(sh==='zadel'||sh==='lessenaar'||sh==='mansarde'))?`<br>GO zolder: <b>${f2(gb*L)} m²</b>`:(sh==='tent'||L>0)?'':'<br><span class="note">Voor de GO in m² (met de lengte van het dak) en het model: gebruik Dakvormen.</span>')}
  gi.hidden=false}
  const P=dhPlan();if(!P||P.err||P.fatal){cs.hidden=true;return}
  const sd=P.dak.reduce((s2,x)=>s2+x.l*x.b,0),sg=P.gev.filter(g=>!g.vraagKant).reduce((s2,g)=>s2+(gevM2(g,0)??g.b*g.h),0),ng=P.gev.filter(g=>!g.vraagKant).length;
@@ -900,8 +900,8 @@ async function maakDriehoekPdf(){
  const st=H>1.5?Math.max(0,half-t):0,gb=sh==='lessenaar'?st:2*st;
  // afbeeldingen
  const img2d=await svgNaarPng($('#csvg'),640,300);
- const box=$('#dh3dBox'),was=box.hidden;if(was){box.hidden=false;window.dh3dResize()}dh3d();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
- const cv3=$('#dh3d canvas');let img3d=null;try{img3d=cv3?cv3.toDataURL('image/png'):null}catch(e){}if(was)box.hidden=true;
+ const onD=$('#dhOnder'),onS=onD&&onD.getAttribute('style');if(onD){onD.hidden=false;onD.setAttribute('style','position:absolute;left:-9999px;top:0;width:'+(($('#calc .box')||document.body).clientWidth||360)+'px')}const box=$('#dh3dBox'),was=box.hidden;if(was){box.hidden=false;window.dh3dResize()}dh3d();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+ const cv3=$('#dh3d canvas');let img3d=null;try{img3d=cv3&&cv3.width>10?cv3.toDataURL('image/png'):null;if(img3d&&img3d.length<100)img3d=null}catch(e){}if(was)box.hidden=true;if(onD){onD.hidden=true;onD.setAttribute('style',onS||'display:none!important')}
  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});const W=210,Hh=297,ML=18,MR=18,CW=W-ML-MR;let y=0,page=1;
  const it=DH.itemId?vind(DH.itemId)?.it:null,adr=(DH.los&&DH.adres)||cur?.adres,bag=(DH.los&&DH.adres)?DH.bag:cur?.bag;
  const briefpapier=()=>{try{doc.addImage(BP_WM,'JPEG',0,Hh-70,95,70,undefined,'FAST')}catch(e){}try{doc.addImage(BP_LOGO,'JPEG',W-MR-30,8,30,30,undefined,'FAST')}catch(e){}
