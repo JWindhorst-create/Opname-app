@@ -1490,7 +1490,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1700';
+const ELN_BUILD='2026-11-05-1710';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6165,8 +6165,8 @@ function obAuto(k,notes){const a=[],txt=OBN(notes.map(x=>x.t).join(' ')),has=re=
   else if(rcm)a.push('Rc = '+rcm[1].replace('.',',')+' m²K/W overgenomen uit het bewijsstuk ('+P+' §8.7).');
   else if(m){const lagen=[...txt.matchAll(/(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b(?=.{0,30}isol)|isol.{0,30}?(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b/g)].map(x=>parseFloat((x[1]||x[3]).replace(',','.'))*(/^c/.test(x[2]||x[4])?10:1));
    const dl=lagen.length>1?lagen:[parseFloat(m[1].replace(',','.'))*(/^c/.test(m[2])?10:1)],d=dl.reduce((p,q)=>p+q,0),som=dl.length>1?' ('+dl.map(x=>String(x).replace('.',',')).join(' + ')+' mm opgeteld; zonder gecontroleerde verklaring worden de isolatiediktes bij elkaar opgeteld)':'';
-   if(d>=40){const rc=d/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+som+'. Rc = d / 0,045 + R_ad = '+(d/1000).toFixed(3).replace('.',',')+' / 0,045 + '+F2(rad)+' = '+F2(rc)+' m²K/W (basisopname '+P+'; R_ad = thermische weerstand van de overige constructie, '+({gevel:'gevel',dak:'dak',vloer:'vloer'})[el]+' '+F2(rad)+').')}
-   else if(d>=10)a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+som+' (10–30 mm): Rc uit de tabel voor dunne isolatielagen van '+P+'.');
+   if(d>=40){const rc=d/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+som+': Rc = '+F2(rc)+' m²K/W, conform de invoer van de isolatiedikte in Vabi (basisopname '+P+').')}
+   else if(d>=10)a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+som+' (10–30 mm): Rc volgens de tabel voor dunne isolatielagen ('+P+'), conform Vabi.');
    else a.push('Isolatiedikte < 10 mm telt niet als isolatie; Rc als ongeïsoleerd ('+P+').')}
   if(has(/nageisoleerd|na geisoleerd|na-geisoleerd|spouwmuurisolatie|spouw gevuld|spouw is gevuld/))a.push('Na-isolatie: alleen meegenomen met bewijs van uitvoering; zonder bewijs geldt de forfaitaire waarde op basis van het bouwjaar ('+P+' §8.7).');if(notes.length>1)for(let q=a0;q<a.length;q++)a[q]='Waarneming '+(ni+1)+': '+a[q]})}
  if(k==='ramen'){const g=[['triple|drievoudig','drievoudig HR-glas'],['hr\\+\\+|hr plus plus','HR++-glas'],['hr\\+|hr plus\\b','HR+-glas'],['\\bhr glas|\\bhr\\b','HR-glas'],['dubbel','dubbelglas'],['enkel','enkelglas']].filter(([r])=>new RegExp(r).test(txt)).map(x=>x[1]);
