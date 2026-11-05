@@ -1490,7 +1490,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-05-1515';
+const ELN_BUILD='2026-11-05-1640';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6134,29 +6134,40 @@ function obSegmenten(tekst){const uit=[];let t=obGetallen(String(tekst||'').repl
    if(j-start>=2){uit.push(w.slice(start,j).join(' '));start=j;ck=k}}
   if(start<w.length)uit.push(w.slice(start).join(' '))});
  return uit.map(x=>x.replace(/^(?:en|ook|verder|dan|daarnaast)\s+/i,'').replace(/^[\s,.;:-]+|[\s,;:-]+$/g,'')).filter(x=>x.split(' ').length>=2||/\d/.test(x))}
-function obInterpreteer(){const t=$('ob-tekst').value;ob.tekst=t;const oud=ob.verwerkt||'';let nieuw;
+async function obInterpreteer(){const t=$('ob-tekst').value;ob.tekst=t;const oud=ob.verwerkt||'';let nieuw;
  if(oud&&t.startsWith(oud)){nieuw=t.slice(oud.length)}else{if(oud&&ob.notes.length&&!confirm('Je hebt eerder ingesproken tekst aangepast. Alles opnieuw verwerken? (aanpassingen in de onderdelen gaan dan verloren)'))return;ob.notes=[];nieuw=t}
  ob.verwerkt=t;if(!nieuw.trim()){obSave();obRender();msg('ob-msg','Geen nieuwe tekst. Spreek iets in of typ erbij en tik op Verwerk.','err');return}
+ if(!ob.meta.bouwjaar){const mj=OBN(nieuw).match(/(?:bouwjaar|gebouwd in|uit|van)\s+(1[89]\d\d|20[0-3]\d)\b/);if(mj){ob.meta.bouwjaar=mj[1];$('ob-bj').value=mj[1]}}
+ if(!ob.meta.bouwjaar&&ob.meta.adres){msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);$('ob-bj').value=r.bj}}
  const segs=obSegmenten(nieuw);const voor=ob.notes.length;let last=ob.notes.length?ob.notes[ob.notes.length-1].k:'object';
  segs.forEach(sg=>{const r=obIndeel(sg);if(!r||!r.t)return;let k=r.k;if(k==='overig'||(!OBS.find(s=>s.k===k)))k=last;
   // bewijs-zinnen bij het onderdeel ervoor laten
   if(k==='bewijs'&&ob.notes.length)k=last;last=k;ob.notes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),k,t:obZin(r.t)})});
  obSave();obRender();const bij=ob.notes.length-voor;msg('ob-msg',bij?bij+' regel'+(bij>1?'s':'')+' toegevoegd'+(voor?' aan de onderbouwing':'')+' ('+new Set(ob.notes.map(n=>n.k)).size+' onderdelen). Je kunt steeds meer inspreken of typen; alleen het nieuwe deel wordt erbij gezet.':'Geen tekst om te verwerken.',bij?'ok':'err');
  const r=$('ob-resultaat');if(r&&ob.notes.length)r.scrollIntoView({behavior:'smooth',block:'start'})}
+
+// forfaitaire Rc per bouwjaarklasse (ISSO 82.1 tabel 8.9 vóór 1965, tabel 8.10 vanaf 1965; NTA 8800 bijlage I tabel I.4/I.5)
+const OB_FORF={gevel:[[1965,1975,.43],[1975,1988,1.3],[1988,1992,2],[1992,2014,2.5],[2014,2015,3.5],[2015,2021,4.5],[2021,9999,4.7]],dak:[[1965,1975,.86],[1975,1988,1.3],[1988,1992,2],[1992,2014,2.5],[2014,2015,3.5],[2015,2021,6],[2021,9999,6.3]],vloer:[[1965,1975,.17],[1975,1983,.52],[1983,1992,1.3],[1992,2014,2.5],[2014,2015,3.5],[2015,2021,3.5],[2021,9999,3.7]]};
+const OB_ONGEIS={gevel:[.19,.35],dak:[.22,.35],vloer:[.15,.33]};
+function obForf(el,bj){bj=parseInt(bj,10);if(!(bj>1500))return null;if(bj<1965)return{rc:OB_ONGEIS[el][0],kl:'vóór 1965',tab:'tabel 8.9'};const r=OB_FORF[el].find(([a,b])=>bj>=a&&bj<b);return r?{rc:r[2],kl:r[1]>=9999?'vanaf '+r[0]:r[0]+' tot '+r[1],tab:'tabel 8.10'}:null}
+async function obBagBouwjaar(adres){try{const j=await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?'+new URLSearchParams({q:adres,fq:'type:adres',rows:'1',fl:'*'})).then(r=>r.json());const a=j.response&&j.response.docs&&j.response.docs[0];if(!a)return null;
+ const vf=await bagVbo(a);if(!vf)return null;const hrefs=[].concat(vf.properties['pand.href']||[]);const p=(await Promise.all(hrefs.slice(0,3).map(h=>fetch(h+(h.includes('?')?'&':'?')+'f=json').then(r=>r.ok?r.json():null).catch(()=>null)))).filter(Boolean).map(x=>x.properties||{});
+ const bj=p.map(x=>x.bouwjaar).filter(Boolean).map(Number);return bj.length?{bj:Math.min(...bj),adres:a.weergavenaam}:null}catch(e){return null}}
 // ---- automatische onderbouwing per onderdeel ----
 const F2=x=>Number(x).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
 function obAuto(k,notes){const a=[],txt=OBN(notes.map(x=>x.t).join(' ')),has=re=>re.test(txt),P=isso(),bas=ob.meta.methode!=='detail';
  const bewijs=()=>{const b=[];if(has(/factuur|werkbon/))b.push('factuur/werkbon');if(has(/\bfoto/))b.push('foto’s');if(has(/tekening|bestek|opleverdossier/))b.push('bouwtekening/bestek');if(has(/kwaliteitsverklaring|bcrg/))b.push('kwaliteitsverklaring (BCRG)');if(has(/typeplaatje/))b.push('typeplaatje');return b};
- if(['gevel','dak','vloer'].includes(k)){const el=sec(k).el,rad={gevel:.36,dak:.22,vloer:.15}[el];
+ if(['gevel','dak','vloer'].includes(k)){const el=sec(k).el,rad={gevel:.36,dak:.22,vloer:.15}[el],bj=ob.meta.bouwjaar;
   const m=txt.match(/(\d+(?:[.,]\d+)?)\s*(cm|centimeter|mm|millimeter)\b/);const rcm=txt.match(/\brc\s*(?:waarde\s*)?(?:is|=|van)?\s*(\d+(?:[.,]\d+)?)/);
-  if(has(/\b(geen isolatie|ongeisoleerd|niet geisoleerd)\b/))a.push('Geen isolatie waargenomen: de constructie is als ongeïsoleerd ingevoerd met de forfaitaire Rc op basis van het bouwjaar ('+P+' §8.7).');
+  const opBj=has(/op basis van (het )?bouwjaar|volgens (het )?bouwjaar|bouwjaar aanhouden|forfaitair/),onbekend=has(/onbekend|niet te bepalen|niet vast te stellen|niet zichtbaar|niet te zien|kan ik niet zien/),geen=has(/\b(geen isolatie|ongeisoleerd|niet geisoleerd)\b/);
+  if(opBj||(onbekend&&!m&&!rcm)){const f=obForf(el,bj);a.push(f?'Isolatie niet vast te stellen: Rc forfaitair op basis van bouwjaar '+bj+' (bouwjaarklasse '+f.kl+') = '+F2(f.rc)+' m²K/W ('+P+' '+f.tab+', NTA 8800 bijlage I).':'Isolatie niet vast te stellen: Rc forfaitair op basis van het bouwjaar ('+P+' tabel 8.9/8.10). Vul het bouwjaar in of zoek het adres op om de waarde te tonen.')}
+  else if(geen){const sp=el==='gevel'?has(/spouw/):has(/spouw|luchtspouw/);const r=OB_ONGEIS[el][sp?1:0];a.push('Geen isolatie aanwezig: ongeïsoleerde constructie'+(sp?' met spouw':'')+', Rc = '+F2(r)+' m²K/W ('+P+' tabel 8.9, NTA 8800 bijlage I).')}
   else if(rcm)a.push('Rc = '+rcm[1].replace('.',',')+' m²K/W overgenomen uit het bewijsstuk ('+P+' §8.7).');
-  else if(m){let d=parseFloat(m[1].replace(',','.'))*(/^c/.test(m[2])?10:1);const fact=has(/factuur|werkbon|bcrg|kwaliteitsverklaring/),dr=fact?d:Math.floor((d+5)/10)*10;
-   if(bas&&dr>=40){const rc=dr/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm'+(fact?' (volgens bewijsstuk, niet afgerond)':' waargenomen'+(dr!==d?', afgerond op '+dr+' mm':''))+'. Basismethode: Rc = d / λ + Rad = '+(dr/1000).toFixed(3).replace('.',',')+' / 0,045 + '+F2(rad)+' = '+F2(rc)+' m²K/W ('+P+' §8.7, Rad tabel 8.8).')}
-   else if(bas&&dr>=10)a.push('Isolatiedikte '+dr+' mm (< 40 mm): Rc uit '+P+' tabel 8.11.');
-   else a.push('Isolatiedikte '+String(d).replace('.',',')+' mm; Rc bepaald volgens '+P+' §8.7'+(bas?'':' (detailopname: per laag d/λ, bijlage NTA 8800 hoofdstuk 8)')+'.')}
-  else if(has(/onbekend|niet te bepalen|niet vast te stellen|niet zichtbaar/))a.push('Isolatie niet vast te stellen: de optie ‘onbekend’ met de forfaitaire Rc op basis van het bouwjaar is gebruikt ('+P+' §8.7).');
-  if(has(/nageisoleerd|na geisoleerd|na-geisoleerd|spouwmuurisolatie|spouw gevuld/))a.push('Na-isolatie: alleen meegenomen met bewijs van uitvoering; zonder bewijs geldt de forfaitaire waarde ('+P+' §8.7).')}
+  else if(m){const d=parseFloat(m[1].replace(',','.'))*(/^c/.test(m[2])?10:1);
+   if(d>=40){const rc=d/1000/0.045+rad;a.push('Isolatiedikte '+String(d).replace('.',',')+' mm. Rc berekend zoals in Vabi (basismethode): Rc = d / 0,045 + Rad = '+(d/1000).toFixed(3).replace('.',',')+' / 0,045 + '+F2(rad)+' = '+F2(rc)+' m²K/W ('+P+' §8.7, Rad tabel 8.8).')}
+   else if(d>=10)a.push('Isolatiedikte '+String(d).replace('.',',')+' mm (< 40 mm): Rc volgens '+P+' tabel 8.11.');
+   else a.push('Isolatiedikte < 10 mm telt niet als isolatie; Rc als ongeïsoleerd ('+P+' tabel 8.9).')}
+  if(has(/nageisoleerd|na geisoleerd|na-geisoleerd|spouwmuurisolatie|spouw gevuld|spouw is gevuld/))a.push('Na-isolatie: alleen meegenomen met bewijs van uitvoering; zonder bewijs geldt de forfaitaire waarde op basis van het bouwjaar ('+P+' §8.7).')}
  if(k==='ramen'){const g=[['triple|drievoudig','drievoudig HR-glas'],['hr\\+\\+|hr plus plus','HR++-glas'],['hr\\+|hr plus\\b','HR+-glas'],['\\bhr glas|\\bhr\\b','HR-glas'],['dubbel','dubbelglas'],['enkel','enkelglas']].filter(([r])=>new RegExp(r).test(txt)).map(x=>x[1]);
   if(g.length)a.push('Glassoort vastgesteld als '+g[0]+'; U- en g-waarde forfaitair op basis van glassoort en kozijnmateriaal ('+P+' §8.7).');
   if(has(/afstandhouder|stempel|profiel/))a.push('HR++ aangetoond met de tekst op het afstandhouderprofiel (foto in het dossier).');
@@ -6215,8 +6226,8 @@ async function obPdf(){if(!ob.notes.length){msg('ob-msg','Spreek eerst iets in.'
  const clean=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9-]+/gi,'_').replace(/^_+|_+$/g,'');doc.save('Onderbouwing_van_de_opname_'+(clean(m.adres)||'zonder_adres')+'.pdf');msg('ob-msg','PDF opgeslagen.','ok')}catch(e){console.error(e);msg('ob-msg','PDF maken lukte niet: '+esc(e.message),'err')}}
 // ---- koppelen ----
 function obInit(){if(!$('view-onderbouwing')||obInit.ok)return;obInit.ok=1;
- const mm=(id,k)=>$(id).addEventListener('input',e=>{ob.meta[k]=e.target.value;obSave()});mm('ob-addr','adres');mm('ob-datum','datum');mm('ob-opnemer','opnemer');mm('ob-bj','bouwjaar');
- $('ob-addr-btn').addEventListener('click',()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();msg('ob-msg',ob.meta.adres?'Adres: '+esc(ob.meta.adres):'','ok')});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
+ const mm=(id,k)=>$(id).addEventListener('input',e=>{ob.meta[k]=e.target.value;obSave()});mm('ob-addr','adres');mm('ob-datum','datum');mm('ob-opnemer','opnemer');mm('ob-bj','bouwjaar');$('ob-bj').addEventListener('change',()=>obRender());
+ $('ob-addr-btn').addEventListener('click',async()=>{ob.meta.adres=$('ob-addr').value.trim();obSave();if(!ob.meta.adres)return;msg('ob-msg','Bouwjaar opzoeken in de BAG…','ok');const r=await obBagBouwjaar(ob.meta.adres);if(r){ob.meta.bouwjaar=String(r.bj);$('ob-bj').value=r.bj;obSave();obRender();msg('ob-msg','Bouwjaar uit de BAG: <b>'+r.bj+'</b> ('+esc(r.adres)+'). De forfaitaire Rc-waarden rekenen hiermee.','ok')}else msg('ob-msg','Bouwjaar niet gevonden in de BAG; vul het zelf in.','err')});try{addrSuggest('ob-addr','ob-addr-btn')}catch(e){}
  ['ob-gebouw','ob-methode'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;ob.meta[id==='ob-gebouw'?'gebouw':'methode']=b.dataset.v;obSave();obRender()}));
  $('ob-praat').addEventListener('click',obStart);
  $('ob-maak').addEventListener('click',obInterpreteer);$('ob-tekst').addEventListener('input',e=>{ob.tekst=e.target.value;obSave()});
