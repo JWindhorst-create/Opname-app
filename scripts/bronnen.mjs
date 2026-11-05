@@ -59,7 +59,7 @@ async function isso() {
 // --- InstallQ: BRL 9500/9501 en interpretatiebesluiten ---
 async function installq() {
   const out = new Map(), done = new Set(), queue = [];
-  const isDoc = (u, t) => /\.pdf(\?|$)/i.test(u) && /95\d\d|interpretat|ccvd|kego|energieprestatie|nta.?8800/i.test(decodeURIComponent(u) + ' ' + t);
+  const isDoc = (u, t) => /\.pdf(\?|$)/i.test(u) && !/brl.?6000/i.test(decodeURIComponent(u) + ' ' + t) && /95\d\d|interpretat|ccvd|kego|energieprestatie|nta.?8800/i.test(decodeURIComponent(u) + ' ' + t);
   const isPage = (u, t) => /^https?:\/\/(www\.)?installq\.nl\//i.test(u) && !/\.(pdf|jpe?g|png|docx?|xlsx?)(\?|$)/i.test(u) && /brl|9500|9501|energieprestatie|interpretat|epbd|ep-advis|schema|ccvd|documenten/i.test(decodeURIComponent(u) + ' ' + t);
   const start = ['https://installq.nl/', 'https://installq.nl/controllers/brl'];
   start.forEach(u => queue.push(u));
@@ -67,7 +67,7 @@ async function installq() {
     const url = queue.shift(); if (done.has(url)) continue; done.add(url);
     let d; try { d = await get(url); } catch { continue; }
     for (const { u, t } of links(d.html, d.url)) {
-      if (isDoc(u, t)) { if (!out.has(u)) out.set(u, { id: u, u, t: t || decodeURIComponent(u.split('/').pop()) }); }
+      if (isDoc(u, t)) { if (!out.has(u)) out.set(u, { id: u, u, t: (t && !/^(download|bekijk|lees meer|pdf)$/i.test(t)) ? t : decodeURIComponent(u.split('/').pop()).replace(/\.pdf.*$/i, '').replace(/[-_]+/g, ' ') }); }
       else if (isPage(u, t) && !done.has(u) && done.size + queue.length < 40) queue.push(u.split('#')[0]);
     }
   }
@@ -85,6 +85,6 @@ for (const [k, f] of [['kego', kego], ['isso', isso], ['iq', installq]]) {
     res[k] = { ok: p.ok || 0, items: p.items || [], err: String(e.message || e), errAt: Date.now() };
   }
 }
-res.debug = debug.slice(0, 80);
+res.debug = debug.filter(x => x.status !== 200).slice(0, 30);
 writeFileSync('bronnen.json', JSON.stringify(res));
 console.log(Object.entries(res).filter(([k]) => k !== 'debug' && k !== 't').map(([k, v]) => k + ': ' + v.items.length + ' items' + (v.err ? ' (fout: ' + v.err + ')' : '')).join('\n'));

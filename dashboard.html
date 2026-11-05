@@ -5235,6 +5235,9 @@ window.elnOpenBundle=()=>{};
 const WATCH_KEY='eln-bron-watch-v1',WATCH_MIN=4*60*60*1000,WATCH_ERR=2*24*60*60*1000;
 const WATCH_PROXY=[u=>u,u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),u=>'https://corsproxy.io/?url='+encodeURIComponent(u),u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u)];
 let watchBusy=false,watchProxyOk=null;
+// De controle draait elke 4 uur in GitHub Actions (geen CORS-beperking) en staat in bronnen.json; de browser haalt dat bestand op en valt alleen terug op zelf ophalen als het ontbreekt.
+const WATCH_SRV='https://raw.githubusercontent.com/JWindhorst-create/Opname-app/main/bronnen.json';
+async function watchServer(){for(const u of [WATCH_SRV,(location.protocol.startsWith('http')?new URL('bronnen.json',location.href).href:'')].filter(Boolean)){try{const r=await fetch(u+'?t='+Date.now(),{signal:AbortSignal.timeout(12000),cache:'no-store'});if(r.ok){const j=await r.json();if(j&&j.t)return j}}catch(e){}}return null}
 function watchState(){try{return JSON.parse(localStorage.getItem(WATCH_KEY)||'{}')||{}}catch(e){return{}}}
 function watchSave(st){try{localStorage.setItem(WATCH_KEY,JSON.stringify(st))}catch(e){}}
 async function watchFetch(url){const order=watchProxyOk!=null?[watchProxyOk,...WATCH_PROXY.keys()].filter((v,i,a)=>a.indexOf(v)===i):[...WATCH_PROXY.keys()];let last=null;
@@ -5263,12 +5266,12 @@ const WATCH_SRC=[{k:'kego',t:'KEGO-kennisbank (vragen uit de praktijk)',f:watchK
 function kegoInject(st){const known=new Set(KEGO_KB.map(a=>(a.u.match(/articles\/(\d+)/)||[])[1]));const S=(st.kego&&st.kego.items)||[];let n=0;
  S.forEach(a=>{if(known.has(a.id))return;KEGO_KB.push({f:kegoFolderCode(a.folder),u:a.u,t:a.t,g:'',s:'',nieuw:a.first});known.add(a.id);n++});if(n&&typeof kegoKbRender==='function')try{kegoKbRender()}catch(e){}}
 async function watchRun(force){const st=watchState();if(watchBusy)return;if(!force&&st.last&&Date.now()-st.last<WATCH_MIN){watchRender();return}watchBusy=true;if(force)watchRender('Bezig met controleren op nieuwe bronnen…');
- const now=Date.now(),kbIds=new Set(KEGO_KB.map(a=>(a.u.match(/articles\/(\d+)/)||[])[1]));
- for(const s of WATCH_SRC){const prev=st[s.k]||{items:[]},pm=new Map(prev.items.map(x=>[x.id,x]));
-  try{const r=await s.f();if(!r.items.length)throw new Error('geen items gevonden');const first=!prev.items.length;
+ const now=Date.now(),kbIds=new Set(KEGO_KB.map(a=>(a.u.match(/articles\/(\d+)/)||[])[1])),srv=await watchServer();
+ for(const s of WATCH_SRC){const prev=st[s.k]||{items:[]},pm=new Map(prev.items.map(x=>[x.id,x])),sv=srv&&srv[s.k],svOk=sv&&sv.items&&sv.items.length&&sv.ok&&now-sv.ok<WATCH_ERR;
+  try{const r=svOk?{items:sv.items}:await s.f();if(!r.items.length)throw new Error('geen items gevonden');const first=!prev.items.length;
    const items=r.items.map(x=>{const o=pm.get(x.id);return Object.assign({},x,{first:o?o.first:(s.k==='kego'?(kbIds.has(x.id)?0:now):(first?0:now))})});
    const ids=new Set(items.map(x=>x.id)),hit=[...kbIds].filter(id=>ids.has(id)).length,gone=s.k==='kego'&&hit>=kbIds.size*.8?[...kbIds].filter(id=>id&&!ids.has(id)):[];
-   st[s.k]={items,ok:now,err:'',gone:gone.length};}catch(e){st[s.k]=Object.assign({},prev,{err:String(e.message||e),errAt:now,errSince:prev.err&&prev.errSince?prev.errSince:now})}}
+   st[s.k]={items,ok:svOk?sv.ok:now,err:'',gone:gone.length};}catch(e){st[s.k]=Object.assign({},prev,{err:String(e.message||e),errAt:now,errSince:prev.err&&prev.errSince?prev.errSince:now})}}
  st.last=now;watchSave(st);watchBusy=false;kegoInject(st);watchRender()}
 function watchFail(st){const now=Date.now();return WATCH_SRC.filter(s=>{const x=st[s.k];return x&&x.err&&now-(x.ok||x.errSince||now)>WATCH_ERR})}
 function watchNew(st){const seen=st.seen||0;let n=0;WATCH_SRC.forEach(s=>{const x=st[s.k]||{items:[]};n+=x.items.filter(i=>i.first&&i.first>seen).length});return n}
