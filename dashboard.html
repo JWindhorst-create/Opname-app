@@ -749,22 +749,10 @@ body.v-opname{background-image:none!important}
    <p>Tussenliggende waarde lineair bepalen – handmatig, uit de BCRG-databank of door een BCRG-verklaring (PDF) in te lezen, met PDF-onderbouwing.</p>
    <span class="go">Openen →</span>
   </button>
-  <button class="tile" type="button" data-open="driehoek">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16L4 6z"/><path d="M4 16a4 4 0 0 1 3.5 4"/><path d="M16 20v-3h-3"/></svg></div>
-   <h2>Driehoek &amp; dak</h2>
-   <p>Kies Driehoekmeter (hoek + maat, GO, PDF, overnemen) of Dakvormen (13 dakvormen met model en m² per genummerd vlak).</p>
-   <span class="go">Openen →</span>
-  </button>
   <button class="tile" type="button" data-open="klein">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
    <h2>Kleine rekenhulpen</h2>
-   <p>Ramen en deuren met afwijkende vorm, glas in deur, PV verdeler, EP2-bandbreedte en kWh/MJ omrekenen.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" data-open="kompas">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></div>
-   <h2>Gevelkompas</h2>
-   <p>Oriëntatie van een gevel meten met je telefoon: graden, NTA-richting en de andere gevels, metingen per chalet bewaren.</p>
+   <p>Driehoekmeter, gevelkompas, dakvlakken uit 3D BAG, ramen en deuren, glas in deur, PV verdeler, EP2-bandbreedte en kWh/MJ omrekenen.</p>
    <span class="go">Openen →</span>
   </button>
   <button class="tile" type="button" data-open="schetsen">
@@ -1380,8 +1368,8 @@ body.v-opname{background-image:none!important}
  <button type="button" data-krgo="kr-pv"><b>PV verdeler</b><small>Gedeelde zonnepanelen naar rato van Ag over de woningen</small></button>
  <button type="button" data-krgo="kr-ep2"><b>EP2-bandbreedte</b><small>Labelgrenzen per gebruiksfunctie en label bij een EP2-waarde</small></button>
  <button type="button" data-krgo="kr-kwh"><b>kWh, MJ en GJ</b><small>Energie-eenheden omrekenen</small></button>
- <button type="button" data-open="driehoek" data-krvan="1"><b>Driehoekmeter</b><small>Dakvlak, hellingshoek, GO en dakvormen (opent Driehoek &amp; dak)</small></button>
- <button type="button" data-open="kompas" data-krvan="1"><b>Gevelkompas</b><small>Oriëntatie van een gevel meten met je telefoon</small></button>
+ <button type="button" data-open="driehoek"><b>Driehoekmeter</b><small>Dakvlak, hellingshoek, GO en dakvormen (opent Driehoek &amp; dak)</small></button>
+ <button type="button" data-open="kompas"><b>Gevelkompas</b><small>Oriëntatie van een gevel meten met je telefoon</small></button>
  <button type="button" data-krgo="kr-3ddak"><b>Dakvlakken uit 3D BAG</b><small>3D-model met alle dakvlakken (schuin en plat): m², helling en oriëntatie</small></button>
 </div>
 <div class="kr-grid" id="kr-grid" hidden>
@@ -1578,7 +1566,7 @@ function addrCarry(view){const inp=VIEW_ADDR[view]&&$(VIEW_ADDR[view]),last=last
 
 function show(view,push=true){
  if(!TITLES[view])view='home';
- if(window.__krTerug&&view!==window.__krTerug)window.__krTerug=null;{const bb=$('back-btn');if(bb)bb.textContent=window.__krTerug?'← Rekenhulpen':'← Dashboard'}
+ {const bb=$('back-btn');if(bb)bb.textContent=(view==='driehoek'||view==='kompas')?'← Rekenhulpen':'← Dashboard'}
  {const prev=VIEW_ADDR[curView]&&$(VIEW_ADDR[curView]);if(prev)lastAddrSet(prev.value);curView=view}
  document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='view-'+view);
  document.body.classList.toggle('in-view',view!=='home');
@@ -1600,8 +1588,7 @@ window.addEventListener('pagehide',()=>{const el=VIEW_ADDR[curView]&&$(VIEW_ADDR
 const ELN_NIEUW=(()=>{try{if(sessionStorage.getItem('eln-sessie'))return false;sessionStorage.setItem('eln-sessie','1');return true}catch(e){return false}})();
 if(ELN_NIEUW){try{['eln-last-addr','dhLosAdres'].forEach(k=>localStorage.removeItem(k))}catch(e){}
  const leeg=()=>Object.values(VIEW_ADDR).forEach(id=>{const el=$(id);if(el)el.value=''});leeg();setTimeout(leeg,0);setTimeout(leeg,600);window.addEventListener('load',()=>setTimeout(leeg,50))}
-$('back-btn').addEventListener('click',()=>{const t=window.__krTerug&&curView===window.__krTerug?'klein':'home';window.__krTerug=null;show(t)});
-{const km=$('kr-menu');if(km)km.addEventListener('click',e=>{const b=e.target.closest('[data-krvan]');if(b)window.__krTerug=b.dataset.open},true)}
+$('back-btn').addEventListener('click',()=>show((curView==='driehoek'||curView==='kompas')?'klein':'home'));
 window.addEventListener('popstate',()=>show(location.hash.slice(1)||'home',false));
 window.addEventListener('hashchange',()=>show(location.hash.slice(1)||'home',false));
 $('home-link').addEventListener('click',()=>show('home'));
@@ -2032,7 +2019,7 @@ const HELP={
   {at:'#ob-secties',t:'3. Controleren',b:'Per onderdeel zie je je waarnemingen (tik erop om te verbeteren, of verplaats ze met de keuzelijst) en de automatische <b>onderbouwing</b>: bijv. de Rc volgens de basismethode bij een isolatiedikte, de glassoort, het ventilatiesysteem of het bewijs, met de paragraaf uit het opnameprotocol.'},
   {at:'#ob-objbtn',t:'Objectdossier',b:'<b>📍 Ophalen</b> laadt het objectdossier van het adres op de achtergrond: BAG-gegevens, kadasterkaart, 3DBAG-model, luchtfoto, hoogte en dakvlakken. Kies daarna welke gevel de voorgevel is; dan komen ook de gevelrichtingen erin. Alles komt in de PDF (hoofdstuk Objectgegevens en bijlage 1).'},{at:'#ob-docdrop',t:'Documenten',b:'Met <b>📎 Toevoegen</b> voeg je tekeningen, bestek, productbladen, facturen of foto’s toe. De app leest ze (ook scans), stelt de gevonden gegevens voor en zet ze met <b>Gegevens toevoegen</b> onder het juiste onderdeel, met de bron erbij. Vink <b>als bijlage</b> aan om het document in de PDF op te nemen.'},{at:'#ob-prev',t:'4. Voorbeeld en PDF',b:'Met <b>Voorbeeld bekijken</b> lees je de PDF eerst door; daarna <b>Opslaan (concept)</b> of <b>Opslaan als definitief</b>, of terug om aan te passen. <b>PDF opslaan</b> slaat direct op. Is het objectdossier van hetzelfde adres open (voorgevel aangeklikt), dan komen oriëntatie, dakvlakken, hoogte en de gevelkaart er vanzelf in. De PDF: op briefpapier, met objectgegevens en per onderdeel Waarneming, Onderbouwing en Bron. Met <b>Nieuwe onderbouwing</b> begin je opnieuw.'}],
  klein:[
-  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li><li><b>Driehoekmeter</b> – opent Driehoek &amp; dak (ook via de tegel op het dashboard).</li><li><b>Gevelkompas</b> – oriëntatie van een gevel meten met je telefoon.</li><li><b>Dakvlakken uit 3D BAG</b> – 3D-model met alle schuine en platte dakvlakken (m², helling, oriëntatie), voor als het dak niet bereikbaar is.</li></ul>Dakvormen staan nu bij <b>Driehoek &amp; dak</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
+  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li><li><b>Driehoekmeter</b> – Driehoek &amp; dak: dakvlak, hellingshoek, GO en dakvormen.</li><li><b>Gevelkompas</b> – oriëntatie van een gevel meten met je telefoon.</li><li><b>Dakvlakken uit 3D BAG</b> – 3D-model met alle schuine en platte dakvlakken (m², helling, oriëntatie), voor als het dak niet bereikbaar is.</li></ul>Dakvormen staan bij de <b>Driehoekmeter</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
  home:[
   {at:'.tile',t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Op elke pagina staat bovenin <b>← Dashboard</b> om terug te gaan en een <b>?</b> met de uitleg van díe pagina, met pijlen langs de knoppen.'},
   {at:'#spMic',t:'Inspreken met de microfoon',b:'Tik in een invulveld en daarna op de groene microfoon rechtsonder, en zeg de waarde (bijv. <i>drie komma vijf</i> of <i>veertig graden</i>). Zeg <b>volgende</b> om naar het volgende veld te gaan of <b>wissen</b> om het veld leeg te maken. Zonder veld gekozen kun je een pagina of knop noemen, bijv. <i>driehoekmeter</i>, <i>dakvormen</i>, <i>beslisschema’s</i> of <i>terug</i>. Werkt in Chrome op de telefoon (internet nodig).'},{t:'Waar staat je werk?',b:'Wat je invoert wordt in deze browser bewaard (niet online). Op een andere computer of telefoon zie je het dus niet, tenzij je een back-up of export meeneemt.<br><br>Open je het dashboard opnieuw, dan zijn de adresvelden leeg; je bewaarde werk blijft gewoon staan.'}],
