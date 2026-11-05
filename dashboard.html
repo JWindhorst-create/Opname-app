@@ -765,7 +765,7 @@ body.v-opname{background-image:none!important}
   </button>
   <button class="tile" type="button" data-open="projectdossier">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 11h6M9 15h6M9 7h6"/></svg></div>
-   <h2>Vooropname documenten <span class="badge">in voorbereiding</span></h2>
+   <h2>Vooropname documenten <span class="badge">in onderhoud</span></h2>
    <p>Aangeleverde documenten inlezen: constructies en installaties met bron, vóór de opname.</p>
    <span class="go">Openen →</span>
   </button>
@@ -828,7 +828,7 @@ body.v-opname{background-image:none!important}
   </button>
   <button class="tile" type="button" data-open="sorteren">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14h6M13 11.5 15.5 14 13 16.5"/></svg></div>
-   <h2>Bestanden naar dossier <span class="badge">in voorbereiding</span></h2>
+   <h2>Bestanden naar dossier <span class="badge">in onderhoud</span></h2>
    <p>Excel-rapportage, EPA-bestand, monitorbestand en energielabel automatisch in de juiste dossiermap zetten.</p>
    <span class="go">Openen →</span>
   </button>
@@ -954,7 +954,7 @@ body.v-opname{background-image:none!important}
 
 <!-- ===== BESTANDEN NAAR DOSSIERS ===== -->
 <section class="view" id="view-sorteren" hidden>
- <div class="prep"><b>In voorbereiding.</b> De opzet staat; de exacte bestandsnamen, extensies en submappen volgen nog. Pas die hieronder bij "Bestandstypes" aan of geef ze door, dan zetten we ze vast.</div>
+ <div class="prep"><b>In onderhoud.</b> De opzet staat; de exacte bestandsnamen, extensies en submappen volgen nog. Pas die hieronder bij "Bestandstypes" aan of geef ze door, dan zetten we ze vast.</div>
  <div class="grid2">
   <div>
    <div class="card">
@@ -995,7 +995,7 @@ body.v-opname{background-image:none!important}
 
 <!-- ===== PROJECTDOSSIERFORMULIER ===== -->
 <section class="view" id="view-projectdossier" hidden>
- <div class="prep"><b>In voorbereiding.</b> Deze knop is nog in ontwikkeling: het inlezen van documenten werkt, maar de uitkomsten kunnen nog onvolledig zijn. Controleer de gegevens altijd zelf.</div>
+ <div class="prep"><b>In onderhoud.</b> Deze knop is nog in ontwikkeling: het inlezen van documenten werkt, maar de uitkomsten kunnen nog onvolledig zijn. Controleer de gegevens altijd zelf.</div>
  <div class="row13 pd-top">
   <div class="card cmp">
    <h3><span class="step">1</span>Object</h3>
@@ -2077,7 +2077,7 @@ const HELP={
   {at:'uitvoer-frame|table',t:'3. Aanvinken wat ontbreekt',b:'Vink per adres aan wat nog opgevraagd moet worden: <b>CV, MV, TP, PV</b> en <b>gevel, dak, vloer</b>. De opmerking vult zich vanzelf.'},
   {at:'uitvoer-frame|#exportPdf',t:'4. PDF',b:'Klik op <b>Download PDF</b>. Onder <i>Meer opties</i> vind je back-up, Excel en importeren – maak af en toe een back-up, want de lijsten staan alleen in deze browser.'}],
  projectdossier:[
-  {t:'In voorbereiding',b:'Deze knop is nog in ontwikkeling. Het inlezen werkt, maar controleer de uitkomst altijd zelf.'},
+  {t:'In onderhoud',b:'Deze knop is nog in ontwikkeling. Het inlezen werkt, maar controleer de uitkomst altijd zelf.'},
   {at:'#pd-addr',t:'1. Object',b:'Vul het adres in, klik op <b>Zoek</b> en kies woning (EP-W) of utiliteit (EP-U).'},
   {at:'#pd-drop',t:'2. Documenten',b:'Sleep de aangeleverde documenten (PDF, Word, Excel, foto’s) in het vak. Geef per document aan waarvoor het is.'},
   {at:'#pd-pdf',t:'3. Controleren en PDF',b:'Het vooropnameformulier vult zich, met bij elk gegeven de bron. Wat niet in de documenten staat, staat als <i>niet aangeleverd – te bepalen bij opname</i>. Klik op <b>Maak PDF</b>.'}],
@@ -2127,7 +2127,7 @@ const HELP={
   {at:'#ft-grid',t:'3. Nakijken',b:'Twijfelgevallen zijn <b>oranje omrand</b>: kijk die na. Je kunt elk onderdeel aanpassen voordat je verdeelt.'},
   {at:'#ft-go',t:'4. Verdelen',b:'Klik op <b>Verdeel in mappen</b>. Met <b>verplaatsen</b> aangevinkt worden de foto’s verplaatst, anders gekopieerd.'}],
  sorteren:[
-  {t:'In voorbereiding',b:'De opzet staat; de bestandsnamen en submappen kun je nog aanpassen bij <b>Bestandstypes</b>.'},
+  {t:'In onderhoud',b:'De opzet staat; de bestandsnamen en submappen kun je nog aanpassen bij <b>Bestandstypes</b>.'},
   {at:'#so-pick-dl',t:'1. Bestanden ophalen',b:'Kies je <b>Downloads-map</b> (bestanden worden daarna verplaatst) of sleep de bestanden in het vak (dan worden ze gekopieerd).'},
   {at:'#so-empty',t:'2. Controleren',b:'In de lijst zie je per bestand de soort en het herkende adres (postcode + huisnummer).'},
   {at:'#so-run',t:'3. Sorteren',b:'Klik op <b>Sorteer bestanden</b> en kies de map met dossiers. Niet zeker? Dan gaat het naar <b>_Controleren</b>. Er wordt nooit iets overschreven.'}],
@@ -2252,7 +2252,7 @@ $('seq-skip').addEventListener('click',()=>{if(seq.busy)return;const r=seq.list[
 $('seq-stop').addEventListener('click',()=>{if(!seq.busy)seqEnd(false)});
 $('reports-btn').addEventListener('click',()=>startReports(null));
 
-/* ========== Bestanden naar dossiers (in voorbereiding) ========== */
+/* ========== Bestanden naar dossiers (in onderhoud) ========== */
 const SO_TYPES_DEFAULT=[
  {id:'rapportage',label:'Excel-rapportage (VABI Assets)',rule:'.xlsx,.xls',sub:'Info'},
  {id:'epa',label:'EPA-bestand (VABI Assets)',rule:'.epa',sub:'Info'},
