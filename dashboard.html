@@ -1550,7 +1550,7 @@ body.v-opname{background-image:none!important}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-const ELN_BUILD='2026-11-06-0130';
+const ELN_BUILD='2026-11-06-0105';
 /* nieuwe versie online? dan direct verversen (GitHub Pages houdt de pagina anders tot 10 min in de cache) */
 if(location.protocol==='https:')setTimeout(()=>{fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=/const ELN_BUILD='([^']+)'/.exec(t);if(m&&m[1]!==ELN_BUILD){const k='eln-reload-'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(m[1])+location.hash)}}).catch(()=>{})},800);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -6800,10 +6800,10 @@ mic.addEventListener('mousedown',e=>e.preventDefault());
 let sl=null,versleept=false;const POS='sp-mic-pos';
 const zet=p=>{if(!p)return;mic.style.left=p.l?'8px':'auto';mic.style.right=p.l?'auto':'8px';mic.style.bottom=Math.round(p.b)+'px';bel.style.left=p.l?'64px':'auto';bel.style.right=p.l?'auto':'64px';bel.style.bottom=Math.round(p.b+4)+'px'};
 try{zet(JSON.parse(localStorage.getItem(POS)||'null'))}catch(e){}
-mic.addEventListener('pointerdown',e=>{e.preventDefault();sl={x:e.clientX,y:e.clientY,r:mic.getBoundingClientRect(),id:e.pointerId,bew:false};versleept=false;try{mic.setPointerCapture(e.pointerId)}catch(x){}});
-mic.addEventListener('pointermove',e=>{if(!sl||e.pointerId!==sl.id)return;const dx=e.clientX-sl.x,dy=e.clientY-sl.y;if(!sl.bew&&Math.hypot(dx,dy)<10)return;if(!sl.bew){sl.bew=true;mic.classList.add('sleep')}
+let lpT=0;mic.addEventListener('pointerdown',e=>{e.preventDefault();sl={x:e.clientX,y:e.clientY,r:mic.getBoundingClientRect(),id:e.pointerId,bew:false,mag:false};versleept=false;try{mic.setPointerCapture(e.pointerId)}catch(x){}clearTimeout(lpT);lpT=setTimeout(()=>{if(sl){sl.mag=true;mic.classList.add('sleep');try{navigator.vibrate&&navigator.vibrate(25)}catch(x){}}},550)});
+mic.addEventListener('pointermove',e=>{if(!sl||e.pointerId!==sl.id)return;const dx=e.clientX-sl.x,dy=e.clientY-sl.y;if(!sl.mag){if(Math.hypot(dx,dy)>12){clearTimeout(lpT);sl.weg=true}return}if(!sl.bew&&Math.hypot(dx,dy)<6)return;sl.bew=true;
  const w=innerWidth,h=innerHeight,x=Math.min(w-sl.r.width-4,Math.max(4,sl.r.left+dx)),y=Math.min(h-sl.r.height-4,Math.max(60,sl.r.top+dy));mic.style.left=x+'px';mic.style.right='auto';mic.style.bottom=(h-y-sl.r.height)+'px'});
-const los=e=>{if(!sl)return;if(sl.bew){const r=mic.getBoundingClientRect(),p={l:r.left+r.width/2<innerWidth/2,b:innerHeight-r.bottom};zet(p);try{localStorage.setItem(POS,JSON.stringify(p))}catch(x){}versleept=true;setTimeout(()=>versleept=false,350)}mic.classList.remove('sleep');sl=null};
+const los=e=>{clearTimeout(lpT);if(!sl)return;if(sl.weg||(sl.mag&&!sl.bew)){versleept=true;setTimeout(()=>versleept=false,350)}if(sl.bew){const r=mic.getBoundingClientRect(),p={l:r.left+r.width/2<innerWidth/2,b:innerHeight-r.bottom};zet(p);try{localStorage.setItem(POS,JSON.stringify(p))}catch(x){}versleept=true;setTimeout(()=>versleept=false,350)}mic.classList.remove('sleep');sl=null};
 mic.addEventListener('pointerup',los);mic.addEventListener('pointercancel',los);
 mic.addEventListener('click',e=>{if(versleept){e.preventDefault();return}start()});
 // tijdens scrollen bijna doorzichtig, zodat hij niet in de weg zit
