@@ -424,9 +424,9 @@ function vObject(){
     ${F('obj.bouwjaar','Bouwjaar','number')}
     ${F('obj.gbo','Gebruiksoppervlakte (m²)','number')}${F('obj.inhoud','Inhoud (m³)','number')}
     ${F('obj.bouwlagen','Aantal bouwlagen','number')}${F('obj.hoogte','Hoogte gebouw (m, 3D BAG)')}${F('obj.gebruiksdoel','Gebruiksdoel (BAG)')}${SEL('obj.bewoning','Bewoning',['Bewoond','Leeg','Onbewoond / gemeubileerd'])}
-    ${SEL('obj.fundering','Funderingswijze',['','Op staal','Houten palen','Houten palen met betonopzetter','Betonpalen','Onbekend'])}
+    ${SEL('obj.fundering','Funderingswijze',['','Op staal','Houten palen','Houten palen met betonopzetter','Betonpalen','Onbekend'])}${F('obj.funderingIndicatie','Indicatie funderingswijze (automatisch)','text','full')}
     ${SEL('obj.dak','Dakvorm',['','Zadeldak','Schilddak','Mansardedak','Lessenaarsdak','Plat dak','Combinatie'])}
-    ${F('obj.label','Energielabel')}${F('obj.verwarming','Verwarming (bijv. HR-ketel, warmtepomp)')}
+    ${F('obj.label','Energielabel (EP-Online)')}${F('obj.labelInfo','Herkomst energielabel')}${F('obj.verwarming','Verwarming (bijv. HR-ketel, warmtepomp)')}
     ${F('obj.ketel','Bouwjaar / merk ketel')}${F('obj.weer','Weersomstandigheden')}
     </div>
     <label>Foto voorgevel (voorblad)</label>
@@ -449,6 +449,55 @@ function adresSuggest(){
     }catch(_){ ul.hidden=true; } },250); });
   inp.addEventListener('blur',()=>setTimeout(()=>ul.hidden=true,250));
 }
+
+/* ---------- fundering (indicatie) en energielabel bij het adres ---------- */
+const AANDACHT_API='https://api.pdok.nl/rvo/indicatieve-aandachtsgebieden-funderingsproblematiek/ogc/v1/collections/indgebfunderingsproblematiek/items';
+const BOD_WMS=['https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0','https://service.pdok.nl/tno/bro-bodemkaart/wms/v1_0'];
+const RM=6378137,mxM=lon=>RM*lon*Math.PI/180,myM=lat=>RM*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360));
+const ringsVan=g=>!g?[]:g.type==='Polygon'?[g.coordinates[0]]:g.type==='MultiPolygon'?g.coordinates.map(p=>p[0]):[];
+const inRing=(pt,ring)=>{let c=false;for(let i=0,k=ring.length-1;i<ring.length;k=i++){const [xi,yi]=ring[i],[xk,yk]=ring[k];if(((yi>pt[1])!==(yk>pt[1]))&&(pt[0]<(xk-xi)*(pt[1]-yi)/(yk-yi)+xi))c=!c}return c};
+async function aandachtVoor(ll){const [lon,lat]=ll,d=.002;const r=await fetch(AANDACHT_API+'?'+new URLSearchParams({f:'json',limit:'50',bbox:[lon-d,lat-d,lon+d,lat+d].join(',')}),{headers:{Accept:'application/geo+json, application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);
+  const F=(await r.json()).features||[];const hit=F.find(f=>ringsVan(f.geometry).some(rg=>inRing(ll,rg)));return hit?Object.assign({},hit.properties):null}
+const CAPS={};
+function wmsCaps(base){if(CAPS[base])return CAPS[base];const p=(async()=>{const r=await fetch(base+'?service=WMS&request=GetCapabilities');if(!r.ok)throw new Error('HTTP '+r.status);
+  const x=new DOMParser().parseFromString(await r.text(),'text/xml'),kid=(l,n)=>[...l.children].find(c=>c.localName===n);
+  const lagen=[...x.getElementsByTagName('Layer')].map(l=>{const n=kid(l,'Name');if(!n)return null;const t=kid(l,'Title');return{name:n.textContent.trim(),title:t?t.textContent.trim():'',q:l.getAttribute('queryable')==='1'}}).filter(Boolean);
+  const g=x.getElementsByTagName('GetFeatureInfo')[0],fm=g?[...g.getElementsByTagName('Format')].map(f=>f.textContent.trim()):[];if(!lagen.length)throw new Error('geen lagen');return{lagen,fm}})();CAPS[base]=p;p.catch(()=>{delete CAPS[base]});return p}
+async function wmsInfo(base,layer,ll,fm){const x=mxM(ll[0]),y=myM(ll[1]),d=30;
+  const f=['application/json','application/geo+json','text/plain','application/vnd.ogc.gml','text/xml','text/html'].find(p=>fm.includes(p))||fm[0]||'application/json';
+  const q=new URLSearchParams({service:'WMS',version:'1.3.0',request:'GetFeatureInfo',layers:layer,query_layers:layer,styles:'',crs:'EPSG:3857',bbox:[x-d,y-d,x+d,y+d].join(','),width:'101',height:'101',i:'50',j:'50',info_format:f,feature_count:'5'});
+  const r=await fetch(base+'?'+q);if(!r.ok)throw new Error('HTTP '+r.status);const t=await r.text();
+  try{const jj=JSON.parse(t);return(jj.features||[]).map(ft=>ft.properties||{})}catch(e){}
+  const P={};if(/<[a-z]/i.test(t)){const doc=new DOMParser().parseFromString(t,/xml|gml/.test(f)?'text/xml':'text/html');
+   doc.querySelectorAll('tr').forEach(tr=>{const c=tr.querySelectorAll('td,th');if(c.length===2)P[c[0].textContent.trim()]=c[1].textContent.trim()});
+   doc.querySelectorAll('*').forEach(el=>{if(!el.children.length&&el.textContent.trim()&&!/^(td|th|title|style|script)$/i.test(el.localName))P[el.localName]=el.textContent.trim()})}
+  else t.split(/\n/).forEach(l=>{const m=l.match(/^\s*([\w .:-]+?)\s*=\s*'?([^']*?)'?\s*$/);if(m)P[m[1]]=m[2]});return Object.keys(P).length?[P]:[]}
+const kiesLaag=(L,re,niet)=>L.filter(l=>re.test(l.name+' '+l.title)&&!(niet&&niet.test(l.name+' '+l.title))).sort((a,b)=>b.q-a.q)[0];
+function bodemGroep(c){const m=String(c).match(/[A-Z]/);return({V:'veengrond',W:'moerige grond (dun veen)',M:'zeekleigrond',R:'rivierkleigrond',K:'oude kleigrond',L:'leemgrond',H:'zandgrond (podzol)',Y:'zandgrond (eerdgrond)',Z:'zandgrond',A:'opgehoogd of vergraven terrein'})[m?m[0]:'']||''}
+async function bodemVoor(ll){for(const base of BOD_WMS){let c;try{c=await wmsCaps(base)}catch(e){continue}
+  const l=kiesLaag(c.lagen,/soil ?area|bodemvlak|bodemkaart|bodemtype|soilmap/i,/pedolog|bijzonder|trap|legend/i)||c.lagen.find(l=>l.q);if(!l)continue;
+  try{const L=await wmsInfo(base,l.name,ll,c.fm);let naam='',code='';
+   for(const p of L)for(const [k,v] of Object.entries(p)){const t=String(v==null?'':v).trim();if(!t||/^[\d.,\s-]+$/.test(t))continue;
+    if(!code&&/soilcode|bodemcode|^code$/i.test(k)&&t.length<20)code=t;else if(!naam&&/soil ?name|naam|name|omschrijving|description|legenda|bodemtype|soilunit/i.test(k)&&t.length>3&&t.length<120)naam=t}
+   const t=[naam||bodemGroep(code),code&&'('+code+')'].filter(Boolean).join(' ');if(t)return t}catch(e){}}return null}
+// zelfde vuistregel als het Funderingsdossier van het dashboard
+function funderingIndicatie(bj,bodemTekst){bj=+bj||0;const t=String(bodemTekst||'').toLowerCase();
+  const b=/veen|klei|zee|rivier|getij|laagveen|droogmakerij|moerig/.test(t)?'slap':/zand|stuw|duin|heuvel|plateau|dekzand/.test(t)?'vast':'';
+  if(!bj)return'';
+  if(bj<1970){if(b==='slap')return bj<1920?'Houten palen of op staal (ouder pand)':'Waarschijnlijk houten palen';if(b==='vast')return'Waarschijnlijk op staal (ondiep)';return'Houten palen of op staal'}
+  return b==='vast'?'Op staal of betonpalen':'Waarschijnlijk betonpalen'}
+async function funderingOphalen(o,ll){let a=null,bod=null;
+  [a,bod]=await Promise.all([aandachtVoor(ll).catch(()=>null),bodemVoor(ll).catch(()=>null)]);
+  const bodem=bod||(a&&a.fgr)||'';const ind=funderingIndicatie(o.bouwjaar,bodem);
+  const bron=['bouwjaar '+(o.bouwjaar||'?')+' (BAG)',bodem?'bodem: '+bodem+(bod?' (BRO Bodemkaart)':' (RVO/KCAF)'):'bodem onbekend',a?'ligt in indicatief aandachtsgebied funderingsproblematiek (RVO/KCAF'+(a.legenda?': '+a.legenda:'')+')':'niet in een indicatief aandachtsgebied (RVO/KCAF)'].join('; ');
+  o.funderingIndicatie=ind?ind+' – indicatie, niet vastgesteld':'Onbekend';o.funderingBron=bron;
+  if(!o.fundering)o.fundering='Onbekend';return{ind,bron}}
+async function labelOphalen(o){if(!/^https?:/.test(location.protocol))return{fout:'alleen in de online versie'};
+  const vbo=(o.bag&&o.bag.vboId)||'';const q=vbo?'vbo='+encodeURIComponent(vbo):new URLSearchParams({postcode:o.postcode||'',huisnummer:String(o.adres||'').match(/\d+/)?.[0]||''});
+  try{const r=await fetch('api/energielabel?'+q,{credentials:'same-origin'});const d=await r.json().catch(()=>({}));if(!r.ok)return{fout:d.fout||('fout '+r.status)};
+   if(d.gevonden){o.label=d.klasse;o.labelInfo='EP-Online'+(d.registratiedatum?', geregistreerd '+d.registratiedatum:'')+(d.geldigTot?', geldig tot '+d.geldigTot:'');return d}
+   o.label='Onbekend';o.labelInfo='Geen geregistreerd label gevonden in EP-Online';return d}catch(e){return{fout:'EP-Online niet bereikbaar'}}}
+
 async function pickAdres(id){
   const o=S.cur.obj; $('#adrUl').hidden=true; const msg=()=>$('#bagMsg');
   let d;
@@ -477,9 +526,13 @@ async function pickAdres(id){
         if(vol&&(+bag.aantal||1)===1) o.inhoud=String(Math.round(vol));
         if(!o.dak&&/horizontal/.test(dt)) o.dak='Plat dak';
         extra=[lagen?lagen+' bouwlagen':'',o.hoogte?'hoogte '+o.hoogte+' m':'',vol&&(+bag.aantal||1)===1?'inhoud ± '+Math.round(vol)+' m³':''].filter(Boolean).join(', '); } }catch(_){ } }
+    save(); vObject(); msg().textContent='BAG opgehaald; fundering (RVO/KCAF, BRO) en energielabel (EP-Online) ophalen…';
+    const llm=/POINT\(([-\d.]+) ([-\d.]+)\)/.exec(d.centroide_ll||'');
+    const [fu,lb]=await Promise.all([llm?funderingOphalen(o,[+llm[1],+llm[2]]).catch(()=>null):Promise.resolve(null),labelOphalen(o)]);
     save(); vObject();
     const bv='https://bagviewer.kadaster.nl/lvbag/bag-viewer/?objectId='+encodeURIComponent(bag.vboId);
     msg().innerHTML=`BAG: bouwjaar ${esc(bag.bouwjaar||'?')}, ${esc(bag.opp||'?')} m², ${esc(bag.doel||'gebruiksdoel onbekend')}${bag.aantal>1?`, ${bag.aantal} verblijfsobjecten in het pand`:''}${extra?' · 3D BAG: '+esc(extra):''}. <a href="${bv}" target="_blank" rel="noopener">Bekijk in BAG-viewer</a>`
+      +`<br>Fundering: ${esc(o.funderingIndicatie||'Onbekend')}.`+`<br>Energielabel: ${lb&&lb.fout?'niet opgehaald ('+esc(lb.fout)+')':esc(o.label||'Onbekend')+(o.labelInfo?' – '+esc(o.labelInfo):'')}.`
       +(+bag.aantal>1&&!/^Appartement|Maisonnette/.test(o.type||'')?'<br><b>Let op:</b> meerdere verblijfsobjecten in het pand – controleer het type woning (appartement?).':'');
   }catch(_){ msg().textContent='Adres overgenomen. BAG-gegevens niet bereikbaar – vul bouwjaar en oppervlakte handmatig in.'; }
 }
@@ -671,7 +724,7 @@ function buildSections(){
       ${kv('Type woning',esc(o.type))}${kv('Bouwjaar',esc(o.bouwjaar))}
       ${kv('Gebruiksoppervlakte',o.gbo?esc(o.gbo)+' m²':'')}${kv('Inhoud',o.inhoud?esc(o.inhoud)+' m³':'')}
       ${kv('Aantal bouwlagen',esc(o.bouwlagen))}${kv('Hoogte gebouw',o.hoogte?esc(o.hoogte)+' m':'')}${kv('Gebruiksdoel (BAG)',esc(o.gebruiksdoel||''))}${kv('Dakvorm',esc(o.dak))}
-      ${kv('Funderingswijze',esc(o.fundering||'Onbekend'))}${kv('Energielabel',esc(o.label))}
+      ${kv('Funderingswijze',esc(o.fundering||'Onbekend'))}${o.funderingIndicatie?kv('Indicatie funderingswijze',esc(o.funderingIndicatie)+(o.funderingBron?'<br><small style="font-weight:400">Bron: '+esc(o.funderingBron)+'</small>':'')):''}${kv('Energielabel',esc(o.label||'Onbekend')+(o.labelInfo?' <small style="font-weight:400">('+esc(o.labelInfo)+')</small>':''))}
       ${kv('Verwarming',esc(o.verwarming))}${kv('Ketel (bouwjaar / merk)',esc(o.ketel))}
       ${kv('Bewoning',esc(o.bewoning))}${kv('Weersomstandigheden',esc(o.weer))}</div>`,
     `<h3>${ico('alert',6)}C · Bijzondere aandachtspunten</h3>
