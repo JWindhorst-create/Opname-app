@@ -277,6 +277,8 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .vl-g{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
 .vl-g label{display:flex;align-items:center;gap:4px;margin:0;font-size:13px}.vl-g input{width:58px;margin:0;padding:6px}
 .vl-g b{color:var(--ink)}
+.gv-pre{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 10px;font-size:12.5px}.gv-pre.on{background:var(--brand2);border-color:var(--brand2);color:#fff;font-weight:600}
+.gv-warn{font-size:12px;font-weight:700;color:#b45309;background:#fff4e0;border-radius:99px;padding:3px 9px}
 .vl-dak{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px}
 .cl-voor{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--muted)}.cl-voor button{border:1px dashed var(--brand2);background:#fff;color:var(--brand2);border-radius:99px;padding:5px 12px;font-weight:700}
 </style>
@@ -1008,7 +1010,8 @@ function gvOphalen(k,klaar){ if(k.gv||gvBezig) return; const pid=k.obj&&k.obj.ba
     for(const x in objs){ const a=objs[x].attributes; if(a&&Object.keys(a).some(y=>/maaiveld/.test(y))){ at=a; break; } }
     const gv=vlakkenUit3D(j,at); if(gv){ k.gv=gv; if(at&&(!k.hv||k.hv.auto||!Object.keys(k.hv).length)) k.hv=hvUit3D(at,k.obj,k.obj.bag.aantal); save(); if(klaar) klaar(); } })
   .catch(()=>{}).finally(()=>{ gvBezig=null; }); }
-const gvNetto=g=>Math.round(g.m2*(1-(+g.glas||0)/100));
+const gvNetto=g=>+g.netto>0?Math.round(+g.netto):Math.round(g.m2*(1-(+g.glas||0)/100));
+const GV_PRESET=[['Gesloten',10],['Normaal',25],['Veel glas',40],['Pui',65]];
 const gvNaam=g=>(g.rol&&g.rol!=='scheidend'?rolLbl(g.rol):'Gevel '+g.kompas)+(g.rol&&g.rol!=='scheidend'?' ('+g.kompas+')':'');
 const dkNaam=d=>d.plat?'Plat dak':'Dakvlak '+d.kompas+' ('+d.helling+'°)';
 function vlakKaart(k){ const gv=k.gv; if(!gv){ const pid=k.obj&&k.obj.bag&&k.obj.bag.pandId; const app=pid&&(+k.obj.bag.aantal||1)>1;
@@ -1017,13 +1020,16 @@ function vlakKaart(k){ const gv=k.gv; if(!gv){ const pid=k.obj&&k.obj.bag&&k.obj
   return `<div class="card"><h2>Gevels en dakvlakken (3D BAG)</h2><p class="muted" style="margin-top:0">Per kant van het pand berekend uit het 3D-model. Geef aan welke gevel de voorgevel is en welk deel glas/kozijn is; de kostenposten rekenen met de netto m² (bruto min glas/kozijn).</p>
    <div class="vl-list">${gv.gevels.map((g,i)=>`<div class="vl-row${g.rol==='scheidend'?' sch':''}"><div class="vl-k"><span class="vl-pijl" style="transform:rotate(${Math.round(g.az)}deg)">↑</span><b>${g.kompas}</b></div>
      <div class="vl-m"><select data-gv="${i}" data-f="rol">${ROLLEN.map(([v,l])=>`<option value="${v}"${g.rol===v?' selected':''}>${l}</option>`).join('')}</select>
-     <div class="vl-g"><span>Bruto ${g.m2} m²</span>${g.rol==='scheidend'?'':`<label>glas/kozijn <input type="number" inputmode="numeric" data-gv="${i}" data-f="glas" value="${g.glas}">%</label><b>netto ${gvNetto(g)} m²</b>`}</div></div></div>`).join('')}</div>
+     <div class="vl-g"><span>Bruto ${g.m2} m²</span>${g.rol==='scheidend'?'':`<label>glas/kozijn <input type="number" inputmode="numeric" data-gv="${i}" data-f="glas" value="${g.glas}">%</label><b>netto ${gvNetto(g)} m²</b>`}</div>
+     ${g.rol==='scheidend'?'':`<div class="vl-g">${GV_PRESET.map(([n,v])=>`<button type="button" class="gv-pre${+g.glas===v&&!(+g.netto>0)?' on':''}" data-gvp="${i}" data-v="${v}">${n} ${v}%</button>`).join('')}</div>
+     <div class="vl-g"><label>netto op locatie <input type="number" inputmode="decimal" data-gv="${i}" data-f="netto" value="${+g.netto>0?g.netto:''}" placeholder="${Math.round(g.m2*(1-(+g.glas||0)/100))}"> m²</label><label style="gap:6px"><input type="checkbox" data-gv="${i}" data-f="ok" ${g.ok?'checked':''} style="width:auto"> gecontroleerd</label>${g.ok?'':'<span class="gv-warn">netto nog niet gecontroleerd</span>'}</div>`}</div></div>`).join('')}</div>
    ${gv.daken.length?`<div class="group-h">Dakvlakken</div><div class="vl-dak">${gv.daken.map(d=>`<span>${esc(dkNaam(d))} · <b>${d.m2} m²</b></span>`).join('')}</div>`:''}</div>`; }
 function zetVoorgevel(k,g){ g.rol='voor'; if(!+g.glas) g.glas=25; k.gv.gevels.forEach(x=>{ if(x===g||x.rol==='scheidend') return; if(x.rol==='voor') x.rol=''; if(x.rol) return; const d=Math.abs(Math.abs(((x.az-g.az+540)%360)-180)-180); x.rol=d<10?'achter':'zij'; }); }
 function vlakBind(root,k){ root.querySelectorAll('[data-gv]').forEach(el=>el.addEventListener('change',()=>{ const g=k.gv.gevels[+el.dataset.gv]; if(el.dataset.f==='rol'){ g.rol=el.value; if(g.rol==='scheidend') g.glas=0; else if(!+g.glas) g.glas=25;
-    if(g.rol==='voor') k.gv.gevels.forEach(x=>{ if(x===g||x.rol==='scheidend'||x.rol) return; const d=Math.abs(Math.abs(((x.az-g.az+540)%360)-180)-180); x.rol=d<10?'achter':'zij'; }); } else g.glas=Math.max(0,Math.min(90,+el.value||0));
+    if(g.rol==='voor') k.gv.gevels.forEach(x=>{ if(x===g||x.rol==='scheidend'||x.rol) return; const d=Math.abs(Math.abs(((x.az-g.az+540)%360)-180)-180); x.rol=d<10?'achter':'zij'; }); } else if(el.dataset.f==='ok') g.ok=el.checked; else if(el.dataset.f==='netto'){ g.netto=Math.max(0,+String(el.value).replace(',','.')||0); if(g.netto) g.ok=true; } else g.glas=Math.max(0,Math.min(90,+el.value||0));
   if(k.gv.gevels.some(x=>x.rol)) k.hv.gevel=k.gv.gevels.filter(x=>x.rol!=='scheidend').reduce((a,x)=>a+x.m2,0);
-  save(); vKosten(); })); }
+  save(); vKosten(); }));
+  root.querySelectorAll('[data-gvp]').forEach(b=>b.addEventListener('click',()=>{ const g=k.gv.gevels[+b.dataset.gvp]; g.glas=+b.dataset.v; g.netto=0; save(); vKosten(); })); }
 
 /* ---------- prijslijst (indicatief, incl. btw) en hoeveelheden uit BAG / 3D BAG ---------- */
 // bron: IMG = Instituut Mijnbouwschade Groningen, calculatiemodel gevel V8.0, peildatum 1-1-2025 (excl. btw, hier incl. btw omgerekend)
@@ -1126,7 +1132,7 @@ const clVlakQ=x=>clVlakken(x).filter(g=>(x.vl||[]).includes(g.id)).reduce((a,g)=
 const clBer=x=>Math.round((+x.q||0)*(+x.p||0));
 const clTot=x=>x.tot!=null&&x.tot!==''?+x.tot:clBer(x);
 function calcTot(b){ const L=b.calc||[]; return {d:L.filter(x=>x.s!=='termijn').reduce((a,x)=>a+clTot(x),0),t:L.filter(x=>x.s==='termijn').reduce((a,x)=>a+clTot(x),0)}; }
-function clOmvang(x){ const v=clVlak(x); if(v&&x.omv==='vlak'){ const L=clVlakken(x).filter(g=>(x.vl||[]).includes(g.id)); return L.map(g=>g.n).join(' + ')+' ('+String(x.q).replace('.',',')+' '+x.eh+(v==='gevel'&&L.some(g=>g.glas)?' netto, excl. glas/kozijn':'')+')'; }
+function clOmvang(x){ const v=clVlak(x); if(v&&x.omv==='vlak'){ const L=clVlakken(x).filter(g=>(x.vl||[]).includes(g.id)); const gg=v==='gevel'&&S.cur.gv?S.cur.gv.gevels.filter(g=>(x.vl||[]).includes(g.id)):[]; const tx=gg.length?' – '+gg.map(g=>'bruto '+g.m2+' m² − '+(+g.netto>0?(g.m2-gvNetto(g))+' m²':g.glas+'%')+' glas/kozijn').join('; '):''; return L.map(g=>g.n).join(' + ')+' ('+String(x.q).replace('.',',')+' '+x.eh+(v==='gevel'&&L.some(g=>g.glas||g.bruto!==g.m2)?' netto'+tx:'')+(gg.some(g=>!g.ok)?'; netto niet op locatie gecontroleerd':'')+')'; }
   if(v&&x.omv!=='deel') return 'gehele '+HV_LBL[v].toLowerCase().replace(/ \(.*\)/,'')+(x.q?' ('+String(x.q).replace('.',',')+' '+x.eh+(v==='gevel'&&S.cur.gv?' netto, excl. glas/kozijn':'')+')':'');
   if(v) return 'deel: '+String(x.q||0).replace('.',',')+' '+x.eh; return x.eh==='pst'?'post':String(x.q||0).replace('.',',')+' '+x.eh; }
 function calcHTML(b){ const hv=(S.cur&&S.cur.hv)||{}; const L=b.calc||[];

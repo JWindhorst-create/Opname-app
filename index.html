@@ -836,6 +836,12 @@ body.v-opname{background-image:none!important}
    <p>Bouwkundige keuring bij aan- of verkoop volgens NTA 8060 en NHG: opname op locatie, direct een rapport op briefpapier.</p>
    <span class="go">Openen →</span>
   </button>
+  <button class="tile" type="button" id="tile-advies" data-pagina="advies.html" title="Verbeter- en maatwerkadvies openen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 16v-4M10 16V9M14 16v-6M18 16V5"/><path d="m15 5 3-3 3 3"/></svg></div>
+   <h2>Verbeter- en maatwerkadvies <span class="badge">in onderhoud</span></h2>
+   <p>Vanuit de opname automatisch maatregelenpakketten naar het doellabel (bijv. 5 pakketten naar A en A+): materialen, BCRG-verklaringen, gewijzigde GO en warmtecapaciteit, Vabi-invoer per pakket, DUMAVA-toets en rapport.</p>
+   <span class="go">Openen →</span>
+  </button>
   <button class="tile" type="button" data-open="onderbouwing">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5"/><path d="M14 2v6h6v3"/><path d="M8 13h5M8 17h3"/><path d="M18.4 13.6a1.9 1.9 0 0 1 2.7 2.7L16 21.4l-3.4.9.9-3.4z"/></svg></div>
    <h2>Onderbouwing <span class="badge">in onderhoud</span></h2>
@@ -3985,7 +3991,7 @@ function ofEpaBuild(B){
    p.lab(9,'A','A','Opname');p.opt(9,'B','C',['Basis','Detail'],ofOpnDef(D),{key:'opn_m'});
    p.sub(10,'A','C','Overige algemene gegevens:');
    p.lab(11,'A','A','Aantal bouwlagen');p.val(11,'B','C','',{num:1});
-   p.lab(12,'A','A','Fossiele brandstof op perceel');p.opt(12,'B','C',['Ja','Nee'],'',{key:'fossiel'})}
+   p.opt(12,'A','C',['Geen fossiele brandstoffen op perceel'],'',{key:'fossiel'})}
   p.compass(13,16,'A','C');
   // ===== Installaties – volgorde zoals de invoer in Vabi: ventilatie, verwarming, tapwater, koeling, zonne-energie =====
   const isU=ofGet('p1_3B',D.type)==='UTILITEIT';
@@ -3995,10 +4001,10 @@ function ofEpaBuild(B){
    ['Type ventilator',['Gelijkstroom','Wisselstroom','Draaistroom','Onbekend']]];
   const VERW=[['@Verwarming'],['Systeem',SYS],...(isU?[]:[['Blokverwarming','blok']]),
    '-',['CV-ketel aanwezig',['Ja','Nee']],['Merk en type installatie','v'],['Fabricagejaar toestel','n'],['Type CV-ketel',['CR','VR','HR100','HR104','HR107']],
-   '-',['Warmtepomp aanwezig',['Ja','Nee']],['Bron warmtepomp',['Buitenlucht','Bodem','Grondwater','Ventilatielucht','Opp.water']],['Collectieve bron (°C)',['Geen','15–20','20–40','≥ 40']],['Bijstook/hybride?',['Ja','Nee']],
+   '-',['Warmtepomp aanwezig','wpadd'],['Merk en type warmtepomp','v'],['Bron warmtepomp',['Buitenlucht','Bodem','Grondwater','Ventilatielucht','Opp.water']],['Collectieve bron (°C)',['Geen','15–20','20–40','≥ 40']],['Bijstook/hybride?',['Ja','Nee']],
    '-',['Overige opwekker aanwezig',['Ja','Nee']],['Type overige opwekker',['Elektrisch','Gas-/oliekachel','Biomassa','WKK','Luchtverwarmer','Externe levering']],
    '-',['Ontwerptemperatuur','temp'],['Pijpsysteem',['1-Pijps','2-Pijps','Gerenoveerd 1-pijps']],['Binnen thermische schil?',JN],['Leidingen geïsoleerd',['Ja','Nee','Onbekend']],['Leidingen in onverwarmde ruimte','aor'],['Bouwlagen met leidingen','n'],['Aantal warmtemeters','n'],...(isU?[['GACS (> 290 kW)',['Ja','Nee','N.v.t.']]]:[]),
-   '-',['Afgiftesysteem',['Radiatoren','Vloerverwarming','Wand/plafond','Ventilatorconvector','Luchtverwarming','Straling']],['Opstelling radiatoren (1-pijps)',['Binnenwand','Buitenwand','Voor raam']],...(isU?[]:[['Radiatoren (bij 1-pijps)','n']]),['Regeling',['Kamerthermostaat','Centraal + naregeling','Per ruimte','Overig']]];
+   '-',['Afgiftesysteem',['Radiatoren','Vloerverwarming','Wand/plafond','Ventilatorconvector','Luchtverwarming','Straling']],['Opstelling radiatoren (1-pijps)',['Binnenwand','Buitenwand','Voor raam']],...(isU?[]:[['Radiatoren (bij 1-pijps)','n']]),['Regeling',['Kamerthermostaat','Centraal + naregeling','Per ruimte','Overig']],['Thermostaatknoppen op ALLE radiatoren',['Ja','Nee','Deels','N.v.t.']]];
   const TAP=isU?[['@Tapwater (ISSO 75.1)'],['Systeem tapwater',SYS],['Meerdere tapwatersystemen','msys'],
     '-',['Toestel tapwater',['Combi','Quooker (combi)','Geiser','Elektroboiler','WP-boiler','Indirect vat','Doorstromer']],['Gaskeur',['Met','Zonder','Gaskeur HR','Onbekend']],['Type + inhoud vat','vat'],
     '-',['Douche-WTW','dwtw'],['Douches totaal / DWTW','bk'],
@@ -4028,6 +4034,7 @@ function ofEpaBuild(B){
     else if(k==='blok'){p.parts(r,a0,a1,[{f:'*',n:1},{s:'m2'}]);p.parts(r,b0,b1,[{s:'Totaal vermogen'},{f:'*',n:1},{s:'kW'}])}
     else if(k==='co2')p.parts(r,C.a,C.z,[{o:['SLK']},{o:['WK']}]);
     else if(k==='zr')p.parts(r,C.a,C.z,[{o:['Aanwezig']}]);
+    else if(k==='wpadd')p.parts(r,C.a,C.z,[{o:['Ja','Nee']},{o:['Additioneel geplaatst']}]);
     else if(k==='aor')p.parts(r,C.a,C.z,[{s:'(AOR - AOS of KRUIPRUIMTE)'},{o:JN}]);
     else if(k==='vat')p.parts(r,C.a,C.z,[{s:'type:'},{f:'*',w:3},{s:'inhoud:'},{f:'*',n:1},{s:'L'}])
     else if(k==='bk')p.parts(r,C.a,C.z,[{f:'*',n:1},{s:'/'},{f:'*',n:1}]);

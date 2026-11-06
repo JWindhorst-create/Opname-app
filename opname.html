@@ -235,7 +235,7 @@ function kiesMeer(tekst,lijst,ja='Toepassen',nee='Nee'){return new Promise(res=>
 const GLAS=['Onbekend','Enkel','Dubbel','HR','HR+','HR++','Triple'];
 const KOZ=['Onbekend','Hout','Kunststof','Aluminium','Alu therm. onderbroken','Staal'];
 const ISO=['Onbekend','Geen','Volgens bouwjaar','Matig (Rc ± 1)','Goed (Rc ± 2,5)','Zeer goed (Rc ≥ 3,5)'];
-const N=(k,l,c,w)=>({k,l,t:'num',corr:!!c,when:w}), S=(k,l,o,w)=>({k,l,t:'sel',o,when:w}), X=(k,l)=>({k,l,t:'txt'}), O=(k,l,w)=>({k,l,t:'orient',when:w});
+const N=(k,l,c,w)=>({k,l,t:'num',corr:!!c,when:w}), S=(k,l,o,w)=>({k,l,t:'sel',o,when:w}), X=(k,l,w)=>({k,l,t:'txt',when:w}), O=(k,l,w)=>({k,l,t:'orient',when:w});
 const INST_W=['Ventilatie','Verwarming','Tapwater','Koeling','Zonnepanelen (PV)','Zonneboiler','Overig'];
 const INST_U=['Ventilatie','Verwarming','Tapwater','Koeling','Zonnepanelen (PV)','Zonneboiler','Bevochtiging','Luchtbehandeling','Verlichting','Overig'];
 const IS=(...l)=>it=>l.includes(it.soort||'Verwarming');
@@ -256,7 +256,10 @@ const DEF={
   S('soort','Soort',()=>cur?.type?.methode==='U'?INST_U:INST_W),
   S('collectief','Individueel / collectief',['Individueel','Collectief'],IS('Verwarming','Tapwater','Ventilatie','Koeling')),
   S('opwekker','Opwekker',['HR107-ketel','HR100 / VR-ketel','CR / conventionele ketel','Warmtepomp lucht/water','Warmtepomp bodem/water','Hybride warmtepomp','Externe warmtelevering (stadsverwarming)','Elektrische verwarming','Lokale verwarming (kachel)','Onbekend'],IS('Verwarming')),
+  S('wpadd','Warmtepomp additioneel geplaatst',['Nee','Ja'],it=>IS('Verwarming')(it)&&/warmtepomp/i.test(it.opwekker||'')),
+  X('wpmerk','Merk en type warmtepomp',it=>IS('Verwarming')(it)&&/warmtepomp/i.test(it.opwekker||'')),
   S('afgifte','Afgifte',['Radiatoren / convectoren','LT-radiatoren','Vloerverwarming','Wandverwarming','Luchtverwarming','Plafondpanelen / stralingspanelen','Onbekend'],IS('Verwarming')),
+  S('trk','Thermostaatknoppen op ALLE radiatoren',['Ja','Nee','Deels','Onbekend'],it=>IS('Verwarming')(it)&&/radiator|convector/i.test(it.afgifte||'')),
   S('toestel','Toestel',['Combiketel (cv + tapwater)','Gasboiler','Elektrische boiler','Geiser','Warmtepompboiler','Externe warmtelevering','Doorstroomtoestel elektrisch','Onbekend'],IS('Tapwater')),
   S('vsys','Ventilatiesysteem',['A · natuurlijke toe- en afvoer','B · mechanische toevoer','C · mechanische afvoer','D · gebalanceerd','E · decentraal','Onbekend'],IS('Ventilatie')),
   S('wtw','Warmteterugwinning',['Nee','Ja'],IS('Ventilatie','Luchtbehandeling')),
@@ -468,7 +471,7 @@ function inst(){
   return `<div class="sec"><div class="sechead"><h3>${t}</h3><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${soorten.map(so=>`<button class="small ghost" data-add="installatie" data-soort="${so}">+ ${so==='Zonnepanelen (PV)'?'PV':so}</button>`).join('')}</span></div>${its.map(i=>itemHTML(i,true)).join('')||'<p class="note">Nog niets ingevoerd.</p>'}</div>`}).join('');
  bar(`<button class="ghost" data-go="opname">Geometrie</button><button data-go="export">Export →</button>`)}
 function samenvatting(it){const d=DEF[it.type],p=[];const op=opp(it);
- if(it.type==='installatie'){['collectief','opwekker','afgifte','toestel','vsys','wtw','ksys','merk','jaar'].forEach(k=>{if(it[k]&&zichtbaar(it,d.f.find(f=>f.k===k)||{}))p.push(it[k])});if(num(it.panelen))p.push(it.panelen+' panelen'+(num(it.wp)?' × '+it.wp+' Wp':''))}
+ if(it.type==='installatie'){['collectief','opwekker','afgifte','toestel','vsys','wtw','ksys','wpmerk','merk','jaar'].forEach(k=>{if(it[k]&&zichtbaar(it,d.f.find(f=>f.k===k)||{}))p.push(it[k])});if(num(it.panelen))p.push(it.panelen+' panelen'+(num(it.wp)?' × '+it.wp+' Wp':''))}
  else{if(op!=null){const n=oppNetto(it);p.push(n&&n.open?`${f2(n.bruto)} m² · netto ${f2(n.netto)} m²`:`${f2(op)} m²`)}
   if(it.helling)p.push(it.helling+'°');if(it.grenst)p.push(it.grenst);if(it.glas&&it.glas!=='Onbekend')p.push(it.glas);if(it.soort&&it.type==='deur')p.push(it.soort);
   if(it.isolatie)p.push(it.isolatie);if(num(it.rc))p.push('Rc '+it.rc);

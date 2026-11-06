@@ -40,6 +40,9 @@ export async function onRequestGet({ env, request }) {
     registratiedatum: datum(zoek(x, /registratiedatum/i)),
     geldigTot: datum(zoek(x, /geldig.?tot/i)),
     opnamedatum: datum(zoek(x, /opnamedatum/i)),
-    soort: zoek(x, /soort.?opname|berekeningstype/i) || ''
+    soort: zoek(x, /soort.?opname|berekeningstype/i) || '',
+    ep2: zoek(x, /primaire.?fossiele.?energie(?!.*emg)/i),
+    ep1: zoek(x, /^energiebehoefte$/i),
+    ep3: zoek(x, /aandeel.?hernieuwbare/i)
   });
 }
