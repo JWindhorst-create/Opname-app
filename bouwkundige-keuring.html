@@ -264,6 +264,20 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .rpt .srct{font-size:6.6pt;font-weight:600;color:#1d4f91;background:#e6f0ff;border-radius:2mm;padding:.2mm 1.2mm;margin-left:1mm;white-space:nowrap}
 .rpt .srct.gew{color:#9a5b00;background:#fff4e0}
 .rpt .regt{font-size:7.8pt}.rpt .regt td,.rpt .regt th{padding:1.1mm 1.6mm}
+
+.cl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cl-chips button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 11px;font-size:12.5px;color:var(--ink)}
+.cl-chips button.on{background:var(--brand2);border-color:var(--brand2);color:#fff;font-weight:600}
+.vl-list{display:grid;gap:8px}
+.vl-row{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+.vl-row.sch{opacity:.65}
+.vl-k{display:flex;flex-direction:column;align-items:center;width:40px;flex:none;color:var(--brand)}
+.vl-pijl{display:inline-block;font-size:20px;line-height:1}
+.vl-m{flex:1;display:grid;gap:6px}.vl-m select{margin:0}
+.vl-g{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.vl-g label{display:flex;align-items:center;gap:4px;margin:0;font-size:13px}.vl-g input{width:58px;margin:0;padding:6px}
+.vl-g b{color:var(--ink)}
+.vl-dak{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px}
 </style>
 
 
@@ -624,6 +638,7 @@ async function pickAdres(id){
       if(at){ const mv=at.b3_h_maaiveld??at.h_maaiveld, top=at.b3_h_dak_max??at.h_dak_max; const lagen=at.b3_bouwlagen; const vol=at.b3_volume_lod22??at.b3_volume_lod12; const dt=String(at.b3_dak_type||'');
         if(lagen) o.bouwlagen=String(lagen);
         if(!S.cur.hv||S.cur.hv.auto||!Object.keys(S.cur.hv).length) S.cur.hv=hvUit3D(at,o,bag.aantal);
+        if(!S.cur.gv||S.cur.gv.auto){ try{ S.cur.gv=(+bag.aantal||1)===1?vlakkenUit3D(j,at):null; }catch(_){ S.cur.gv=null; } }
         if(mv!=null&&top!=null) o.hoogte=(top-mv).toFixed(1).replace('.',',');
         if(vol&&(+bag.aantal||1)===1) o.inhoud=String(Math.round(vol));
         if(!o.dak&&/horizontal/.test(dt)) o.dak='Plat dak';
@@ -946,6 +961,57 @@ const EISEN = [
  ['Installaties','Gebreken met een veiligheidsrisico (gas, elektra, rookgasafvoer) direct laten herstellen door een erkend installateur.']
 ];
 
+/* ---------- gevel- en dakvlakken uit de 3D BAG (LoD 2.2) ---------- */
+const KOMPAS=['N','NO','O','ZO','Z','ZW','W','NW'];
+const kompasVan=az=>KOMPAS[Math.round(((az%360)+360)%360/45)%8];
+const ROLLEN=[['','– kies –'],['voor','Voorgevel'],['achter','Achtergevel'],['zijL','Zijgevel links'],['zijR','Zijgevel rechts'],['zij','Zijgevel'],['scheidend','Woningscheidend']];
+const rolLbl=r=>(ROLLEN.find(x=>x[0]===r)||['',''])[1];
+function newell(p){ let x=0,y=0,z=0; for(let i=0;i<p.length;i++){ const a=p[i],b=p[(i+1)%p.length]; x+=(a[1]-b[1])*(a[2]+b[2]); y+=(a[2]-b[2])*(a[0]+b[0]); z+=(a[0]-b[0])*(a[1]+b[1]); } const l=Math.hypot(x,y,z)||1; return {n:[x/l,y/l,z/l],a:l/2}; }
+function vlakkenUit3D(j,at){
+  const f=j.feature||j, V=f.vertices; if(!V||!f.CityObjects) return null;
+  const tr=j.metadata?.transform||f.transform||j.transform, sc=tr?.scale||[1,1,1], tl=tr?.translate||[0,0,0];
+  const P=i=>{ const v=V[i]; return [v[0]*sc[0]+tl[0],v[1]*sc[1]+tl[1],v[2]*sc[2]+tl[2]]; };
+  const W=[],R=[];
+  for(const k in f.CityObjects){ const gs=f.CityObjects[k].geometry||[]; const g=['2.2','2.1','2','1.3','1.2'].map(l=>gs.find(x=>String(x.lod)===l)).find(Boolean); if(!g) continue;
+    const sem=g.semantics; let shells,vals;
+    if(g.type==='Solid'){ shells=g.boundaries; vals=sem?.values; } else if(g.type==='MultiSolid'||g.type==='CompositeSolid'){ shells=g.boundaries.flat(1); vals=sem?.values?.flat(1); } else { shells=[g.boundaries]; vals=sem?[sem.values]:null; }
+    shells.forEach((sh,si)=>sh.forEach((srf,fi)=>{ const ring=srf[0]; if(!ring||ring.length<3) return; const v=vals?.[si]?.[fi]; const ty=v!=null?(sem.surfaces[v]?.type||''):'';
+      const pts=ring.map(P), {n,a}=newell(pts); if(a<0.3) return; const az=(Math.atan2(n[0],n[1])*180/Math.PI+360)%360;
+      if(/Ground/i.test(ty)||n[2]<-0.8) return;
+      if(/Wall/i.test(ty)||(!ty&&Math.abs(n[2])<0.2)) W.push({az,a}); else if(/Roof/i.test(ty)||n[2]>0.2) R.push({az,a,h:Math.acos(Math.min(1,Math.abs(n[2])))*180/Math.PI}); })); }
+  if(!W.length) return null;
+  // hoofdrichting van het pand (gewogen gemiddelde van de wandrichtingen modulo 90°)
+  let s4=0,c4=0; W.forEach(w=>{ const t=w.az*Math.PI/180*4; s4+=w.a*Math.sin(t); c4+=w.a*Math.cos(t); }); const th=((Math.atan2(s4,c4)*180/Math.PI/4)+360)%90;
+  const kant=az=>((Math.round(((az-th)%360+360)%360/90))%4);
+  const G=[0,1,2,3].map(i=>({id:'g'+i,az:(th+90*i)%360,m2:0}));
+  W.forEach(w=>{ G[kant(w.az)].m2+=w.a; });
+  let gevels=G.filter(g=>g.m2>=1).map(g=>({...g,m2:Math.round(g.m2),kompas:kompasVan(g.az),rol:'',glas:25}));
+  // woningscheidende wanden afleiden uit 3D BAG (opp. scheidingsmuur)
+  const sch=+(at&&at.b3_opp_scheidingsmuur)||0;
+  if(sch>5&&gevels.length>=3){ const opties=[]; gevels.forEach((a,i)=>{ opties.push([i]); gevels.forEach((b,k)=>{ if(k>i&&Math.abs(Math.abs(((a.az-b.az+540)%360)-180)-180)<10) opties.push([i,k]); }); });
+    let best=null,bd=1e9; opties.forEach(o=>{ const d=Math.abs(o.reduce((x,i)=>x+gevels[i].m2,0)-sch); if(d<bd){ bd=d; best=o; } });
+    if(best&&bd<Math.max(8,sch*0.35)) best.forEach(i=>{ gevels[i].rol='scheidend'; gevels[i].glas=0; }); }
+  // daken: plat samen, hellend per kant
+  const plat=R.filter(r=>r.h<10).reduce((x,r)=>x+r.a,0);
+  const DH=[0,1,2,3].map(i=>({id:'d'+i,az:(th+90*i)%360,m2:0,hs:0}));
+  R.filter(r=>r.h>=10).forEach(r=>{ const d=DH[kant(r.az)]; d.m2+=r.a; d.hs+=r.h*r.a; });
+  const daken=[...(plat>=1?[{id:'dp',plat:1,m2:Math.round(plat),kompas:'plat',helling:0}]:[]),...DH.filter(d=>d.m2>=1).map(d=>({id:d.id,az:d.az,m2:Math.round(d.m2),kompas:kompasVan(d.az),helling:Math.round(d.hs/d.m2)}))];
+  return {gevels,daken,auto:1};
+}
+const gvNetto=g=>Math.round(g.m2*(1-(+g.glas||0)/100));
+const gvNaam=g=>(g.rol&&g.rol!=='scheidend'?rolLbl(g.rol):'Gevel '+g.kompas)+(g.rol&&g.rol!=='scheidend'?' ('+g.kompas+')':'');
+const dkNaam=d=>d.plat?'Plat dak':'Dakvlak '+d.kompas+' ('+d.helling+'°)';
+function vlakKaart(k){ const gv=k.gv; if(!gv) return `<div class="card"><h2>Gevels en dakvlakken</h2><p class="muted" style="margin:0">Zoek bij Object het adres op; dan worden de gevels en dakvlakken per kant uit het 3D-model (3D BAG) gehaald.</p></div>`;
+  return `<div class="card"><h2>Gevels en dakvlakken (3D BAG)</h2><p class="muted" style="margin-top:0">Per kant van het pand berekend uit het 3D-model. Geef aan welke gevel de voorgevel is en welk deel glas/kozijn is; de kostenposten rekenen met de netto m² (bruto min glas/kozijn).</p>
+   <div class="vl-list">${gv.gevels.map((g,i)=>`<div class="vl-row${g.rol==='scheidend'?' sch':''}"><div class="vl-k"><span class="vl-pijl" style="transform:rotate(${Math.round(g.az)}deg)">↑</span><b>${g.kompas}</b></div>
+     <div class="vl-m"><select data-gv="${i}" data-f="rol">${ROLLEN.map(([v,l])=>`<option value="${v}"${g.rol===v?' selected':''}>${l}</option>`).join('')}</select>
+     <div class="vl-g"><span>Bruto ${g.m2} m²</span>${g.rol==='scheidend'?'':`<label>glas/kozijn <input type="number" inputmode="numeric" data-gv="${i}" data-f="glas" value="${g.glas}">%</label><b>netto ${gvNetto(g)} m²</b>`}</div></div></div>`).join('')}</div>
+   ${gv.daken.length?`<div class="group-h">Dakvlakken</div><div class="vl-dak">${gv.daken.map(d=>`<span>${esc(dkNaam(d))} · <b>${d.m2} m²</b></span>`).join('')}</div>`:''}</div>`; }
+function vlakBind(root,k){ root.querySelectorAll('[data-gv]').forEach(el=>el.addEventListener('change',()=>{ const g=k.gv.gevels[+el.dataset.gv]; if(el.dataset.f==='rol'){ g.rol=el.value; if(g.rol==='scheidend') g.glas=0; else if(!+g.glas) g.glas=25;
+    if(g.rol==='voor') k.gv.gevels.forEach(x=>{ if(x===g||x.rol==='scheidend'||x.rol) return; const d=Math.abs(Math.abs(((x.az-g.az+540)%360)-180)-180); x.rol=d<10?'achter':'zij'; }); } else g.glas=Math.max(0,Math.min(90,+el.value||0));
+  if(k.gv.gevels.some(x=>x.rol)) k.hv.gevel=k.gv.gevels.filter(x=>x.rol!=='scheidend').reduce((a,x)=>a+x.m2,0);
+  save(); vKosten(); })); }
+
 /* ---------- prijslijst (indicatief, incl. btw) en hoeveelheden uit BAG / 3D BAG ---------- */
 // bron: IMG = Instituut Mijnbouwschade Groningen, calculatiemodel gevel V8.0, peildatum 1-1-2025 (excl. btw, hier incl. btw omgerekend)
 //       MARKT = gemiddelde marktprijzen 2026 (Werkspot, Homedeal, Trustoo, Consumentenbond)
@@ -1040,14 +1106,19 @@ function prijsKaart(){ return `<div class="card"><h2>Prijslijst (indicatief, inc
    <details class="pr-det"><summary>Prijzen bekijken en aanpassen (${PRIJZEN.length-1} posten)</summary><div class="pr-list">${PRIJZEN.filter(p=>p.id!=='vrij').map(p=>`<label class="pr-row"><span class="pr-n">${esc(p.n)}<small>${esc(PB[p.b])} · standaard ${eur(p.p)} / ${p.eh}</small></span><span class="pr-in"><input type="number" inputmode="decimal" step="0.01" data-pr="${p.id}" placeholder="${p.p}" value="${(S.settings.prijzen||{})[p.id]??''}"><em>/${p.eh}</em></span></label>`).join('')}</div></details></div>`; }
 // kostenregels in een bevinding: altijd een totaalbedrag (vrij aan te passen); bij vlakken keuze geheel vlak of deel
 const clVlak=x=>{ const p=PRIJZEN.find(y=>y.id===x.id); return p&&p.q?p.q:null; };
+const clVlakken=x=>{ const v=clVlak(x), gv=S.cur&&S.cur.gv; if(!gv) return []; if(v==='gevel') return gv.gevels.filter(g=>g.rol!=='scheidend').map(g=>({id:g.id,n:gvNaam(g),m2:gvNetto(g),bruto:g.m2,glas:+g.glas||0}));
+  if(v==='dakPlat'||v==='dakHellend') return gv.daken.map(d=>({id:d.id,n:dkNaam(d),m2:d.m2})); return []; };
+const clGeheelQ=x=>{ const v=clVlak(x); if(v==='gevel'&&S.cur.gv){ const L=clVlakken(x); if(L.length) return L.reduce((a,g)=>a+g.m2,0); } const hv=S.cur.hv||{}; return v&&hv[v]?+hv[v]:1; };
+const clVlakQ=x=>clVlakken(x).filter(g=>(x.vl||[]).includes(g.id)).reduce((a,g)=>a+g.m2,0);
 const clBer=x=>Math.round((+x.q||0)*(+x.p||0));
 const clTot=x=>x.tot!=null&&x.tot!==''?+x.tot:clBer(x);
 function calcTot(b){ const L=b.calc||[]; return {d:L.filter(x=>x.s!=='termijn').reduce((a,x)=>a+clTot(x),0),t:L.filter(x=>x.s==='termijn').reduce((a,x)=>a+clTot(x),0)}; }
-function clOmvang(x){ const v=clVlak(x); if(v&&x.omv!=='deel') return 'gehele '+HV_LBL[v].toLowerCase().replace(/ \(.*\)/,'')+(x.q?' ('+String(x.q).replace('.',',')+' '+x.eh+')':'');
+function clOmvang(x){ const v=clVlak(x); if(v&&x.omv==='vlak'){ const L=clVlakken(x).filter(g=>(x.vl||[]).includes(g.id)); return L.map(g=>g.n).join(' + ')+' ('+String(x.q).replace('.',',')+' '+x.eh+(v==='gevel'&&L.some(g=>g.glas)?' netto, excl. glas/kozijn':'')+')'; }
+  if(v&&x.omv!=='deel') return 'gehele '+HV_LBL[v].toLowerCase().replace(/ \(.*\)/,'')+(x.q?' ('+String(x.q).replace('.',',')+' '+x.eh+(v==='gevel'&&S.cur.gv?' netto, excl. glas/kozijn':'')+')':'');
   if(v) return 'deel: '+String(x.q||0).replace('.',',')+' '+x.eh; return x.eh==='pst'?'post':String(x.q||0).replace('.',',')+' '+x.eh; }
 function calcHTML(b){ const hv=(S.cur&&S.cur.hv)||{}; const L=b.calc||[];
   return (L.length?`<div class="cl-list">${L.map((x,i)=>{ const v=clVlak(x); return `<div class="cl-row"><div class="cl-n">${x.id==='vrij'?`<input data-cl="${i}" data-f="n" value="${esc(x.n||'')}" placeholder="Omschrijving">`:esc(x.n)}<button type="button" class="cl-del" data-cl="${i}" data-f="del" aria-label="Verwijderen">×</button></div>
-   ${v?`<div class="seg cl-omv"><button type="button" data-cl="${i}" data-f="omv" data-v="geheel" class="${x.omv!=='deel'?'on':''}">Gehele ${HV_LBL[v].toLowerCase()}${hv[v]?` · ${hv[v]} ${HV_EH[v]}`:''}</button><button type="button" data-cl="${i}" data-f="omv" data-v="deel" class="${x.omv==='deel'?'on':''}">Deel</button></div>`:''}
+   ${v?`<div class="cl-chips"><button type="button" data-cl="${i}" data-f="omv" data-v="geheel" class="${!x.omv||x.omv==='geheel'?'on':''}">Gehele ${HV_LBL[v].toLowerCase().replace(/ \(.*\)/,'')} · ${clGeheelQ(x)} ${HV_EH[v]}</button>${clVlakken(x).map(g=>`<button type="button" data-cl="${i}" data-f="vl" data-v="${g.id}" class="${x.omv==='vlak'&&(x.vl||[]).includes(g.id)?'on':''}">${esc(g.n)} · ${g.m2} m²</button>`).join('')}<button type="button" data-cl="${i}" data-f="omv" data-v="deel" class="${x.omv==='deel'?'on':''}">Deel</button></div>`:''}
    ${(v&&x.omv==='deel')||(!v&&x.eh!=='pst')?`<label class="cl-q">${v?'Oppervlak deel':'Aantal'} <input type="number" inputmode="decimal" data-cl="${i}" data-f="q" value="${x.q??''}"><em>${x.eh}</em></label>`:''}
    <div class="cl-s"><div class="seg"><button type="button" data-cl="${i}" data-f="s" data-v="direct" class="${x.s!=='termijn'?'on':''}">Direct</button><button type="button" data-cl="${i}" data-f="s" data-v="termijn" class="${x.s==='termijn'?'on':''}">Termijn</button></div>
      <label class="cl-tot">€ <input type="number" inputmode="decimal" data-cl="${i}" data-f="tot" value="${clTot(x)}"></label></div>
@@ -1060,7 +1131,7 @@ function postKiezen(b,klaar){ const k=S.cur, hv=k.hv||{}; const eigen=PRIJZEN.fi
    <div class="tx-list" id="ppL">${eigen.length?`<div class="group-h">Bij dit element</div>${eigen.map(item).join('')}`:''}<div class="group-h">Alle posten</div>${rest.map(item).join('')}</div></div></div></div>`;
   document.body.appendChild(bg); const dicht=()=>bg.remove(); bg.querySelector('#ppX').onclick=dicht; bg.addEventListener('click',e=>{ if(e.target===bg) dicht(); });
   bg.querySelector('#ppQ').addEventListener('input',e=>{ const q=e.target.value.toLowerCase(); bg.querySelectorAll('[data-pp]').forEach(x=>x.hidden=q&&!x.textContent.toLowerCase().includes(q)); });
-  bg.querySelectorAll('[data-pp]').forEach(el=>el.onclick=()=>{ const p=PRIJZEN.find(x=>x.id===el.dataset.pp); const q=p.q&&hv[p.q]?+hv[p.q]:1;
+  bg.querySelectorAll('[data-pp]').forEach(el=>el.onclick=()=>{ const p=PRIJZEN.find(x=>x.id===el.dataset.pp); const q=p.q?clGeheelQ({id:p.id}):1;
     b.calc=b.calc||[]; b.calc.push({id:p.id,n:p.id==='vrij'?'':p.n,eh:p.eh,q,p:prijsVan(p.id),omv:'geheel',tot:null,s:+b.cond>=5?'direct':'termijn',b:p.b}); dicht(); klaar(); });
 }
 
@@ -1132,7 +1203,8 @@ function bevSheet(b,isNew){
     if(f==='del'){ b.calc.splice(i,1); if(!b.calc.length){ b.direct=''; b.termijn=''; bg.querySelector('[data-k="direct"]').value=''; bg.querySelector('[data-k="termijn"]').value=''; } }
     else if(f==='s') x.s=el.dataset.v;
     else if(f==='re') x.tot=null;
-    else if(f==='omv'){ x.omv=el.dataset.v; const v=clVlak(x), hv=S.cur.hv||{}; if(x.omv==='geheel'&&v&&hv[v]) x.q=+hv[v]; else if(x.omv==='deel'&&v&&hv[v]&&+x.q===+hv[v]) x.q=''; }
+    else if(f==='omv'){ const was=x.omv; x.omv=el.dataset.v; x.vl=[]; if(x.omv==='geheel') x.q=clGeheelQ(x); else if(x.omv==='deel'&&(was!=='deel')) x.q=''; }
+    else if(f==='vl'){ const id=el.dataset.v; x.vl=x.omv==='vlak'?(x.vl||[]):[]; x.vl=x.vl.includes(id)?x.vl.filter(z=>z!==id):[...x.vl,id]; if(x.vl.length){ x.omv='vlak'; x.q=clVlakQ(x); } else { x.omv='geheel'; x.q=clGeheelQ(x); } }
     clDraw(); clSync(); });
   clDraw();
   bg.querySelector('#txKnop').onclick=()=>txKiezen(b,()=>{ bg.querySelectorAll('[data-k]').forEach(el=>{ const v=b[el.dataset.k]; if(el.tagName==='TEXTAREA'&&v!=null){ el.value=v; el.dispatchEvent(new Event('autosize')); } }); if(b.cond) setC(+b.cond); save(); });
@@ -1173,9 +1245,10 @@ function vKosten(){
      <div><b>${T.pct!=null?T.pct.toFixed(1)+'%':'–'}</b><span>Bouwtechnische staat</span></div>
      <div><b>${S.cur.obj.nhg==='ja'?eur(T.nhg):'n.v.t.'}</b><span>NHG-kosten</span></div></div>
      ${T.hw?`<p class="muted">Herbouwwaarde gebruikt: ${eur(T.hw)}</p>`:'<p class="muted">Vul onder Object de herbouwwaarde in voor het percentage bouwtechnische staat.</p>'}</div>
-   ${hvKaart(S.cur)}${prijsKaart()}
+   ${vlakKaart(S.cur)}${hvKaart(S.cur)}${prijsKaart()}
    <div class="card"><h2>Conclusie en advies</h2>${TA('conclusie','Samenvattende conclusie (komt op de samenvattingspagina)')}${TA('advies','Advies aan opdrachtgever')}</div>`;
   bindInputs($('#view'),S.cur);
+  vlakBind($('#view'),S.cur);
   $('#view').querySelectorAll('[data-k^="hv."]').forEach(el=>el.addEventListener('input',()=>{ if(S.cur.hv) S.cur.hv.auto=0; }));
   $('#view').querySelectorAll('[data-pr]').forEach(el=>el.addEventListener('input',()=>{ S.settings.prijzen=S.settings.prijzen||{}; if(el.value==='') delete S.settings.prijzen[el.dataset.pr]; else S.settings.prijzen[el.dataset.pr]=+el.value; save(); }));
 }
