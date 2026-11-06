@@ -403,6 +403,22 @@ function camStop(){ if(camStream){ camStream.getTracks().forEach(t=>t.stop()); c
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&camStream) camStop(); });
 function fotoKnoppen(id){ return `<button class="addph" data-ph="${id}" data-m="cam"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Foto</span></button><button class="addph" data-ph="${id}" data-m="serie"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 6h-5L6.5 8.5H4a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 4 18.5h13a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 17 8.5h-1.5z"/><circle cx="10.5" cy="13" r="2.7"/><path d="M8 3.5h8.5l1.6 2.5H21.5V15"/></svg><span>Serie</span></button><button class="addph" data-ph="${id}" data-m="gal"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg><span>Galerij</span></button>`; }
 
+
+/* ---------- herbouwwaarde: automatische m³-prijs (Herbouwwaardemeter 2026, NH1816, standaard afwerking, incl. fundering) ---------- */
+const HB_BRON='Herbouwwaardemeter 2026 (NH1816), standaard afwerking, incl. fundering';
+function hbAuto(k){const o=k.obj||{},t=String(o.type||''),l=+o.bouwlagen||0;
+  if(/^Tussenwoning|^Hoekwoning/.test(t))return{prijs:842,cat:'rijtjeswoning'};
+  if(/2-onder-1/.test(t))return{prijs:978,cat:'2-onder-1-kap'};
+  if(/Vrijstaand/.test(t))return{prijs:1118,cat:'vrijstaand'};
+  if(/^Appartement|Maisonnette/.test(t))return l>=5?{prijs:941,cat:'appartement 5 t/m 8 bouwlagen'}:{prijs:1030,cat:'appartement t/m 4 bouwlagen'};
+  return null}
+const hbPrijs=k=>num(k.herbouw.m3prijs)||(hbAuto(k)||{}).prijs||0;
+function hbUitleg(k){const a=hbAuto(k),inh=num(k.obj.inhoud),eigen=num(k.herbouw.m3prijs),tot=num(k.herbouw.waarde);
+  if(tot)return'Herbouwwaarde handmatig ingevuld: '+eur(tot)+'.';
+  const pr=eigen||(a&&a.prijs);if(!pr)return'Kies het type woning voor een automatische m³-prijs.';
+  const b=eigen?'eigen m³-prijs':a.cat+' € '+a.prijs+'/m³ ('+HB_BRON+')';
+  return inh?'Herbouwwaarde ≈ '+inh+' m³ × € '+pr+' = '+eur(inh*pr)+' – '+b+'.':'Vul de inhoud in (m³) – '+b+'.'}
+
 /* ---------- OBJECT ---------- */
 function vObject(){
   const o=S.cur.obj;
@@ -435,8 +451,10 @@ function vObject(){
   </div>
   <div class="card"><h2>Herbouwwaarde (voor bouwtechnische staat)</h2><div class="grid">
     ${F('herbouw.m3prijs','Herbouwprijs per m³ (€)','number')}${F('herbouw.waarde','Of: herbouwwaarde totaal (€)','number')}</div>
-    <p class="muted">Bouwtechnische staat = totale herstelkosten / herbouwwaarde × 100%. Laat totaal leeg om inhoud × m³-prijs te gebruiken.</p></div>`;
+    <p class="muted"><b>Herbouwwaarde</b> = wat het kost om de woning na totaal verlies opnieuw te bouwen (niet de WOZ- of verkoopwaarde). <b>Bouwtechnische staat</b> = totale herstelkosten / herbouwwaarde × 100%. Laat beide velden leeg voor de automatische m³-prijs op basis van het type woning.</p><p class="muted" id="hbAuto"></p></div>`;
   bindInputs($('#view'),S.cur);
+  const hbZet=()=>{ const a=hbAuto(S.cur),i=$('#view').querySelector('[data-k="herbouw.m3prijs"]'); if(i) i.placeholder=a?'auto: € '+a.prijs+' ('+a.cat+')':''; const e=$('#hbAuto'); if(e) e.textContent=hbUitleg(S.cur); };
+  hbZet(); $('#view').querySelectorAll('[data-k="obj.type"],[data-k="obj.inhoud"],[data-k="obj.bouwlagen"],[data-k="herbouw.m3prijs"],[data-k="herbouw.waarde"]').forEach(el=>{ el.addEventListener('input',hbZet); el.addEventListener('change',hbZet); });
   const vg=$('#vgPh'); const drawVg=()=>{ vg.innerHTML=(o.voorgevel?`<div class="ph"><img src="${o.voorgevel}"><button id="vgDel">×</button></div>`:'')+`<button class="addph" id="vgAdd"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Foto</span></button><button class="addph" id="vgGal"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg><span>Galerij</span></button>`; $('#vgAdd').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} }); $('#vgGal').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} },true); const dl=$('#vgDel'); if(dl) dl.onclick=()=>{o.voorgevel=''; save(); drawVg();}; }; drawVg();
   adresSuggest();
 }
@@ -602,7 +620,7 @@ function totals(k=S.cur){
   GROEPEN.forEach(g=>per[g.k]={d:0,t:0,nv:0,nt:0});
   k.bev.forEach(b=>{ const p=per[b.groep]; p.d+=num(b.direct); p.t+=num(b.termijn); p.nv+=num(b.ndVan); p.nt+=num(b.ndTot); if(b.nhg) nhg+=num(b.direct)+num(b.termijn); });
   Object.values(per).forEach(p=>{d+=p.d;t+=p.t;nv+=p.nv;nt+=p.nt;});
-  const hw = num(k.herbouw.waarde) || num(k.obj.inhoud)*num(k.herbouw.m3prijs);
+  const hw = num(k.herbouw.waarde) || num(k.obj.inhoud)*hbPrijs(k);
   const pct = hw? (d+t)/hw*100 : null;
   const cs=k.bev.filter(b=>b.cond>=1&&b.cond<=6).map(b=>+b.cond); const avg=cs.length?cs.reduce((a,b)=>a+b,0)/cs.length:null;
   return {per,d,t,nv,nt,nhg,hw,pct,avg,tot:d+t};
@@ -742,7 +760,7 @@ function buildSections(){
     ...(o.nhg==='ja'?[`<h3>${ico('shield',6)}Nationale Hypotheek Garantie</h3><div class="dl">${kv('Mee te nemen herstelkosten (NHG)','<b>'+eur(T.nhg)+'</b>')}${kv('Specificatie','Bijlage B1 – Bouwkundig rapport NHG')}</div>`]:[]),
     ...(nader.length?[`<h3>${ico('search',6)}Nader onderzoek aanbevolen</h3><table><tr><th style="width:12mm">Ref.</th><th>Element</th><th>Reden</th><th class="r">Indicatie</th></tr>
       ${nader.map(b=>`<tr><td>${refOf(b)}</td><td>${esc(b.element)}</td><td>${esc(b.gebrek||'')}</td><td class="r">${num(b.ndTot)?eur(b.ndVan)+' – '+eur(b.ndTot):'n.t.b.'}</td></tr>`).join('')}</table>`]:[]),
-    `<h3>${ico('gauge',6)}Kengetallen</h3><div class="dl">${kv('Gemiddelde conditiescore (1–6)',T.avg?T.avg.toFixed(1):'')}${kv('Herbouwwaarde (indicatief)',T.hw?eur(T.hw):'')}
+    `<h3>${ico('gauge',6)}Kengetallen</h3><div class="dl">${kv('Gemiddelde conditiescore (1–6)',T.avg?T.avg.toFixed(1):'')}${kv('Herbouwwaarde (indicatief)',T.hw?eur(T.hw)+'<br><small style="font-weight:400">'+esc(hbUitleg(S.cur))+'</small>':'')}
       ${kv('Bouwtechnische staat',T.pct!=null?T.pct.toFixed(1)+'%':'')}${kv('Berekening','herstelkosten / herbouwwaarde')}</div>`
   ]));
 
