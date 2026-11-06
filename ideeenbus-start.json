@@ -1,0 +1,101 @@
+[
+ {
+  "id": "s0085v70",
+  "t": "Epa-bestand toevoegen aan het dashboard zodat je hem alles kan laten invullen",
+  "s": "Toevoegen",
+  "p": "Dashboard",
+  "d": 1793971933939,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s0149mpm",
+  "t": "Opnameform: invulveld voor merk en type warmtepomp",
+  "s": "Verbeteren",
+  "p": "Dashboard",
+  "d": 1793971933938,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s02q8txo",
+  "t": "Opnameform: bij warmtepomp een vinkje met 'additioneel geplaatst'",
+  "s": "Verbeteren",
+  "p": "Dashboard",
+  "d": 1793971933937,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s0330oda",
+  "t": "Handige invultool voor bouwkundige keuringen",
+  "s": "Toevoegen",
+  "p": "Dashboard",
+  "d": 1793971933936,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s040fxhz",
+  "t": "Opnameformulier: erbij zetten of ALLE radiatoren thermostaatknoppen hebben",
+  "s": "Verbeteren",
+  "p": "Objectdossier",
+  "d": 1793971933935,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s05s3c3t",
+  "t": "Op opnameformulier wijzigen zoals in vabi dus 'Geen fossiele brandstoffen op perceel' en dan alleen aanvinkvakje (zie vabi hoe het daar staat)",
+  "s": "Verbeteren",
+  "p": "Objectdossier",
+  "d": 1793971933934,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s06gt9if",
+  "t": "Lage prio en misschien geen goed idee: eenn handige eenvoudige tool voor de huurpuntentelling. Bijvoorbeeld als je de woning inscant en dan icm met het energielabel dat het vrijwel automatisch wordt ingevuld/opgesteld",
+  "s": "Toevoegen",
+  "p": "Dashboard",
+  "d": 1793971933933,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s07j3uu3",
+  "t": "Bcrg koppeling mogelijk? Handig voor de onderbouwing, het epa bestand maar zeker ook voor de verbeter en maatwerkadviezen",
+  "s": "Toevoegen",
+  "p": "Dashboard",
+  "d": 1793971933932,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s08kl4h8",
+  "t": "Lage prio en miss niet nuttig: andere berekeningen zoals transmissie-, koellast- en warmteverliesberekening; Warmtepompadvies of dimensioneringsadvies: als vervolg op de warmteverliesberekening (evt ventilatieberekening?) https://support.vabi.nl/academy/elements/trainingen/warmteverlies-koellast/ https://www.c.technischeunie.nl/duurzaamheid/warmteverliesberekening-op-basis-van-gekend-verbruik.html https://www.c.technischeunie.nl/duurzaamheid/warmtepomp/warmteverliesberekening-offertefase.html",
+  "s": "Toevoegen",
+  "p": "Onderbouwing",
+  "d": 1793971933931,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s09mlubv",
+  "t": "BENG berekeningen",
+  "s": "Toevoegen",
+  "p": "Onderbouwing",
+  "d": 1793971933930,
+  "k": false,
+  "door": ""
+ },
+ {
+  "id": "s10e71du",
+  "t": "Advies: verbeteradvies en maatwerkadvies; een advies maken op basis van de opname en dat hij dan ook alle materialen etc erbij geeft. Dus dan zeg je bijv maak van deze opgenomen woning een advies met 5 maatregelenpakketen waarbij je op een A en A+ komt. Dat hij dan helemaal doorrekent welke materialen, installaties en inclusief kwaliteitsverklaringen er nodig zijn en daarbij ook rekening houdend met dingen als renovatiejaar, wijzigende waardes zoals GO door bijv voorzetwanden en interne warmtecapaciteit etc. Hiermee kan je zulke bizar nauwkeurige adviezen geven. En snel ook. En ook gecertificeerde maatwerkadviezen zou kunnen. Dumava-proof bijv.",
+  "s": "Toevoegen",
+  "p": "Dashboard",
+  "d": 1793971933929,
+  "k": false,
+  "door": ""
+ }
+]

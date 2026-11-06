@@ -59,7 +59,7 @@ body.v-gevel .topbar-in{max-width:none}
 .wl-ed .wl-eb{display:flex;gap:6px}.wl-ed .wl-eb button{flex:1;border-radius:8px;padding:8px;font-size:14px;cursor:pointer;border:1px solid #cfdcd3;background:#f4f7f5}
 .wl-ed .wl-eb .wl-ok{background:var(--g800);color:#fff;border-color:var(--g800);font-weight:700}
 .wl-leeg{color:#8a958e;font-size:13px;padding:10px 2px}
-.wl-foot{display:flex;gap:6px;margin-top:10px}
+.wl-foot{display:flex;gap:6px;margin-top:6px}.wl-status{font-size:11px;color:#8a958e;margin-top:8px}
 .wl-foot button{flex:1;border:1px solid #cfdcd3;background:#f4f7f5;border-radius:8px;padding:7px;font-size:13px;cursor:pointer}
 @media(max-width:600px){.wl-btn{padding:6px 9px;font-size:13px;margin-right:6px}.wl-pop{position:fixed;left:12px;right:12px;top:96px;width:auto}}
 .topbar .back:hover{background:rgba(255,255,255,.24)}
@@ -735,7 +735,7 @@ body.v-opname{background-image:none!important}
    <div class="wl-soort" role="group"><button type="button" data-wls="Toevoegen" class="on">＋ Toevoegen</button><button type="button" data-wls="Verbeteren">✎ Verbeteren</button><button type="button" data-wls="Fout">⚠ Fout</button></div>
    <form id="wl-form" class="wl-form"><input id="wl-in" type="text" autocomplete="off" placeholder="Wat wil je erbij of anders? (Enter)"><button type="button" id="wl-mic" class="wl-mic" title="Inspreken">🎤</button><button type="submit" class="wl-add">+</button></form>
    <ul class="wl-list" id="wl-list"></ul>
-   <div class="wl-foot"><button type="button" id="wl-share">Lijst delen / kopiëren</button><button type="button" id="wl-clear">Afgevinkte wissen</button></div>
+   <div class="wl-status" id="wl-status"></div><div class="wl-foot"><button type="button" id="wl-share">Lijst delen / kopiëren</button><button type="button" id="wl-clear">Afgevinkte wissen</button></div>
   </div></div>
  <button class="top-help" id="top-help" type="button" title="Uitleg bij deze pagina" aria-label="Uitleg bij deze pagina">?</button>
  <button class="back" id="back-btn" type="button">← Dashboard</button>
@@ -6813,31 +6813,46 @@ window.spraakBottom=px=>document.documentElement.style.setProperty('--sp-bottom'
 
 </script>
 <script>
-(function(){const K='eln-wishlist-v1',$=id=>document.getElementById(id);
-let L=[];try{L=JSON.parse(localStorage.getItem(K)||'[]')}catch(e){}
-let soort='Toevoegen';const save=()=>{try{localStorage.setItem(K,JSON.stringify(L))}catch(e){}};
+(function(){const K='eln-wishlist-v1',KM='eln-wishlist-gedeeld',API='api/ideeen',$=id=>document.getElementById(id);
+const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+let L=[];try{L=JSON.parse(localStorage.getItem(K)||'[]')}catch(e){}L.forEach(x=>{if(!x.id)x.id=nid()});
+let gedeeld=false,soort='Toevoegen';
+const saveLokaal=()=>{try{localStorage.setItem(K,JSON.stringify(L))}catch(e){}};
+const save=()=>{if(!gedeeld)saveLokaal()};
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let ei=-1;const PEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-function render(){const open=L.filter(x=>!x.k).length,n=$('wl-n');n.hidden=!open;n.textContent=open;
+function status(){const s=$('wl-status');if(s)s.textContent=gedeeld?'Gedeelde lijst · iedereen met toegang ziet dezelfde wensen':'Alleen op dit apparaat (geen verbinding met de gedeelde lijst)'}
+async function api(body){const r=await fetch(API,body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'}:{cache:'no-store',credentials:'same-origin'});
+ if(!r.ok)throw new Error(r.status);const ct=r.headers.get('content-type')||'';if(!ct.includes('json'))throw new Error('geen json');const d=await r.json();if(!Array.isArray(d))throw new Error('fout');return d}
+function zet(d){L=d;gedeeld=true;if(ei<0)render();else status()}
+async function laad(){if(!location.protocol.startsWith('http'))return status();
+ try{let d=await api();gedeeld=true;
+  let lok=[];try{if(!localStorage.getItem(KM))lok=JSON.parse(localStorage.getItem(K)||'[]')}catch(e){}
+  if(lok.length)d=await api({op:'addMany',items:lok});
+  try{localStorage.setItem(KM,'1')}catch(e){}
+  zet(d)}catch(e){gedeeld=false;status()}}
+async function stuur(op){if(!gedeeld)return;try{zet(await api(op))}catch(e){gedeeld=false;saveLokaal();status()}}
+function render(){const open=L.filter(x=>!x.k).length,n=$('wl-n');n.hidden=!open;n.textContent=open;status();
  $('wl-list').innerHTML=L.length?L.map((x,i)=>i===ei?'<li class="wl-editing"><div class="wl-ed"><div class="wl-es">'+['Toevoegen','Verbeteren','Fout'].map(z=>'<button type="button" data-es="'+z+'" class="'+(z===x.s?'on':'')+'">'+z+'</button>').join('')+'</div><textarea id="wl-ta" aria-label="Wens aanpassen">'+esc(x.t)+'</textarea><div class="wl-eb"><button type="button" data-cancel="1">Annuleren</button><button type="button" class="wl-ok" data-ok="'+i+'">Opslaan</button></div></div></li>'
-  :'<li class="'+(x.k?'klaar':'')+'"><input type="checkbox" data-i="'+i+'" '+(x.k?'checked':'')+' aria-label="Afvinken"><span class="wl-t" data-ed="'+i+'" title="Tik om aan te passen"><span class="wl-tag '+x.s+'">'+x.s+'</span>'+esc(x.t)+'<span class="wl-meta">'+esc(x.p||'')+' · '+new Date(x.d).toLocaleDateString('nl-NL')+(x.e?' · aangepast '+new Date(x.e).toLocaleDateString('nl-NL'):'')+'</span></span><button type="button" class="wl-edit" data-ed="'+i+'" title="Aanpassen" aria-label="Aanpassen">'+PEN+'</button><button type="button" class="wl-del" data-del="'+i+'" title="Verwijderen">×</button></li>').join(''):'<li class="wl-leeg">Nog niets op de lijst. Typ of spreek een wens in en druk op Enter.</li>';
+  :'<li class="'+(x.k?'klaar':'')+'"><input type="checkbox" data-i="'+i+'" '+(x.k?'checked':'')+' aria-label="Afvinken"><span class="wl-t" data-ed="'+i+'" title="Tik om aan te passen"><span class="wl-tag '+x.s+'">'+x.s+'</span>'+esc(x.t)+'<span class="wl-meta">'+esc(x.p||'')+' · '+new Date(x.d).toLocaleDateString('nl-NL')+(x.door?' · '+esc(x.door.split('@')[0]):'')+(x.e?' · aangepast '+new Date(x.e).toLocaleDateString('nl-NL'):'')+'</span></span><button type="button" class="wl-edit" data-ed="'+i+'" title="Aanpassen" aria-label="Aanpassen">'+PEN+'</button><button type="button" class="wl-del" data-del="'+i+'" title="Verwijderen">×</button></li>').join(''):'<li class="wl-leeg">Nog geen wensen. Typ hierboven wat je mist of anders wilt.</li>';
  const ta=$('wl-ta');if(ta){ta.style.height=Math.max(90,ta.scrollHeight+4)+'px';ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);
   ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();opslaan()}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();ei=-1;render()}})}}
-function opslaan(){const ta=$('wl-ta');if(!ta||ei<0)return;const t=ta.value.trim(),on=document.querySelector('[data-es].on');
- if(t){L[ei].t=t;if(on)L[ei].s=on.dataset.es;L[ei].e=Date.now();save()}ei=-1;render()}
-function toggle(o){const p=$('wl-pop'),v=o==null?p.hidden:o;if(!v&&ei>=0){opslaan()}p.hidden=!v;$('wl-btn').setAttribute('aria-expanded',v);if(v){render();setTimeout(()=>$('wl-in').focus(),30)}}
+function opslaan(){const ta=$('wl-ta');if(!ta||ei<0)return;const t=ta.value.trim(),on=document.querySelector('[data-es].on'),x=L[ei];
+ if(t&&x){x.t=t;if(on)x.s=on.dataset.es;x.e=Date.now();save();ei=-1;render();stuur({op:'upd',id:x.id,t:x.t,s:x.s});return}ei=-1;render()}
+function toggle(o){const p=$('wl-pop'),v=o==null?p.hidden:o;if(!v&&ei>=0){opslaan()}p.hidden=!v;$('wl-btn').setAttribute('aria-expanded',v);if(v){render();laad();setTimeout(()=>$('wl-in').focus(),30)}}
 $('wl-btn').addEventListener('click',e=>{e.stopPropagation();toggle()});$('wl-x').addEventListener('click',()=>toggle(false));
 document.addEventListener('click',e=>{if($('wl-pop').hidden)return;const w=document.querySelector('.wl-wrap');if(!(e.composedPath?e.composedPath().includes(w):w.contains(e.target)))toggle(false)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(ei>=0){ei=-1;render();return}toggle(false)}});
 document.querySelectorAll('[data-wls]').forEach(b=>b.addEventListener('click',()=>{soort=b.dataset.wls;document.querySelectorAll('[data-wls]').forEach(x=>x.classList.toggle('on',x===b));$('wl-in').focus()}));
 $('wl-form').addEventListener('submit',e=>{e.preventDefault();const t=$('wl-in').value.trim();if(!t)return;
- L.unshift({t,s:soort,p:($('top-title')||{}).textContent||'',d:Date.now(),k:false});save();$('wl-in').value='';render();$('wl-in').focus()});
+ const it={id:nid(),t,s:soort,p:($('top-title')||{}).textContent||'',d:Date.now(),k:false};L.unshift(it);save();$('wl-in').value='';render();$('wl-in').focus();stuur({op:'add',item:it})});
 $('wl-list').addEventListener('click',e=>{e.stopPropagation();const c=e.target.closest('[data-i]'),d=e.target.closest('[data-del]'),ed=e.target.closest('[data-ed]'),es=e.target.closest('[data-es]');
  if(es){document.querySelectorAll('[data-es]').forEach(b=>b.classList.toggle('on',b===es));$('wl-ta').focus();return}
  if(e.target.closest('[data-ok]')){opslaan();return}if(e.target.closest('[data-cancel]')){ei=-1;render();return}
  if(ed){if(ei>=0)opslaan();ei=+ed.dataset.ed;render();return}
- if(c){if(ei>=0)opslaan();L[+c.dataset.i].k=c.checked;save();render()}if(d){ei=-1;L.splice(+d.dataset.del,1);save();render()}});
-$('wl-clear').addEventListener('click',()=>{L=L.filter(x=>!x.k);save();render()});
+ if(c){if(ei>=0)opslaan();const x=L[+c.dataset.i];x.k=c.checked;save();render();stuur({op:'upd',id:x.id,k:x.k})}
+ if(d){ei=-1;const x=L[+d.dataset.del];if(!x)return;if(!confirm('Deze wens verwijderen?'))return;L.splice(+d.dataset.del,1);save();render();stuur({op:'del',id:x.id})}});
+$('wl-clear').addEventListener('click',()=>{if(!L.some(x=>x.k))return;L=L.filter(x=>!x.k);save();render();stuur({op:'clear'})});
 $('wl-share').addEventListener('click',async()=>{const t='Ideeënbus dashboard\n'+L.map(x=>(x.k?'[x] ':'[ ] ')+x.s+': '+x.t+(x.p?' ('+x.p+')':'')).join('\n');
  try{if(navigator.share){await navigator.share({title:'Ideeënbus dashboard',text:t});return}}catch(e){if(e.name==='AbortError')return}
  try{await navigator.clipboard.writeText(t);$('wl-share').textContent='Gekopieerd ✓';setTimeout(()=>$('wl-share').textContent='Lijst delen / kopiëren',1500)}catch(e){prompt('Kopieer de lijst:',t)}});
@@ -6845,7 +6860,7 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)$('wl-m
  $('wl-mic').addEventListener('click',()=>{if(r){r.stop();return}r=new SR();r.lang='nl-NL';r.interimResults=true;const basis=$('wl-in').value;
   r.onresult=ev=>{let t='';for(const x of ev.results)t+=x[0].transcript;$('wl-in').value=(basis?basis+' ':'')+t};
   r.onend=()=>{r=null;$('wl-mic').classList.remove('rec');$('wl-in').focus()};$('wl-mic').classList.add('rec');r.start()})}
-render()})();
+render();laad()})();
 </script>
 <script id="eln-icons">
 /* ===== Iconen: emoji in knoppen en teksten vervangen door lijn-iconen in de stijl van het dashboard ===== */
