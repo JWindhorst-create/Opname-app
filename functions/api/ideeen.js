@@ -1,17 +1,19 @@
 // Gedeelde Ideeënbus: één lijst in Cloudflare KV (binding IDEEENBUS).
 // Toegang tot /api loopt via Cloudflare Access, net als de rest van het dashboard.
 const KEY = 'lijst';
+const kvVan = env => env.IDEEENBUS || env['Ideeënbus'] || env['Ideeenbus'] || env.ideeenbus;
 const SOORTEN = ['Toevoegen', 'Verbeteren', 'Fout'];
 const j = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 const nid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const norm = t => String(t || '').trim().toLowerCase().replace(/\s+/g, ' ');
 
 async function lees(env, req) {
-  let l = await env.IDEEENBUS.get(KEY, 'json');
+  const kv = kvVan(env);
+  let l = await kv.get(KEY, 'json');
   if (!Array.isArray(l)) {
     l = [];
     try { const r = await env.ASSETS.fetch(new URL('/ideeenbus-start.json', req.url)); if (r.ok) l = await r.json(); } catch (e) {}
-    await env.IDEEENBUS.put(KEY, JSON.stringify(l));
+    await kv.put(KEY, JSON.stringify(l));
   }
   return l;
 }
@@ -24,12 +26,12 @@ function schoon(x, door) {
 }
 
 export async function onRequestGet({ env, request }) {
-  if (!env.IDEEENBUS) return j({ fout: 'Opslag (KV-binding IDEEENBUS) ontbreekt' }, 503);
+  if (!kvVan(env)) return j({ fout: 'Opslag (KV-binding IDEEENBUS) ontbreekt' }, 503);
   return j(await lees(env, request));
 }
 
 export async function onRequestPost({ env, request }) {
-  if (!env.IDEEENBUS) return j({ fout: 'Opslag (KV-binding IDEEENBUS) ontbreekt' }, 503);
+  if (!kvVan(env)) return j({ fout: 'Opslag (KV-binding IDEEENBUS) ontbreekt' }, 503);
   let b; try { b = await request.json(); } catch (e) { return j({ fout: 'Ongeldige invoer' }, 400); }
   const door = request.headers.get('cf-access-authenticated-user-email') || '';
   let l = await lees(env, request);
@@ -49,6 +51,6 @@ export async function onRequestPost({ env, request }) {
   } else if (b.op === 'clear') {
     l = l.filter(x => !x.k);
   } else return j({ fout: 'Onbekende actie' }, 400);
-  await env.IDEEENBUS.put(KEY, JSON.stringify(l));
+  await kvVan(env).put(KEY, JSON.stringify(l));
   return j(l);
 }
