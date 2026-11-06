@@ -226,6 +226,16 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .el-cnt{background:var(--accent);color:var(--brand);border-radius:99px;font-size:12px;font-weight:700;min-width:22px;height:22px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center}
 .el-plus{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--brand2)}
 .mic{float:none!important;display:flex;align-items:center;gap:5px;margin:6px 0 6px auto!important;width:max-content}
+
+.tx-knop{width:100%;justify-content:center;display:flex;align-items:center;gap:8px;margin:12px 0 2px}
+.tx-list{display:grid;gap:8px}
+.tx-item{display:grid;gap:4px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:inherit;font-size:13.5px;line-height:1.4}
+.tx-item:active{background:var(--accent)}
+.tx-n{font-weight:700;color:var(--brand);font-size:14.5px;display:flex;align-items:center;gap:8px}
+.tx-n .badge{font-size:11px;padding:1px 7px}
+.tx-g{color:var(--ink)}.tx-a{color:var(--muted)}.tx-i{color:var(--muted);font-style:italic}
+.rpt .bv .txt .info{color:var(--mu);font-style:italic}.rpt .bv .txt .info span{font-style:normal}
+.rpt .uitleg p{font-size:8.4pt;margin:0 0 1.6mm;line-height:1.45}
 </style>
 
 
@@ -315,8 +325,9 @@ function setPath(o,p,v){ const ks=p.split('.'); let a=o; ks.slice(0,-1).forEach(
 (async function init(){
   S.index = (await DB.get('index'))||[];
   S.settings = Object.assign({adres:'',tel:'',email:'',web:'',kvk:'',inspecteur:'',registratie:'',logo:'',kleur:'#2D6042',bedrijf:'Energielabels Nederland',
-     disclaimer:'Deze bouwkundige keuring is een visuele, niet-destructieve inspectie en een momentopname. Onderdelen die niet zichtbaar of bereikbaar waren zijn niet beoordeeld. De kostenramingen zijn indicatief, inclusief btw en gebaseerd op herstel op gemiddeld niveau; voor exacte prijzen worden offertes aanbevolen. Er wordt niet getoetst aan het actuele Bouwbesluit / Besluit bouwwerken leefomgeving.'}, (await DB.get('settings'))||{});
+     disclaimer:'Deze bouwkundige keuring is een visuele, niet-destructieve inspectie volgens de NTA 8060-methodiek en een momentopname van de staat van de woning op de inspectiedatum. Alleen zichtbare en bereikbare onderdelen zijn beoordeeld; achter afwerkingen, aftimmeringen, vloerbedekking of opslag kunnen gebreken (bijvoorbeeld houtrot, houtaantasting of asbest) aanwezig zijn die niet zijn waargenomen. De fundering, de riolering en de binnenzijde van kanalen zijn niet zichtbaar en daarom niet beoordeeld; waar nodig wordt specialistisch vervolgonderzoek geadviseerd. De keuring is geen asbestonderzoek en geen keuring van de elektrische, gas- of rookgasinstallatie. De kostenramingen zijn indicatief, inclusief btw en gebaseerd op herstel op gemiddeld niveau; voor exacte prijzen worden gespecificeerde offertes van vakbedrijven aanbevolen. Aan de ramingen kunnen geen rechten worden ontleend. Er is niet getoetst aan het huidige Besluit bouwwerken leefomgeving (Bbl). Wij adviseren het rapport niet langer dan zes maanden na de inspectiedatum te gebruiken.'}, (await DB.get('settings'))||{});
   if(!S.settings.kleur||S.settings.kleur==='#1f3a5f') S.settings.kleur='#2D6042';
+  if(S.settings.disclaimer===`Deze bouwkundige keuring is een visuele, niet-destructieve inspectie en een momentopname. Onderdelen die niet zichtbaar of bereikbaar waren zijn niet beoordeeld. De kostenramingen zijn indicatief, inclusief btw en gebaseerd op herstel op gemiddeld niveau; voor exacte prijzen worden offertes aanbevolen. Er wordt niet getoetst aan het actuele Bouwbesluit / Besluit bouwwerken leefomgeving.`) S.settings.disclaimer=`Deze bouwkundige keuring is een visuele, niet-destructieve inspectie volgens de NTA 8060-methodiek en een momentopname van de staat van de woning op de inspectiedatum. Alleen zichtbare en bereikbare onderdelen zijn beoordeeld; achter afwerkingen, aftimmeringen, vloerbedekking of opslag kunnen gebreken (bijvoorbeeld houtrot, houtaantasting of asbest) aanwezig zijn die niet zijn waargenomen. De fundering, de riolering en de binnenzijde van kanalen zijn niet zichtbaar en daarom niet beoordeeld; waar nodig wordt specialistisch vervolgonderzoek geadviseerd. De keuring is geen asbestonderzoek en geen keuring van de elektrische, gas- of rookgasinstallatie. De kostenramingen zijn indicatief, inclusief btw en gebaseerd op herstel op gemiddeld niveau; voor exacte prijzen worden gespecificeerde offertes van vakbedrijven aanbevolen. Aan de ramingen kunnen geen rechten worden ontleend. Er is niet getoetst aan het huidige Besluit bouwwerken leefomgeving (Bbl). Wij adviseren het rapport niet langer dan zes maanden na de inspectiedatum te gebruiken.`;
   applyColor(); home();
 })();
 function applyColor(){ document.documentElement.style.setProperty('--brand',S.settings.kleur||'#2D6042'); document.documentElement.style.setProperty('--brand2',S.settings.kleur||'#2D6042'); const l=$('#hdrLogo'); if(l) l.src=S.settings.logo||ELN_BP.logo; }
@@ -601,6 +612,297 @@ function vAandacht(){
   tel(); $('#view').querySelectorAll('.att-seg button').forEach(b=>b.addEventListener('click',()=>setTimeout(tel,0)));
 }
 
+/* ---------- standaardteksten per element (bevinding / advies / info), gemoderniseerd ---------- */
+// c = voorgestelde conditie (NEN 2767), [..] = zelf aanvullen
+const TX_ALG = [
+  {n:'Geen gebreken',g:'Tijdens de inspectie zijn aan dit onderdeel geen gebreken waargenomen.',a:'Geen handeling noodzakelijk; regulier onderhoud volstaat.',c:2},
+  {n:'Niet te inspecteren (afgewerkt / niet bereikbaar)',g:'Dit onderdeel was tijdens de inspectie niet of slechts beperkt zichtbaar, doordat het is afgewerkt, afgetimmerd, afgedekt of niet bereikbaar was ([..]). Over de staat ervan kan daarom geen oordeel worden gegeven.',a:'Controleer dit onderdeel zodra het bereikbaar is of bij het verwijderen van de afwerking.',c:9},
+  {n:'Nader onderzoek door specialist',g:'Tijdens de inspectie is het volgende waargenomen: [..]. Met een visuele inspectie is de oorzaak of omvang niet vast te stellen.',a:'Laat dit nader onderzoeken door een gespecialiseerd bedrijf en vraag op basis daarvan een gespecificeerde offerte aan.',c:8}
+];
+const TEKSTEN = {
+ 'Fundering':[
+  {n:'Geen zichtbare funderingsproblemen',g:'Tijdens de inspectie zijn geen signalen van funderingsproblemen waargenomen, zoals scheefstand, scheurvorming in het metselwerk of klemmende ramen en deuren.',a:'Geen handeling noodzakelijk.',i:'De fundering zelf is niet zichtbaar en wordt bij een bouwkundige keuring niet beoordeeld. Het oordeel is gebaseerd op indirecte signalen in het bovenliggende metselwerk, de vloeren en de kozijnen. Zie ook de indicatie van de funderingswijze bij de objectgegevens.',c:2},
+  {n:'Signalen funderingsproblemen – vooronderzoek (fase 1)',g:'Tijdens de inspectie zijn signalen waargenomen die kunnen wijzen op funderingsproblemen: [..] (bijv. scheuren in gevels of binnenwanden, scheefstand, verzakte vloeren, klemmende ramen of deuren).',a:'Laat een funderingsonderzoek fase 1 (QuickScan / vooronderzoek met archief- en omgevingsgegevens en eventueel scheurmonitoring) uitvoeren door een KCAF-erkend bureau.',i:'Een vooronderzoek geeft op basis van archief, bodem- en grondwatergegevens en de waarnemingen een eerste inschatting van het funderingsrisico. Daarna wordt bepaald of een uitgebreid onderzoek nodig is.',c:8},
+  {n:'Ernstige signalen – uitgebreid funderingsonderzoek',g:'Tijdens de inspectie zijn duidelijke signalen van funderingsproblemen waargenomen: [..] (bijv. doorgaande scheuren, duidelijke scheefstand of verzakking).',a:'Laat een uitgebreid funderingsonderzoek uitvoeren door een KCAF-erkend bureau (met inspectieput, onderzoek van de palen en zo nodig hoogtemetingen). Houd rekening met mogelijke herstelkosten.',c:8}
+ ],
+ 'Gevels / metselwerk':[
+  {n:'Geen gebreken metselwerk',g:'Tijdens de inspectie zijn geen gebreken aan het gevelmetselwerk waargenomen.',a:'Geen handeling noodzakelijk.',i:'Controleer het metselwerk periodiek op scheuren, losse stenen en beschadigingen. Tijdig herstel voorkomt vochtdoorslag en vervolgschade.',c:2},
+  {n:'Scheurvorming metselwerk',g:'Tijdens de inspectie is scheurvorming in het metselwerk waargenomen: [..] (locatie, verloop en breedte).',a:'Laat de scheuren uithakken en herstellen overeenkomstig het bestaande werk; vervang gescheurde of beschadigde stenen. Laat bij doorgaande of trapsgewijze scheuren eerst de oorzaak onderzoeken (zie fundering en stalen lateien).',c:4},
+  {n:'Roestende stalen lateien',g:'Boven [..] is scheurvorming en/of uitduwen van het metselwerk waargenomen, wat wijst op roestende stalen lateien of geveldragers.',a:'Laat de lateien vrijleggen, ontroesten en conserveren of vervangen, en het metselwerk daarna herstellen.',c:4},
+  {n:'Vochtdoorslag – hydrofoberen',g:'Tijdens de inspectie zijn sporen van vochtdoorslag door de gevel waargenomen: [..].',a:'Herstel eerst eventuele scheuren en open voegen. Laat daarna zo nodig een dampopen, waterafstotende impregnering (hydrofobeermiddel) aanbrengen door een gespecialiseerd bedrijf.',i:'Hydrofoberen werkt alleen op gaaf, schoon en droog metselwerk. Het is geen oplossing voor scheuren of slecht voegwerk.',c:4},
+  {n:'Vervuiling / groene aanslag',g:'Het metselwerk is plaatselijk vervuild of vertoont groene aanslag: [..].',a:'Laat de gevel reinigen met een methode die past bij de steen en het voegwerk (geen agressieve hogedruk). Controleer daarna voegwerk en stenen op schade.',c:3},
+  {n:'Betonrot',g:'Tijdens de inspectie is betonrot waargenomen aan [..]: afgedrukt beton en/of zichtbare, roestende wapening.',a:'Laat de betonrot vakkundig herstellen: aangetast beton verwijderen, wapening ontroesten en conserveren, en het beton herstellen met een geschikte reparatiemortel.',i:'Bij betonrot roest de wapening door indringend vocht en zuurstof. Het roest neemt meer ruimte in, waardoor stukken beton loslaten. Zonder herstel neemt de schade toe.',c:5}
+ ],
+ 'Voegwerk':[
+  {n:'Geen gebreken voegwerk',g:'Het voegwerk verkeert in redelijke tot goede staat.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Uitgesleten / losse voegen',g:'Het voegwerk is plaatselijk uitgesleten, zanderig of los: [..].',a:'Laat de aangetaste voegen uithakken en opnieuw voegen met een mortel die past bij het bestaande metselwerk.',c:4}
+ ],
+ 'Gevelbekleding':[
+  {n:'Geen gebreken gevelbekleding',g:'Aan de gevelbekleding ([..], bijv. hout, plaatmateriaal of stucwerk) zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'Reinig de gevelbekleding periodiek met een zachte borstel en water; vermijd agressieve reinigingsmiddelen.',c:2},
+  {n:'Beschadigde / losse beplating',g:'Aan de gevelbekleding zijn gebreken waargenomen: [..] (beschadigd, los of ontbrekend).',a:'Laat de beschadigde delen herstellen of vervangen en de bevestiging controleren.',c:4},
+  {n:'Scheuren / onthechting stucwerk',g:'Het gevelstucwerk vertoont scheuren en/of holklinkende, losse delen: [..].',a:'Laat losse delen verwijderen en het stucwerk herstellen; laat de oorzaak van scheuren beoordelen.',c:4}
+ ],
+ 'Buitenkozijnen, ramen en deuren':[
+  {n:'Geen gebreken kozijnen',g:'Aan de buitenkozijnen, ramen en deuren ([..], bijv. hout, kunststof of aluminium) zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'Voor een betere inbraakwerendheid is hang- en sluitwerk met minimaal SKG** (politiekeurmerk Veilig Wonen) aan te bevelen.',c:2},
+  {n:'Houtrot',g:'Tijdens de inspectie is houtrot waargenomen in [..] (bijv. onderdorpel, stijl, raamhout).',a:'Laat het aangetaste hout uitfrezen en herstellen met een houtreparatiesysteem of het betreffende deel vervangen; daarna schilderen.',c:4},
+  {n:'Raam/deur sluit niet goed',g:'Het/de [..] sluit niet goed of klemt.',a:'Laat het element afstellen en gang- en sluitbaar maken; vervang het als herstel niet mogelijk is.',c:4},
+  {n:'Lekkage / tocht',g:'Bij [..] zijn sporen van lekkage of tocht waargenomen.',a:'Laat de aansluitingen, kitvoegen, waterslagen en tochtwering controleren en herstellen.',c:4}
+ ],
+ 'Beglazing':[
+  {n:'Geen gebreken beglazing',g:'De beglazing ([..], bijv. enkel, dubbel of HR++) vertoont geen gebreken.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Lekke dubbele beglazing',g:'Bij [..] is condens of aanslag tussen de glasbladen waargenomen; de isolerende beglazing is lek.',a:'Vervang de lekke glasunits. Overweeg bij vervanging HR++ of triple glas.',c:4},
+  {n:'Gebroken glas',g:'Bij [..] is gebroken of gebarsten glas waargenomen.',a:'Vervang het glas om letsel en inwatering te voorkomen.',c:5}
+ ],
+ 'Hang- en sluitwerk':[
+  {n:'Geen gebreken hang- en sluitwerk',g:'Het hang- en sluitwerk functioneert naar behoren.',a:'Geen handeling noodzakelijk.',i:'Voor een betere inbraakwerendheid is hang- en sluitwerk met minimaal SKG** (politiekeurmerk Veilig Wonen) aan te bevelen.',c:2},
+  {n:'Verouderd / niet inbraakwerend',g:'Het hang- en sluitwerk is verouderd en voldoet niet aan het niveau van het politiekeurmerk Veilig Wonen: [..].',a:'Laat het hang- en sluitwerk vervangen door gecertificeerd materiaal (SKG** of hoger).',c:3}
+ ],
+ 'Schilderwerk buiten':[
+  {n:'Schilderwerk in orde',g:'Het buitenschilderwerk verkeert in redelijke staat.',a:'Geen handeling noodzakelijk.',i:'Controleer het schilderwerk jaarlijks en herstel kleine beschadigingen direct. Een volledige onderhoudsbeurt is afhankelijk van ligging en verfsysteem doorgaans elke 6 à 8 jaar nodig; een meerjarig schilderplan wordt aanbevolen.',c:2},
+  {n:'Achterstallig onderhoud schilderwerk',g:'Het buitenschilderwerk vertoont achterstallig onderhoud: [..] (afbladderen, scheuren, verkrijting, kaal hout).',a:'Laat een onderhoudsschilderbeurt uitvoeren: loszittende verf verwijderen, houtrot herstellen, schuren, gronden en aflakken.',i:'Kaal hout neemt vocht op, waardoor houtrot ontstaat. Tijdig schilderen voorkomt duurdere houtreparaties.',c:4}
+ ],
+ 'Dakbedekking hellend (pannen/leien)':[
+  {n:'Geen gebreken pannendak',g:'Aan de dakbedekking ([..], bijv. betonnen of keramische pannen) zijn, voor zover zichtbaar, geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Gebroken / verschoven pannen',g:'Er zijn gebroken, poreuze of verschoven dakpannen of vorsten waargenomen: [..].',a:'Laat de beschadigde pannen vervangen en verschoven pannen en vorsten herleggen en vastzetten.',c:4},
+  {n:'Niet goed zichtbaar vanaf maaiveld',g:'De dakbedekking was vanaf maaiveld en vanuit de woning niet of onvoldoende zichtbaar; een oordeel is daardoor niet mogelijk.',a:'Laat het dak bij twijfel controleren door een dakdekker, bijvoorbeeld met een hoogwerker of drone.',c:9}
+ ],
+ 'Dakbedekking plat':[
+  {n:'Geen gebreken plat dak',g:'Aan de dakbedekking van het platte dak ([..], bijv. bitumen of EPDM) zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'Een bitumineuze dakbedekking gaat afhankelijk van uitvoering en onderhoud gemiddeld 20 à 25 jaar mee, EPDM vaak langer. Houd het dak en de afvoeren vrij van bladeren en vuil en controleer het jaarlijks.',c:2},
+  {n:'Veroudering, nog geen lekkage',g:'De dakbedekking vertoont veroudering, met name bij aansluitingen en dakranden: [..]. Er zijn geen sporen van lekkage waargenomen.',a:'Laat het dak binnen 5 jaar controleren en zo nodig herstellen of vervangen.',c:4},
+  {n:'Lekkage / ernstige veroudering',g:'Er zijn sporen van (recente) lekkage waargenomen en/of de dakbedekking is sterk verouderd: [..].',a:'Laat het dak op korte termijn controleren en herstellen; bij sterke veroudering de dakbedekking vervangen, inclusief aansluitingen en dakranden. Overweeg daarbij dakisolatie.',c:5},
+  {n:'Plat dak niet te inspecteren',g:'Het platte dak was tijdens de inspectie niet bereikbaar of zichtbaar; een oordeel is niet mogelijk.',a:'Laat het dak bij twijfel controleren door een dakdekker.',c:9}
+ ],
+ 'Dakgoten en hemelwaterafvoeren':[
+  {n:'Geen gebreken goten en HWA',g:'Aan de dakgoten en hemelwaterafvoeren zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'Reinig goten en afvoeren minimaal jaarlijks (na de bladval). Een zinken goot gaat gemiddeld 25 à 30 jaar mee; een bitumineuze goot korter. Houd bij vervanging rekening met herstel van de onderliggende houten bakgoot.',c:2},
+  {n:'Lekkende / doorgeroeste goot',g:'De dakgoot is lek of doorgeroest: [..].',a:'Laat de goot herstellen of vervangen; controleer daarbij de onderliggende constructie op houtrot.',c:5},
+  {n:'Verstopte / onvoldoende afvoer',g:'De goten of hemelwaterafvoeren zijn verstopt of voeren onvoldoende af: [..].',a:'Laat de goten en afvoeren reinigen en controleer of de capaciteit toereikend is.',c:3}
+ ],
+ 'Boeiboorden en daktrim':[
+  {n:'Geen gebreken boeiboorden',g:'Aan de boeiboorden en daktrim zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Houtrot boeiboorden',g:'De boeiboorden vertonen houtrot en/of los schilderwerk: [..].',a:'Laat de aangetaste delen herstellen of vervangen (eventueel met onderhoudsarm plaatmateriaal) en afwerken.',c:4}
+ ],
+ 'Schoorsteen':[
+  {n:'Schoorsteen geen gebreken',g:'Aan de schoorsteen zijn, voor zover zichtbaar, geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'De binnenzijde van rookkanalen en ventilatiekanalen is visueel niet te beoordelen. Laat een rookkanaal dat in gebruik is jaarlijks vegen en controleren door een erkend (STEK/KOMO-)bedrijf; dit is vaak ook een eis van de verzekeraar.',c:2},
+  {n:'Gebreken metsel-/loodwerk schoorsteen',g:'De schoorsteen vertoont gebreken: [..] (scheuren, losse stenen, open voegen, gebrekkig loodwerk).',a:'Laat het metsel-, voeg- en loodwerk herstellen of de schoorsteenkop vernieuwen.',c:4},
+  {n:'Rookkanaal – controle vóór gebruik',g:'Er is een rookkanaal aanwezig; of dit veilig te gebruiken is, is visueel niet vast te stellen.',a:'Laat het kanaal vóór ingebruikname vegen en controleren (eventueel met camera-inspectie) door een erkend bedrijf.',c:8}
+ ],
+ 'Dakkapel':[
+  {n:'Geen gebreken dakkapel',g:'Aan de dakkapel zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Gebreken dakkapel',g:'De dakkapel vertoont gebreken: [..] (houtrot, gebrekkige dakbedekking, lekkende aansluitingen).',a:'Laat de dakkapel wind- en waterdicht maken: aangetaste delen herstellen, aansluitingen en loodwerk controleren.',c:4}
+ ],
+ 'Dakramen / lichtkoepels':[
+  {n:'Geen gebreken dakramen',g:'Aan de dakramen/lichtkoepels zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Lekkage / gebreken dakraam',g:'Bij het dakraam/de lichtkoepel zijn gebreken of lekkagesporen waargenomen: [..].',a:'Laat de gootstukken, aansluitingen en het raam controleren en herstellen of vervangen.',c:4}
+ ],
+ 'Balkons en galerijen':[
+  {n:'Geen gebreken balkon/galerij',g:'Aan het balkon/de galerij zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Betonrot balkon',g:'Aan het balkon is betonrot waargenomen: [..].',a:'Laat de betonrot vakkundig herstellen. Bij een appartement is dit een zaak van de VvE; vraag naar het meerjarenonderhoudsplan.',c:5},
+  {n:'Roest stalen constructie',g:'De stalen draagconstructie van het balkon vertoont (ernstige) roestvorming: [..].',a:'Laat de constructie ontroesten en conserveren; bij ernstige aantasting door een constructeur laten beoordelen en herstellen of vervangen.',c:5},
+  {n:'Houtrot houten constructie',g:'De houten draagconstructie van het balkon vertoont houtrot: [..].',a:'Laat de aangetaste delen vervangen; bij twijfel over de draagkracht het balkon niet belasten tot herstel.',c:5},
+  {n:'Hekwerk / dilatatievoegen',g:'Er zijn gebreken aan het hekwerk en/of de dilatatievoegen tussen de elementen: [..].',a:'Laat het hekwerk vastzetten of herstellen en de dilatatieprofielen vervangen.',c:4}
+ ],
+ 'Aanbouw / uitbouw':[
+  {n:'Geen gebreken aanbouw',g:'Aan de aanbouw/uitbouw zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'Vraag bij aankoop na of voor de aanbouw een vergunning is verleend of dat deze vergunningvrij was.',c:2},
+  {n:'Aansluiting op hoofdgebouw',g:'Bij de aansluiting van de aanbouw op het hoofdgebouw zijn scheuren en/of lekkagesporen waargenomen: [..].',a:'Laat de aansluiting en het loodwerk controleren en herstellen; laat bij verdergaande scheurvorming de fundering van de aanbouw beoordelen.',c:4}
+ ],
+ 'Berging / garage / carport':[
+  {n:'Geen gebreken berging',g:'Aan de berging zijn geen gebreken waargenomen; de berging is voldoende geventileerd, droog en afsluitbaar.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Gebreken berging',g:'De berging vertoont gebreken: [..] (lekkage, houtrot, slecht sluitende deur).',a:'Laat de gebreken herstellen.',c:4}
+ ],
+ 'Terreinverharding en erfafscheiding':[
+  {n:'Geen gebreken terrein',g:'Aan de terreinverharding en erfafscheidingen zijn geen noemenswaardige gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Verzakte bestrating / erfafscheiding',g:'De bestrating is verzakt en/of de erfafscheiding is in slechte staat: [..].',a:'Laat de bestrating herstraten en de erfafscheiding herstellen of vervangen. Let op afschot van de woning af.',c:4}
+ ],
+ 'Kruipruimte':[
+  {n:'Kruipruimte droog, geen gebreken',g:'De kruipruimte is geïnspecteerd vanaf het kruipluik. De kruipruimte is droog en er zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Kruipruimte niet toegankelijk',g:'De kruipruimte was niet toegankelijk: [..] (kruipluik ontbreekt, is dichtgeschroefd, zit onder de vloerafwerking of klemt). Er is geen oordeel mogelijk over de kruipruimte en de onderzijde van de begane grondvloer.',a:'Maak de kruipruimte toegankelijk en laat deze alsnog inspecteren.',c:9},
+  {n:'Vochtige kruipruimte',g:'De kruipruimte is vochtig: [..] (natte bodem, staand water, condens, schimmel).',a:'Laat de ventilatie van de kruipruimte verbeteren en de oorzaak van het vocht wegnemen. Overweeg bodemisolatie (bijv. schelpen of folie met isolatie) om vocht in de woning te beperken.',i:'Een vochtige kruipruimte kan leiden tot houtrot, schimmel en een vochtig binnenklimaat.',c:4},
+  {n:'Water in kruipruimte',g:'Er staat water in de kruipruimte: [..] cm.',a:'Laat de oorzaak onderzoeken (grondwaterstand, lekkende leiding of riolering) en het water afvoeren.',c:5}
+ ],
+ 'Begane grondvloer':[
+  {n:'Geen gebreken vloer',g:'Aan de begane grondvloer ([..], bijv. beton of hout) zijn, voor zover zichtbaar, geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Houtrot balklaag',g:'In de houten vloerconstructie is houtrot waargenomen: [..].',a:'Laat de aangetaste balken en/of vloerdelen vervangen of herstellen. Laat bij aantasting door zwam de maatregelen bepalen door een deskundige.',c:5},
+  {n:'Vloer afgedekt – niet te beoordelen',g:'De vloer is aan de bovenzijde afgewerkt; de constructieve vloer kon niet beoordeeld worden.',a:'Controleer de vloer bij het verwijderen van de afwerking.',c:9}
+ ],
+ 'Ventilatie kruipruimte':[
+  {n:'Voldoende ventilatie',g:'De kruipruimte is voorzien van voldoende ventilatieopeningen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Onvoldoende ventilatie',g:'De kruipruimte is onvoldoende geventileerd: [..] (te weinig, verstopte of afgedekte ventilatieroosters).',a:'Laat (extra) muisdichte ventilatieroosters aanbrengen en zorg dat de bestaande vrij blijven. Een vuistregel is minimaal twee roosters bij een gevelbreedte tot 5 meter en drie bij een bredere gevel.',c:4}
+ ],
+ 'Kelder / souterrain':[
+  {n:'Kelder droog',g:'De kelder is droog en er zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Vocht in kelder',g:'In de kelder zijn vochtplekken of sporen van water waargenomen: [..].',a:'Laat de oorzaak onderzoeken en de kelder zo nodig waterdicht maken door een gespecialiseerd bedrijf.',c:4}
+ ],
+ 'Leidingen in kruipruimte':[
+  {n:'Leidingen in orde',g:'De zichtbare leidingen in de kruipruimte vertonen geen gebreken.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Lekkende / verouderde leidingen',g:'In de kruipruimte zijn lekkende of verouderde leidingen waargenomen: [..].',a:'Laat de leidingen herstellen of vervangen door een installateur.',c:4}
+ ],
+ 'Plafonds':[
+  {n:'Geen gebreken plafonds',g:'Aan de plafonds zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Scheuren / vochtplekken plafond',g:'In het plafond zijn scheuren en/of vochtplekken waargenomen: [..].',a:'Achterhaal en verhelp eerst de oorzaak (bijv. lekkage); herstel daarna de afwerking.',c:4},
+  {n:'Zachtboard plafond (brandgevaar)',g:'Er is zachtboard toegepast in [..].',a:'Laat het zachtboard verwijderen of vervangen door brandvertragend materiaal (bijv. gipsplaat).',i:'Zachtboard (houtvezelplaat) is licht ontvlambaar en draagt bij aan een snelle branduitbreiding.',c:5},
+  {n:'Kunststof schroten (brandgevaar)',g:'Er zijn kunststof schroten toegepast in [..].',a:'Overweeg de kunststof schroten te vervangen, met name in vluchtroutes en boven kookplaten.',i:'Kunststof schroten kunnen bij brand smelten en brandend afdruppelen, waardoor brand zich sneller verspreidt.',c:4}
+ ],
+ 'Binnenwanden':[
+  {n:'Geen gebreken binnenwanden',g:'Aan de binnenwanden zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Scheuren in binnenwanden',g:'In de binnenwanden zijn scheuren waargenomen: [..].',a:'Laat de scheuren herstellen. Laat bij doorgaande of trapsgewijze scheuren de oorzaak onderzoeken (zie fundering).',c:4}
+ ],
+ 'Vloeren':[
+  {n:'Geen gebreken vloeren',g:'Aan de vloeren zijn, voor zover zichtbaar, geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Krimpscheuren afwerkvloer',g:'In de afwerkvloer zijn enkele krimpscheuren aanwezig; deze hebben geen invloed op de constructieve veiligheid.',a:'Geen handeling noodzakelijk.',c:3},
+  {n:'Vloer afgedekt – niet te beoordelen',g:'De vloeren zijn afgedekt met een vloerafwerking; de constructieve vloer kon niet beoordeeld worden.',a:'Controleer de vloer bij het verwijderen van de afwerking.',c:9}
+ ],
+ 'Binnenkozijnen en -deuren':[
+  {n:'Geen gebreken binnendeuren',g:'De binnenkozijnen en -deuren zijn functioneel en vertonen geen gebreken.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Klemmende deuren',g:'Een of meer binnendeuren klemmen of sluiten niet goed: [..].',a:'Laat de deuren afstellen. Let op: scheef hangende deuren kunnen ook een signaal van vervorming of zetting zijn.',c:3}
+ ],
+ 'Trappen en balustrades':[
+  {n:'Geen gebreken trap',g:'Aan de trap en balustrades zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Leuning ontbreekt / los',g:'De trapleuning of balustrade ontbreekt, zit los of is te laag: [..].',a:'Laat een deugdelijke leuning of balustrade aanbrengen of vastzetten in verband met valgevaar.',c:5}
+ ],
+ 'Kapconstructie / zolder':[
+  {n:'Geen gebreken kapconstructie',g:'Aan de zichtbare delen van de kapconstructie zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Aftimmering – niet te beoordelen',g:'De kapconstructie is grotendeels afgetimmerd; er kan geen afdoend oordeel worden gegeven over de staat ervan.',a:'Controleer de constructie bij het verwijderen van de aftimmering.',c:9},
+  {n:'Lekkagesporen / houtrot kap',g:'In de kapconstructie zijn lekkagesporen en/of houtrot waargenomen: [..].',a:'Verhelp de oorzaak van de lekkage en laat aangetaste delen (gordingen, spanten, panlatten) herstellen of vervangen.',c:5},
+  {n:'Tussenverdieping – geen dak',g:'Het betreft een appartement op een tussenverdieping; de dakconstructie is niet waarneembaar. Aan het plafond zijn geen afwijkingen waargenomen.',a:'Geen handeling noodzakelijk.',c:9}
+ ],
+ 'Dakbeschot binnenzijde':[
+  {n:'Geen gebreken dakbeschot',g:'Aan het dakbeschot zijn geen vochtsporen of gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Vochtsporen dakbeschot',g:'Het dakbeschot vertoont vochtsporen: [..].',a:'Laat de dakbedekking en aansluitingen controleren en het aangetaste beschot zo nodig vervangen.',c:4}
+ ],
+ 'Constructieve aanpassingen':[
+  {n:'Geen constructieve wijzigingen waargenomen',g:'Er zijn geen constructieve aanpassingen waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Constructieve wijziging (doorbraak e.d.)',g:'Er is een constructieve wijziging uitgevoerd: [..] (bijv. verwijderde draagmuur, doorbraak).',a:'Vraag de constructieve berekening en eventuele vergunning op. Is deze er niet, laat de wijziging dan beoordelen door een constructeur.',i:'Indelingswijzigingen zijn vrij uit te voeren; constructieve wijzigingen vragen om een berekening van een constructeur en soms om een omgevingsvergunning.',c:8}
+ ],
+ 'Vochtplekken / condensatie':[
+  {n:'Geen vochtproblemen',g:'Tijdens de inspectie zijn geen sporen van vochtproblemen waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Oude vochtsporen',g:'Er zijn enkele oude vochtsporen waargenomen: [..]. Bij meting was de ondergrond droog.',a:'Geen directe handeling; houd de plekken in de gaten.',c:3},
+  {n:'Optrekkend vocht',g:'Onderaan de muren is (verhoogd) vocht gemeten en/of zijn zoutuitbloei en loslatende afwerking waargenomen: [..].',a:'Laat de oorzaak onderzoeken door een gespecialiseerd bedrijf en het optrekkend vocht bestrijden (bijv. injectie of verbeteren van de ventilatie); daarna gevolgschade herstellen.',c:4},
+  {n:'Condensatie / schimmel',g:'Er zijn sporen van condensatie en/of schimmel waargenomen: [..].',a:'Verbeter de ventilatie (roosters openzetten, mechanische afzuiging controleren) en verwijder de schimmel. Controleer koudebruggen bij de aansluitingen.',c:4}
+ ],
+ 'Badkamer / douche':[
+  {n:'Badkamer geen gebreken',g:'De badkamer is functioneel bruikbaar en er zijn geen gebreken waargenomen. Bij vochtmeting is geen vochtdoorslag vastgesteld.',a:'Geen handeling noodzakelijk.',i:'Zorg voor voldoende ventilatie tijdens en na het douchen en laat de mechanische afzuiging periodiek reinigen.',c:2},
+  {n:'Badkamer – kleine gebreken',g:'In de badkamer is het volgende waargenomen: [..] (kitvoegen aan vervanging toe, schimmel in voegen, roestende radiator, gedateerde uitvoering).',a:'Laat de kitvoegen binnen 1 à 5 jaar vervangen en de overige gebreken herstellen.',c:3},
+  {n:'Badkamer vervangen',g:'De badkamer vertoont dusdanig veel gebreken dat herstel niet zinvol is: [..].',a:'Vervanging van de badkamer wordt geadviseerd; in de raming is uitgegaan van een basisbadkamer.',c:5},
+  {n:'Kunststof leidingen – vereffening controleren',g:'In de badkamer zijn kunststof leidingen (cv en/of water) waargenomen. Niet visueel vast te stellen is of metalen delen (radiator, kranen) correct zijn vereffend.',a:'Laat de aarding en aanvullende potentiaalvereffening in de badruimte controleren door een erkend installateur.',i:'Volgens NEN 1010 moeten aanraakbare metalen delen in een badruimte die met de aarde in verbinding kunnen staan, worden vereffend. Of dat bij kunststof leidingen nodig is, hangt af van de toegepaste leidingen en verbindingen; laat dit beoordelen door een vakman.',c:8}
+ ],
+ 'Toiletruimte':[
+  {n:'Toilet geen gebreken',g:'De toiletruimte is functioneel en er zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Toiletpot / reservoir defect',g:'Het toilet vertoont gebreken: [..] (beschadigde pot, lekkend reservoir).',a:'Laat het toilet herstellen of vervangen.',c:4}
+ ],
+ 'Keuken':[
+  {n:'Keuken functioneel',g:'De keuken is functioneel en bruikbaar. Er zijn gebruikerssporen zichtbaar: [..].',a:'Geen handeling noodzakelijk.',i:'De inrichting van een keuken is sterk smaakafhankelijk; vervanging om esthetische redenen is niet in de raming opgenomen.',c:3},
+  {n:'Keuken vervangen',g:'Er is geen bruikbaar keukenblok aanwezig, of het keukenblok vertoont dusdanige gebreken dat vervanging nodig is: [..].',a:'Vervang het keukenblok; in de raming is uitgegaan van een basiskeuken.',c:5},
+  {n:'Tegelwerk / achterwand',g:'Het tegelwerk of de achterwand boven het aanrecht vertoont gebreken: [..].',a:'Laat het tegelwerk herstellen of vervangen, met een waterdichte aansluiting op het aanrechtblad.',c:4}
+ ],
+ 'Tegelwerk en kitvoegen':[
+  {n:'Tegelwerk in orde',g:'Het tegelwerk en de kitvoegen verkeren in goede staat.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Kitvoegen vervangen',g:'De kitvoegen zijn verouderd en/of vertonen schimmel: [..].',a:'Laat de kitvoegen binnen 1 à 5 jaar vervangen met schimmelwerende sanitairkit.',c:3},
+  {n:'Losse / gescheurde tegels',g:'Er zijn losse of gescheurde tegels waargenomen: [..].',a:'Laat de tegels vervangen en controleer de ondergrond op vocht.',c:4}
+ ],
+ 'CV-installatie / warmteopwekker':[
+  {n:'CV-ketel in orde – onderhoud',g:'Er is een individuele cv-combiketel aanwezig: [..] (merk/type, bouwjaar, laatste onderhoud). Er zijn geen gebreken waargenomen.',a:'Laat de ketel periodiek (gemiddeld elke 1 à 2 jaar) onderhouden door een erkend installateur.',i:'Regelmatig onderhoud verhoogt het rendement en de veiligheid. Een cv-ketel gaat gemiddeld 15 à 20 jaar mee.',c:2},
+  {n:'CV-ketel verouderd – vervangen',g:'De cv-ketel is verouderd: [..] (merk/type, bouwjaar ...).',a:'Houd rekening met vervanging op korte termijn. Overweeg daarbij een (hybride) warmtepomp.',c:5},
+  {n:'Stadsverwarming',g:'De woning is aangesloten op een warmtenet (stadsverwarming); er is geen eigen ketel aanwezig.',a:'Geen handeling noodzakelijk.',i:'Bij een warmtenet wordt de warmte centraal opgewekt en via leidingen geleverd. Onderhoud van de afleverset valt meestal onder de warmteleverancier.',c:2},
+  {n:'Blokverwarming',g:'De woning wordt verwarmd met een collectieve installatie (blokverwarming).',a:'Geen handeling noodzakelijk.',i:'Het onderhoud wordt doorgaans via de servicekosten of de VvE verrekend.',c:2},
+  {n:'Gaskachel / moederhaard',g:'De woning wordt verwarmd met [..] (gaskachel(s) of een moederhaard).',a:'Laat de toestellen jaarlijks controleren en vegen. Overweeg vervanging door een cv-installatie of warmtepomp; een moederhaard is verouderd.',i:'Bij open verbrandingstoestellen is goede ventilatie en een CO-melder van groot belang.',c:4}
+ ],
+ 'Warm tapwater':[
+  {n:'Geen gebreken tapwater',g:'De warmwatervoorziening ([..]) functioneert; er zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Huurboiler / geiser',g:'Er is een [..] aanwezig (boiler of geiser; eigendom of huur).',a:'Ga na of het toestel gehuurd wordt en laat een geiser jaarlijks controleren.',c:3}
+ ],
+ 'Afgifte (radiatoren / vloerverwarming)':[
+  {n:'Afgifte in orde',g:'De radiatoren en/of vloerverwarming vertonen geen gebreken.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Roestende / lekkende radiatoren',g:'Een of meer radiatoren vertonen roest of lekkage: [..].',a:'Laat de radiatoren vervangen of herstellen.',c:4}
+ ],
+ 'Ventilatievoorziening':[
+  {n:'Mechanische afzuiging in orde',g:'Er is mechanische afzuiging met natuurlijke toevoer aanwezig; er zijn geen gebreken waargenomen.',a:'Laat de ventilatie-unit en kanalen periodiek reinigen en onderhouden.',i:'Zet ventilatieroosters zoveel mogelijk open, zorg voor luchtdoorstroming (bijv. spleet onder binnendeuren) en reinig de roosters en ventielen regelmatig. Onvoldoende ventilatie leidt tot een hoge luchtvochtigheid en schimmel.',c:2},
+  {n:'WTW-unit in orde',g:'Er is balansventilatie met warmteterugwinning (WTW) aanwezig; er zijn geen gebreken waargenomen.',a:'Laat de unit jaarlijks onderhouden en vervang de filters volgens voorschrift (meestal elke 3 à 6 maanden).',c:2},
+  {n:'Ventilatie werkt niet goed',g:'De mechanische ventilatie lijkt niet goed te functioneren: [..].',a:'Laat de ventilatie-unit controleren en herstellen of vervangen.',c:4},
+  {n:'Onvoldoende ventilatie',g:'Keuken, badkamer en/of toilet zijn onvoldoende geventileerd: [..].',a:'Laat voldoende ventilatievoorzieningen aanbrengen (afzuiging en/of toevoerroosters).',c:4}
+ ],
+ 'Elektrische installatie / meterkast':[
+  {n:'Meterkast in orde',g:'De meterkast is voorzien van [..] groepen en [..] aardlekschakelaar(s). Er zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'De elektrische installatie wordt alleen visueel beoordeeld. Voor zekerheid over de veiligheid is een keuring volgens NEN 8025 (NEN 3140 voor woningen) door een erkend installateur nodig.',c:2},
+  {n:'Te weinig aardlekschakelaars',g:'De meterkast is voorzien van [..] groepen en [..] aardlekschakelaar(s); niet alle groepen zijn beveiligd met een aardlekschakelaar.',a:'Laat (extra) aardlekschakelaars aanbrengen of de groepenkast moderniseren.',c:4},
+  {n:'Verouderde groepenkast',g:'De groepenkast is sterk verouderd: [..] (smeltzekeringen, geen aardlekbeveiliging).',a:'Laat de groepenkast vervangen door een moderne installatie met aardlekautomaten en de installatie laten keuren.',c:5}
+ ],
+ 'Gasinstallatie':[
+  {n:'Gasinstallatie geen zichtbare gebreken',g:'Aan de zichtbare delen van de gasinstallatie zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',i:'Laat gastoestellen periodiek controleren in verband met veiligheid (koolmonoxide) en rendement.',c:2},
+  {n:'Gebreken gasleiding',g:'Aan de gasleiding is het volgende waargenomen: [..].',a:'Laat de gasinstallatie direct controleren door een erkend installateur.',c:5}
+ ],
+ 'Waterleiding':[
+  {n:'Waterleiding geen gebreken',g:'Aan de zichtbare waterleidingen zijn geen gebreken waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Loden leidingen',g:'Er zijn (vermoedelijk) loden waterleidingen aanwezig: [..].',a:'Laat de loden leidingen vervangen in verband met de gezondheid.',i:'Lood kan oplossen in drinkwater; vervanging wordt aanbevolen.',c:5}
+ ],
+ 'Riolering / binnenriolering':[
+  {n:'Afvoeren getest – geen gebreken',g:'De riolering is beperkt zichtbaar. De afvoeren zijn getest en voeren goed af.',a:'Geen handeling noodzakelijk.',i:'Oude gietijzeren of gresbuizen kunnen inwendig gecorrodeerd of aangeslibd zijn; vervanging door pvc wordt bij renovatie aanbevolen.',c:2},
+  {n:'Slechte afvoer / lekkage riolering',g:'De afvoer is traag of er is lekkage waargenomen: [..].',a:'Laat de riolering reinigen en met een camera inspecteren; herstel waar nodig.',c:4}
+ ],
+ 'Rook- en CO-melders':[
+  {n:'Rookmelders voldoende',g:'Op elke woonlaag is ten minste één rookmelder aanwezig.',a:'Test de rookmelders periodiek.',i:'Sinds 1 juli 2022 is een rookmelder verplicht op elke verdieping met een verblijfsruimte en in vluchtroutes, voor alle bestaande woningen (koop en huur). Een CO-melder is niet verplicht, maar wordt sterk aanbevolen bij gastoestellen.',c:2},
+  {n:'Geen / te weinig rookmelders',g:'Er zijn geen of te weinig rookmelders aanwezig: [..].',a:'Laat op elke woonlaag en in de vluchtroutes rookmelders (NEN 14604) aanbrengen; overweeg een CO-melder bij gastoestellen.',i:'Sinds 1 juli 2022 is een rookmelder verplicht op elke verdieping met een verblijfsruimte en in vluchtroutes, voor alle bestaande woningen.',c:4}
+ ],
+ 'Zonnepanelen / PV':[
+  {n:'Zonnepanelen aanwezig – buiten scope',g:'Op het dak zijn [..] zonnepanelen aanwezig. De werking en installatie van de panelen vallen buiten de scope van deze keuring.',a:'Vraag de installatiegegevens, garanties en eventueel het opleverrapport op.',c:3}
+ ],
+ 'Warmtepomp':[
+  {n:'Warmtepomp – onderhoud',g:'Er is een warmtepomp aanwezig: [..] (merk/type, bouwjaar).',a:'Laat de warmtepomp periodiek onderhouden en vraag de onderhoudshistorie op.',c:2}
+ ],
+ 'Asbestverdachte materialen':[
+  {n:'Geen asbestverdachte materialen waargenomen',g:'Tijdens de inspectie zijn, visueel, geen asbestverdachte materialen waargenomen.',a:'Geen handeling noodzakelijk.',i:'Dit betekent niet dat er geen asbest aanwezig kan zijn, bijvoorbeeld achter afwerkingen. Bij woningen gebouwd vóór 1994 kan asbest zijn toegepast.',c:2},
+  {n:'Asbestverdacht materiaal',g:'Er is asbestverdacht materiaal waargenomen: [..] (locatie en toepassing, bijv. golfplaten, vensterbanken, rookkanaal).',a:'Laat bij twijfel, of vóór verbouw of sloop, een asbestinventarisatie uitvoeren door een gecertificeerd bedrijf. Bewerk het materiaal niet zelf.',i:'Er is geen wettelijke plicht om asbest te verwijderen zolang het niet wordt bewerkt of beschadigd. Voor het verwijderen gelden landelijke regels; meld dit bij de gemeente.',c:8}
+ ],
+ 'Houtaantasting':[
+  {n:'Geen sporen houtaantasting',g:'Er zijn geen sporen van houtaantastende insecten of zwammen waargenomen.',a:'Geen handeling noodzakelijk.',i:'Bij woningen van vóór 1950 met houten vloeren of een houten kap wordt een aanvullend onderzoek naar houtaantasting aanbevolen, ook als er niets is waargenomen.',c:2},
+  {n:'Houtworm / boktor',g:'Er zijn sporen van houtaantastende insecten waargenomen in [..] (uitvliegopeningen, boormeel).',a:'Laat een onderzoek uitvoeren door een gespecialiseerd bedrijf en zo nodig een behandeling uitvoeren.',c:8},
+  {n:'Zwam (bruinrot e.d.)',g:'Er zijn sporen van zwamaantasting waargenomen: [..].',a:'Laat de omvang direct onderzoeken door een deskundige; neem de oorzaak (vocht) weg en vervang aangetast hout volgens diens advies.',c:8}
+ ],
+ 'Ongedierte':[
+  {n:'Geen sporen ongedierte',g:'Er zijn geen sporen van ongedierte waargenomen.',a:'Geen handeling noodzakelijk.',c:2},
+  {n:'Sporen ongedierte',g:'Er zijn sporen van ongedierte waargenomen: [..].',a:'Laat een ongediertebestrijder de woning beoordelen en behandelen; dicht openingen af (muisdichte roosters).',c:4}
+ ],
+ 'Overig':[
+  {n:'Indeling vrij aan te passen',g:'Aanpassingen aan de indeling, inrichting en afwerking kunnen naar eigen wens worden uitgevoerd.',a:'Laat constructieve aanpassingen uitvoeren in overleg met een constructeur en controleer of een omgevingsvergunning nodig is.',c:2}
+ ]
+};
+const txVoor = el => [...(TEKSTEN[el]||[]), ...TX_ALG];
+
+/* uitleg bij de bijzondere aandachtspunten (rapport) */
+const AANDACHT_INFO = {
+  fundering:'De fundering is niet zichtbaar en wordt niet beoordeeld. Bij signalen als scheefstand of scheurvorming wordt een funderingsonderzoek door een KCAF-erkend bureau geadviseerd. Zie ook de indicatie van de funderingswijze bij de objectgegevens.',
+  asbest:'De keuring is geen asbestonderzoek. Waargenomen asbestverdachte materialen worden gemeld. Vóór verbouw of sloop is een asbestinventarisatie door een gecertificeerd bedrijf nodig.',
+  vocht:'Vocht is visueel en met een vochtindicatiemeter op steekproefbasis beoordeeld. De meting geeft een indicatie, geen exacte waarde.',
+  hout:'Houtaantastende insecten en zwammen zijn vaak alleen met destructief onderzoek vast te stellen. Bij woningen van vóór 1950 met houten vloeren of kap wordt aanvullend onderzoek aanbevolen.',
+  betonrot:'Betonrot is beoordeeld op zichtbare kenmerken (afgedrukt beton, roestende wapening). Verborgen aantasting is niet uit te sluiten.',
+  kruipruimte:'De kruipruimte is, indien toegankelijk, vanaf het kruipluik beoordeeld. Een volledige inspectie door de kruipruimte maakt geen deel uit van de keuring.',
+  cv:'De cv-installatie is visueel beoordeeld op leeftijd, onderhoud en zichtbare gebreken; de werking en veiligheid zijn niet getest.',
+  elektra:'De elektrische installatie is alleen visueel beoordeeld. Zekerheid over de veiligheid geeft een keuring door een erkend installateur.',
+  brand:'Beoordeeld is onder meer de aanwezigheid van rookmelders (verplicht op elke woonlaag sinds 1 juli 2022) en van brandgevaarlijke materialen zoals zachtboard en kunststof schroten.',
+  inbraak:'Beoordeeld is of het hang- en sluitwerk een redelijk niveau van inbraakwerendheid biedt (richtlijn: politiekeurmerk Veilig Wonen, SKG**).',
+  isolatie:'Isolatie is alleen beoordeeld waar zichtbaar. Voor de energetische kwaliteit is het energielabel leidend.',
+  energie:'Waar zinvol worden energiebesparende maatregelen genoemd. Een maatwerkadvies geeft een volledig beeld.',
+  vergunning:'Bouwkundige wijzigingen zijn niet getoetst aan vergunningen. Vraag bij twijfel bij de gemeente of de verkoper na of voor wijzigingen een vergunning is verleend.',
+  bouwbesluit:'De woning is beoordeeld naar de bouwregelgeving uit de bouwperiode. Er is niet getoetst aan het huidige Besluit bouwwerken leefomgeving (Bbl).'
+};
+
+/* eisen en aanbevelingen bij herstel (bijlage, gemoderniseerd) */
+const EISEN = [
+ ['Fundering','Bij scheefstand of scheurvorming moet een deskundige (KCAF-erkend bureau) de oorzaak onderzoeken. Herstel wordt uitgevoerd volgens het rapport van de deskundige.'],
+ ['Kruipruimte','De kruipruimte moet voldoende geventileerd zijn via muisdichte roosters (vuistregel: minimaal 2 bij een gevelbreedte tot 5 m, 3 bij een bredere gevel). Er moet luchtcirculatie mogelijk zijn (let op bouwpuin). Staand water wordt afgevoerd en de oorzaak weggenomen.'],
+ ['Portiek / galerij / balkon','Aangetaste betonplaten en lateien herstellen of vervangen. Stalen constructiedelen controleren op roest en zo nodig behandelen of vervangen. Losse of ontbrekende leuningen en hekwerken herstellen of aanbrengen.'],
+ ['Dakconstructie','Gebreken aan de kap (spanten, gordingen, muurplaten, dakbeschot, tengels, panlatten) of aan de constructie van een plat dak (beschot, balklaag) opheffen door herstel of vervanging.'],
+ ['Dakbedekking','Kapotte of poreuze pannen, leien en vorsten vervangen; verschoven delen herleggen. Gebreken aan bitumineuze, kunststof of zinken bedekking opheffen of de bedekking vervangen. Ballast aanvullen. Gebreken aan goten en dakranden herstellen.'],
+ ['Schoorstenen','Gebreken aan metsel-, voeg- en loodwerk herstellen; een slechte schoorsteenkop vernieuwen. Rookkanalen in gebruik laten vegen en controleren.'],
+ ['Brandveiligheid','Rookmelders op elke woonlaag en in vluchtroutes (verplicht sinds 1 juli 2022). Licht ontvlambare materialen zoals zachtboard en tempex in plafonds verwijderen.'],
+ ['Ongedierte / zwam','Bestrijding van houtaantasting en ongedierte volgens het rapport van een deskundige.'],
+ ['Gevels en metselwerk','Optrekkend vocht bestrijden en gevolgschade herstellen. Scheuren en loszittend pleisterwerk uithakken en herstellen zoals het bestaande werk; beschadigde stenen vervangen. Roestende stalen lateien en geveldragers vrijleggen en behandelen of vervangen.'],
+ ['Kozijnen, ramen en deuren','Aangetaste delen herstellen of vervangen; ramen en deuren gang- en sluitbaar maken; dakramen en dakkapellen wind- en waterdicht maken; lood- en zinkwerk, waterslagen en onderdorpels zo nodig vernieuwen.'],
+ ['Buitenschilderwerk','Loszittende verf verwijderen, houtrot herstellen, schuren, gronden en aflakken volgens een geschikt verfsysteem; staal ontroesten en conserveren. Kapot glas vervangen.'],
+ ['Vloeren en houten constructiedelen','Door houtrot of zwam aangetast hout vervangen en zo nodig verzwaren; bij zwam handelen volgens deskundig advies.'],
+ ['Sanitair','Alleen als een bruikbare voorziening (keuken, toilet, douche) geheel ontbreekt, wordt een post voor het aanbrengen opgenomen.'],
+ ['Ventilatie en vocht','Keuken, badkamer en toilet moeten voldoende geventileerd kunnen worden.'],
+ ['Installaties','Gebreken met een veiligheidsrisico (gas, elektra, rookgasafvoer) direct laten herstellen door een erkend installateur.']
+];
+
 /* ---------- BEVINDINGEN ---------- */
 const BEV_OPEN=new Set(['buiten']);
 function vBev(){
@@ -620,6 +922,17 @@ function vBev(){
   $('#view').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>bevSheet(S.cur.bev.find(x=>x.id===b.dataset.edit)));
   bindInputs($('#view'),S.cur);
 }
+
+function txKiezen(b,klaar){
+  const L=txVoor(b.element); const bg=document.createElement('div'); bg.className='sheet-bg'; bg.style.zIndex=60;
+  bg.innerHTML=`<div class="sheet"><div class="sh-h"><b>Standaardtekst · ${esc(b.element)}</b><button id="txX">Sluiten</button></div><div class="sh-b"><div class="card">
+   <p class="muted" style="margin-top:0">Tik een tekst aan om hem over te nemen. Bestaande tekst blijft staan; de nieuwe tekst komt eronder. Vul de <b>[..]</b> zelf aan.</p>
+   <div class="tx-list">${L.map((x,i)=>`<button type="button" class="tx-item" data-tx="${i}"><span class="tx-n">${esc(x.n)}${x.c?` <span class="badge cb${x.c}">${x.c}</span>`:''}</span><span class="tx-g">${esc(x.g)}</span><span class="tx-a">Advies: ${esc(x.a)}</span>${x.i?`<span class="tx-i">Info: ${esc(x.i)}</span>`:''}</button>`).join('')}</div></div></div></div>`;
+  document.body.appendChild(bg);
+  const dicht=()=>bg.remove(); bg.querySelector('#txX').onclick=dicht; bg.addEventListener('click',e=>{ if(e.target===bg) dicht(); });
+  bg.querySelectorAll('[data-tx]').forEach(el=>el.onclick=()=>{ const x=L[+el.dataset.tx]; const plus=(a,t)=>t?(String(a||'').trim()?String(a).trim()+'\n'+t:t):a;
+    b.gebrek=plus(b.gebrek,x.g); b.advies=plus(b.advies,x.a); if(x.i) b.info=plus(b.info,x.i); if(!b.cond&&x.c) b.cond=x.c; dicht(); klaar(); toast('Standaardtekst overgenomen'); });
+}
 function bevSheet(b,isNew){
   const bg=document.createElement('div'); bg.className='sheet-bg';
   bg.innerHTML=`<div class="sheet"><div class="sh-h"><b>${esc(b.element)}</b><button id="shDel">Verwijder</button><button id="shOk">Gereed</button></div><div class="sh-b">
@@ -630,8 +943,10 @@ function bevSheet(b,isNew){
     <div class="cond-pick">${[1,2,3,4,5,6,8,9].map(c=>`<button class="cb${c}" data-c="${c}">${c}<small>${COND[c].l}</small></button>`).join('')}</div>
     <p class="muted" id="cdesc" style="margin:6px 0 0"></p>
     <label>Ernst gebrek</label><div class="seg" data-seg="ernst"><button data-v="">–</button><button data-v="gering">Gering</button><button data-v="serieus">Serieus</button><button data-v="ernstig">Ernstig</button></div>
+    <button type="button" class="btn sec tx-knop" id="txKnop"><svg class="ui-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7"/><path d="m15 18 2 2 4-4"/></svg> Standaardtekst kiezen</button>
     <div><label>Bevinding / gebrek</label><textarea data-k="gebrek"></textarea></div>
     <div><label>Hersteladvies</label><textarea data-k="advies"></textarea></div>
+    <div><label>Toelichting voor de opdrachtgever (info, optioneel)</label><textarea data-k="info"></textarea></div>
    </div>
    <div class="card"><h2>Kosten (incl. btw, indicatief)</h2><div class="grid">
      ${F('direct','Direct noodzakelijk (€)','number')}${F('termijn','Op termijn (€)','number')}
@@ -644,6 +959,7 @@ function bevSheet(b,isNew){
   bindInputs(bg,b);
   const setC=c=>{ b.cond=c; bg.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x.dataset.c==c)); $('#cdesc').textContent=c?`${c} – ${COND[c].l}: ${COND[c].d}`:''; };
   bg.querySelectorAll('[data-c]').forEach(x=>x.onclick=()=>{ setC(+x.dataset.c); save(); }); setC(b.cond);
+  bg.querySelector('#txKnop').onclick=()=>txKiezen(b,()=>{ bg.querySelectorAll('[data-k]').forEach(el=>{ const v=b[el.dataset.k]; if(el.tagName==='TEXTAREA'&&v!=null){ el.value=v; el.dispatchEvent(new Event('autosize')); } }); if(b.cond) setC(+b.cond); save(); });
   const ph=bg.querySelector('#bPh'); const draw=()=>{ ph.innerHTML=b.fotos.map((f,i)=>`<div class="ph"><img src="${f}"><button data-i="${i}">×</button></div>`).join('')+fotoKnoppen('bev');
     ph.querySelectorAll('[data-ph]').forEach(x=>x.onclick=()=>{ const m=x.dataset.m; if(m==='serie') serieCamera({naam:[b.element,b.locatie].filter(Boolean).join(' · ')||'Bevinding',arr:b.fotos,klaar:draw}); else pickPhoto(d=>{ if(d){ b.fotos.push(d); save(); draw(); } },m==='gal'); });
     ph.querySelectorAll('[data-i]').forEach(x=>x.onclick=()=>{ b.fotos.splice(+x.dataset.i,1); save(); draw(); }); }; draw();
@@ -738,7 +1054,7 @@ function buildSections(){
       <div><span>Opdrachtgever</span>${esc(o.opdrachtgever||'–')}</div><div><span>Bouwkundig inspecteur</span>${esc(o.inspecteur||'–')}</div><div><span>Registratienummer</span>${esc(o.registratie||'–')}</div></div>
     <div class="cv-co"><b>${esc(st.bedrijf||'')}</b>${st.adres?' · '+esc(st.adres):''}<br>${[st.tel,st.email,st.web,st.kvk?'KvK '+st.kvk:''].filter(Boolean).map(esc).join(' · ')}</div>`});
 
-  const chapters=[['01','Samenvatting','clip'],['02','Opdracht en object','home'],['03','Kostenraming','euro'],['04','Conditiemeting en leeswijzer','gauge'],['05','Bevindingen','search'],['06','Uitgangspunten en ondertekening','pen']].concat(o.nhg==='ja'?[['B1','Bijlage: Bouwkundig rapport NHG','shield']]:[]);
+  const chapters=[['01','Samenvatting','clip'],['02','Opdracht en object','home'],['03','Kostenraming','euro'],['04','Conditiemeting en leeswijzer','gauge'],['05','Bevindingen','search'],['06','Uitgangspunten en ondertekening','pen']].concat(o.nhg==='ja'?[['B1','Bijlage: Bouwkundig rapport NHG','shield'],['B2','Bijlage: Eisen en aanbevelingen bij herstel','list']]:[]);
   const CH=Object.fromEntries(chapters.map(c=>[c[0],c]));
   const sec=(no,blocks)=>({no,title:no?CH[no][1]:'Inhoud',icon:no?CH[no][2]:'list',blocks:[`<h2>${ico(no?CH[no][2]:'list',9)}${no?`<span class="no">${no}</span>`:''}${no?CH[no][1]:'Inhoud'}</h2>`,...blocks]});
 
@@ -786,7 +1102,8 @@ function buildSections(){
       ${kv('Bewoning',esc(o.bewoning))}${kv('Weersomstandigheden',esc(o.weer))}</div>`,
     `<h3>${ico('alert',6)}C · Bijzondere aandachtspunten</h3>
     <div class="dots">${AANDACHT.map(([kk,t])=>{const a=k.aandacht[kk]||{s:''}; return `<div><span class="dot d-${a.s||'leeg'}"></span>${t}<em>${a.s?stLbl[a.s]:'Niet beoordeeld'}${a.t?' – '+esc(a.t):''}</em></div>`}).join('')}</div>
-    <div class="pleg" style="margin-top:2.5mm">${STATUS.map(([v,l])=>`<span><i class="d-${v}" style="border-radius:50%"></i>${l}</span>`).join('')}</div>`
+    <div class="pleg" style="margin-top:2.5mm">${STATUS.map(([v,l])=>`<span><i class="d-${v}" style="border-radius:50%"></i>${l}</span>`).join('')}</div>`,
+    ...(()=>{ const L=AANDACHT.filter(([kk])=>{const a=k.aandacht[kk]; return a&&a.s&&a.s!=='ok';}); return L.length?[`<h3>${ico('info',6)}Uitleg bijzondere aandachtspunten</h3><div class="uitleg">${L.map(([kk,t])=>`<p><b>${t}.</b> ${esc(AANDACHT_INFO[kk]||'')}</p>`).join('')}</div>`]:[]; })()
   ]));
 
   /* 03 kosten */
@@ -820,6 +1137,7 @@ function buildSections(){
       <div class="bb" style="${hasCost?'':'grid-template-columns:1fr'}"><div class="txt">
         ${b.gebrek?`<div><span>Bevinding</span>${nl2br(b.gebrek)}</div>`:''}
         ${b.advies?`<div><span>Hersteladvies</span>${nl2br(b.advies)}</div>`:''}
+        ${b.info?`<div class="info"><span>Toelichting</span>${nl2br(b.info)}</div>`:''}
         ${b.ernst?`<div><span>Ernst</span>${esc(b.ernst.charAt(0).toUpperCase()+b.ernst.slice(1))}</div>`:''}
         ${!b.gebrek&&!b.advies&&!b.ernst?'<div class="note">Geen bijzonderheden.</div>':''}</div>
         ${hasCost?`<div class="cost">${num(b.direct)?`<div><span>Direct</span><b>${eur(b.direct)}</b></div>`:''}${num(b.termijn)?`<div><span>Op termijn</span><b>${eur(b.termijn)}</b></div>`:''}${num(b.ndTot)?`<div><span>Nader te bep.</span><b>${eur(b.ndVan)}–${eur(b.ndTot).replace('€ ','')}</b></div>`:''}${b.nhg?'<div class="nhg">✓ Meegenomen in NHG</div>':''}</div>`:''}
@@ -850,6 +1168,8 @@ function buildSections(){
       `<div class="sign"><div><div class="sigbox">${st.handtekening?`<img src="${st.handtekening}">`:''}</div><div class="sl"><b>${esc(o.inspecteur||'Bouwkundig inspecteur')}</b><br><span class="note">${fmtDate(o.rapportdatum||o.datum)}</span></div></div><div></div></div>
        <p class="note" style="margin-top:4mm">De voorwaarden en het programma van eisen van NHG (Stichting Waarborgfonds Eigen Woningen) zijn leidend; raadpleeg de actuele normen op nhg.nl.</p>`]));
   }
+  if(o.nhg==='ja') S2.push(sec('B2',[`<p>Bij het herstel van de in dit rapport genoemde gebreken gelden de volgende uitgangspunten. Ze zijn afgeleid van het programma van eisen dat bij NHG-rapporten wordt gehanteerd en geactualiseerd naar de huidige regelgeving (Besluit bouwwerken leefomgeving, Bbl, sinds 1 januari 2024). De actuele voorwaarden en normen van NHG op nhg.nl zijn leidend.</p>`,
+    `<table><tr><th style="width:42mm">Onderdeel</th><th>Eisen en aanbevelingen</th></tr>${EISEN.map(([a,b])=>`<tr><td><b style="font-weight:600">${a}</b></td><td>${b}</td></tr>`).join('')}</table>`]));
   return S2;
 }
 
