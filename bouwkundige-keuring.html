@@ -236,6 +236,20 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .tx-g{color:var(--ink)}.tx-a{color:var(--muted)}.tx-i{color:var(--muted);font-style:italic}
 .rpt .bv .txt .info{color:var(--mu);font-style:italic}.rpt .bv .txt .info span{font-style:normal}
 .rpt .uitleg p{font-size:8.4pt;margin:0 0 1.6mm;line-height:1.45}
+
+.cl-list{display:grid;gap:10px;margin-bottom:10px}
+.cl-row{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:8px;background:#fff}
+.cl-n{font-weight:600;font-size:14px}.cl-n input{width:100%}
+.cl-f{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}.cl-f input{width:90px;margin:0}.cl-f em{font-style:normal}
+.cl-s{display:flex;align-items:center;gap:10px}.cl-s .seg{flex:1}.cl-s b{min-width:80px;text-align:right}
+.cl-del{border:0;background:none;font-size:20px;color:#b3261e;padding:0 4px}
+.cl-add{width:100%;margin-top:4px}
+.pr-det summary{cursor:pointer;font-weight:600;color:var(--brand);padding:6px 0}
+.pr-list{display:grid;gap:0;margin-top:6px}
+.pr-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--ink);margin:0}
+.pr-n{flex:1}.pr-n small{display:block;color:var(--muted);font-size:11.5px}
+.pr-in{display:flex;align-items:center;gap:4px}.pr-in input{width:92px;margin:0}.pr-in em{font-style:normal;color:var(--muted);font-size:12px}
+.rpt .cl-rpt{margin-top:2mm;font-size:7.6pt}.rpt .cl-rpt th,.rpt .cl-rpt td{padding:1mm 1.5mm}
 </style>
 
 
@@ -582,6 +596,7 @@ async function pickAdres(id){
       for(const k in objs){ const a=objs[k].attributes; if(a&&Object.keys(a).some(x=>/maaiveld/.test(x))){ at=a; break; } }
       if(at){ const mv=at.b3_h_maaiveld??at.h_maaiveld, top=at.b3_h_dak_max??at.h_dak_max; const lagen=at.b3_bouwlagen; const vol=at.b3_volume_lod22??at.b3_volume_lod12; const dt=String(at.b3_dak_type||'');
         if(lagen) o.bouwlagen=String(lagen);
+        if(!S.cur.hv||S.cur.hv.auto||!Object.keys(S.cur.hv).length) S.cur.hv=hvUit3D(at,o,bag.aantal);
         if(mv!=null&&top!=null) o.hoogte=(top-mv).toFixed(1).replace('.',',');
         if(vol&&(+bag.aantal||1)===1) o.inhoud=String(Math.round(vol));
         if(!o.dak&&/horizontal/.test(dt)) o.dak='Plat dak';
@@ -903,6 +918,115 @@ const EISEN = [
  ['Installaties','Gebreken met een veiligheidsrisico (gas, elektra, rookgasafvoer) direct laten herstellen door een erkend installateur.']
 ];
 
+/* ---------- prijslijst (indicatief, incl. btw) en hoeveelheden uit BAG / 3D BAG ---------- */
+// bron: IMG = Instituut Mijnbouwschade Groningen, calculatiemodel gevel V8.0, peildatum 1-1-2025 (excl. btw, hier incl. btw omgerekend)
+//       MARKT = gemiddelde marktprijzen 2026 (Werkspot, Homedeal, Trustoo, Consumentenbond)
+//       SCHATTING = eigen schatting, controleren en zo nodig aanpassen
+// q = standaard hoeveelheid uit de hoeveelheden van het object (gevel, kozijn, dakPlat, dakHellend, goot, footprint)
+const PB={IMG:'IMG calculatiemodel gevel 2025',MARKT:'marktprijzen 2026',SCH:'schatting'};
+const PRIJZEN=[
+ // gevel
+ {id:'voeg',n:'Voegwerk uithakken en opnieuw voegen (platvol)',eh:'m²',p:68.50,b:'IMG',q:'gevel',el:['Voegwerk','Gevels / metselwerk']},
+ {id:'voegsp',n:'Toeslag speciaalvoeg (knip-, snij-, schaduwvoeg)',eh:'m²',p:51.40,b:'IMG',q:'gevel',el:['Voegwerk']},
+ {id:'steen',n:'Gebroken/gescheurde stenen vervangen (1–10 st)',eh:'st',p:36.40,b:'IMG',el:['Gevels / metselwerk']},
+ {id:'scheur',n:'Scheur metselwerk herstellen met spiraalankers',eh:'m¹',p:79.60,b:'IMG',el:['Gevels / metselwerk','Binnenwanden']},
+ {id:'latei',n:'Stalen latei vervangen door betonlatei incl. metselwerk',eh:'m¹',p:662.00,b:'IMG',el:['Gevels / metselwerk']},
+ {id:'metsel',n:'Nieuw metselwerk halfsteens (> 10 m²)',eh:'m²',p:227.90,b:'IMG',el:['Gevels / metselwerk','Schoorsteen']},
+ {id:'reinig',n:'Gevel reinigen',eh:'m²',p:15.00,b:'MARKT',q:'gevel',el:['Gevels / metselwerk','Gevelbekleding']},
+ {id:'impreg',n:'Gevel impregneren (hydrofoberen)',eh:'m²',p:10.00,b:'MARKT',q:'gevel',el:['Gevels / metselwerk']},
+ {id:'betonrot',n:'Betonrot herstellen (per plek)',eh:'st',p:250.00,b:'SCH',el:['Gevels / metselwerk','Balkons en galerijen']},
+ {id:'stucsch',n:'Scheur in stucwerk herstellen met wapeningsgaas',eh:'m¹',p:59.00,b:'IMG',el:['Gevelbekleding','Plafonds','Binnenwanden']},
+ {id:'stucnw',n:'Nieuw buitenstucwerk',eh:'m²',p:78.90,b:'IMG',el:['Gevelbekleding']},
+ {id:'bekl',n:'Gevelbekleding vervangen',eh:'m²',p:125.00,b:'MARKT',el:['Gevelbekleding','Dakkapel']},
+ // kozijnen en glas
+ {id:'kozhst',n:'Herstelwerk kozijn, raam of deur',eh:'st',p:106.00,b:'IMG',el:['Buitenkozijnen, ramen en deuren','Hang- en sluitwerk','Binnenkozijnen en -deuren']},
+ {id:'houtrot',n:'Houtrotreparatie (per reparatiepunt)',eh:'st',p:90.00,b:'MARKT',el:['Buitenkozijnen, ramen en deuren','Boeiboorden en daktrim','Dakkapel','Schilderwerk buiten']},
+ {id:'glas2',n:'Dubbele beglazing vervangen',eh:'m²',p:215.20,b:'IMG',el:['Beglazing']},
+ {id:'glas1',n:'Enkele beglazing vervangen',eh:'m²',p:154.60,b:'IMG',el:['Beglazing']},
+ {id:'skg',n:'Hang- en sluitwerk SKG** vervangen (per raam/deur)',eh:'st',p:175.00,b:'SCH',el:['Hang- en sluitwerk']},
+ {id:'schilder',n:'Buitenschilderwerk kozijnen (onderhoudsbeurt)',eh:'m²',p:38.00,b:'MARKT',q:'kozijn',el:['Schilderwerk buiten','Buitenkozijnen, ramen en deuren']},
+ // dak
+ {id:'pannen',n:'Dakpannen vervangen (beton) incl. panlatten',eh:'m²',p:90.00,b:'MARKT',q:'dakHellend',el:['Dakbedekking hellend (pannen/leien)']},
+ {id:'pannenk',n:'Dakpannen vervangen (keramisch) incl. panlatten',eh:'m²',p:120.00,b:'MARKT',q:'dakHellend',el:['Dakbedekking hellend (pannen/leien)']},
+ {id:'panrep',n:'Pannendak repareren (enkele pannen/vorsten)',eh:'pst',p:350.00,b:'SCH',el:['Dakbedekking hellend (pannen/leien)']},
+ {id:'bitumen',n:'Bitumen dakbedekking vervangen incl. verwijderen',eh:'m²',p:75.00,b:'MARKT',q:'dakPlat',el:['Dakbedekking plat','Dakkapel','Aanbouw / uitbouw','Berging / garage / carport']},
+ {id:'epdm',n:'EPDM dakbedekking vervangen incl. verwijderen',eh:'m²',p:95.00,b:'MARKT',q:'dakPlat',el:['Dakbedekking plat','Dakkapel','Aanbouw / uitbouw']},
+ {id:'platrep',n:'Plat dak repareren (lekkage, aansluitingen)',eh:'pst',p:350.00,b:'SCH',el:['Dakbedekking plat','Dakkapel','Dakramen / lichtkoepels']},
+ {id:'gootzink',n:'Zinken dakgoot vervangen',eh:'m¹',p:100.00,b:'MARKT',q:'goot',el:['Dakgoten en hemelwaterafvoeren']},
+ {id:'gootpvc',n:'Kunststof dakgoot vervangen',eh:'m¹',p:65.00,b:'MARKT',q:'goot',el:['Dakgoten en hemelwaterafvoeren']},
+ {id:'hwa',n:'Hemelwaterafvoer (regenpijp) vervangen',eh:'m¹',p:45.00,b:'MARKT',el:['Dakgoten en hemelwaterafvoeren']},
+ {id:'gootrein',n:'Dakgoten en afvoeren reinigen',eh:'pst',p:150.00,b:'SCH',el:['Dakgoten en hemelwaterafvoeren']},
+ {id:'boei',n:'Boeiboord vervangen (onderhoudsarm)',eh:'m¹',p:100.00,b:'SCH',q:'goot',el:['Boeiboorden en daktrim']},
+ {id:'schoornw',n:'Schoorsteen opnieuw opmetselen incl. steiger',eh:'pst',p:3523.00,b:'IMG',el:['Schoorsteen']},
+ {id:'veeg',n:'Rookkanaal vegen en inspecteren',eh:'pst',p:90.00,b:'SCH',el:['Schoorsteen']},
+ {id:'dakraam',n:'Dakraam vervangen',eh:'st',p:1500.00,b:'SCH',el:['Dakramen / lichtkoepels']},
+ {id:'dakkapel',n:'Dakkapel vervangen (prefab, ca. 3 m)',eh:'st',p:10000.00,b:'MARKT',el:['Dakkapel']},
+ // onder
+ {id:'rooster',n:'Muisdicht ventilatierooster kruipruimte aanbrengen',eh:'st',p:60.00,b:'SCH',el:['Ventilatie kruipruimte','Kruipruimte']},
+ {id:'bodemiso',n:'Bodemisolatie kruipruimte (schelpen/folie)',eh:'m²',p:25.00,b:'SCH',q:'footprint',el:['Kruipruimte','Begane grondvloer']},
+ {id:'luik',n:'Kruipluik aanbrengen of toegankelijk maken',eh:'pst',p:250.00,b:'SCH',el:['Kruipruimte']},
+ {id:'balk',n:'Houten vloerbalk vervangen',eh:'st',p:450.00,b:'SCH',el:['Begane grondvloer','Vloeren','Kapconstructie / zolder']},
+ // binnen / nat
+ {id:'zacht',n:'Zachtboard/kunststof schroten vervangen door gipsplaat',eh:'m²',p:45.00,b:'SCH',el:['Plafonds']},
+ {id:'kit',n:'Kitvoegen badkamer/keuken vervangen',eh:'pst',p:250.00,b:'SCH',el:['Tegelwerk en kitvoegen','Badkamer / douche','Keuken']},
+ {id:'badk',n:'Basisbadkamer vervangen',eh:'pst',p:12500.00,b:'SCH',el:['Badkamer / douche']},
+ {id:'toilet',n:'Toilet vervangen',eh:'pst',p:600.00,b:'SCH',el:['Toiletruimte']},
+ {id:'keuken',n:'Basiskeuken vervangen',eh:'pst',p:6000.00,b:'SCH',el:['Keuken']},
+ {id:'leuning',n:'Trapleuning/balustrade aanbrengen of herstellen',eh:'pst',p:350.00,b:'SCH',el:['Trappen en balustrades','Balkons en galerijen']},
+ // installaties
+ {id:'cvketel',n:'Cv-ketel vervangen (HR-combi) incl. montage',eh:'pst',p:2400.00,b:'MARKT',el:['CV-installatie / warmteopwekker','Warm tapwater']},
+ {id:'cvonderh',n:'Onderhoudsbeurt cv-ketel',eh:'pst',p:130.00,b:'MARKT',el:['CV-installatie / warmteopwekker']},
+ {id:'radiator',n:'Radiator vervangen incl. montage',eh:'st',p:400.00,b:'MARKT',el:['Afgifte (radiatoren / vloerverwarming)']},
+ {id:'mv',n:'Mechanische ventilatie-unit vervangen',eh:'pst',p:650.00,b:'SCH',el:['Ventilatievoorziening']},
+ {id:'groep',n:'Groepenkast vervangen (aardlekautomaten)',eh:'pst',p:1200.00,b:'SCH',el:['Elektrische installatie / meterkast']},
+ {id:'aardlek',n:'Aardlekschakelaar bijplaatsen',eh:'st',p:250.00,b:'SCH',el:['Elektrische installatie / meterkast']},
+ {id:'rook',n:'Rookmelder (NEN 14604) leveren en plaatsen',eh:'st',p:50.00,b:'SCH',el:['Rook- en CO-melders']},
+ {id:'loodl',n:'Loden waterleiding vervangen',eh:'pst',p:1500.00,b:'SCH',el:['Waterleiding']},
+ {id:'riool',n:'Riolering reinigen en camera-inspectie',eh:'pst',p:350.00,b:'SCH',el:['Riolering / binnenriolering','Leidingen in kruipruimte']},
+ // onderzoek
+ {id:'fund1',n:'Funderingsonderzoek fase 1 / QuickScan (KCAF)',eh:'pst',p:1500.00,b:'SCH',el:['Fundering']},
+ {id:'fund2',n:'Uitgebreid funderingsonderzoek (KCAF)',eh:'pst',p:7500.00,b:'SCH',el:['Fundering']},
+ {id:'asbest',n:'Asbestinventarisatie (gecertificeerd)',eh:'pst',p:600.00,b:'SCH',el:['Asbestverdachte materialen']},
+ {id:'houtond',n:'Onderzoek houtaantasting',eh:'pst',p:450.00,b:'SCH',el:['Houtaantasting','Kapconstructie / zolder']},
+ {id:'elkeur',n:'Keuring elektrische installatie',eh:'pst',p:300.00,b:'SCH',el:['Elektrische installatie / meterkast']},
+ {id:'vrij',n:'Vrije post (zelf omschrijven)',eh:'pst',p:0,b:'SCH',el:[]}
+];
+const prijsVan=id=>{ const o=(S.settings.prijzen||{})[id]; const x=PRIJZEN.find(p=>p.id===id); return o!=null&&o!==''?+o:(x?x.p:0); };
+const HV_LBL={gevel:'Gevel (buitenmuren)',kozijn:'Kozijnen/glas',dakPlat:'Dak plat',dakHellend:'Dak hellend',goot:'Goot / dakrand',footprint:'Grondoppervlak'};
+const HV_EH={gevel:'m²',kozijn:'m²',dakPlat:'m²',dakHellend:'m²',goot:'m¹',footprint:'m²'};
+// hoeveelheden uit 3D BAG-attributen (opp. buitenmuur, dak plat/schuin, grond); appartement: aandeel naar gebruiksoppervlakte
+function hvUit3D(at,o,aantal){ const r=v=>v==null||isNaN(+v)?null:Math.round(+v);
+  let gevel=r(at.b3_opp_buitenmuur), dp=r(at.b3_opp_dak_plat), ds=r(at.b3_opp_dak_schuin), grond=r(at.b3_opp_grond);
+  const lagen=+at.b3_bouwlagen||+o.bouwlagen||1, bron=[];
+  if(gevel==null&&grond!=null){ const mv=at.b3_h_maaiveld, g=at.b3_h_dak_min??at.b3_h_dak_50p; const h=(mv!=null&&g!=null)?(g-mv):lagen*2.8; const om=4*Math.sqrt(grond)*1.1;
+    const f=/^Tussen/.test(o.type||'')?0.45:/^Hoek/.test(o.type||'')?0.7:/2-onder/.test(o.type||'')?0.8:1; gevel=Math.round(om*h*f); bron.push('gevel geschat uit grondvlak en hoogte'); }
+  let aandeel=1; if(+aantal>1&&grond){ aandeel=Math.min(1,(+o.gbo||0)/(grond*lagen)||0.2); bron.push('appartement: aandeel '+Math.round(aandeel*100)+'% van het gebouw'); }
+  const a=v=>v==null?null:Math.round(v*aandeel);
+  const hv={gevel:a(gevel),kozijn:gevel!=null?Math.round(a(gevel)*0.2):null,dakPlat:+aantal>1&&!/bovenwoning/i.test(o.type||'')?0:a(dp),dakHellend:+aantal>1&&!/bovenwoning/i.test(o.type||'')?0:a(ds),
+    goot:grond!=null?Math.round(2*Math.sqrt(grond*aandeel)):null,footprint:a(grond),bron:['3D BAG (opp. buitenmuur, dak, grondvlak)',...bron,'kozijnen ≈ 20% van gevel, goot ≈ 2 × breedte'].join('; '),auto:1};
+  return hv; }
+function hvKaart(k){ const hv=k.hv||{};
+  return `<div class="card"><h2>Hoeveelheden object</h2><p class="muted" style="margin-top:0">${hv.auto?'Automatisch bepaald uit de 3D BAG bij het opzoeken van het adres. Pas aan waar nodig; de kostenberekening per bevinding gebruikt deze waarden als standaard.':'Zoek bij Object het adres op om deze hoeveelheden automatisch uit de 3D BAG te halen, of vul ze zelf in.'}</p>
+   <div class="grid">${Object.keys(HV_LBL).map(q=>F('hv.'+q,HV_LBL[q]+' ('+HV_EH[q]+')','number')).join('')}</div>${hv.bron?`<p class="muted">Bron: ${esc(hv.bron)}</p>`:''}</div>`; }
+function prijsKaart(){ return `<div class="card"><h2>Prijslijst (indicatief, incl. btw)</h2><p class="muted" style="margin-top:0">Bronnen: <b>IMG</b> = calculatiemodel gevel van het Instituut Mijnbouwschade Groningen (peildatum 1-1-2025, omgerekend incl. btw); <b>markt</b> = gemiddelde marktprijzen 2026; <b>schatting</b> = controleren. Een aangepaste prijs geldt voor alle keuringen.</p>
+   <details class="pr-det"><summary>Prijzen bekijken en aanpassen (${PRIJZEN.length-1} posten)</summary><div class="pr-list">${PRIJZEN.filter(p=>p.id!=='vrij').map(p=>`<label class="pr-row"><span class="pr-n">${esc(p.n)}<small>${esc(PB[p.b])} · standaard ${eur(p.p)} / ${p.eh}</small></span><span class="pr-in"><input type="number" inputmode="decimal" step="0.01" data-pr="${p.id}" placeholder="${p.p}" value="${(S.settings.prijzen||{})[p.id]??''}"><em>/${p.eh}</em></span></label>`).join('')}</div></details></div>`; }
+// kostenregels in een bevinding
+function calcTot(b){ const L=b.calc||[]; return {d:L.filter(x=>x.s!=='termijn').reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0),t:L.filter(x=>x.s==='termijn').reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0)}; }
+function calcHTML(b){ const L=b.calc||[]; return (L.length?`<div class="cl-list">${L.map((x,i)=>`<div class="cl-row"><div class="cl-n">${x.id==='vrij'?`<input data-cl="${i}" data-f="n" value="${esc(x.n)}" placeholder="Omschrijving">`:esc(x.n)}</div>
+   <div class="cl-f"><input type="number" inputmode="decimal" data-cl="${i}" data-f="q" value="${x.q??''}"><em>${x.eh}</em> × <input type="number" inputmode="decimal" data-cl="${i}" data-f="p" value="${x.p??''}"><em>€</em></div>
+   <div class="cl-s"><div class="seg"><button type="button" data-cl="${i}" data-f="s" data-v="direct" class="${x.s!=='termijn'?'on':''}">Direct</button><button type="button" data-cl="${i}" data-f="s" data-v="termijn" class="${x.s==='termijn'?'on':''}">Termijn</button></div><b>${eur((+x.q||0)*(+x.p||0))}</b><button type="button" class="cl-del" data-cl="${i}" data-f="del" aria-label="Verwijderen">×</button></div></div>`).join('')}</div>`:'<p class="muted" style="margin:0">Nog geen posten. Voeg een post toe uit de prijslijst; de bedragen hieronder worden dan automatisch berekend.</p>')+
+   `<button type="button" class="btn sec cl-add" id="clAdd">+ Post uit prijslijst</button>`; }
+function postKiezen(b,klaar){ const k=S.cur, hv=k.hv||{}; const eigen=PRIJZEN.filter(p=>p.el.includes(b.element)), rest=PRIJZEN.filter(p=>!p.el.includes(b.element));
+  const bg=document.createElement('div'); bg.className='sheet-bg'; bg.style.zIndex=60;
+  const item=p=>`<button type="button" class="tx-item" data-pp="${p.id}"><span class="tx-n">${esc(p.n)}</span><span class="tx-a">${eur(prijsVan(p.id))} / ${p.eh} · ${esc(PB[p.b])}${p.q&&hv[p.q]?` · standaard ${hv[p.q]} ${HV_EH[p.q]} (${HV_LBL[p.q].toLowerCase()})`:''}</span></button>`;
+  bg.innerHTML=`<div class="sheet"><div class="sh-h"><b>Post kiezen · ${esc(b.element)}</b><button id="ppX">Sluiten</button></div><div class="sh-b"><div class="card"><input id="ppQ" placeholder="Zoeken in prijslijst…" style="margin-bottom:10px">
+   <div class="tx-list" id="ppL">${eigen.length?`<div class="group-h">Bij dit element</div>${eigen.map(item).join('')}`:''}<div class="group-h">Alle posten</div>${rest.map(item).join('')}</div></div></div></div>`;
+  document.body.appendChild(bg); const dicht=()=>bg.remove(); bg.querySelector('#ppX').onclick=dicht; bg.addEventListener('click',e=>{ if(e.target===bg) dicht(); });
+  bg.querySelector('#ppQ').addEventListener('input',e=>{ const q=e.target.value.toLowerCase(); bg.querySelectorAll('[data-pp]').forEach(x=>x.hidden=q&&!x.textContent.toLowerCase().includes(q)); });
+  bg.querySelectorAll('[data-pp]').forEach(el=>el.onclick=()=>{ const p=PRIJZEN.find(x=>x.id===el.dataset.pp); const q=p.q&&hv[p.q]?+hv[p.q]:1;
+    b.calc=b.calc||[]; b.calc.push({id:p.id,n:p.id==='vrij'?'':p.n,eh:p.eh,q,p:prijsVan(p.id),s:+b.cond>=5?'direct':'termijn',b:p.b}); dicht(); klaar(); });
+}
+
 /* ---------- BEVINDINGEN ---------- */
 const BEV_OPEN=new Set(['buiten']);
 function vBev(){
@@ -948,6 +1072,7 @@ function bevSheet(b,isNew){
     <div><label>Hersteladvies</label><textarea data-k="advies"></textarea></div>
     <div><label>Toelichting voor de opdrachtgever (info, optioneel)</label><textarea data-k="info"></textarea></div>
    </div>
+   <div class="card"><h2>Kostenberekening</h2><div id="clBox"></div></div>
    <div class="card"><h2>Kosten (incl. btw, indicatief)</h2><div class="grid">
      ${F('direct','Direct noodzakelijk (€)','number')}${F('termijn','Op termijn (€)','number')}
      ${F('ndVan','Nader te bepalen: van (€)','number')}${F('ndTot','Nader te bepalen: tot (€)','number')}
@@ -959,6 +1084,12 @@ function bevSheet(b,isNew){
   bindInputs(bg,b);
   const setC=c=>{ b.cond=c; bg.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x.dataset.c==c)); $('#cdesc').textContent=c?`${c} – ${COND[c].l}: ${COND[c].d}`:''; };
   bg.querySelectorAll('[data-c]').forEach(x=>x.onclick=()=>{ setC(+x.dataset.c); save(); }); setC(b.cond);
+  const clBox=bg.querySelector('#clBox');
+  const clSync=()=>{ if((b.calc||[]).length){ const t=calcTot(b); b.direct=t.d?String(Math.round(t.d)):''; b.termijn=t.t?String(Math.round(t.t)):''; bg.querySelector('[data-k="direct"]').value=b.direct; bg.querySelector('[data-k="termijn"]').value=b.termijn; } save(); };
+  const clDraw=()=>{ clBox.innerHTML=calcHTML(b); clBox.querySelector('#clAdd').onclick=()=>postKiezen(b,()=>{ clDraw(); clSync(); }); };
+  clBox.addEventListener('input',e=>{ const el=e.target.closest('[data-cl]'); if(!el) return; const x=b.calc[+el.dataset.cl]; const f=el.dataset.f; x[f]=f==='n'?el.value:el.value===''?'':+el.value; const row=el.closest('.cl-row'); if(row) row.querySelector('.cl-s b').textContent=eur((+x.q||0)*(+x.p||0)); clSync(); });
+  clBox.addEventListener('click',e=>{ const el=e.target.closest('button[data-cl]'); if(!el) return; const i=+el.dataset.cl; if(el.dataset.f==='del'){ b.calc.splice(i,1); if(!b.calc.length){ b.direct=''; b.termijn=''; bg.querySelector('[data-k="direct"]').value=''; bg.querySelector('[data-k="termijn"]').value=''; } } else if(el.dataset.f==='s'){ b.calc[i].s=el.dataset.v; } clDraw(); clSync(); });
+  clDraw();
   bg.querySelector('#txKnop').onclick=()=>txKiezen(b,()=>{ bg.querySelectorAll('[data-k]').forEach(el=>{ const v=b[el.dataset.k]; if(el.tagName==='TEXTAREA'&&v!=null){ el.value=v; el.dispatchEvent(new Event('autosize')); } }); if(b.cond) setC(+b.cond); save(); });
   const ph=bg.querySelector('#bPh'); const draw=()=>{ ph.innerHTML=b.fotos.map((f,i)=>`<div class="ph"><img src="${f}"><button data-i="${i}">×</button></div>`).join('')+fotoKnoppen('bev');
     ph.querySelectorAll('[data-ph]').forEach(x=>x.onclick=()=>{ const m=x.dataset.m; if(m==='serie') serieCamera({naam:[b.element,b.locatie].filter(Boolean).join(' · ')||'Bevinding',arr:b.fotos,klaar:draw}); else pickPhoto(d=>{ if(d){ b.fotos.push(d); save(); draw(); } },m==='gal'); });
@@ -981,6 +1112,7 @@ function totals(k=S.cur){
   return {per,d,t,nv,nt,nhg,hw,pct,avg,tot:d+t};
 }
 function vKosten(){
+  S.cur.hv=S.cur.hv||{};
   const T=totals();
   $('#view').innerHTML=`
    <div class="card"><h2>D · Overzicht kostenraming</h2>
@@ -996,8 +1128,11 @@ function vKosten(){
      <div><b>${T.pct!=null?T.pct.toFixed(1)+'%':'–'}</b><span>Bouwtechnische staat</span></div>
      <div><b>${S.cur.obj.nhg==='ja'?eur(T.nhg):'n.v.t.'}</b><span>NHG-kosten</span></div></div>
      ${T.hw?`<p class="muted">Herbouwwaarde gebruikt: ${eur(T.hw)}</p>`:'<p class="muted">Vul onder Object de herbouwwaarde in voor het percentage bouwtechnische staat.</p>'}</div>
+   ${hvKaart(S.cur)}${prijsKaart()}
    <div class="card"><h2>Conclusie en advies</h2>${TA('conclusie','Samenvattende conclusie (komt op de samenvattingspagina)')}${TA('advies','Advies aan opdrachtgever')}</div>`;
   bindInputs($('#view'),S.cur);
+  $('#view').querySelectorAll('[data-k^="hv."]').forEach(el=>el.addEventListener('input',()=>{ if(S.cur.hv) S.cur.hv.auto=0; }));
+  $('#view').querySelectorAll('[data-pr]').forEach(el=>el.addEventListener('input',()=>{ S.settings.prijzen=S.settings.prijzen||{}; if(el.value==='') delete S.settings.prijzen[el.dataset.pr]; else S.settings.prijzen[el.dataset.pr]=+el.value; save(); }));
 }
 
 /* ---------- RAPPORT ---------- */
@@ -1142,6 +1277,7 @@ function buildSections(){
         ${!b.gebrek&&!b.advies&&!b.ernst?'<div class="note">Geen bijzonderheden.</div>':''}</div>
         ${hasCost?`<div class="cost">${num(b.direct)?`<div><span>Direct</span><b>${eur(b.direct)}</b></div>`:''}${num(b.termijn)?`<div><span>Op termijn</span><b>${eur(b.termijn)}</b></div>`:''}${num(b.ndTot)?`<div><span>Nader te bep.</span><b>${eur(b.ndVan)}–${eur(b.ndTot).replace('€ ','')}</b></div>`:''}${b.nhg?'<div class="nhg">✓ Meegenomen in NHG</div>':''}</div>`:''}
       </div>
+      ${(b.calc||[]).length?`<table class="cl-rpt"><tr><th>Post</th><th class="r">Hoeveelheid</th><th class="r">Prijs</th><th class="r">Bedrag</th><th>Soort</th></tr>${b.calc.map(x=>`<tr><td>${esc(x.n||'Post')}</td><td class="r">${String(x.q).replace('.',',')} ${x.eh}</td><td class="r">${eur(x.p)}</td><td class="r">${eur((+x.q||0)*(+x.p||0))}</td><td>${x.s==='termijn'?'Termijn':'Direct'}</td></tr>`).join('')}</table>`:''}
       ${b.fotos?.length?`<div class="bp">${b.fotos.map((f,j)=>`<figure><img src="${f}"><figcaption>Foto ${r}.${j+1}</figcaption></figure>`).join('')}</div>`:''}</div>`;
       bvBlocks.push((i===0?`<h3>${ico(GIC[g.k],6)}${g.t}</h3>`:'')+card); });
   });
