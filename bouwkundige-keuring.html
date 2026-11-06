@@ -257,6 +257,13 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .cl-q{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:0}.cl-q input{width:100px;margin:0}.cl-q em{font-style:normal}
 .cl-tot{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:var(--ink);margin:0}.cl-tot input{width:120px;margin:0;font-weight:700;text-align:right}
 .cl-hint{font-size:12px;color:var(--muted)}.cl-re{border:0;background:none;color:var(--brand2);font-weight:600;padding:0 0 0 4px;font-size:12px}
+
+.src{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:1px 6px;border-radius:99px;background:#e6f0ff;color:#1d4f91;vertical-align:1px;margin-left:4px}
+.src.gew{background:#fff4e0;color:#9a5b00}
+.src-leg{font-size:12px;line-height:1.8}
+.rpt .srct{font-size:6.6pt;font-weight:600;color:#1d4f91;background:#e6f0ff;border-radius:2mm;padding:.2mm 1.2mm;margin-left:1mm;white-space:nowrap}
+.rpt .srct.gew{color:#9a5b00;background:#fff4e0}
+.rpt .regt{font-size:7.8pt}.rpt .regt td,.rpt .regt th{padding:1.1mm 1.6mm}
 </style>
 
 
@@ -510,12 +517,13 @@ function vObject(){
     </div>
     <label>Foto voorgevel (voorblad)</label>
     <div class="photos" id="vgPh"></div>
-    <p class="muted" id="bagMsg"></p>
+    <p class="muted" id="bagMsg"></p><p class="muted src-leg"><span class="src">BAG</span> <span class="src">3D BAG</span> <span class="src">EP-Online</span> <span class="src">BRO/RVO</span> = automatisch opgehaald uit openbare registraties; <span class="src gew">aangepast</span> = daarna door de inspecteur gewijzigd.</p>
   </div>
   <div class="card"><h2>Herbouwwaarde (voor bouwtechnische staat)</h2><div class="grid">
     ${F('herbouw.m3prijs','Herbouwprijs per m³ (€)','number')}${F('herbouw.waarde','Of: herbouwwaarde totaal (€)','number')}</div>
     <p class="muted"><b>Herbouwwaarde</b> = wat het kost om de woning na totaal verlies opnieuw te bouwen (niet de WOZ- of verkoopwaarde). <b>Bouwtechnische staat</b> = totale herstelkosten / herbouwwaarde × 100%. Laat beide velden leeg voor de automatische m³-prijs op basis van het type woning.</p><p class="muted" id="hbAuto"></p></div>`;
   bindInputs($('#view'),S.cur);
+  bronLabels($('#view'),o); $('#view').querySelectorAll('[data-k^="obj."]').forEach(el=>el.addEventListener('change',()=>bronLabels($('#view'),o)));
   const hbZet=()=>{ const a=hbAuto(S.cur),i=$('#view').querySelector('[data-k="herbouw.m3prijs"]'); if(i) i.placeholder=a?'auto: € '+a.prijs+' ('+a.cat+')':''; const e=$('#hbAuto'); if(e) e.textContent=hbUitleg(S.cur); };
   hbZet(); $('#view').querySelectorAll('[data-k="obj.type"],[data-k="obj.inhoud"],[data-k="obj.bouwlagen"],[data-k="herbouw.m3prijs"],[data-k="herbouw.waarde"]').forEach(el=>{ el.addEventListener('input',hbZet); el.addEventListener('change',hbZet); });
   const vg=$('#vgPh'); const drawVg=()=>{ vg.innerHTML=(o.voorgevel?`<div class="ph"><img src="${o.voorgevel}"><button id="vgDel">×</button></div>`:'')+`<button class="addph" id="vgAdd"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Foto</span></button><button class="addph" id="vgGal"><svg class="ui-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg><span>Galerij</span></button>`; $('#vgAdd').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} }); $('#vgGal').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} },true); const dl=$('#vgDel'); if(dl) dl.onclick=()=>{o.voorgevel=''; save(); drawVg();}; }; drawVg();
@@ -572,12 +580,22 @@ async function funderingOphalen(o,ll){let a=null,bod=null;
   const bodem=bod||(a&&a.fgr)||'';const ind=funderingIndicatie(o.bouwjaar,bodem);
   const bron=['bouwjaar '+(o.bouwjaar||'?')+' (BAG)',bodem?'bodem: '+bodem+(bod?' (BRO Bodemkaart)':' (RVO/KCAF)'):'bodem onbekend',a?'ligt in indicatief aandachtsgebied funderingsproblematiek (RVO/KCAF'+(a.legenda?': '+a.legenda:'')+')':'niet in een indicatief aandachtsgebied (RVO/KCAF)'].join('; ');
   o.funderingIndicatie=ind?ind+' – indicatie, niet vastgesteld':'Onbekend';o.funderingBron=bron;
-  if(!o.fundering)o.fundering='Onbekend';return{ind,bron}}
+  if(!o.fundering)o.fundering='Onbekend';bronZet(o,'funderingIndicatie','BRO/RVO');return{ind,bron}}
 async function labelOphalen(o){if(!/^https?:/.test(location.protocol))return{fout:'alleen in de online versie'};
   const vbo=(o.bag&&o.bag.vboId)||'';const q=vbo?'vbo='+encodeURIComponent(vbo):new URLSearchParams({postcode:o.postcode||'',huisnummer:String(o.adres||'').match(/\d+/)?.[0]||''});
   try{const r=await fetch('api/energielabel?'+q,{credentials:'same-origin'});const d=await r.json().catch(()=>({}));if(!r.ok)return{fout:d.fout||('fout '+r.status)};
-   if(d.gevonden){o.label=d.klasse;o.labelInfo='EP-Online'+(d.registratiedatum?', geregistreerd '+d.registratiedatum:'')+(d.geldigTot?', geldig tot '+d.geldigTot:'');return d}
-   o.label='Onbekend';o.labelInfo='Geen geregistreerd label gevonden in EP-Online';return d}catch(e){return{fout:'EP-Online niet bereikbaar'}}}
+   if(d.gevonden){o.label=d.klasse;o.labelInfo='EP-Online'+(d.registratiedatum?', geregistreerd '+d.registratiedatum:'')+(d.geldigTot?', geldig tot '+d.geldigTot:'');bronZet(o,'label','EP-Online');return d}
+   o.label='Onbekend';o.labelInfo='Geen geregistreerd label gevonden in EP-Online';bronZet(o,'label','EP-Online');return d}catch(e){return{fout:'EP-Online niet bereikbaar'}}}
+
+
+/* ---------- herkomst van gegevens (BAG, 3D BAG, EP-Online, BRO/RVO) ---------- */
+const BRON_LBL={'BAG':'BAG (Kadaster)','3D BAG':'3D BAG (TU Delft/3DGI)','EP-Online':'EP-Online (RVO)','BRO/RVO':'BRO Bodemkaart en RVO/KCAF'};
+function bronZet(o,veld,bron){ o.bron=o.bron||{}; o.bronW=o.bronW||{}; o.bron[veld]=bron; o.bronW[veld]=String(o[veld]??''); }
+function bronVan(o,veld){ const b=(o.bron||{})[veld]; if(!b) return null; const gew=String(o[veld]??'')!==String((o.bronW||{})[veld]??''); return {b,gew}; }
+function bronTag(o,veld){ const x=bronVan(o,veld); if(!x) return ''; return `<span class="src${x.gew?' gew':''}" title="${esc(BRON_LBL[x.b]||x.b)}">${esc(x.b)}${x.gew?' · aangepast':''}</span>`; }
+function bronTagRpt(o,veld){ const x=bronVan(o,veld); if(!x) return ''; return ` <span class="srct${x.gew?' gew':''}">${esc(x.b)}${x.gew?', aangepast':''}</span>`; }
+function bronLabels(root,o){ root.querySelectorAll('[data-k^="obj."]').forEach(el=>{ const veld=el.dataset.k.slice(4); const lab=el.closest('div')?.querySelector('label'); if(!lab) return;
+  lab.querySelector('.src')?.remove(); const t=bronTag(o,veld); if(t) lab.insertAdjacentHTML('beforeend',' '+t); }); }
 
 async function pickAdres(id){
   const o=S.cur.obj; $('#adrUl').hidden=true; const msg=()=>$('#bagMsg');
@@ -585,6 +603,7 @@ async function pickAdres(id){
   try{ const r=await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/lookup?id='+encodeURIComponent(id)); d=(await r.json()).response.docs[0]; }
   catch(_){ msg().textContent='Adres zoeken niet bereikbaar (geen internet?). Vul handmatig in.'; return; }
   o.adres=`${d.straatnaam} ${d.huis_nlt||d.huisnummer}`; o.postcode=d.postcode||''; o.plaats=d.woonplaatsnaam||'';
+  o.bron={}; o.bronW={}; ['adres','postcode','plaats'].forEach(v=>bronZet(o,v,'BAG')); o.bagDatum=new Date().toISOString().slice(0,10);
   save(); vObject(); $('#title').textContent=o.adres; msg().textContent='Adres overgenomen; gegevens ophalen uit de BAG en 3D BAG…';
   try{
     const m=/POINT\(([\d.]+) ([\d.]+)\)/.exec(d.centroide_rd||''); if(!m) throw new Error('geen coördinaten'); const x=+m[1],y=+m[2];
@@ -596,6 +615,7 @@ async function pickAdres(id){
     const bag={vboId:vp.identificatie||d.adresseerbaarobject_id||'',pandId:pp.identificatie||'',bouwjaar:pp.bouwjaar??vp.bouwjaar??'',opp:vp.oppervlakte??'',doel:vp.gebruiksdoel||'',status:pp.status||vp.status||'',aantal:pp.aantal_verblijfsobjecten??''};
     if(bag.bouwjaar) o.bouwjaar=String(bag.bouwjaar); if(bag.opp) o.gbo=String(bag.opp);
     o.gebruiksdoel=String(bag.doel||''); o.bag=bag;
+    ['bouwjaar','gbo','gebruiksdoel'].forEach(v=>{ if(o[v]) bronZet(o,v,'BAG'); });
     // 3D BAG: bouwlagen, hoogte, daktype, inhoud
     let extra='';
     if(bag.pandId){ try{
@@ -607,6 +627,7 @@ async function pickAdres(id){
         if(mv!=null&&top!=null) o.hoogte=(top-mv).toFixed(1).replace('.',',');
         if(vol&&(+bag.aantal||1)===1) o.inhoud=String(Math.round(vol));
         if(!o.dak&&/horizontal/.test(dt)) o.dak='Plat dak';
+        if(lagen) bronZet(o,'bouwlagen','3D BAG'); if(o.hoogte) bronZet(o,'hoogte','3D BAG'); if(vol&&(+bag.aantal||1)===1) bronZet(o,'inhoud','3D BAG'); if(o.dak==='Plat dak'&&/horizontal/.test(dt)) bronZet(o,'dak','3D BAG');
         extra=[lagen?lagen+' bouwlagen':'',o.hoogte?'hoogte '+o.hoogte+' m':'',vol&&(+bag.aantal||1)===1?'inhoud ± '+Math.round(vol)+' m³':''].filter(Boolean).join(', '); } }catch(_){ } }
     save(); vObject(); msg().textContent='BAG opgehaald; fundering (RVO/KCAF, BRO) en energielabel (EP-Online) ophalen…';
     const llm=/POINT\(([-\d.]+) ([-\d.]+)\)/.exec(d.centroide_ll||'');
@@ -1252,13 +1273,24 @@ function buildSections(){
       ${kv('Telefoon',esc(o.ogTel))}${kv('E-mail',esc(o.ogMail))}
       ${kv('Aanwezig bij keuring',esc(o.aanwezig))}${kv('Bouwkundig inspecteur',esc(o.inspecteur)+(o.registratie?' ('+esc(o.registratie)+')':''))}</div>`,
     `<h3>${ico('home',6)}B · Object</h3><div class="dl">
-      ${kv('Adres',esc(o.adres))}${kv('Postcode en plaats',esc([o.postcode,o.plaats].filter(Boolean).join(' ')))}
-      ${kv('Type woning',esc(o.type))}${kv('Bouwjaar',esc(o.bouwjaar))}
-      ${kv('Gebruiksoppervlakte',o.gbo?esc(o.gbo)+' m²':'')}${kv('Inhoud',o.inhoud?esc(o.inhoud)+' m³':'')}
-      ${kv('Aantal bouwlagen',esc(o.bouwlagen))}${kv('Hoogte gebouw',o.hoogte?esc(o.hoogte)+' m':'')}${kv('Gebruiksdoel (BAG)',esc(o.gebruiksdoel||''))}${kv('Dakvorm',esc(o.dak))}
-      ${kv('Funderingswijze',esc(o.fundering||'Onbekend'))}${o.funderingIndicatie?kv('Indicatie funderingswijze',esc(o.funderingIndicatie)+(o.funderingBron?'<br><small style="font-weight:400">Bron: '+esc(o.funderingBron)+'</small>':'')):''}${kv('Energielabel',esc(o.label||'Onbekend')+(o.labelInfo?' <small style="font-weight:400">('+esc(o.labelInfo)+')</small>':''))}
+      ${kv('Adres',esc(o.adres)+bronTagRpt(o,'adres'))}${kv('Postcode en plaats',esc([o.postcode,o.plaats].filter(Boolean).join(' '))+bronTagRpt(o,'postcode'))}
+      ${kv('Type woning',esc(o.type))}${kv('Bouwjaar',esc(o.bouwjaar)+bronTagRpt(o,'bouwjaar'))}
+      ${kv('Gebruiksoppervlakte',o.gbo?esc(o.gbo)+' m²'+bronTagRpt(o,'gbo'):'')}${kv('Inhoud',o.inhoud?esc(o.inhoud)+' m³'+bronTagRpt(o,'inhoud'):'')}
+      ${kv('Aantal bouwlagen',esc(o.bouwlagen)+bronTagRpt(o,'bouwlagen'))}${kv('Hoogte gebouw',o.hoogte?esc(o.hoogte)+' m'+bronTagRpt(o,'hoogte'):'')}${kv('Gebruiksdoel',esc(o.gebruiksdoel||'')+bronTagRpt(o,'gebruiksdoel'))}${kv('Dakvorm',esc(o.dak)+bronTagRpt(o,'dak'))}
+      ${kv('Funderingswijze',esc(o.fundering||'Onbekend'))}${o.funderingIndicatie?kv('Indicatie funderingswijze',esc(o.funderingIndicatie)+(o.funderingBron?'<br><small style="font-weight:400">Bron: '+esc(o.funderingBron)+'</small>':'')):''}${kv('Energielabel',esc(o.label||'Onbekend')+bronTagRpt(o,'label')+(o.labelInfo?' <small style="font-weight:400">('+esc(o.labelInfo)+')</small>':''))}
       ${kv('Verwarming',esc(o.verwarming))}${kv('Ketel (bouwjaar / merk)',esc(o.ketel))}
       ${kv('Bewoning',esc(o.bewoning))}${kv('Weersomstandigheden',esc(o.weer))}</div>`,
+    ...(o.bag||k.hv?[`<h3>${ico('search',6)}Gegevens uit openbare registraties</h3>
+    <p class="note" style="margin:0 0 2mm">Onderstaande gegevens zijn automatisch opgehaald${o.bagDatum?' op '+fmtDate(o.bagDatum):''} en zijn niet door de inspecteur ter plaatse gemeten, tenzij aangegeven als <i>aangepast</i>.</p>
+    <table class="regt"><tr><th>Gegeven</th><th>Waarde</th><th>Bron</th></tr>${[
+      ['BAG-verblijfsobject-ID',o.bag?.vboId,'BAG'],['BAG-pand-ID',o.bag?.pandId,'BAG'],['Status pand',o.bag?.status,'BAG'],
+      ['Oorspronkelijk bouwjaar',o.bag?.bouwjaar,'BAG'],['Gebruiksoppervlakte',o.bag?.opp?o.bag.opp+' m²':'','BAG'],['Gebruiksdoel',o.bag?.doel,'BAG'],['Verblijfsobjecten in pand',o.bag?.aantal,'BAG'],
+      ['Aantal bouwlagen',(o.bron||{}).bouwlagen?o.bronW.bouwlagen:'','3D BAG'],['Hoogte (maaiveld tot hoogste punt)',(o.bron||{}).hoogte?o.bronW.hoogte+' m':'','3D BAG'],['Inhoud',(o.bron||{}).inhoud?o.bronW.inhoud+' m³':'','3D BAG'],
+      ...(k.hv&&k.hv.auto?[['Buitenmuren (excl. woningscheidend)',k.hv.gevel!=null?k.hv.gevel+' m²':'','3D BAG'],['Dak plat / hellend',(k.hv.dakPlat??'–')+' / '+(k.hv.dakHellend??'–')+' m²','3D BAG'],['Grondvlak',k.hv.footprint!=null?k.hv.footprint+' m²':'','3D BAG']]:[]),
+      ['Energielabel',(o.bron||{}).label?(o.bronW.label||'Onbekend')+(o.labelInfo?' ('+o.labelInfo+')':''):'','EP-Online'],
+      ['Indicatie funderingswijze',(o.bron||{}).funderingIndicatie?o.bronW.funderingIndicatie:'','BRO/RVO']
+    ].filter(r=>r[1]!=null&&r[1]!=='').map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(BRON_LBL[r[2]]||r[2])}</td></tr>`).join('')}</table>
+    ${o.bag?.vboId?`<p class="note" style="margin-top:1.5mm">Controle in de BAG-viewer: bagviewer.kadaster.nl, object ${esc(o.bag.vboId)}.</p>`:''}`]:[]),
     `<h3>${ico('alert',6)}C · Bijzondere aandachtspunten</h3>
     <div class="dots">${AANDACHT.map(([kk,t])=>{const a=k.aandacht[kk]||{s:''}; return `<div><span class="dot d-${a.s||'leeg'}"></span>${t}<em>${a.s?stLbl[a.s]:'Niet beoordeeld'}${a.t?' – '+esc(a.t):''}</em></div>`}).join('')}</div>
     <div class="pleg" style="margin-top:2.5mm">${STATUS.map(([v,l])=>`<span><i class="d-${v}" style="border-radius:50%"></i>${l}</span>`).join('')}</div>`,
