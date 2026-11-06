@@ -59,7 +59,7 @@ body.v-gevel .topbar-in{max-width:none}
 .wl-ed .wl-eb{display:flex;gap:6px}.wl-ed .wl-eb button{flex:1;border-radius:8px;padding:8px;font-size:14px;cursor:pointer;border:1px solid #cfdcd3;background:#f4f7f5}
 .wl-ed .wl-eb .wl-ok{background:var(--g800);color:#fff;border-color:var(--g800);font-weight:700}
 .wl-leeg{color:#8a958e;font-size:13px;padding:10px 2px}
-.wl-foot{display:flex;gap:6px;margin-top:6px}.wl-status{font-size:11px;color:#8a958e;margin-top:8px}
+.wl-foot{display:flex;gap:6px;margin-top:6px}.wl-status{font-size:11px;color:#8a958e;margin-top:8px}.bron-extra{margin-top:14px;border-top:1px solid #e3ebe5;padding-top:12px}.be-kop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.be-knop{background:#2D6042;color:#fff;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer}.be-st{font-size:12px;color:#5d6e63}.be-lijst{margin-top:10px;font-size:14px}.be-lijst ul{margin:6px 0 0;padding-left:18px}.be-lijst li{margin:4px 0}.be-m{font-size:11px;color:#8a958e}
 .wl-foot button{flex:1;border:1px solid #cfdcd3;background:#f4f7f5;border-radius:8px;padding:7px;font-size:13px;cursor:pointer}
 @media(max-width:600px){.wl-btn{padding:6px 9px;font-size:13px;margin-right:6px}.wl-pop{position:fixed;left:12px;right:12px;top:96px;width:auto}}
 .topbar .back:hover{background:rgba(255,255,255,.24)}
@@ -1199,7 +1199,7 @@ body.v-opname{background-image:none!important}
  <div class="card wt-card" id="watch-card"></div>
  <div class="card">
   <h3>Geldende bronnen energieprestatie (stand 30-10-2026)</h3>
-  <p class="hint" style="margin-top:0">Per 29 mei 2026 aangewezen in de Omgevingsregeling: NTA 8800:2025+C1:2026, BRL 9500-U/-W:2026 en de ISSO-opnameprotocollen 75.1 en 82.1, 7e druk. Klik op een bron om die te openen; documenten met 📄 staan als PDF in de map <b>Bronnen</b> naast dit dashboard en werken ook zonder internet. Op de telefoon (online versie) tik je zo’n document één keer aan en kies je de PDF; die blijft daarna op dat apparaat bewaard en opent direct. Nieuwe KEGO-antwoorden, ISSO-nieuws (errata, wijzigingsdocumenten) en BRL-documenten worden op de achtergrond gecontroleerd (elke 4 uur) en hierboven alleen gemeld als er iets nieuws is.</p>
+  <p class="hint" style="margin-top:0">Per 29 mei 2026 aangewezen in de Omgevingsregeling: NTA 8800:2025+C1:2026, BRL 9500-U/-W:2026 en de ISSO-opnameprotocollen 75.1 en 82.1, 7e druk. Klik op een bron om die te openen; documenten met 📄 staan als PDF in de map <b>Bronnen</b> naast dit dashboard en werken ook zonder internet. In de online versie staan deze PDF’s gedeeld klaar voor iedereen met toegang; ontbreekt er een, tik hem aan of gebruik <b>PDF’s toevoegen voor iedereen</b> onder de tabel. Nieuwe KEGO-antwoorden, ISSO-nieuws (errata, wijzigingsdocumenten) en BRL-documenten worden op de achtergrond gecontroleerd (elke 4 uur) en hierboven alleen gemeld als er iets nieuws is.</p>
   <table class="src-tab">
    <thead><tr><th>Document</th><th>Versie / datum</th><th>Status</th><th>Opmerking</th></tr></thead>
    <tbody>
@@ -1240,6 +1240,7 @@ body.v-opname{background-image:none!important}
     <tr><td><a href="https://documenten.isso.nl/s/uMAtmUYi3EglqeFQN-7xRrPRPvakyJ-8/Wijzigingsdocument%20ISSO%2082.1%202024%20V2.1%20ISSO-RvB%2007.12.2023%20DEF.pdf" target="_blank" rel="noopener">Wijzigingsdocument ISSO 82.1 – 2024</a></td><td>07-12-2023</td><td class="old">vervallen</td><td>Hoorde bij de 6e druk / NTA 8800:2024.</td></tr>
    </tbody>
   </table>
+  <div id="bron-extra" class="bron-extra" hidden><div class="be-kop"><label class="be-knop"><input type="file" id="bron-up" accept="application/pdf,.pdf" multiple hidden>＋ PDF's toevoegen voor iedereen</label><span class="be-st"></span></div><div class="be-lijst"></div></div>
  </div>
 <div class="card" style="margin-top:12px" id="kb-card">
   <h3>KEGO-kennisbank (openbaar)</h3>
@@ -6948,14 +6949,38 @@ async function show(key,title,rec){ensureViewer();const {o,$b}=V;V.key=key;V.tit
   $b.innerHTML='';if(V.io)V.io.disconnect();V.io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)render(e.target)}),{root:$b,rootMargin:'800px 0px'});
   for(let i=1;i<=V.pdf.numPages;i++){const d=document.createElement('div');d.className='pg';d.dataset.p=i;$b.appendChild(d)}layout();[...$b.children].forEach(el=>V.io.observe(el))}
  catch(e){console.error(e);$b.innerHTML='<div class="bv-msg">Deze PDF kon niet worden geopend ('+String(e.message||e)+'). Kies met <b>Ander bestand</b> een andere PDF, of open hem bij voorkeur op de computer.</div>'}}
-async function openBron(a){const key=keyOf(a),title=titleOf(a);let rec=await dget(key);
- if(!rec){if(!confirm('"'+title+'" staat nog niet op dit apparaat.\n\nKies de PDF één keer (bijv. uit Downloads of Google Drive); daarna opent hij hier direct, ook zonder internet. Het bestand blijft alleen in deze browser en wordt niet online gezet.'))return;rec=await kies(key,title);if(!rec)return}
+// --- gedeelde bronnen (online, Cloudflare R2) ---
+let SRV=null;
+function srvLijst(vers){if(!online())return Promise.resolve(null);if(!SRV||vers)SRV=fetch('api/bronnen',{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok&&(r.headers.get('content-type')||'').includes('json')?r.json():null).catch(()=>null);return SRV}
+async function haalServer(key,title){try{const r=await fetch('Bronnen/'+encodeURIComponent(key),{credentials:'same-origin'});if(!r.ok||!(r.headers.get('content-type')||'').includes('pdf'))return null;
+ const b=await r.blob();const rec={name:key,size:b.size,t:Date.now(),title,data:new Blob([b],{type:'application/pdf'}),gedeeld:1};dput(key,rec).catch(()=>{});return rec}catch(e){return null}}
+async function upload(naam,blob){const r=await fetch('api/bronnen?naam='+encodeURIComponent(naam),{method:'PUT',body:blob,headers:{'content-type':'application/pdf'},credentials:'same-origin'});if(!r.ok)throw new Error('upload '+r.status);return true}
+async function openBron(a){const key=keyOf(a),title=titleOf(a);let rec=null;
+ if(online()){const l=await srvLijst();if(l&&l.some(x=>x.naam===key))rec=await haalServer(key,title)}
+ if(!rec)rec=await dget(key);
+ if(!rec){const l=online()?await srvLijst():null;
+  if(l){if(!confirm('"'+title+'" staat nog niet in de gedeelde bronnen.\n\nKies de PDF één keer (bijv. uit de map Bronnen); daarna staat hij voor iedereen met toegang klaar.'))return;
+   rec=await kies(key,title);if(!rec)return;try{await upload(key,rec.data);await srvLijst(true);markAll();bronExtra()}catch(e){alert('Opslaan in de gedeelde bronnen lukte niet; de PDF staat wel op dit apparaat.')}}
+  else{if(!confirm('"'+title+'" staat nog niet op dit apparaat.\n\nKies de PDF één keer (bijv. uit Downloads of Google Drive); daarna opent hij hier direct, ook zonder internet. Het bestand blijft alleen in deze browser en wordt niet online gezet.'))return;rec=await kies(key,title);if(!rec)return}}
  show(key,title,rec)}
+// uploadknop + overige gedeelde documenten
+async function bronExtra(){const box=document.getElementById('bron-extra');if(!box)return;if(!online()){box.hidden=true;return}
+ const l=await srvLijst();if(!l){box.hidden=false;box.querySelector('.be-lijst').innerHTML='';box.querySelector('.be-st').textContent='Gedeelde bronnen zijn nog niet gekoppeld (R2-opslag BRONNEN).';return}
+ box.hidden=false;const bekend=new Set([...document.querySelectorAll('a[href^="Bronnen/"]')].filter(a=>!a.closest('#bron-extra')).map(keyOf));
+ const rest=l.filter(x=>!bekend.has(x.naam));const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ box.querySelector('.be-st').textContent=l.length+' document'+(l.length===1?'':'en')+' gedeeld · voor iedereen met toegang';
+ box.querySelector('.be-lijst').innerHTML=rest.length?'<b>Overige gedeelde documenten</b><ul>'+rest.map(x=>'<li><a href="Bronnen/'+encodeURIComponent(x.naam)+'">📄 '+esc(x.naam.replace(/\.pdf$/i,'').replace(/_/g,' '))+'</a> <span class="be-m">'+(x.grootte/1048576).toFixed(1)+' MB'+(x.door?' · '+esc(x.door.split('@')[0]):'')+'</span></li>').join('')+'</ul>':''}
+async function bronUpload(files){const st=document.querySelector('#bron-extra .be-st');let ok=0,fout=0;files=[...files].filter(f=>/\.pdf$/i.test(f.name));
+ for(const f of files){st.textContent='Bezig: '+f.name+' ('+(ok+fout+1)+'/'+files.length+')…';try{await upload(f.name,f);ok++}catch(e){fout++}}
+ await srvLijst(true);await markAll();await bronExtra();st.textContent=ok+' PDF'+(ok===1?'':'\'s')+' gedeeld'+(fout?' · '+fout+' mislukt':'')+' · voor iedereen met toegang'}
 // online: alle links naar de map Bronnen; op de computer alleen de links die niet in de map staan (data-dev)
 document.addEventListener('click',e=>{const a=e.target.closest('a[href^="Bronnen/"]');if(!a)return;if(!online()&&!a.hasAttribute('data-dev'))return;e.preventDefault();e.stopPropagation();openBron(a)},true);
-async function markAll(){const as=[...document.querySelectorAll('a[href^="Bronnen/"]')];for(const a of as){const use=online()||a.hasAttribute('data-dev');let m=a.nextElementSibling&&a.nextElementSibling.classList.contains('bron-dev')?a.nextElementSibling:null;
-  if(!use){if(m)m.remove();continue}const rec=await dget(keyOf(a)).catch(()=>null);if(!m){m=document.createElement('span');m.className='bron-dev';a.after(m)}m.textContent=rec?'✓ op dit apparaat':'tik om te koppelen'}}
-ensureViewer();window.addEventListener('hashchange',()=>setTimeout(markAll,50));setTimeout(markAll,300);window.elnBronMark=markAll;
+async function markAll(){const as=[...document.querySelectorAll('a[href^="Bronnen/"]')];const l=online()?await srvLijst():null;for(const a of as){const use=online()||a.hasAttribute('data-dev');let m=a.nextElementSibling&&a.nextElementSibling.classList.contains('bron-dev')?a.nextElementSibling:null;
+  if(!use||a.closest('#bron-extra')){if(m)m.remove();continue}const k=keyOf(a);if(!m){m=document.createElement('span');m.className='bron-dev';a.after(m)}
+  if(l){m.textContent=l.some(x=>x.naam===k)?'✓ gedeeld':'nog niet gedeeld – tik om toe te voegen';continue}
+  const rec=await dget(k).catch(()=>null);m.textContent=rec?'✓ op dit apparaat':'tik om te koppelen'}}
+ensureViewer();window.addEventListener('hashchange',()=>setTimeout(()=>{markAll();bronExtra()},50));setTimeout(()=>{markAll();bronExtra()},300);
+(function(){const i=document.getElementById('bron-up');if(i)i.addEventListener('change',()=>{if(i.files&&i.files.length)bronUpload(i.files);i.value=''})})();window.elnBronMark=markAll;
 })();
 </script>
 </body>
