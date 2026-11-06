@@ -423,7 +423,7 @@ function vObject(){
     ${SEL('obj.type','Type woning',['Tussenwoning','Hoekwoning','2-onder-1-kapwoning','Vrijstaande woning','Appartement (benedenwoning)','Appartement (tussenverdieping)','Appartement (bovenwoning)','Maisonnette','Bedrijfspand'])}
     ${F('obj.bouwjaar','Bouwjaar','number')}
     ${F('obj.gbo','Gebruiksoppervlakte (m²)','number')}${F('obj.inhoud','Inhoud (m³)','number')}
-    ${F('obj.bouwlagen','Aantal bouwlagen','number')}${SEL('obj.bewoning','Bewoning',['Bewoond','Leeg','Onbewoond / gemeubileerd'])}
+    ${F('obj.bouwlagen','Aantal bouwlagen','number')}${F('obj.hoogte','Hoogte gebouw (m, 3D BAG)')}${F('obj.gebruiksdoel','Gebruiksdoel (BAG)')}${SEL('obj.bewoning','Bewoning',['Bewoond','Leeg','Onbewoond / gemeubileerd'])}
     ${SEL('obj.fundering','Funderingswijze',['','Op staal','Houten palen','Houten palen met betonopzetter','Betonpalen','Onbekend'])}
     ${SEL('obj.dak','Dakvorm',['','Zadeldak','Schilddak','Mansardedak','Lessenaarsdak','Plat dak','Combinatie'])}
     ${F('obj.label','Energielabel')}${F('obj.verwarming','Verwarming (bijv. HR-ketel, warmtepomp)')}
@@ -450,21 +450,38 @@ function adresSuggest(){
   inp.addEventListener('blur',()=>setTimeout(()=>ul.hidden=true,250));
 }
 async function pickAdres(id){
-  const o=S.cur.obj; $('#adrUl').hidden=true; const msg=$('#bagMsg');
+  const o=S.cur.obj; $('#adrUl').hidden=true; const msg=()=>$('#bagMsg');
+  let d;
+  try{ const r=await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/lookup?id='+encodeURIComponent(id)); d=(await r.json()).response.docs[0]; }
+  catch(_){ msg().textContent='Adres zoeken niet bereikbaar (geen internet?). Vul handmatig in.'; return; }
+  o.adres=`${d.straatnaam} ${d.huis_nlt||d.huisnummer}`; o.postcode=d.postcode||''; o.plaats=d.woonplaatsnaam||'';
+  save(); vObject(); $('#title').textContent=o.adres; msg().textContent='Adres overgenomen; gegevens ophalen uit de BAG en 3D BAG…';
   try{
-    const r=await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/lookup?id='+encodeURIComponent(id)); const d=(await r.json()).response.docs[0];
-    o.adres=`${d.straatnaam} ${d.huis_nlt||d.huisnummer}`; o.postcode=d.postcode||''; o.plaats=d.woonplaatsnaam||'';
-    msg.textContent='Adres overgenomen; BAG-gegevens ophalen…'; save(); vObject();
-    const vbo=d.adresseerbaarobject_id;
-    if(vbo){ try{
-      const u='https://api.pdok.nl/kadaster/bag/ogc/v2/collections/verblijfsobject/items?f=json&identificatie='+vbo;
-      const j=await (await fetch(u)).json(); const p=j.features?.[0]?.properties||{};
-      const bj=p.bouwjaar||p.oorspronkelijk_bouwjaar; const opp=p.oppervlakte;
-      if(bj) o.bouwjaar=String(bj); if(opp) o.gbo=String(opp);
-      save(); vObject(); $('#bagMsg').textContent= bj||opp ? `BAG: bouwjaar ${bj||'?'}, oppervlakte ${opp||'?'} m².` : 'Adres overgenomen. Bouwjaar en oppervlakte niet gevonden in BAG – vul handmatig in.';
-    }catch(_){ $('#bagMsg').textContent='Adres overgenomen. BAG-gegevens niet bereikbaar – vul bouwjaar handmatig in.'; } }
-  }catch(_){ msg.textContent='Adres zoeken niet bereikbaar (geen internet?). Vul handmatig in.'; }
-  $('#title').textContent=o.adres;
+    const m=/POINT\(([\d.]+) ([\d.]+)\)/.exec(d.centroide_rd||''); if(!m) throw new Error('geen coördinaten'); const x=+m[1],y=+m[2];
+    const base='https://service.pdok.nl/lv/bag/wfs/v2_0?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:28992&bbox='+[x-1,y-1,x+1,y+1].join(',')+',EPSG:28992&typeNames=';
+    const [vr,pr]=await Promise.all([fetch(base+'bag:verblijfsobject').then(r=>r.json()),fetch(base+'bag:pand').then(r=>r.json())]);
+    const vbo=(vr.features||[]).find(f=>String(f.properties.identificatie)===String(d.adresseerbaarobject_id))||(vr.features||[])[0];
+    const vp=vbo?.properties||{}; const pids=String(vp.pandidentificatie||'').split(/[,; ]+/);
+    const pand=(pr.features||[]).find(f=>pids.includes(String(f.properties.identificatie)))||(pr.features||[])[0]; const pp=pand?.properties||{};
+    const bag={vboId:vp.identificatie||d.adresseerbaarobject_id||'',pandId:pp.identificatie||'',bouwjaar:pp.bouwjaar??vp.bouwjaar??'',opp:vp.oppervlakte??'',doel:vp.gebruiksdoel||'',status:pp.status||vp.status||'',aantal:pp.aantal_verblijfsobjecten??''};
+    if(bag.bouwjaar) o.bouwjaar=String(bag.bouwjaar); if(bag.opp) o.gbo=String(bag.opp);
+    o.gebruiksdoel=String(bag.doel||''); o.bag=bag;
+    // 3D BAG: bouwlagen, hoogte, daktype, inhoud
+    let extra='';
+    if(bag.pandId){ try{
+      const j=await fetch('https://api.3dbag.nl/collections/pand/items/NL.IMBAG.Pand.'+bag.pandId).then(r=>r.json()); const objs=j.feature?.CityObjects||{}; let at=null;
+      for(const k in objs){ const a=objs[k].attributes; if(a&&Object.keys(a).some(x=>/maaiveld/.test(x))){ at=a; break; } }
+      if(at){ const mv=at.b3_h_maaiveld??at.h_maaiveld, top=at.b3_h_dak_max??at.h_dak_max; const lagen=at.b3_bouwlagen; const vol=at.b3_volume_lod22??at.b3_volume_lod12; const dt=String(at.b3_dak_type||'');
+        if(lagen) o.bouwlagen=String(lagen);
+        if(mv!=null&&top!=null) o.hoogte=(top-mv).toFixed(1).replace('.',',');
+        if(vol&&(+bag.aantal||1)===1) o.inhoud=String(Math.round(vol));
+        if(!o.dak&&/horizontal/.test(dt)) o.dak='Plat dak';
+        extra=[lagen?lagen+' bouwlagen':'',o.hoogte?'hoogte '+o.hoogte+' m':'',vol&&(+bag.aantal||1)===1?'inhoud ± '+Math.round(vol)+' m³':''].filter(Boolean).join(', '); } }catch(_){ } }
+    save(); vObject();
+    const bv='https://bagviewer.kadaster.nl/lvbag/bag-viewer/?objectId='+encodeURIComponent(bag.vboId);
+    msg().innerHTML=`BAG: bouwjaar ${esc(bag.bouwjaar||'?')}, ${esc(bag.opp||'?')} m², ${esc(bag.doel||'gebruiksdoel onbekend')}${bag.aantal>1?`, ${bag.aantal} verblijfsobjecten in het pand`:''}${extra?' · 3D BAG: '+esc(extra):''}. <a href="${bv}" target="_blank" rel="noopener">Bekijk in BAG-viewer</a>`
+      +(+bag.aantal>1&&!/^Appartement|Maisonnette/.test(o.type||'')?'<br><b>Let op:</b> meerdere verblijfsobjecten in het pand – controleer het type woning (appartement?).':'');
+  }catch(_){ msg().textContent='Adres overgenomen. BAG-gegevens niet bereikbaar – vul bouwjaar en oppervlakte handmatig in.'; }
 }
 
 /* ---------- AANDACHTSPUNTEN ---------- */
@@ -653,7 +670,7 @@ function buildSections(){
       ${kv('Adres',esc(o.adres))}${kv('Postcode en plaats',esc([o.postcode,o.plaats].filter(Boolean).join(' ')))}
       ${kv('Type woning',esc(o.type))}${kv('Bouwjaar',esc(o.bouwjaar))}
       ${kv('Gebruiksoppervlakte',o.gbo?esc(o.gbo)+' m²':'')}${kv('Inhoud',o.inhoud?esc(o.inhoud)+' m³':'')}
-      ${kv('Aantal bouwlagen',esc(o.bouwlagen))}${kv('Dakvorm',esc(o.dak))}
+      ${kv('Aantal bouwlagen',esc(o.bouwlagen))}${kv('Hoogte gebouw',o.hoogte?esc(o.hoogte)+' m':'')}${kv('Gebruiksdoel (BAG)',esc(o.gebruiksdoel||''))}${kv('Dakvorm',esc(o.dak))}
       ${kv('Funderingswijze',esc(o.fundering||'Onbekend'))}${kv('Energielabel',esc(o.label))}
       ${kv('Verwarming',esc(o.verwarming))}${kv('Ketel (bouwjaar / merk)',esc(o.ketel))}
       ${kv('Bewoning',esc(o.bewoning))}${kv('Weersomstandigheden',esc(o.weer))}</div>`,
