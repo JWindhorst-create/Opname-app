@@ -250,6 +250,13 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .pr-n{flex:1}.pr-n small{display:block;color:var(--muted);font-size:11.5px}
 .pr-in{display:flex;align-items:center;gap:4px}.pr-in input{width:92px;margin:0}.pr-in em{font-style:normal;color:var(--muted);font-size:12px}
 .rpt .cl-rpt{margin-top:2mm;font-size:7.6pt}.rpt .cl-rpt th,.rpt .cl-rpt td{padding:1mm 1.5mm}
+
+.cl-n{display:flex;align-items:flex-start;gap:8px}.cl-n>input{flex:1}
+.cl-n .cl-del{margin-left:auto}
+.cl-omv{display:grid;grid-template-columns:1fr auto}.cl-omv button{padding:9px 10px;font-size:13px}
+.cl-q{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:0}.cl-q input{width:100px;margin:0}.cl-q em{font-style:normal}
+.cl-tot{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:var(--ink);margin:0}.cl-tot input{width:120px;margin:0;font-weight:700;text-align:right}
+.cl-hint{font-size:12px;color:var(--muted)}.cl-re{border:0;background:none;color:var(--brand2);font-weight:600;padding:0 0 0 4px;font-size:12px}
 </style>
 
 
@@ -1010,11 +1017,20 @@ function hvKaart(k){ const hv=k.hv||{};
    <div class="grid">${Object.keys(HV_LBL).map(q=>F('hv.'+q,HV_LBL[q]+' ('+HV_EH[q]+')','number')).join('')}</div>${hv.bron?`<p class="muted">Bron: ${esc(hv.bron)}</p>`:''}</div>`; }
 function prijsKaart(){ return `<div class="card"><h2>Prijslijst (indicatief, incl. btw)</h2><p class="muted" style="margin-top:0">Bronnen: <b>IMG</b> = calculatiemodel gevel van het Instituut Mijnbouwschade Groningen (peildatum 1-1-2025, omgerekend incl. btw); <b>markt</b> = gemiddelde marktprijzen 2026; <b>schatting</b> = controleren. Een aangepaste prijs geldt voor alle keuringen.</p>
    <details class="pr-det"><summary>Prijzen bekijken en aanpassen (${PRIJZEN.length-1} posten)</summary><div class="pr-list">${PRIJZEN.filter(p=>p.id!=='vrij').map(p=>`<label class="pr-row"><span class="pr-n">${esc(p.n)}<small>${esc(PB[p.b])} · standaard ${eur(p.p)} / ${p.eh}</small></span><span class="pr-in"><input type="number" inputmode="decimal" step="0.01" data-pr="${p.id}" placeholder="${p.p}" value="${(S.settings.prijzen||{})[p.id]??''}"><em>/${p.eh}</em></span></label>`).join('')}</div></details></div>`; }
-// kostenregels in een bevinding
-function calcTot(b){ const L=b.calc||[]; return {d:L.filter(x=>x.s!=='termijn').reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0),t:L.filter(x=>x.s==='termijn').reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0)}; }
-function calcHTML(b){ const L=b.calc||[]; return (L.length?`<div class="cl-list">${L.map((x,i)=>`<div class="cl-row"><div class="cl-n">${x.id==='vrij'?`<input data-cl="${i}" data-f="n" value="${esc(x.n)}" placeholder="Omschrijving">`:esc(x.n)}</div>
-   <div class="cl-f"><input type="number" inputmode="decimal" data-cl="${i}" data-f="q" value="${x.q??''}"><em>${x.eh}</em> × <input type="number" inputmode="decimal" data-cl="${i}" data-f="p" value="${x.p??''}"><em>€</em></div>
-   <div class="cl-s"><div class="seg"><button type="button" data-cl="${i}" data-f="s" data-v="direct" class="${x.s!=='termijn'?'on':''}">Direct</button><button type="button" data-cl="${i}" data-f="s" data-v="termijn" class="${x.s==='termijn'?'on':''}">Termijn</button></div><b>${eur((+x.q||0)*(+x.p||0))}</b><button type="button" class="cl-del" data-cl="${i}" data-f="del" aria-label="Verwijderen">×</button></div></div>`).join('')}</div>`:'<p class="muted" style="margin:0">Nog geen posten. Voeg een post toe uit de prijslijst; de bedragen hieronder worden dan automatisch berekend.</p>')+
+// kostenregels in een bevinding: altijd een totaalbedrag (vrij aan te passen); bij vlakken keuze geheel vlak of deel
+const clVlak=x=>{ const p=PRIJZEN.find(y=>y.id===x.id); return p&&p.q?p.q:null; };
+const clBer=x=>Math.round((+x.q||0)*(+x.p||0));
+const clTot=x=>x.tot!=null&&x.tot!==''?+x.tot:clBer(x);
+function calcTot(b){ const L=b.calc||[]; return {d:L.filter(x=>x.s!=='termijn').reduce((a,x)=>a+clTot(x),0),t:L.filter(x=>x.s==='termijn').reduce((a,x)=>a+clTot(x),0)}; }
+function clOmvang(x){ const v=clVlak(x); if(v&&x.omv!=='deel') return 'gehele '+HV_LBL[v].toLowerCase().replace(/ \(.*\)/,'')+(x.q?' ('+String(x.q).replace('.',',')+' '+x.eh+')':'');
+  if(v) return 'deel: '+String(x.q||0).replace('.',',')+' '+x.eh; return x.eh==='pst'?'post':String(x.q||0).replace('.',',')+' '+x.eh; }
+function calcHTML(b){ const hv=(S.cur&&S.cur.hv)||{}; const L=b.calc||[];
+  return (L.length?`<div class="cl-list">${L.map((x,i)=>{ const v=clVlak(x); return `<div class="cl-row"><div class="cl-n">${x.id==='vrij'?`<input data-cl="${i}" data-f="n" value="${esc(x.n||'')}" placeholder="Omschrijving">`:esc(x.n)}<button type="button" class="cl-del" data-cl="${i}" data-f="del" aria-label="Verwijderen">×</button></div>
+   ${v?`<div class="seg cl-omv"><button type="button" data-cl="${i}" data-f="omv" data-v="geheel" class="${x.omv!=='deel'?'on':''}">Gehele ${HV_LBL[v].toLowerCase()}${hv[v]?` · ${hv[v]} ${HV_EH[v]}`:''}</button><button type="button" data-cl="${i}" data-f="omv" data-v="deel" class="${x.omv==='deel'?'on':''}">Deel</button></div>`:''}
+   ${(v&&x.omv==='deel')||(!v&&x.eh!=='pst')?`<label class="cl-q">${v?'Oppervlak deel':'Aantal'} <input type="number" inputmode="decimal" data-cl="${i}" data-f="q" value="${x.q??''}"><em>${x.eh}</em></label>`:''}
+   <div class="cl-s"><div class="seg"><button type="button" data-cl="${i}" data-f="s" data-v="direct" class="${x.s!=='termijn'?'on':''}">Direct</button><button type="button" data-cl="${i}" data-f="s" data-v="termijn" class="${x.s==='termijn'?'on':''}">Termijn</button></div>
+     <label class="cl-tot">€ <input type="number" inputmode="decimal" data-cl="${i}" data-f="tot" value="${clTot(x)}"></label></div>
+   <div class="cl-hint">${x.tot!=null&&x.tot!==''&&+x.tot!==clBer(x)?`Bedrag zelf aangepast · berekend zou ${eur(clBer(x))} zijn <button type="button" class="cl-re" data-cl="${i}" data-f="re">↺ berekend bedrag</button>`:`Berekend op ${esc(clOmvang(x))}${x.eh!=='pst'?` (richtprijs ${eur(x.p)}/${x.eh})`:''} – vrij aan te passen`}</div></div>`; }).join('')}</div>`:'<p class="muted" style="margin:0">Nog geen posten. Voeg een post toe uit de prijslijst; het totaalbedrag wordt berekend en is daarna vrij aan te passen.</p>')+
    `<button type="button" class="btn sec cl-add" id="clAdd">+ Post uit prijslijst</button>`; }
 function postKiezen(b,klaar){ const k=S.cur, hv=k.hv||{}; const eigen=PRIJZEN.filter(p=>p.el.includes(b.element)), rest=PRIJZEN.filter(p=>!p.el.includes(b.element));
   const bg=document.createElement('div'); bg.className='sheet-bg'; bg.style.zIndex=60;
@@ -1024,7 +1040,7 @@ function postKiezen(b,klaar){ const k=S.cur, hv=k.hv||{}; const eigen=PRIJZEN.fi
   document.body.appendChild(bg); const dicht=()=>bg.remove(); bg.querySelector('#ppX').onclick=dicht; bg.addEventListener('click',e=>{ if(e.target===bg) dicht(); });
   bg.querySelector('#ppQ').addEventListener('input',e=>{ const q=e.target.value.toLowerCase(); bg.querySelectorAll('[data-pp]').forEach(x=>x.hidden=q&&!x.textContent.toLowerCase().includes(q)); });
   bg.querySelectorAll('[data-pp]').forEach(el=>el.onclick=()=>{ const p=PRIJZEN.find(x=>x.id===el.dataset.pp); const q=p.q&&hv[p.q]?+hv[p.q]:1;
-    b.calc=b.calc||[]; b.calc.push({id:p.id,n:p.id==='vrij'?'':p.n,eh:p.eh,q,p:prijsVan(p.id),s:+b.cond>=5?'direct':'termijn',b:p.b}); dicht(); klaar(); });
+    b.calc=b.calc||[]; b.calc.push({id:p.id,n:p.id==='vrij'?'':p.n,eh:p.eh,q,p:prijsVan(p.id),omv:'geheel',tot:null,s:+b.cond>=5?'direct':'termijn',b:p.b}); dicht(); klaar(); });
 }
 
 /* ---------- BEVINDINGEN ---------- */
@@ -1087,8 +1103,16 @@ function bevSheet(b,isNew){
   const clBox=bg.querySelector('#clBox');
   const clSync=()=>{ if((b.calc||[]).length){ const t=calcTot(b); b.direct=t.d?String(Math.round(t.d)):''; b.termijn=t.t?String(Math.round(t.t)):''; bg.querySelector('[data-k="direct"]').value=b.direct; bg.querySelector('[data-k="termijn"]').value=b.termijn; } save(); };
   const clDraw=()=>{ clBox.innerHTML=calcHTML(b); clBox.querySelector('#clAdd').onclick=()=>postKiezen(b,()=>{ clDraw(); clSync(); }); };
-  clBox.addEventListener('input',e=>{ const el=e.target.closest('[data-cl]'); if(!el) return; const x=b.calc[+el.dataset.cl]; const f=el.dataset.f; x[f]=f==='n'?el.value:el.value===''?'':+el.value; const row=el.closest('.cl-row'); if(row) row.querySelector('.cl-s b').textContent=eur((+x.q||0)*(+x.p||0)); clSync(); });
-  clBox.addEventListener('click',e=>{ const el=e.target.closest('button[data-cl]'); if(!el) return; const i=+el.dataset.cl; if(el.dataset.f==='del'){ b.calc.splice(i,1); if(!b.calc.length){ b.direct=''; b.termijn=''; bg.querySelector('[data-k="direct"]').value=''; bg.querySelector('[data-k="termijn"]').value=''; } } else if(el.dataset.f==='s'){ b.calc[i].s=el.dataset.v; } clDraw(); clSync(); });
+  clBox.addEventListener('input',e=>{ const el=e.target.closest('[data-cl]'); if(!el||el.tagName!=='INPUT') return; const x=b.calc[+el.dataset.cl]; const f=el.dataset.f;
+    if(f==='n') x.n=el.value; else if(f==='q'){ x.q=el.value===''?'':+el.value; if(x.tot==null||x.tot===''){ const t=clBox.querySelector(`[data-cl="${el.dataset.cl}"][data-f="tot"]`); if(t) t.value=clBer(x); } }
+    else if(f==='tot'){ x.tot=el.value===''?null:+el.value; } clSync(); });
+  clBox.addEventListener('change',e=>{ const el=e.target.closest('[data-cl]'); if(el&&(el.dataset.f==='q'||el.dataset.f==='tot')) clDraw(); });
+  clBox.addEventListener('click',e=>{ const el=e.target.closest('button[data-cl]'); if(!el) return; const i=+el.dataset.cl, x=b.calc[i], f=el.dataset.f;
+    if(f==='del'){ b.calc.splice(i,1); if(!b.calc.length){ b.direct=''; b.termijn=''; bg.querySelector('[data-k="direct"]').value=''; bg.querySelector('[data-k="termijn"]').value=''; } }
+    else if(f==='s') x.s=el.dataset.v;
+    else if(f==='re') x.tot=null;
+    else if(f==='omv'){ x.omv=el.dataset.v; const v=clVlak(x), hv=S.cur.hv||{}; if(x.omv==='geheel'&&v&&hv[v]) x.q=+hv[v]; else if(x.omv==='deel'&&v&&hv[v]&&+x.q===+hv[v]) x.q=''; }
+    clDraw(); clSync(); });
   clDraw();
   bg.querySelector('#txKnop').onclick=()=>txKiezen(b,()=>{ bg.querySelectorAll('[data-k]').forEach(el=>{ const v=b[el.dataset.k]; if(el.tagName==='TEXTAREA'&&v!=null){ el.value=v; el.dispatchEvent(new Event('autosize')); } }); if(b.cond) setC(+b.cond); save(); });
   const ph=bg.querySelector('#bPh'); const draw=()=>{ ph.innerHTML=b.fotos.map((f,i)=>`<div class="ph"><img src="${f}"><button data-i="${i}">×</button></div>`).join('')+fotoKnoppen('bev');
@@ -1277,7 +1301,7 @@ function buildSections(){
         ${!b.gebrek&&!b.advies&&!b.ernst?'<div class="note">Geen bijzonderheden.</div>':''}</div>
         ${hasCost?`<div class="cost">${num(b.direct)?`<div><span>Direct</span><b>${eur(b.direct)}</b></div>`:''}${num(b.termijn)?`<div><span>Op termijn</span><b>${eur(b.termijn)}</b></div>`:''}${num(b.ndTot)?`<div><span>Nader te bep.</span><b>${eur(b.ndVan)}–${eur(b.ndTot).replace('€ ','')}</b></div>`:''}${b.nhg?'<div class="nhg">✓ Meegenomen in NHG</div>':''}</div>`:''}
       </div>
-      ${(b.calc||[]).length?`<table class="cl-rpt"><tr><th>Post</th><th class="r">Hoeveelheid</th><th class="r">Prijs</th><th class="r">Bedrag</th><th>Soort</th></tr>${b.calc.map(x=>`<tr><td>${esc(x.n||'Post')}</td><td class="r">${String(x.q).replace('.',',')} ${x.eh}</td><td class="r">${eur(x.p)}</td><td class="r">${eur((+x.q||0)*(+x.p||0))}</td><td>${x.s==='termijn'?'Termijn':'Direct'}</td></tr>`).join('')}</table>`:''}
+      ${(b.calc||[]).length?`<table class="cl-rpt"><tr><th>Post</th><th>Omvang</th><th class="r">Bedrag</th><th>Soort</th></tr>${b.calc.map(x=>`<tr><td>${esc(x.n||'Post')}</td><td>${esc(clOmvang(x))}</td><td class="r">${eur(clTot(x))}</td><td>${x.s==='termijn'?'Termijn':'Direct'}</td></tr>`).join('')}</table>`:''}
       ${b.fotos?.length?`<div class="bp">${b.fotos.map((f,j)=>`<figure><img src="${f}"><figcaption>Foto ${r}.${j+1}</figcaption></figure>`).join('')}</div>`:''}</div>`;
       bvBlocks.push((i===0?`<h3>${ico(GIC[g.k],6)}${g.t}</h3>`:'')+card); });
   });
