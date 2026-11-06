@@ -185,6 +185,15 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
   .rpt .pg{margin:0;break-after:page;page-break-after:always}
   .rpt .pg:last-child{break-after:auto;page-break-after:auto}
 }
+#hCamV{position:fixed;inset:0;z-index:6000;background:#000;display:flex;flex-direction:column}#hCamV[hidden]{display:none}#hCamV video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+.hc-top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;color:#fff;font-weight:600;background:linear-gradient(rgba(0,0,0,.55),transparent)}
+.hc-top button{background:rgba(0,0,0,.4);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:6px 12px}
+.hc-strip{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:#111;min-height:78px}.hc-th{position:relative;flex:0 0 auto}.hc-th img{width:62px;height:62px;object-fit:cover;border-radius:8px;display:block}
+.hc-th button{position:absolute;top:3px;right:3px;border:0;border-radius:99px;padding:1px 7px;font-size:13px;background:rgba(255,255,255,.92);color:#b3261e}
+.hc-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px calc(16px + env(safe-area-inset-bottom));background:#111;color:#fff}.hc-bar span{width:90px;font-size:14px}
+#hcKlik{width:74px;height:74px;border-radius:50%;background:#fff;border:5px solid #9aa8a0;padding:0;flex:0 0 auto;box-shadow:0 0 0 3px #fff inset}#hcKlik:active{transform:scale(.93)}
+#hcKlaar{width:90px;flex:0 0 auto;background:#2D6042;color:#fff;border:0;border-radius:8px;padding:9px 0;font-weight:700}
+.hc-flits{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}.hc-flits.aan{animation:hcf .25s ease-out}@keyframes hcf{from{opacity:.75}to{opacity:0}}
 </style>
 
 
@@ -195,7 +204,7 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 <nav class="tabs" id="tabs" hidden></nav>
 <div id="printArea"></div>
 <div class="toast" id="toast"></div>
-<input type="file" id="fileIn" accept="image/*" capture="environment" multiple hidden>
+<input type="file" id="fileIn" accept="image/*" capture="environment" multiple hidden><input type="file" id="galIn" accept="image/*" multiple hidden>
 <input type="file" id="fileImport" accept="application/json,.json" hidden>
 
 <script>
@@ -363,8 +372,34 @@ function addMic(ta){
 }
 
 /* ---------- foto's ---------- */
-function pickPhoto(cb){ const fi=$('#fileIn'); fi.onchange=async e=>{ const fs=[...e.target.files]; fi.value=''; for(const f of fs){ cb(await compress(f)); } }; fi.click(); }
+function pickPhoto(cb,gal){ const fi=$(gal?'#galIn':'#fileIn'); fi.onchange=async e=>{ const fs=[...e.target.files]; fi.value=''; for(const f of fs){ cb(await compress(f)); } }; fi.click(); }
 function compress(file,max=1400,q=.78){ return new Promise(res=>{ const img=new Image(); const u=URL.createObjectURL(file); img.onload=()=>{ let {width:w,height:h}=img; const s=Math.min(1,max/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s); const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg',q)); }; img.onerror=()=>res(null); img.src=u; }); }
+
+
+/* ---------- serie-opname met eigen camera (doorklikken, pas aan het eind Klaar) ---------- */
+let camStream=null,camC=null,camStart=0;
+async function serieCamera(ctx){ /* ctx={naam, arr, klaar} */
+  const terug=()=>pickPhoto(d=>{ if(d){ ctx.arr.push(d); save(); ctx.klaar(); } });
+  const md=navigator.mediaDevices; if(!md||!md.getUserMedia) return terug();
+  try{ camStream=await md.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1440}},audio:false}); }
+  catch(e){ toast('Camera niet beschikbaar – per foto opnemen'); return terug(); }
+  camC=ctx; camStart=ctx.arr.length; let ov=$('#hCamV');
+  if(!ov){ document.body.insertAdjacentHTML('beforeend','<div id="hCamV" hidden><video playsinline muted autoplay></video><div class="hc-flits"></div><div class="hc-top"><span id="hcNaam"></span><button type="button" id="hcAnn">✕</button></div><div class="hc-strip" id="hcStrip"></div><div class="hc-bar"><span id="hcN">0</span><button type="button" id="hcKlik" aria-label="Foto maken"></button><button type="button" id="hcKlaar">Klaar</button></div></div>'); ov=$('#hCamV');
+    $('#hcKlik').onclick=camKlik; $('#hcKlaar').onclick=camStop; $('#hcAnn').onclick=camStop;
+    $('#hcStrip').onclick=e=>{ const b=e.target.closest('[data-hcdel]'); if(!b) return; camC.arr.splice(+b.dataset.hcdel,1); save(); camStrip(); }; }
+  ov.hidden=false; document.body.style.overflow='hidden'; $('#hcNaam').textContent=ctx.naam||'Foto-serie';
+  const v=ov.querySelector('video'); v.srcObject=camStream; try{ await v.play(); }catch(e){} camStrip();
+}
+function camStrip(){ const n=camC.arr.length-camStart; $('#hcN').textContent=n+' foto'+(n===1?'':"'s");
+  $('#hcStrip').innerHTML=camC.arr.slice(camStart).map((f,i)=>`<span class="hc-th"><img src="${f}" alt=""><button type="button" data-hcdel="${camStart+i}">✕</button></span>`).join(''); $('#hcStrip').scrollLeft=1e6; }
+function camKlik(){ const v=$('#hCamV video'); if(!v||!v.videoWidth) return; const m=1400,k=Math.min(1,m/Math.max(v.videoWidth,v.videoHeight)),c=document.createElement('canvas');
+  c.width=Math.round(v.videoWidth*k); c.height=Math.round(v.videoHeight*k); c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  const f=$('#hCamV .hc-flits'); f.classList.remove('aan'); void f.offsetWidth; f.classList.add('aan'); if(navigator.vibrate) navigator.vibrate(30);
+  camC.arr.push(c.toDataURL('image/jpeg',.78)); save(); camStrip(); }
+function camStop(){ if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } const ov=$('#hCamV'); if(ov) ov.hidden=true; document.body.style.overflow='';
+  if(!camC) return; const n=camC.arr.length-camStart; const c=camC; camC=null; c.klaar(); if(n>0) toast(n+' foto'+(n>1?"'s":'')+' toegevoegd'); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&camStream) camStop(); });
+function fotoKnoppen(id){ return `<button class="addph" data-ph="${id}" data-m="cam">📷<span>Foto</span></button><button class="addph" data-ph="${id}" data-m="serie">📸<span>Serie</span></button><button class="addph" data-ph="${id}" data-m="gal">🖼<span>Galerij</span></button>`; }
 
 /* ---------- OBJECT ---------- */
 function vObject(){
@@ -400,7 +435,7 @@ function vObject(){
     ${F('herbouw.m3prijs','Herbouwprijs per m³ (€)','number')}${F('herbouw.waarde','Of: herbouwwaarde totaal (€)','number')}</div>
     <p class="muted">Bouwtechnische staat = totale herstelkosten / herbouwwaarde × 100%. Laat totaal leeg om inhoud × m³-prijs te gebruiken.</p></div>`;
   bindInputs($('#view'),S.cur);
-  const vg=$('#vgPh'); const drawVg=()=>{ vg.innerHTML=(o.voorgevel?`<div class="ph"><img src="${o.voorgevel}"><button id="vgDel">×</button></div>`:'')+`<button class="addph" id="vgAdd">📷<span>Foto</span></button>`; $('#vgAdd').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} }); const dl=$('#vgDel'); if(dl) dl.onclick=()=>{o.voorgevel=''; save(); drawVg();}; }; drawVg();
+  const vg=$('#vgPh'); const drawVg=()=>{ vg.innerHTML=(o.voorgevel?`<div class="ph"><img src="${o.voorgevel}"><button id="vgDel">×</button></div>`:'')+`<button class="addph" id="vgAdd">📷<span>Foto</span></button><button class="addph" id="vgGal">🖼<span>Galerij</span></button>`; $('#vgAdd').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} }); $('#vgGal').onclick=()=>pickPhoto(d=>{ if(d){o.voorgevel=d; save(); drawVg();} },true); const dl=$('#vgDel'); if(dl) dl.onclick=()=>{o.voorgevel=''; save(); drawVg();}; }; drawVg();
   adresSuggest();
 }
 function adresSuggest(){
@@ -480,8 +515,8 @@ function bevSheet(b,isNew){
   bindInputs(bg,b);
   const setC=c=>{ b.cond=c; bg.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x.dataset.c==c)); $('#cdesc').textContent=c?`${c} – ${COND[c].l}: ${COND[c].d}`:''; };
   bg.querySelectorAll('[data-c]').forEach(x=>x.onclick=()=>{ setC(+x.dataset.c); save(); }); setC(b.cond);
-  const ph=bg.querySelector('#bPh'); const draw=()=>{ ph.innerHTML=b.fotos.map((f,i)=>`<div class="ph"><img src="${f}"><button data-i="${i}">×</button></div>`).join('')+`<button class="addph" id="phAdd">📷<span>Foto toevoegen</span></button>`;
-    ph.querySelector('#phAdd').onclick=()=>pickPhoto(d=>{ if(d){ b.fotos.push(d); save(); draw(); } });
+  const ph=bg.querySelector('#bPh'); const draw=()=>{ ph.innerHTML=b.fotos.map((f,i)=>`<div class="ph"><img src="${f}"><button data-i="${i}">×</button></div>`).join('')+fotoKnoppen('bev');
+    ph.querySelectorAll('[data-ph]').forEach(x=>x.onclick=()=>{ const m=x.dataset.m; if(m==='serie') serieCamera({naam:[b.element,b.locatie].filter(Boolean).join(' · ')||'Bevinding',arr:b.fotos,klaar:draw}); else pickPhoto(d=>{ if(d){ b.fotos.push(d); save(); draw(); } },m==='gal'); });
     ph.querySelectorAll('[data-i]').forEach(x=>x.onclick=()=>{ b.fotos.splice(+x.dataset.i,1); save(); draw(); }); }; draw();
   const close=()=>{ bg.remove(); save(); shell(); };
   bg.querySelector('#shOk').onclick=close;
