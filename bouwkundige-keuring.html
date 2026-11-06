@@ -195,6 +195,18 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 #hcKlaar{width:90px;flex:0 0 auto;background:#2D6042;color:#fff;border:0;border-radius:8px;padding:9px 0;font-weight:700}
 .hc-flits{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}.hc-flits.aan{animation:hcf .25s ease-out}@keyframes hcf{from{opacity:.75}to{opacity:0}}
 .ui-ic{display:inline-block;vertical-align:-0.2em;flex:0 0 auto}.addph .ui-ic{margin-bottom:3px}.hb .ui-ic,#btnSettings .ui-ic{vertical-align:middle}.mic .ui-ic{vertical-align:-0.15em}.ui-n{display:inline-flex;align-items:center;gap:3px}
+
+.att-row{display:grid;gap:8px}
+.att-row b{display:block}
+.seg.att-seg{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);margin:0}
+.seg.att-seg button{grid-column:span 2;display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;padding:6px 8px;line-height:1.2;font-size:13px;border:0;background:#fff;hyphens:none;overflow-wrap:normal}
+.seg.att-seg button:nth-child(n+4){grid-column:span 3}
+.seg.att-seg button.on{background:var(--brand2);color:#fff;font-weight:600}
+@media (min-width:640px){.seg.att-seg{grid-template-columns:repeat(5,minmax(0,1fr))}.seg.att-seg button,.seg.att-seg button:nth-child(n+4){grid-column:auto}}
+.att-row input{width:100%;margin:0}
+.att-open{margin:4px 0 0;font-size:13px;font-weight:600;color:#b45309}
+.att-open.klaar{color:var(--brand2)}
+.d-leeg{background:#fff!important;border:1.5px solid #9aa3ad}
 </style>
 
 
@@ -556,13 +568,18 @@ async function pickAdres(id){
 }
 
 /* ---------- AANDACHTSPUNTEN ---------- */
+function aandachtOpen(k){ const a=k.aandacht||{}; return AANDACHT.filter(([kk])=>!(a[kk]&&a[kk].s)); }
 function vAandacht(){
   const a=S.cur.aandacht;
-  $('#view').innerHTML=`<div class="card"><h2>C · Bijzondere aandachtspunten</h2><p class="muted">Kies per onderwerp de status; toelichting is optioneel.</p>
-   ${AANDACHT.map(([k,t])=>{ a[k]=a[k]||{s:'nc',t:''}; return `<div class="att-row"><b>${t}</b>
-     <div class="seg" data-seg="aandacht.${k}.s" style="margin-top:6px">${STATUS.map(([v,l])=>`<button data-v="${v}">${l}</button>`).join('')}</div>
-     <input data-k="aandacht.${k}.t" placeholder="Toelichting" style="margin-top:6px"></div>`; }).join('')}</div>`;
+  // eenmalig: oude standaard 'Niet te controleren' (nooit aangetikt) leegmaken
+  if(!S.cur.aandachtV2){ if(AANDACHT.every(([kk])=>!a[kk]||(a[kk].s==='nc'&&!a[kk].t))) AANDACHT.forEach(([kk])=>{ a[kk]={s:'',t:''}; }); S.cur.aandachtV2=1; save(); }
+  $('#view').innerHTML=`<div class="card"><h2>C · Bijzondere aandachtspunten</h2><p class="muted">Kies per onderwerp de status; toelichting is optioneel.</p><p class="att-open" id="attOpen"></p>
+   ${AANDACHT.map(([k,t])=>{ a[k]=a[k]||{s:'',t:''}; return `<div class="att-row"><b>${t}</b>
+     <div class="seg att-seg" data-seg="aandacht.${k}.s">${STATUS.map(([v,l])=>`<button data-v="${v}">${l}</button>`).join('')}</div>
+     <input data-k="aandacht.${k}.t" placeholder="Toelichting"></div>`; }).join('')}</div>`;
   bindInputs($('#view'),S.cur);
+  const tel=()=>{ const n=aandachtOpen(S.cur).length,e=$('#attOpen'); e.textContent=n?`Nog ${n} van ${AANDACHT.length} onderwerpen niet beoordeeld.`:'Alle onderwerpen beoordeeld.'; e.classList.toggle('klaar',!n); };
+  tel(); $('#view').querySelectorAll('.att-seg button').forEach(b=>b.addEventListener('click',()=>setTimeout(tel,0)));
 }
 
 /* ---------- BEVINDINGEN ---------- */
@@ -746,7 +763,7 @@ function buildSections(){
       ${kv('Verwarming',esc(o.verwarming))}${kv('Ketel (bouwjaar / merk)',esc(o.ketel))}
       ${kv('Bewoning',esc(o.bewoning))}${kv('Weersomstandigheden',esc(o.weer))}</div>`,
     `<h3>${ico('alert',6)}C · Bijzondere aandachtspunten</h3>
-    <div class="dots">${AANDACHT.map(([kk,t])=>{const a=k.aandacht[kk]||{s:'nc'}; return `<div><span class="dot d-${a.s}"></span>${t}<em>${stLbl[a.s]}${a.t?' – '+esc(a.t):''}</em></div>`}).join('')}</div>
+    <div class="dots">${AANDACHT.map(([kk,t])=>{const a=k.aandacht[kk]||{s:''}; return `<div><span class="dot d-${a.s||'leeg'}"></span>${t}<em>${a.s?stLbl[a.s]:'Niet beoordeeld'}${a.t?' – '+esc(a.t):''}</em></div>`}).join('')}</div>
     <div class="pleg" style="margin-top:2.5mm">${STATUS.map(([v,l])=>`<span><i class="d-${v}" style="border-radius:50%"></i>${l}</span>`).join('')}</div>`
   ]));
 
@@ -865,6 +882,7 @@ function vRapport(){
   $('#expBtn').onclick=()=>{ const blob=new Blob([JSON.stringify(S.cur)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${S.cur.rapportnr} ${S.cur.obj.adres||''}.json`.trim(); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); };
 }
 async function printReport(){
+  const open=aandachtOpen(S.cur); if(open.length&&!confirm(`Bij C · Bijzondere aandachtspunten zijn nog ${open.length} onderwerp(en) niet beoordeeld:\n\n• ${open.map(x=>x[1]).join('\n• ')}\n\nDeze komen als 'Niet beoordeeld' in het rapport. Toch de PDF maken?`)) return;
   const pa=$('#printArea'); pa.innerHTML=`<div class="rpt">${await renderPages()}</div>`;
   const old=document.title; document.title=`Bouwkundig rapport ${S.cur.obj.adres||''} ${S.cur.rapportnr}`.trim();
   const imgs=[...pa.querySelectorAll('img')];
