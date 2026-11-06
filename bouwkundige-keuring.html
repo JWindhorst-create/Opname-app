@@ -864,7 +864,7 @@ const TEKSTEN = {
   {n:'Indeling vrij aan te passen',g:'Aanpassingen aan de indeling, inrichting en afwerking kunnen naar eigen wens worden uitgevoerd.',a:'Laat constructieve aanpassingen uitvoeren in overleg met een constructeur en controleer of een omgevingsvergunning nodig is.',c:2}
  ]
 };
-const txVoor = el => [...(TEKSTEN[el]||[]), ...TX_ALG];
+const txVoor = el => [...(TEKSTEN[el]||[]), ...TX_ALG].map((x,i)=>[x,i]).sort((a,b)=>((a[0].c||99)-(b[0].c||99))||(a[1]-b[1])).map(x=>x[0]);
 
 /* uitleg bij de bijzondere aandachtspunten (rapport) */
 const AANDACHT_INFO = {
