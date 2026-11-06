@@ -824,6 +824,12 @@ body.v-opname{background-image:none!important}
  </div>
  <h2 class="tile-group">In onderhoud</h2>
  <div class="tiles">
+  <button class="tile" type="button" id="tile-opname-app" title="Opname-app openen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/><path d="M11 19h2"/></svg></div>
+   <h2>Opname-app <span class="badge">in onderhoud</span></h2>
+   <p>Op locatie op de telefoon de opname invoeren: BAG-gegevens, voorgevel aanklikken, dak met driehoeksberekening, gevels en installaties in Vabi-volgorde.</p>
+   <span class="go">Openen →</span>
+  </button>
   <button class="tile" type="button" data-open="onderbouwing">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5"/><path d="M14 2v6h6v3"/><path d="M8 13h5M8 17h3"/><path d="M18.4 13.6a1.9 1.9 0 0 1 2.7 2.7L16 21.4l-3.4.9.9-3.4z"/></svg></div>
    <h2>Onderbouwing <span class="badge">in onderhoud</span></h2>
@@ -6984,5 +6990,6 @@ ensureViewer();window.addEventListener('hashchange',()=>setTimeout(()=>{markAll(
 (function(){const i=document.getElementById('bron-up');if(i)i.addEventListener('change',()=>{if(i.files&&i.files.length)bronUpload(i.files);i.value=''})})();window.elnBronMark=markAll;
 })();
 </script>
+<script>(function(){const b=document.getElementById('tile-opname-app');if(b)b.addEventListener('click',()=>{location.href=/^https?:/.test(location.protocol)?'opname.html':'https://dashboard-eln.pages.dev/opname.html'})})();</script>
 </body>
 </html>
