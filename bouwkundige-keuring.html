@@ -207,6 +207,25 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .att-open{margin:4px 0 0;font-size:13px;font-weight:600;color:#b45309}
 .att-open.klaar{color:var(--brand2)}
 .d-leeg{background:#fff!important;border:1.5px solid #9aa3ad}
+
+.el-groups{display:grid;gap:8px;margin-top:6px}
+.el-grp{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.el-grp summary{list-style:none;display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;font-weight:700;color:var(--brand)}
+.el-grp summary::-webkit-details-marker{display:none}
+.el-gi{display:flex;width:32px;height:32px;border-radius:9px;background:var(--accent);align-items:center;justify-content:center;flex:none}
+.el-gt{flex:1;letter-spacing:.02em}
+.el-n{background:var(--brand2);color:#fff;border-radius:99px;font-size:12px;min-width:22px;height:22px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center}
+.el-chev{flex:none;color:var(--muted);transition:transform .15s}
+.el-grp[open] .el-chev{transform:rotate(180deg)}
+.el-list{border-top:1px solid var(--line)}
+.el-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--line);padding:12px 14px;font-size:15px;color:inherit;border-radius:0}
+.el-row:last-child{border-bottom:0}
+.el-row:active{background:var(--accent)}
+.el-name{flex:1}
+.el-row.has .el-name{font-weight:600;color:var(--brand)}
+.el-cnt{background:var(--accent);color:var(--brand);border-radius:99px;font-size:12px;font-weight:700;min-width:22px;height:22px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center}
+.el-plus{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--brand2)}
+.mic{float:none!important;display:flex;align-items:center;gap:5px;margin:6px 0 6px auto!important;width:max-content}
 </style>
 
 
@@ -583,17 +602,20 @@ function vAandacht(){
 }
 
 /* ---------- BEVINDINGEN ---------- */
+const BEV_OPEN=new Set(['buiten']);
 function vBev(){
   const B=S.cur.bev;
   const cnt=k=>B.filter(b=>b.groep===k).length;
   $('#view').innerHTML=`
-   <div class="card"><h2>E · Bevindingen</h2><p class="muted">Tik een element aan om een bevinding toe te voegen. Per element mogen meerdere bevindingen.</p>
-   ${GROEPEN.map(g=>`<div class="group-h" style="color:var(--brand)">${appIco(GIC[g.k],16)} ${g.t}</div><div class="chips">${g.el.map(e=>{const n=B.filter(b=>b.element===e).length; return `<button class="chip ${n?'has':''}" data-add="${g.k}|${esc(e)}">${esc(e)}${n?` · ${n}`:''}</button>`}).join('')}</div>`).join('')}
+   <div class="card"><h2>E · Bevindingen</h2><p class="muted">Open een onderdeel en tik op een element om een bevinding toe te voegen. Per element mogen meerdere bevindingen.</p>
+   <div class="el-groups">${GROEPEN.map(g=>{const n=cnt(g.k); return `<details class="el-grp" data-grp="${g.k}" ${BEV_OPEN.has(g.k)?'open':''}><summary><span class="el-gi">${appIco(GIC[g.k],18)}</span><span class="el-gt">${g.t}</span>${n?`<span class="el-n">${n}</span>`:''}<svg class="el-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+     <div class="el-list">${g.el.map(e=>{const m=B.filter(b=>b.element===e).length; return `<button class="el-row${m?' has':''}" data-add="${g.k}|${esc(e)}"><span class="el-name">${esc(e)}</span>${m?`<span class="el-cnt">${m}</span>`:''}<span class="el-plus" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>`}).join('')}</div></details>`}).join('')}</div>
    </div>
    <div class="card"><h2>Vastgelegd (${B.length})</h2>${B.length?GROEPEN.filter(g=>cnt(g.k)).map(g=>`<div class="group-h">${g.t}</div>`+B.filter(b=>b.groep===g.k).map(b=>`
      <div class="list-item" data-edit="${b.id}" style="cursor:pointer"><span class="badge cb${b.cond||0}">${b.cond||'–'}</span><div class="grow"><b>${esc(b.element)}${b.locatie?` · <span class="muted">${esc(b.locatie)}</span>`:''}</b><span class="muted">${esc((b.gebrek||'Geen omschrijving').slice(0,80))}</span></div>
      <span class="muted">${(num(b.direct)+num(b.termijn))?eur(num(b.direct)+num(b.termijn)):''}</span>${b.fotos?.length?`<span class="muted ui-n"><svg class="ui-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>${b.fotos.length}</span>`:''}</div>`).join('')).join(''):'<p class="muted">Nog geen bevindingen.</p>'}</div>
    <div class="card"><h2>Beperkt of niet waarneembaar</h2><div>${TA('beperkt','Onderdelen die niet (volledig) geïnspecteerd konden worden')}</div></div>`;
+  $('#view').querySelectorAll('details.el-grp').forEach(d=>d.addEventListener('toggle',()=>{ d.open?BEV_OPEN.add(d.dataset.grp):BEV_OPEN.delete(d.dataset.grp); }));
   $('#view').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{ const [g,e]=b.dataset.add.split('|'); const nb={id:uid(),groep:g,element:e,locatie:'',cond:'',ernst:'',gebrek:'',advies:'',direct:'',termijn:'',ndVan:'',ndTot:'',nhg:false,fotos:[]}; S.cur.bev.push(nb); save(); bevSheet(nb,true); });
   $('#view').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>bevSheet(S.cur.bev.find(x=>x.id===b.dataset.edit)));
   bindInputs($('#view'),S.cur);
