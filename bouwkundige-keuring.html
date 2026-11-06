@@ -278,6 +278,7 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .vl-g label{display:flex;align-items:center;gap:4px;margin:0;font-size:13px}.vl-g input{width:58px;margin:0;padding:6px}
 .vl-g b{color:var(--ink)}
 .vl-dak{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px}
+.cl-voor{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--muted)}.cl-voor button{border:1px dashed var(--brand2);background:#fff;color:var(--brand2);border-radius:99px;padding:5px 12px;font-weight:700}
 </style>
 
 
@@ -998,15 +999,27 @@ function vlakkenUit3D(j,at){
   const daken=[...(plat>=1?[{id:'dp',plat:1,m2:Math.round(plat),kompas:'plat',helling:0}]:[]),...DH.filter(d=>d.m2>=1).map(d=>({id:d.id,az:d.az,m2:Math.round(d.m2),kompas:kompasVan(d.az),helling:Math.round(d.hs/d.m2)}))];
   return {gevels,daken,auto:1};
 }
+
+// gevels/dakvlakken alsnog ophalen voor keuringen die al bestonden (pand-ID bekend)
+let gvBezig=null;
+function gvOphalen(k,klaar){ if(k.gv||gvBezig) return; const pid=k.obj&&k.obj.bag&&k.obj.bag.pandId; if(!pid) return;
+  if((+k.obj.bag.aantal||1)>1) return;
+  gvBezig=fetch('https://api.3dbag.nl/collections/pand/items/NL.IMBAG.Pand.'+pid).then(r=>r.json()).then(j=>{ const objs=j.feature?.CityObjects||{}; let at=null;
+    for(const x in objs){ const a=objs[x].attributes; if(a&&Object.keys(a).some(y=>/maaiveld/.test(y))){ at=a; break; } }
+    const gv=vlakkenUit3D(j,at); if(gv){ k.gv=gv; if(at&&(!k.hv||k.hv.auto||!Object.keys(k.hv).length)) k.hv=hvUit3D(at,k.obj,k.obj.bag.aantal); save(); if(klaar) klaar(); } })
+  .catch(()=>{}).finally(()=>{ gvBezig=null; }); }
 const gvNetto=g=>Math.round(g.m2*(1-(+g.glas||0)/100));
 const gvNaam=g=>(g.rol&&g.rol!=='scheidend'?rolLbl(g.rol):'Gevel '+g.kompas)+(g.rol&&g.rol!=='scheidend'?' ('+g.kompas+')':'');
 const dkNaam=d=>d.plat?'Plat dak':'Dakvlak '+d.kompas+' ('+d.helling+'°)';
-function vlakKaart(k){ const gv=k.gv; if(!gv) return `<div class="card"><h2>Gevels en dakvlakken</h2><p class="muted" style="margin:0">Zoek bij Object het adres op; dan worden de gevels en dakvlakken per kant uit het 3D-model (3D BAG) gehaald.</p></div>`;
+function vlakKaart(k){ const gv=k.gv; if(!gv){ const pid=k.obj&&k.obj.bag&&k.obj.bag.pandId; const app=pid&&(+k.obj.bag.aantal||1)>1;
+    if(pid&&!app) gvOphalen(k,()=>{ if(S.tab==='kosten') vKosten(); });
+    return `<div class="card"><h2>Gevels en dakvlakken</h2><p class="muted" style="margin:0">${app?'Dit is een appartement: het 3D-model beschrijft het hele gebouw, daarom is er geen indeling per gevel. Gebruik bij de kostenpost "Deel".':pid?'Gevels en dakvlakken worden uit de 3D BAG gehaald…':'Zoek bij Object het adres op; dan worden de gevels en dakvlakken per kant uit het 3D-model (3D BAG) gehaald.'}</p></div>`; }
   return `<div class="card"><h2>Gevels en dakvlakken (3D BAG)</h2><p class="muted" style="margin-top:0">Per kant van het pand berekend uit het 3D-model. Geef aan welke gevel de voorgevel is en welk deel glas/kozijn is; de kostenposten rekenen met de netto m² (bruto min glas/kozijn).</p>
    <div class="vl-list">${gv.gevels.map((g,i)=>`<div class="vl-row${g.rol==='scheidend'?' sch':''}"><div class="vl-k"><span class="vl-pijl" style="transform:rotate(${Math.round(g.az)}deg)">↑</span><b>${g.kompas}</b></div>
      <div class="vl-m"><select data-gv="${i}" data-f="rol">${ROLLEN.map(([v,l])=>`<option value="${v}"${g.rol===v?' selected':''}>${l}</option>`).join('')}</select>
      <div class="vl-g"><span>Bruto ${g.m2} m²</span>${g.rol==='scheidend'?'':`<label>glas/kozijn <input type="number" inputmode="numeric" data-gv="${i}" data-f="glas" value="${g.glas}">%</label><b>netto ${gvNetto(g)} m²</b>`}</div></div></div>`).join('')}</div>
    ${gv.daken.length?`<div class="group-h">Dakvlakken</div><div class="vl-dak">${gv.daken.map(d=>`<span>${esc(dkNaam(d))} · <b>${d.m2} m²</b></span>`).join('')}</div>`:''}</div>`; }
+function zetVoorgevel(k,g){ g.rol='voor'; if(!+g.glas) g.glas=25; k.gv.gevels.forEach(x=>{ if(x===g||x.rol==='scheidend') return; if(x.rol==='voor') x.rol=''; if(x.rol) return; const d=Math.abs(Math.abs(((x.az-g.az+540)%360)-180)-180); x.rol=d<10?'achter':'zij'; }); }
 function vlakBind(root,k){ root.querySelectorAll('[data-gv]').forEach(el=>el.addEventListener('change',()=>{ const g=k.gv.gevels[+el.dataset.gv]; if(el.dataset.f==='rol'){ g.rol=el.value; if(g.rol==='scheidend') g.glas=0; else if(!+g.glas) g.glas=25;
     if(g.rol==='voor') k.gv.gevels.forEach(x=>{ if(x===g||x.rol==='scheidend'||x.rol) return; const d=Math.abs(Math.abs(((x.az-g.az+540)%360)-180)-180); x.rol=d<10?'achter':'zij'; }); } else g.glas=Math.max(0,Math.min(90,+el.value||0));
   if(k.gv.gevels.some(x=>x.rol)) k.hv.gevel=k.gv.gevels.filter(x=>x.rol!=='scheidend').reduce((a,x)=>a+x.m2,0);
@@ -1119,6 +1132,8 @@ function clOmvang(x){ const v=clVlak(x); if(v&&x.omv==='vlak'){ const L=clVlakke
 function calcHTML(b){ const hv=(S.cur&&S.cur.hv)||{}; const L=b.calc||[];
   return (L.length?`<div class="cl-list">${L.map((x,i)=>{ const v=clVlak(x); return `<div class="cl-row"><div class="cl-n">${x.id==='vrij'?`<input data-cl="${i}" data-f="n" value="${esc(x.n||'')}" placeholder="Omschrijving">`:esc(x.n)}<button type="button" class="cl-del" data-cl="${i}" data-f="del" aria-label="Verwijderen">×</button></div>
    ${v?`<div class="cl-chips"><button type="button" data-cl="${i}" data-f="omv" data-v="geheel" class="${!x.omv||x.omv==='geheel'?'on':''}">Gehele ${HV_LBL[v].toLowerCase().replace(/ \(.*\)/,'')} · ${clGeheelQ(x)} ${HV_EH[v]}</button>${clVlakken(x).map(g=>`<button type="button" data-cl="${i}" data-f="vl" data-v="${g.id}" class="${x.omv==='vlak'&&(x.vl||[]).includes(g.id)?'on':''}">${esc(g.n)} · ${g.m2} m²</button>`).join('')}<button type="button" data-cl="${i}" data-f="omv" data-v="deel" class="${x.omv==='deel'?'on':''}">Deel</button></div>`:''}
+   ${v==='gevel'&&S.cur.gv&&clVlakken(x).length&&!S.cur.gv.gevels.some(g=>g.rol==='voor')?`<div class="cl-voor"><span>Welke is de voorgevel?</span>${S.cur.gv.gevels.filter(g=>g.rol!=='scheidend').map(g=>`<button type="button" data-cl="${i}" data-f="voor" data-v="${g.id}">${g.kompas}</button>`).join('')}</div>`:''}
+   ${v==='gevel'&&!clVlakken(x).length?`<div class="cl-hint">${S.cur.obj?.bag?.pandId?((+S.cur.obj.bag.aantal||1)>1?'Appartement: kies "Deel" en vul de m² van de betreffende gevel in.':'Gevels per kant worden opgehaald…'):'Zoek bij Object het adres op om per gevel (voorgevel, achtergevel…) te kunnen kiezen.'}</div>`:''}
    ${(v&&x.omv==='deel')||(!v&&x.eh!=='pst')?`<label class="cl-q">${v?'Oppervlak deel':'Aantal'} <input type="number" inputmode="decimal" data-cl="${i}" data-f="q" value="${x.q??''}"><em>${x.eh}</em></label>`:''}
    <div class="cl-s"><div class="seg"><button type="button" data-cl="${i}" data-f="s" data-v="direct" class="${x.s!=='termijn'?'on':''}">Direct</button><button type="button" data-cl="${i}" data-f="s" data-v="termijn" class="${x.s==='termijn'?'on':''}">Termijn</button></div>
      <label class="cl-tot">€ <input type="number" inputmode="decimal" data-cl="${i}" data-f="tot" value="${clTot(x)}"></label></div>
@@ -1204,9 +1219,11 @@ function bevSheet(b,isNew){
     else if(f==='s') x.s=el.dataset.v;
     else if(f==='re') x.tot=null;
     else if(f==='omv'){ const was=x.omv; x.omv=el.dataset.v; x.vl=[]; if(x.omv==='geheel') x.q=clGeheelQ(x); else if(x.omv==='deel'&&(was!=='deel')) x.q=''; }
+    else if(f==='voor'){ const g=S.cur.gv.gevels.find(z=>z.id===el.dataset.v); if(g) zetVoorgevel(S.cur,g); }
     else if(f==='vl'){ const id=el.dataset.v; x.vl=x.omv==='vlak'?(x.vl||[]):[]; x.vl=x.vl.includes(id)?x.vl.filter(z=>z!==id):[...x.vl,id]; if(x.vl.length){ x.omv='vlak'; x.q=clVlakQ(x); } else { x.omv='geheel'; x.q=clGeheelQ(x); } }
     clDraw(); clSync(); });
   clDraw();
+  if(!S.cur.gv) gvOphalen(S.cur,()=>{ if(document.body.contains(clBox)) clDraw(); });
   bg.querySelector('#txKnop').onclick=()=>txKiezen(b,()=>{ bg.querySelectorAll('[data-k]').forEach(el=>{ const v=b[el.dataset.k]; if(el.tagName==='TEXTAREA'&&v!=null){ el.value=v; el.dispatchEvent(new Event('autosize')); } }); if(b.cond) setC(+b.cond); save(); });
   const ph=bg.querySelector('#bPh'); const draw=()=>{ ph.innerHTML=b.fotos.map((f,i)=>`<div class="ph"><img src="${f}"><button data-i="${i}">×</button></div>`).join('')+fotoKnoppen('bev');
     ph.querySelectorAll('[data-ph]').forEach(x=>x.onclick=()=>{ const m=x.dataset.m; if(m==='serie') serieCamera({naam:[b.element,b.locatie].filter(Boolean).join(' · ')||'Bevinding',arr:b.fotos,klaar:draw}); else pickPhoto(d=>{ if(d){ b.fotos.push(d); save(); draw(); } },m==='gal'); });
