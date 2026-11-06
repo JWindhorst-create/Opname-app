@@ -5095,14 +5095,14 @@ const b=e.target.closest('[data-bsx],[data-bsxv],[data-bsxa]');if(!b)return;
 let bsFromChk=false;
 const BSC_RZ={id:'_ruimten',g:'Thermische zone',t:'Aangrenzende ruimten: horen ze bij de verwarmde zone?',src:'ISSO §6.3 – schema’s per ruimte'};
 function bscItems(){return[BSC_RZ,...bsxList()]}
-function bscGet(id){bs.chk=bs.chk||{};return bs.chk[id]||{v:'',opm:''}}
+function bscGet(id){bs.chk=bs.chk||{};const c=bs.chk[id];return c&&c.v?c:{v:'nee',opm:(c&&c.opm)||''}}
 function bscUitkomst(it){if(it.id==='_ruimten'){const R=(bs.rooms||[]).filter(r=>r.soort);if(!R.length)return'';const d=R.filter(r=>bsState(r).done);return d.length+' van '+R.length+' ruimte(n) afgerond'+(d.length?': '+d.map(r=>(r.name||'Ruimte')+' – '+bsLabel(bsState(r).res)).join('; '):'')}
  const st=bsxState(it);if(st.done){const c=st.cur.calc?bsxCalc(st.cur.calc,st.v):'';return st.cur.t+(c?' ('+c+')':'')}return st.started?'nog niet afgerond':''}
 function bscRender(){const box=$('bsc');if(!box)return;const L=bscItems(),groups=[...new Set(L.map(s=>s.g))];
  const n=L.filter(s=>bscGet(s.id).v).length,nja=L.filter(s=>bscGet(s.id).v==='ja').length,open=L.filter(s=>bscGet(s.id).v==='ja'&&!(s.id==='_ruimten'?(bs.rooms||[]).some(r=>r.soort)&&(bs.rooms||[]).filter(r=>r.soort).every(r=>bsState(r).done):bsxState(s).done)).length;
- let h='<div class="bsc-head"><div><h3 style="margin:0">Check object – '+(bs.type==='woning'?'woning (ISSO 82.1)':'utiliteit (ISSO 75.1)')+'</h3><div class="sub">Geef per beslisschema aan of het van toepassing is. Daarna loop je met <b>Object doorlopen</b> alle schema’s die van toepassing zijn achter elkaar door.</div></div>'+
-  '<div class="bsc-prog"><b>'+n+' / '+L.length+'</b> beoordeeld · '+nja+' van toepassing'+(open?' · <span style="color:#9a5b00">'+open+' nog doorlopen</span>':'')+'<div class="bsc-bar"><i style="width:'+Math.round(n/L.length*100)+'%"></i></div></div></div>'+
-  '<div class="bsc-tools"><button class="btn mini" type="button" data-bsca="run"'+(nja?'':' disabled title="Geef eerst aan welke schema’s van toepassing zijn"')+'>▶ Object doorlopen ('+nja+')</button><button class="btn sec mini" type="button" data-bsca="restnee">Alles wat nog open staat: niet van toepassing</button><button class="btn sec mini" type="button" data-bsca="wis">Check wissen</button></div>';
+ let h='<div class="bsc-head"><div><h3 style="margin:0">Check object – '+(bs.type==='woning'?'woning (ISSO 82.1)':'utiliteit (ISSO 75.1)')+'</h3><div class="sub">Alle beslisschema’s staan standaard op <b>niet van toepassing</b>; zet aan wat bij dit object van toepassing is. Daarna loop je met <b>Object doorlopen</b> alle schema’s die van toepassing zijn achter elkaar door.</div></div>'+
+  '<div class="bsc-prog"><b>'+nja+' / '+L.length+'</b> van toepassing'+(open?' · <span style="color:#9a5b00">'+open+' nog doorlopen</span>':'')+'<div class="bsc-bar"><i style="width:'+Math.round(nja/L.length*100)+'%"></i></div></div></div>'+
+  '<div class="bsc-tools"><button class="btn mini" type="button" data-bsca="run"'+(nja?'':' disabled title="Geef eerst aan welke schema’s van toepassing zijn"')+'>▶ Object doorlopen ('+nja+')</button><button class="btn sec mini" type="button" data-bsca="wis">Alles terugzetten</button></div>';
  groups.forEach(g=>{h+='<div class="bsc-grp">'+esc(g)+'</div>';L.filter(s=>s.g===g).forEach(s=>{const c=bscGet(s.id),u=c.v==='ja'?bscUitkomst(s):'',src=s.src||bsxAfb(s);
   h+='<div class="bsc-row'+(c.v==='ja'?' ja':c.v==='nee'?' nee':'')+'"><div class="bsc-t"><b>'+esc(s.t)+'</b><small>'+esc(src)+'</small>'+(u?'<div class="bsc-u">'+esc(u)+'</div>':'')+'</div>'+
   '<div class="bsc-a"><div class="seg2"><button type="button" class="'+(c.v==='ja'?'on':'')+'" data-bscv="ja" data-bsci="'+s.id+'">Van toepassing</button><button type="button" class="'+(c.v==='nee'?'on':'')+'" data-bscv="nee" data-bsci="'+s.id+'">Niet van toepassing</button></div>'+
@@ -5111,8 +5111,8 @@ function bscRender(){const box=$('bsc');if(!box)return;const L=bscItems(),groups
  box.innerHTML=h}
 $('bsc').addEventListener('click',e=>{const b=e.target.closest('[data-bscv],[data-bscgo],[data-bsca]');if(!b)return;bs.chk=bs.chk||{};
  if(b.dataset.bsca==='restnee'){bscItems().forEach(s=>{if(!bscGet(s.id).v)bs.chk[s.id]={v:'nee',opm:''}});bsSave();bscRender();return}
- if(b.dataset.bsca==='wis'){if(!confirm('De check leegmaken? Doorlopen schema’s blijven bewaard.'))return;bs.chk={};bsSave();bscRender();return}
- if(b.dataset.bscv){const id=b.dataset.bsci,c=bscGet(id);bs.chk[id]={v:c.v===b.dataset.bscv?'':b.dataset.bscv,opm:c.opm||''};bsSave();bscRender();return}
+ if(b.dataset.bsca==='wis'){if(!confirm('De check terugzetten (alles niet van toepassing)? Doorlopen schema’s blijven bewaard.'))return;bs.chk={};bsSave();bscRender();return}
+ if(b.dataset.bscv){const id=b.dataset.bsci,c=bscGet(id);bs.chk[id]={v:b.dataset.bscv,opm:c.opm||''};bsSave();bscRender();return}
  if(b.dataset.bscgo){const id=b.dataset.bscgo;bsFromChk=true;if(id==='_ruimten'){bsMode('ruimte')}else{bsxSel=id;const q=$('bsx-q');if(q)q.value='';bsMode('overig')}window.scrollTo({top:0,behavior:'smooth'})}});
 $('bsc').addEventListener('input',e=>{const i=e.target.dataset.bsco;if(!i)return;bs.chk=bs.chk||{};const c=bscGet(i);bs.chk[i]={v:c.v,opm:e.target.value};bsSave()});
 {const _m=bsMode;bsMode=function(m){m=m||(()=>{try{return localStorage.getItem('eln-bs-mode')}catch(e){return null}})()||'overig';_m(m);$('bsm-check').hidden=m!=='check';if(m==='check'){bsFromChk=false;bscRender()}bscBack()}}
