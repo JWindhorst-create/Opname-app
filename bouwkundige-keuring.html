@@ -296,6 +296,7 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .rpt .s2-meta{position:absolute;top:236mm;left:16.9mm;width:104mm;display:grid;grid-template-columns:1fr 1fr;gap:3.2mm 4.2mm;color:#fff;border-top:.75pt solid rgba(255,255,255,.35);padding-top:3.7mm;font-size:10pt}
 .rpt .s2-meta span{display:block;font-size:8pt;color:#C8E4D0;margin-bottom:.4mm}.rpt .s2-meta b{font-weight:700}
 .rpt .s2-co{position:absolute;bottom:9mm;left:16.9mm;width:104mm;font-size:7.4pt;color:#C8E4D0}
+.uitleg{margin-top:10px}.uitleg>summary{cursor:pointer;color:var(--brand2);font-weight:600;font-size:13.5px;list-style:none;display:flex;align-items:center;gap:6px}.uitleg>summary::-webkit-details-marker{display:none}.uitleg>summary::before{content:'ⓘ';font-size:15px}.uitleg[open]>summary{margin-bottom:6px}.uitleg p{margin:6px 0 0}
 </style>
 
 
@@ -553,7 +554,7 @@ function vObject(){
   </div>
   <div class="card"><h2>Herbouwwaarde (voor bouwtechnische staat)</h2><div class="grid">
     ${F('herbouw.m3prijs','Herbouwprijs per m³ (€)','number')}${F('herbouw.waarde','Of: herbouwwaarde totaal (€)','number')}</div>
-    <p class="muted"><b>Herbouwwaarde</b> = wat het kost om de woning na totaal verlies opnieuw te bouwen (niet de WOZ- of verkoopwaarde). <b>Bouwtechnische staat</b> = totale herstelkosten / herbouwwaarde × 100%. Laat beide velden leeg voor de automatische m³-prijs op basis van het type woning.</p><p class="muted" id="hbAuto"></p></div>`;
+    <details class="uitleg"><summary>Uitleg herbouwwaarde en bouwtechnische staat</summary><p class="muted"><b>Herbouwwaarde</b> = wat het kost om de woning na totaal verlies opnieuw te bouwen (niet de WOZ- of verkoopwaarde). <b>Bouwtechnische staat</b> = totale herstelkosten / herbouwwaarde × 100%. Laat beide velden leeg voor de automatische m³-prijs op basis van het type woning.</p><p class="muted" id="hbAuto"></p></details></div>`;
   bindInputs($('#view'),S.cur);
   bronLabels($('#view'),o); $('#view').querySelectorAll('[data-k^="obj."]').forEach(el=>el.addEventListener('change',()=>bronLabels($('#view'),o)));
   const hbZet=()=>{ const a=hbAuto(S.cur),i=$('#view').querySelector('[data-k="herbouw.m3prijs"]'); if(i) i.placeholder=a?'auto: € '+a.prijs+' ('+a.cat+')':''; const e=$('#hbAuto'); if(e) e.textContent=hbUitleg(S.cur); };
