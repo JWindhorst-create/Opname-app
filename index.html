@@ -7142,6 +7142,10 @@ ensureViewer();window.addEventListener('hashchange',()=>setTimeout(()=>{markAll(
 })();
 </script>
 <script>(function(){const grid=document.getElementById('hg-grid');if(!grid)return;
+ // tegels 'in onderhoud' onderaan per groep; lijstje op de hoofdkaart in dezelfde volgorde
+ const ond=t=>[...t.querySelectorAll('.badge')].some(b=>/onderhoud/i.test(b.textContent));
+ document.querySelectorAll('.hg-panel').forEach(pn=>{const box=pn.querySelector('.tiles');if(!box)return;const ts=[...box.querySelectorAll(':scope>.tile')];ts.filter(ond).forEach(t=>box.appendChild(t));
+  const k=document.querySelector('[data-hg="'+pn.id.slice(3)+'"] .hg-tekst small');if(k)k.innerHTML=[...box.querySelectorAll(':scope>.tile')].map(t=>{const h=t.querySelector('h2').cloneNode(true);h.querySelectorAll('.badge').forEach(b=>b.remove());return h.textContent.trim()+(ond(t)?' <i style="opacity:.7">(in onderhoud)</i>':'')}).join(' · ')});
  const toon=g=>{const ok=g&&document.getElementById('hg-'+g);grid.hidden=!!ok;document.querySelectorAll('.hg-panel').forEach(x=>x.hidden=!ok||x.id!=='hg-'+g);try{ok?sessionStorage.setItem('eln-hg',g):sessionStorage.removeItem('eln-hg')}catch(e){}if(ok)window.scrollTo(0,0)};
  document.querySelectorAll('[data-hg]').forEach(b=>b.addEventListener('click',()=>{const t=document.querySelectorAll('#hg-'+b.dataset.hg+' .tile');if(t.length===1){t[0].click();return}toon(b.dataset.hg)}));
  document.querySelectorAll('[data-hgterug]').forEach(b=>b.addEventListener('click',()=>toon(null)));
