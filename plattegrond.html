@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6f5c">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Plattegrond NEN 2580</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#eceff0;--card:#f9fafa;--ink:#17201d;--muted:#5f6b67;--line:#d3d9d7;--acc:#1f6f5c;--acc2:#e1efea;--warn:#b5462e;--hi:#ff7a1a;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+header{position:sticky;top:0;z-index:1000;background:var(--acc);color:#fff;padding:12px 16px 10px;padding-top:max(12px,env(safe-area-inset-top))}
+header h1{font-size:17px;margin:0 0 8px}
+.kop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.kop h1{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.homeknop{flex:none;display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:5px 11px;margin-top:-3px;background:rgba(255,255,255,.12)}
+.steps{display:flex;gap:4px;font-size:12px}
+.steps span{flex:1;text-align:center;padding:4px 2px;border-radius:6px;background:rgba(255,255,255,.15);cursor:pointer}
+.steps span.on{background:#fff;color:var(--acc);font-weight:600}
+main{padding:12px;max-width:920px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:18px;margin:4px 0 12px}h3{font-size:15px;margin:0 0 8px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;font-size:16px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+button,.knop{font-size:15px;padding:10px 13px;border-radius:8px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+button.ghost{background:transparent;color:var(--acc)}
+button.small{font-size:13.5px;padding:6px 10px}
+button.del{border-color:var(--warn);color:var(--warn);background:transparent}
+button:disabled{opacity:.45}
+.row{display:flex;gap:8px;align-items:flex-end}.row>*{flex:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}.kv b{color:var(--muted);font-weight:500}
+.note{font-size:13px;color:var(--muted)}.err{color:var(--warn);font-size:14px}
+.ihead{display:flex;justify-content:space-between;align-items:center;font-weight:600;gap:8px}
+.choice{display:flex;gap:6px;flex-wrap:wrap}.choice button{flex:1 1 30%;background:var(--card);color:var(--ink);border-color:var(--line);font-size:13.5px;padding:8px 6px}
+.choice button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.res{padding:10px;border-bottom:1px solid var(--line);cursor:pointer}.sug{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden;background:#fff}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));display:flex;gap:8px;z-index:1000}
+.bar button{flex:1}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;display:none;z-index:5000;max-width:90vw;text-align:center}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:4000;padding:16px}
+#modal .box{background:var(--card);border-radius:14px;padding:18px;max-width:420px;width:100%;white-space:pre-line}
+#modal .row{margin-top:16px}#mkeuze button{width:100%;margin-top:8px}
+[hidden]{display:none!important}
+.vtabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px}
+.vtabs button{white-space:nowrap;background:var(--card);color:var(--ink);border-color:var(--line);font-size:14px;padding:7px 11px}
+.vtabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+#cvwrap{position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%;height:54vh;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.cvk{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
+.cvk button{width:40px;height:40px;padding:0;font-size:18px;background:rgba(255,255,255,.92)}
+.tot{position:absolute;left:8px;bottom:8px;background:rgba(255,255,255,.93);font-size:12px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);line-height:1.35;pointer-events:none}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.tools button{flex:1 1 auto;font-size:14px;padding:9px 8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}table.t td,table.t th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table.t th{font-size:12px;color:var(--muted);font-weight:600}table.t td.r,table.t th.r{text-align:right;white-space:nowrap}
+table.t tr.sub td{font-weight:700;background:var(--acc2)}table.t tr.min td{color:var(--muted)}
+.wt td{padding:4px 3px}.wt select,.wt input{padding:6px;font-size:14px}
+.op{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0;background:#fff}
+.chip{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;color:#fff}
+.advies{margin-top:8px;padding:9px 10px;border-radius:9px;background:#fdf1e6;border:1px solid #f2cfa9;font-size:13.5px}
+.ok{margin-top:8px;padding:9px 10px;border-radius:9px;background:var(--acc2);font-size:13.5px}
+.prev{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px;margin:8px 0}.prev svg{width:100%;height:auto;display:block}
+.big{font-size:22px;font-weight:700}
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.sumgrid div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}.sumgrid small{display:block;color:var(--muted);font-size:12px}
+details.card>summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<header><div class="kop"><h1 id="titel">Plattegrond NEN 2580</h1><a class="homeknop" href="opname.html" id="terug">← Opname</a></div><div class="steps" id="steps"></div></header>
+<main id="app"></main>
+<div class="bar" id="bar"></div>
+<div id="toast"></div>
+<div id="modal"><div class="box"><div id="mtekst"></div><div id="mkeuze" hidden></div><div class="row"><button class="ghost" id="mnee">Nee</button><button id="mja">Ja</button></div></div></div>
+<datalist id="namen"></datalist>
+<script>
+// =====================================================================
+//  Plattegrond NEN 2580 · meetinstructie gebruiksoppervlakte + bruto inhoud woningen (juli 2019)
+//  Ruimtes inmeten → Funda-plattegrond (JPG/PNG), meetrapport (PDF) en FML voor Floorplanner
+// =====================================================================
+const APPVERSIE='2026-11-07';
+const KEY='plattegrondApp_v1',OKEY='opnameApp_v1';
+let store=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{projecten:[],instel:{}}}catch(e){return{projecten:[],instel:{}}}})();
+if(!store.instel)store.instel={};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast('Opslaan lukte niet (geheugen vol?)')}}
+let cur=null,scherm='lijst',vi=0,sel=null,selEdge=-1,UNDO=[];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{if(v==null||v==='')return null;const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?null:n};
+const f2=n=>n==null||isNaN(n)?'–':(Math.round(n*100)/100).toFixed(2).replace('.',',');
+const f1=n=>n==null||isNaN(n)?'–':(Math.round(n*10)/10).toFixed(1).replace('.',',');
+const fi=n=>n==null||isNaN(n)?'–':String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const inV=n=>n==null?'':String(n).replace('.',',');
+const uid=()=>Math.random().toString(36).slice(2,9);
+const rnd=n=>Math.round(n*1e6)/1e6;
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
+function vraag(tekst,ja='Ja',nee='Nee'){return new Promise(res=>{const m=$('#modal');$('#mtekst').textContent=tekst;$('#mja').textContent=ja;$('#mnee').textContent=nee;$('#mja').hidden=false;m.style.display='flex';
+ const klaar=v=>{m.style.display='none';$('#mja').onclick=$('#mnee').onclick=null;res(v)};$('#mja').onclick=()=>klaar(true);$('#mnee').onclick=()=>klaar(false)})}
+function kies(tekst,lijst){return new Promise(res=>{const m=$('#modal'),k=$('#mkeuze');$('#mtekst').textContent=tekst;
+ k.innerHTML=lijst.map((l,i)=>`<button class="ghost" data-kz="${i}">${esc(l)}</button>`).join('');k.hidden=false;$('#mja').hidden=true;$('#mnee').textContent='Annuleren';m.style.display='flex';
+ const klaar=v=>{m.style.display='none';k.hidden=true;k.innerHTML='';k.onclick=null;$('#mja').hidden=false;$('#mnee').onclick=null;res(v)};
+ k.onclick=e=>{const b=e.target.closest('[data-kz]');if(b)klaar(+b.dataset.kz)};$('#mnee').onclick=()=>klaar(null)})}
+
+// ---------- definities ----------
+const CAT={wonen:{l:'Wonen',k:'GO wonen',c:'#1f6f5c'},oir:{l:'Overige inpandige ruimte',k:'Overige inpandige ruimte',c:'#b7791f'},buiten:{l:'Gebouwgebonden buitenruimte',k:'Buitenruimte',c:'#4f8a3a'},extern:{l:'Externe bergruimte',k:'Externe berging',c:'#6b5b95'},nvt:{l:'Telt niet mee',k:'Niet meetellen',c:'#8a8a8a'}};
+const CATUITLEG={wonen:'Alles wat niet onder de andere criteria valt (ook keuken, hal, badkamer, toilet, meterkast, trapkast, bijkeuken). Bij twijfel: wonen.',
+ oir:'Hoogste punt tussen 1,5 en 2,0 m; of deel boven 2,0 m kleiner dan 4 m²; bouwkundig alleen bergruimte (kelder, garage, fietsenstalling, inpandige berging); bergzolder (geen vaste trap of raam < 0,5 m²).',
+ buiten:'Balkon, dakterras, loggia, veranda, carport. Overdekt: meten tot de projectie van de overkapping; niet overdekt: tot hek, dakopstand of vloerrand.',
+ extern:'Buiten de woning, alleen bereikbaar door de woning te verlaten, geen gedeelde muur met de woning, afsluitbaar en een apart BAG-pand (schuur, tuinberging).',
+ nvt:'Niet toegankelijke ruimte of kruipruimte: telt niet mee voor de gebruiksoppervlakte.'};
+const WS={binnen:'Binnenwand',buiten:'Gevel / buitenmuur',scheidend:'Woningscheidend',open:'Open (geen wand)'};
+const WT={binnen:0.10,buiten:0.30,scheidend:0.30,open:0};
+const NAMEN=['Woonkamer','Keuken','Woonkamer / keuken','Slaapkamer','Badkamer','Toilet','Hal','Entree','Overloop','Gang','Bijkeuken','Wasruimte','Studeerkamer','Werkkamer','Inloopkast','Meterkast','Trapkast','Zolder','Vliering','Bergzolder','Berging','Garage','Kelder','Technische ruimte','Serre','Erker','Balkon','Dakterras','Loggia','Veranda','Carport','Schuur','Tuinberging','Kruipruimte'];
+$('#namen').innerHTML=NAMEN.map(n=>`<option value="${n}">`).join('');
+function catVoorNaam(n){n=String(n||'').toLowerCase();if(/balkon|dakterras|terras|loggia|veranda|carport|overkapping/.test(n))return'buiten';if(/schuur|tuinberging|tuinhuis|buitenberging/.test(n))return'extern';if(/kruipruimte/.test(n))return'nvt';if(/garage|kelder|berging|vliering|bergzolder|stalling/.test(n))return'oir';return'wonen'}
+const THEMA_STD='premium';const THEMA={premium:{muur:'#2b2b2b',vloer:'#f1e6d3',nat:'#f3f5f6',buiten:'#e8e4dc',lijn:'#4a4a4a',txt:'#1f1f1f',sub:'#6a6a6a',kader:'#2b2b2b',glas:'#dcebf5',pat:true,schaduw:true},
+ funda:{muur:'#3a3a3a',vloer:'#ffffff',nat:'#ffffff',buiten:'#f0f3ec',lijn:'#5a5a5a',txt:'#2b2b2b',sub:'#707070',kader:'#3a3a3a',glas:'#ffffff'},
+ warm:{muur:'#3b3530',vloer:'#f7f1e8',nat:'#eaf0f4',buiten:'#e6eee0',lijn:'#5b534c',txt:'#2e2925',sub:'#7a7068',kader:'#3b3530',glas:'#e8f0f5'}};
+const TEGEL=/badkamer|toilet|douche|wasruimte|bijkeuken|\bwc\b|hal\b|entree|^keuken/i,BETON=/garage|berging|kelder|schuur|technische|meterkast|stalling|carport|kruipruimte/i,HOUTBUITEN=/balkon|dakterras|loggia/i;
+function vulling(r,T){if(r.cat==='nvt')return'#f1f1f1';if(!T.pat){return r.cat==='buiten'?T.buiten:NAT.test(r.naam)?T.nat:T.vloer}
+ if(r.cat==='buiten')return HOUTBUITEN.test(r.naam)?'url(#pDek)':BETON.test(r.naam)?'url(#pBeton)':'url(#pTerras)';
+ if(BETON.test(r.naam))return'url(#pBeton)';if(TEGEL.test(r.naam.trim()))return'url(#pTegel)';return'url(#pHout)'}
+function defs(T,ed){if(!T.pat)return'';let hout='';for(let i=0;i<4;i++){const y=i*.15,j=[.0,.8,.35,1.15][i];hout+=`<line x1="0" y1="${y}" x2="1.6" y2="${y}" stroke="#ddcdb2" stroke-width=".008"/><line x1="${j}" y1="${y}" x2="${j}" y2="${y+.15}" stroke="#ddcdb2" stroke-width=".008"/><line x1="${(j+.05).toFixed(2)}" y1="${(y+.05).toFixed(3)}" x2="${(j+.6).toFixed(2)}" y2="${(y+.055).toFixed(3)}" stroke="#e9dcc6" stroke-width=".006"/>`}
+ return`<defs><pattern id="pHout" patternUnits="userSpaceOnUse" width="1.6" height=".6"><rect width="1.6" height=".6" fill="#f1e6d3"/>${hout}</pattern>
+ <pattern id="pTegel" patternUnits="userSpaceOnUse" width=".3" height=".3"><rect width=".3" height=".3" fill="#f3f5f6"/><path d="M0,0H.3M0,0V.3" stroke="#d9dfe3" stroke-width=".007"/></pattern>
+ <pattern id="pTerras" patternUnits="userSpaceOnUse" width=".6" height=".6"><rect width=".6" height=".6" fill="#e8e4dc"/><path d="M0,0H.6M0,0V.6" stroke="#d3cdc1" stroke-width=".01"/></pattern>
+ <pattern id="pDek" patternUnits="userSpaceOnUse" width="2" height=".56"><rect width="2" height=".56" fill="#e2d2b8"/><path d="M0,0H2M0,.14H2M0,.28H2M0,.42H2M.6,0V.14M1.5,.14V.28M.2,.28V.42M1.1,.42V.56" stroke="#cbb594" stroke-width=".008"/></pattern>
+ <pattern id="pBeton" patternUnits="userSpaceOnUse" width="1" height="1"><rect width="1" height="1" fill="#ecebe8"/><circle cx=".2" cy=".3" r=".01" fill="#dcdad5"/><circle cx=".7" cy=".75" r=".012" fill="#dcdad5"/><circle cx=".55" cy=".15" r=".008" fill="#dcdad5"/></pattern>
+ ${!ed&&T.schaduw?'<filter id="fS" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx=".025" dy=".04" stdDeviation=".045" flood-color="#000" flood-opacity=".28"/></filter>':''}</defs>`}
+const NAT=/badkamer|toilet|douche|wasruimte|bijkeuken|wc\b/i;
+
+// ---------- project ----------
+function nieuweVerd(naam,laag){return{id:uid(),naam,laag,hoogte:'2,90',kap:'geen',hLaag:'',hHoog:'',oppKap:'',corr:'',corrTxt:'',ruimtes:[],els:[]}}
+function nieuwProject(){return{id:uid(),datum:new Date().toISOString(),adres:null,bag:null,opnameId:null,woningtype:'eengezins',opnemer:'',odatum:new Date().toISOString().slice(0,10),
+ voorZijde:'onder',voorAz:null,noordHand:'',instel:{m2:true,maten:true,buitenmaten:true,noord:true,schaal:true,adres:false,stijl:'premium'},verdiepingen:[nieuweVerd('Begane grond',1)]}}
+function nieuweRuimte(naam='Ruimte',b=3,d=3){return{id:uid(),naam,cat:catVoorNaam(naam),vorm:'rect',b,d,segs:[{l:'4',a:90},{l:'3',a:90},{l:'2',a:-90},{l:'2',a:90},{l:'2',a:90}],x:0,y:0,rot:0,w:[],ops:[],hMax:'',d2:''}}
+function nieuwEl(s){const m={trap:{b:0.9,d:3.6,label:'',treden:14},vide:{b:2.5,d:2,label:'Vide'},schacht:{b:0.6,d:0.6,label:''},kolom:{b:0.3,d:0.3,label:''}}[s];return{id:uid(),soort:s,x:0,y:0,rot:0,...m}}
+
+// ---------- geometrie ----------
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1]],mul=(a,k)=>[a[0]*k,a[1]*k],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+const rot=([x,y],d)=>{const a=d*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return[x*c-y*s,x*s+y*c]};
+const pts=P=>P.map(p=>p[0].toFixed(4)+','+p[1].toFixed(4)).join(' ');
+function lokaal(r){if(r.vorm!=='poly')return[[0,0],[num(r.b)||0,0],[num(r.b)||0,num(r.d)||0],[0,num(r.d)||0]];
+ let h=0,x=0,y=0;const P=[[0,0]];(r.segs||[]).forEach(s=>{const l=num(s.l)||0,a=h*Math.PI/180;x=rnd(x+l*Math.cos(a));y=rnd(y+l*Math.sin(a));P.push([x,y]);h+=(num(s.a)??90)});
+ if(Math.hypot(x,y)<0.005)P.pop();return P}
+function syncW(r){const n=lokaal(r).length;if(!r.w)r.w=[];while(r.w.length<n)r.w.push({s:'binnen',t:'0,10',laag:''});if(r.w.length>n)r.w.length=n;r.ops=(r.ops||[]).filter(o=>o.z<n);return r}
+function geo(r){const P=lokaal(r).map(p=>{const q=rot(p,r.rot||0);return[rnd(q[0]+(+r.x||0)),rnd(q[1]+(+r.y||0))]});const n=P.length;let A=0;
+ for(let i=0;i<n;i++){const q=P[(i+1)%n];A+=P[i][0]*q[1]-q[0]*P[i][1]}A/=2;const sg=A>=0?1:-1;
+ const E=P.map((p,i)=>{const q=P[(i+1)%n],dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy)||1e-9,u=[dx/L,dy/L];return{a:p,b:q,u,n:sg>0?[u[1],-u[0]]:[-u[1],u[0]],L}});
+ return{P,E,A:Math.abs(A)}}
+const wt=w=>w.s==='open'?0:(num(w.t)??WT[w.s]);
+function offs(g,ts){const n=g.P.length;return g.P.map((p,j)=>{const i0=(j-1+n)%n,e0=g.E[i0],e1=g.E[j],t0=ts[i0]||0,t1=ts[j]||0;
+ const p0=add(e0.a,mul(e0.n,t0)),p1=add(e1.a,mul(e1.n,t1)),cr=e0.u[0]*e1.u[1]-e0.u[1]*e1.u[0];
+ if(Math.abs(cr)<1e-6)return add(p,mul(e1.n,t1));const d=sub(p1,p0),s=(d[0]*e1.u[1]-d[1]*e1.u[0])/cr;return add(p0,mul(e0.u,s))})}
+function areaP(P){let A=0;for(let i=0;i<P.length;i++){const q=P[(i+1)%P.length];A+=P[i][0]*q[1]-q[0]*P[i][1]}return Math.abs(A/2)}
+function elPoly(e){const b=num(e.b)||0,d=num(e.d)||0;return[[0,0],[b,0],[b,d],[0,d]].map(p=>add(rot(p,e.rot||0),[+e.x||0,+e.y||0]))}
+function inPoly(pt,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const[xi,yi]=P[i],[xj,yj]=P[j];if(((yi>pt[1])!=(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi))c=!c}return c}
+function dSeg(p,a,b){const ab=sub(b,a),L2=ab[0]*ab[0]+ab[1]*ab[1]||1e-12;let t=((p[0]-a[0])*ab[0]+(p[1]-a[1])*ab[1])/L2;t=Math.max(0,Math.min(1,t));return Math.hypot(p[0]-a[0]-ab[0]*t,p[1]-a[1]-ab[1]*t)}
+function labelPt(P,obst=[],hw=0,hh=0){let cx=0,cy=0,A=0;for(let i=0;i<P.length;i++){const p=P[i],q=P[(i+1)%P.length],c=p[0]*q[1]-q[0]*p[1];A+=c;cx+=(p[0]+q[0])*c;cy+=(p[1]+q[1])*c}
+ const md1=pt=>{let d=Math.min(...P.map((p,i)=>dSeg(pt,p,P[(i+1)%P.length])));for(const Q of obst){if(inPoly(pt,Q))return-1;d=Math.min(d,...Q.map((p,i)=>dSeg(pt,p,Q[(i+1)%Q.length])*1.6))}return d};
+ const md=pt=>{if(!hw)return md1(pt);let m=Infinity;for(const[dx,dy]of[[0,0],[-hw,-hh],[hw,-hh],[-hw,hh],[hw,hh],[-hw,0],[hw,0],[0,-hh],[0,hh]]){const q=[pt[0]+dx,pt[1]+dy];if(!inPoly(q,P))return-1;m=Math.min(m,md1(q))}return m};
+ if(Math.abs(A)>1e-9){const c=[cx/(3*A),cy/(3*A)];if(inPoly(c,P)&&md(c)>(hw?.12:.6)){c.fit=1;return c}}
+ const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);let best=null,bd=-1;
+ for(let i=1;i<30;i++)for(let j=1;j<30;j++){const p=[x0+(x1-x0)*i/30,y0+(y1-y0)*j/30];if(!inPoly(p,P))continue;const d=md(p);if(d>bd){bd=d;best=p}}
+ if(best)best.fit=bd>0?1:0;if(!best&&hw)return labelPt(P,obst);return best||[(x0+x1)/2,(y0+y1)/2]}
+function zijde(e){const[nx,ny]=e.n;if(ny<-0.99)return'boven';if(ny>0.99)return'onder';if(nx>0.99)return'rechts';if(nx<-0.99)return'links';return'schuin'}
+// afstand van een opening tonen vanaf links (horizontale wand) of vanaf boven (verticale wand)
+function flip(e){return Math.abs(e.u[0])>=Math.abs(e.u[1])?e.u[0]<0:e.u[1]<0}
+function refTxt(e){return Math.abs(e.u[0])>=Math.abs(e.u[1])?'links':'boven'}
+const V=()=>cur.verdiepingen[vi];
+const vindR=id=>V().ruimtes.find(r=>r.id===id),vindE=id=>V().els.find(e=>e.id===id);
+
+// ---------- undo ----------
+function pushUndo(){UNDO.push(JSON.stringify({vi,v:cur.verdiepingen}));if(UNDO.length>40)UNDO.shift()}
+function undo(){const s=UNDO.pop();if(!s){toast('Niets om ongedaan te maken');return}const o=JSON.parse(s);cur.verdiepingen=o.v;vi=Math.min(o.vi,cur.verdiepingen.length-1);sel=null;selEdge=-1;save();render()}
+
+// =====================================================================
+//  TEKENEN (SVG in meters)
+// =====================================================================
+function bboxVerd(v,marge=0){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;const inc=P=>P.forEach(([x,y])=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)});
+ v.ruimtes.forEach(r=>{const g=geo(syncW(r));inc(r.cat==='buiten'?g.P:offs(g,r.w.map(wt)))});v.els.forEach(e=>inc(elPoly(e)));
+ if(x0===Infinity)return null;return{x0:x0-marge,y0:y0-marge,x1:x1+marge,y1:y1+marge}}
+function bboxMuren(v){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;v.ruimtes.filter(r=>r.cat!=='buiten'&&r.cat!=='extern').forEach(r=>{const g=geo(syncW(r));offs(g,r.w.map(wt)).forEach(([x,y])=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)})});return x0===Infinity?null:{x0,y0,x1,y1}}
+function opGeo(g,w,op){const e=g.E[op.z];if(!e)return null;const t=wt(w),p=num(op.p)||0,b=num(op.b)||0,a=add(e.a,mul(e.u,p)),bb=add(a,mul(e.u,b));
+ return{e,t,a,b:bb,w:b,poly:[add(a,mul(e.n,-.004)),add(bb,mul(e.n,-.004)),add(bb,mul(e.n,t+.004)),add(a,mul(e.n,t+.004))]}}
+function tekenOpening(r,g,op,T,vloer){const w=r.w[op.z];if(!w)return'';const o=opGeo(g,w,op);if(!o||o.w<=0)return'';const{e,t,a,b}=o;const ln=(p,q,c,sw,da)=>`<line x1="${p[0].toFixed(4)}" y1="${p[1].toFixed(4)}" x2="${q[0].toFixed(4)}" y2="${q[1].toFixed(4)}" stroke="${c}" stroke-width="${sw}"${da?` stroke-dasharray="${da}"`:''}/>`;
+ let s='';const soort=op.soort||'deur';
+ if(soort==='raam'||soort==='pui'){s+=`<polygon points="${pts(o.poly)}" fill="#fff"/><polygon points="${pts([add(a,mul(e.n,t*.3)),add(b,mul(e.n,t*.3)),add(b,mul(e.n,t*.7)),add(a,mul(e.n,t*.7))])}" fill="${T.glas||'#fff'}"/>`;const at=k=>[add(a,mul(e.n,t*k)),add(b,mul(e.n,t*k))];
+  s+=ln(...at(0),T.lijn,.012)+ln(...at(1),T.lijn,.012)+ln(a,add(a,mul(e.n,t)),T.lijn,.012)+ln(b,add(b,mul(e.n,t)),T.lijn,.012);
+  if(soort==='raam'){s+=ln(...at(.5),T.lijn,.018)}else{const m1=add(a,mul(e.u,o.w*.55)),m2=add(a,mul(e.u,o.w*.45));s+=ln(add(a,mul(e.n,t*.38)),add(m1,mul(e.n,t*.38)),T.lijn,.02)+ln(add(m2,mul(e.n,t*.62)),add(b,mul(e.n,t*.62)),T.lijn,.02)}
+  return s}
+ s+=`<polygon points="${pts(o.poly)}" fill="${vloer}"/>`;
+ if(soort==='doorgang')return s;
+ const uit=!!op.uit,hS=op.sch==='R'?b:a,oS=op.sch==='R'?a:b,H=uit?add(hS,mul(e.n,t)):hS,O=uit?add(oS,mul(e.n,t)):oS,sw=uit?e.n:mul(e.n,-1),L=o.w,E2=add(H,mul(sw,L));
+ const v2=sub(O,H),cr=sw[0]*v2[1]-sw[1]*v2[0],sweep=cr>0?1:0;
+ s+=`<path d="M${H[0].toFixed(4)},${H[1].toFixed(4)} L${E2[0].toFixed(4)},${E2[1].toFixed(4)} A${L.toFixed(4)},${L.toFixed(4)} 0 0 ${sweep} ${O[0].toFixed(4)},${O[1].toFixed(4)} Z" fill="rgba(255,255,255,.35)" stroke="none"/>`+`<path d="M${E2[0].toFixed(4)},${E2[1].toFixed(4)} A${L.toFixed(4)},${L.toFixed(4)} 0 0 ${sweep} ${O[0].toFixed(4)},${O[1].toFixed(4)}" fill="none" stroke="${T.lijn}" stroke-width=".01" stroke-dasharray=".05 .03"/>`+ln(H,E2,T.muur,.045);
+ return s}
+function tekenEl(e,T,editor){const P=elPoly(e),b=num(e.b)||0,d=num(e.d)||0,L=(p)=>add(rot(p,e.rot||0),[+e.x||0,+e.y||0]);const da=editor?` data-e="${e.id}"`:'';let s='';
+ const ln=(p,q,c,sw,dash)=>{p=L(p);q=L(q);return`<line x1="${p[0].toFixed(4)}" y1="${p[1].toFixed(4)}" x2="${q[0].toFixed(4)}" y2="${q[1].toFixed(4)}" stroke="${c}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''} pointer-events="none"/>`};
+ if(e.soort==='trap'){const n=Math.max(2,Math.round(num(e.treden)||14));s+=`<polygon points="${pts(P)}" fill="#fff" stroke="${T.lijn}" stroke-width=".015"${da}/>`;
+  for(let i=1;i<n;i++){const y=d*i/n;s+=ln([0,y],[b,y],T.lijn,.01)}
+  const y0=d*.5/n,y1=d-d*.6/n;s+=ln([b/2,y0],[b/2,y1],T.lijn,.012);const ah=Math.min(.18,b*.25);s+=ln([b/2,y1],[b/2-ah*.6,y1-ah],T.lijn,.012)+ln([b/2,y1],[b/2+ah*.6,y1-ah],T.lijn,.012);
+  const c=L([b/2,y0]);s+=`<circle cx="${c[0].toFixed(4)}" cy="${c[1].toFixed(4)}" r=".035" fill="${T.lijn}" pointer-events="none"/>`}
+ else if(e.soort==='vide'){s+=`<polygon points="${pts(P)}" fill="#fff" stroke="${T.lijn}" stroke-width=".015" stroke-dasharray=".08 .05"${da}/>`+ln([0,0],[b,d],T.lijn,.01,'.08 .05')+ln([b,0],[0,d],T.lijn,.01,'.08 .05');
+  if(e.label){const c=L([b/2,d/2]);s+=`<text x="${c[0].toFixed(4)}" y="${(c[1]-.06).toFixed(4)}" font-size=".2" text-anchor="middle" fill="${T.sub}" font-family="Arial, Helvetica, sans-serif" paint-order="stroke" stroke="#fff" stroke-width=".06" pointer-events="none">${esc(e.label)}</text>`}}
+ else if(e.soort==='schacht'){s+=`<polygon points="${pts(P)}" fill="#e2e2e2" stroke="${T.lijn}" stroke-width=".015"${da}/>`+ln([0,0],[b,d],T.lijn,.01)+ln([b,0],[0,d],T.lijn,.01)}
+ else s+=`<polygon points="${pts(P)}" fill="${T.muur}"${da}/>`;
+ return s}
+function tekenVerd(v,o={}){const T=THEMA[o.stijl||cur.instel.stijl]||THEMA[THEMA_STD];const ed=!!o.editor;let s=defs(T,ed);
+ const R=v.ruimtes.map(r=>({r,g:geo(syncW(r))}));
+ // buitenruimtes
+ R.filter(x=>x.r.cat==='buiten').forEach(({r,g})=>{s+=`<polygon points="${pts(g.P)}" fill="${vulling(r,T)}" stroke="${T.lijn}" stroke-width=".015" stroke-dasharray=".1 .05"${ed?` data-r="${r.id}"`:''}/>`;
+  g.E.forEach((e,i)=>{const w=r.w[i];if(w&&w.s!=='open'){const t=wt(w)||.05;s+=`<polygon points="${pts([e.a,e.b,add(e.b,mul(e.n,t)),add(e.a,mul(e.n,t))])}" fill="${T.muur}" pointer-events="none"/>`}})});
+ const bin=R.filter(x=>x.r.cat!=='buiten');
+ bin.forEach(({r,g})=>{s+=`<polygon points="${pts(g.P)}" fill="${vulling(r,T)}"${ed?` data-r="${r.id}"`:''}/>`});
+ s+=`<g pointer-events="none"${!ed&&T.schaduw?' filter="url(#fS)"':''}>`;bin.forEach(({r,g})=>{const O=offs(g,r.w.map(wt));s+=`<path d="M${pts(O)}Z M${pts(g.P.slice().reverse())}Z" fill="${T.muur}" fill-rule="evenodd"/>`});s+='</g>';
+ R.forEach(({r,g})=>(r.ops||[]).forEach(op=>{s+=tekenOpening(r,g,op,T,vulling(r,T))}));
+ v.els.forEach(e=>s+=tekenEl(e,T,ed));
+ // lage delen (< 1,5 m)
+ R.forEach(({r,g})=>g.E.forEach((e,i)=>{const lw=num(r.w[i]?.laag);if(!lw)return;const p=add(e.a,mul(e.n,-lw)),q=add(e.b,mul(e.n,-lw));
+  s+=`<line x1="${p[0].toFixed(4)}" y1="${p[1].toFixed(4)}" x2="${q[0].toFixed(4)}" y2="${q[1].toFixed(4)}" stroke="${T.lijn}" stroke-width=".015" stroke-dasharray=".12 .07" pointer-events="none"/>`;
+  const m=add(add(e.a,mul(e.u,e.L/2)),mul(e.n,-lw/2));if(e.L>1.2&&lw>.25){const ang=Math.atan2(e.u[1],e.u[0])*180/Math.PI,a2=ang>90||ang<-90?ang+180:ang;s+=`<text x="${m[0].toFixed(4)}" y="${m[1].toFixed(4)}" font-size=".14" text-anchor="middle" dominant-baseline="middle" fill="${T.sub}" font-family="Arial, Helvetica, sans-serif" transform="rotate(${a2.toFixed(2)} ${m[0].toFixed(4)} ${m[1].toFixed(4)})" pointer-events="none">&lt; 1,5 m</text>`}}));
+ // labels
+ const ins=o.instel||cur.instel;const obst=[...v.els.map(elPoly)];R.forEach(({r,g})=>(r.ops||[]).forEach(op=>{if(op.soort!=='deur')return;const x=opGeo(g,r.w[op.z],op);if(!x)return;const sw=op.uit?x.t:0,n=op.uit?x.e.n:mul(x.e.n,-1),b0=add(x.a,mul(x.e.n,sw)),b1=add(x.b,mul(x.e.n,sw));obst.push([b0,b1,add(b1,mul(n,x.w)),add(b0,mul(n,x.w))])}));
+ R.forEach(({r,g})=>{if(!r.naam&&!ins.m2)return;const bbr=bb2(g.P);let kl=g.A<3.5?.75:1;const tw=String(r.naam||'').length*.24*.56*kl;if(tw>bbr.x1-bbr.x0-.15)kl*=Math.max(.5,(bbr.x1-bbr.x0-.15)/tw);let regels=[];
+  if(r.naam)regels.push([r.naam,.24*kl,T.txt,600]);const sub2=[];
+  if(ins.maten&&r.vorm!=='poly'&&!((r.rot||0)%90)){const sw=(r.rot||0)%180!==0;sub2.push(`${f2(sw?num(r.d):num(r.b))} × ${f2(sw?num(r.b):num(r.d))} m`)}
+  if(ins.m2)sub2.push(f1(g.A)+' m²');sub2.forEach(t=>regels.push([t,.17*kl,T.sub,400]));
+  const probeer=rg=>{const tot=rg.reduce((s2,x)=>s2+x[1]*1.25,0),hw=Math.max(...rg.map(x=>String(x[0]).length*x[1]*.54))/2;return{rg,tot,c:labelPt(g.P,obst,hw+.04,tot/2+.03)}};
+  const kl2=f=>x=>[x[0],x[1]*f,x[2],x[3]];let L2=probeer(regels);if(!L2.c.fit&&regels.length>2)L2=probeer(regels.filter((x,i)=>i!==1));if(!L2.c.fit)L2=probeer(L2.rg.map(kl2(.75)));if(!L2.c.fit&&L2.rg.length>1)L2=probeer([L2.rg[0]]);
+  regels=L2.rg;const tot=L2.tot,c=L2.c;let y=c[1]-tot/2;
+  regels.forEach(([t,fs,col,fw])=>{y+=fs*1.25;s+=`<text x="${c[0].toFixed(4)}" y="${(y-fs*.28).toFixed(4)}" font-size="${fs}" font-weight="${fw}" text-anchor="middle" fill="${col}" font-family="Arial, Helvetica, sans-serif"${T.pat?' paint-order="stroke" stroke="rgba(255,255,255,.75)" stroke-width=".045" stroke-linejoin="round"':''} pointer-events="none">${esc(t)}</text>`})});
+ // selectie (editor)
+ if(ed&&sel){if(sel.t==='r'){const x=R.find(q=>q.r.id===sel.id);if(x){const{g}=x;s+=`<polygon points="${pts(g.P)}" fill="rgba(255,122,26,.08)" stroke="#ff7a1a" stroke-width=".04" pointer-events="none"/>`;
+   g.E.forEach((e,i)=>{if(i===selEdge)s+=`<line x1="${e.a[0]}" y1="${e.a[1]}" x2="${e.b[0]}" y2="${e.b[1]}" stroke="#ff7a1a" stroke-width=".12" stroke-linecap="round" pointer-events="none"/>`;
+    const m=add(add(e.a,mul(e.u,e.L/2)),mul(e.n,-.24));s+=`<circle cx="${m[0].toFixed(4)}" cy="${m[1].toFixed(4)}" r=".15" fill="${i===selEdge?'#ff7a1a':'#fff'}" stroke="#ff7a1a" stroke-width=".02" data-edge="${i}"/><text x="${m[0].toFixed(4)}" y="${(m[1]+.065).toFixed(4)}" font-size=".18" font-weight="700" text-anchor="middle" fill="${i===selEdge?'#fff':'#ff7a1a'}" font-family="Arial" pointer-events="none">${i+1}</text>`})}}
+  else{const e=V().els.find(q=>q.id===sel.id);if(e)s+=`<polygon points="${pts(elPoly(e))}" fill="rgba(255,122,26,.1)" stroke="#ff7a1a" stroke-width=".04" pointer-events="none"/>`}}
+ return s}
+// volledige exporttekening met titel, noordpijl, schaalbalk en buitenmaten
+function noordHoek(){if(num(cur.noordHand)!=null)return num(cur.noordHand);const az=cur.voorAz;if(az==null)return null;const U={onder:az+180,boven:az,links:az+90,rechts:az-90}[cur.voorZijde||'onder'];return((-U)%360+360)%360}
+function projSchaal(ins){let m=1;cur.verdiepingen.forEach(v=>{const bb=bboxVerd(v);if(!bb)return;const w=bb.x1-bb.x0+1.6+(ins.buitenmaten?.55:0),h=bb.y1-bb.y0+2.5+(ins.buitenmaten?.55:0);m=Math.max(m,w,h*1.2)});return Math.max(70,Math.min(240,2600/m))}
+function exportSvg(v,o={}){const ins={...cur.instel,...o};const T=THEMA[ins.stijl]||THEMA[THEMA_STD];const bb=bboxVerd(v);if(!bb)return null;
+ const mz=bboxMuren(v)||bb;const top=1.25+(ins.buitenmaten?.55:0),left=.8+(ins.buitenmaten?.55:0),right=.8,bot=1.25;
+ const x0=bb.x0-left,y0=bb.y0-top,w=bb.x1-bb.x0+left+right,h=bb.y1-bb.y0+top+bot;const pxm=o.pxm||projSchaal(ins);
+ let s=`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#fff"/>`+tekenVerd(v,{instel:ins,stijl:ins.stijl});
+ const F='font-family="Arial, Helvetica, sans-serif"';
+ s+=`<text x="${(x0+.5).toFixed(3)}" y="${(y0+.62).toFixed(3)}" font-size=".38" font-weight="700" fill="${T.txt}" ${F}>${esc(v.naam)}</text>`;
+ if(ins.adres&&cur.adres?.naam)s+=`<text x="${(x0+.5).toFixed(3)}" y="${(y0+.95).toFixed(3)}" font-size=".2" fill="${T.sub}" ${F}>${esc(cur.adres.naam)}</text>`;
+ if(ins.buitenmaten&&mz){const dl=(a,b,txt,vert)=>{const t=.09;let r='';const L=(p,q)=>`<line x1="${p[0].toFixed(3)}" y1="${p[1].toFixed(3)}" x2="${q[0].toFixed(3)}" y2="${q[1].toFixed(3)}" stroke="${T.lijn}" stroke-width=".012"/>`;
+   r+=L(a,b);const n=vert?[1,0]:[0,1];r+=L(add(a,mul(n,-t)),add(a,mul(n,t)))+L(add(b,mul(n,-t)),add(b,mul(n,t)));const m=mul(add(a,b),.5);
+   r+=vert?`<text x="${(m[0]-.1).toFixed(3)}" y="${m[1].toFixed(3)}" font-size=".19" text-anchor="middle" fill="${T.sub}" ${F} transform="rotate(-90 ${(m[0]-.1).toFixed(3)} ${m[1].toFixed(3)})">${txt}</text>`:`<text x="${m[0].toFixed(3)}" y="${(m[1]-.1).toFixed(3)}" font-size=".19" text-anchor="middle" fill="${T.sub}" ${F}>${txt}</text>`;return r};
+  s+=dl([mz.x0,bb.y0-.45],[mz.x1,bb.y0-.45],f2(mz.x1-mz.x0)+' m',false)+dl([bb.x0-.45,mz.y0],[bb.x0-.45,mz.y1],f2(mz.y1-mz.y0)+' m',true)}
+ const yb=bb.y1+.75;if(ins.schaal){let sx=x0+.5;s+=`<g ${F}>`;for(let i=0;i<4;i++)s+=`<rect x="${(sx+i*.5).toFixed(3)}" y="${yb.toFixed(3)}" width=".5" height=".08" fill="${i%2?'#fff':T.kader}" stroke="${T.kader}" stroke-width=".01"/>`;
+  s+=`<text x="${sx.toFixed(3)}" y="${(yb+.3).toFixed(3)}" font-size=".16" fill="${T.sub}">0</text><text x="${(sx+1).toFixed(3)}" y="${(yb+.3).toFixed(3)}" font-size=".16" text-anchor="middle" fill="${T.sub}">1</text><text x="${(sx+2).toFixed(3)}" y="${(yb+.3).toFixed(3)}" font-size=".16" text-anchor="middle" fill="${T.sub}">2 m</text></g>`}
+ const nh=noordHoek();if(ins.noord&&nh!=null){const cx=x0+w-.75,cy=y0+.75;s+=`<g transform="rotate(${nh} ${cx} ${cy})"><circle cx="${cx}" cy="${cy}" r=".42" fill="#fff" stroke="${T.kader}" stroke-width=".02"/><path d="M${cx},${cy-.36} L${cx+.14},${cy+.16} L${cx},${cy+.06} L${cx-.14},${cy+.16} Z" fill="${T.kader}"/><text x="${cx}" y="${cy-.45}" font-size=".2" font-weight="700" text-anchor="middle" fill="${T.kader}" ${F}>N</text></g>`}
+ return{svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0.toFixed(3)} ${y0.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}" width="${Math.round(w*pxm)}" height="${Math.round(h*pxm)}">${s}</svg>`,w:Math.round(w*pxm),h:Math.round(h*pxm)}}
+
+// =====================================================================
+//  BEREKENING volgens de Meetinstructie (raster 1 cm)
+// =====================================================================
+function scan(poly,G,cb){const{minx,miny,c,W,H}=G;let y0=Infinity,y1=-Infinity;for(const p of poly){y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])}
+ const j0=Math.max(0,Math.ceil((y0-miny)/c-.5-1e-7)),j1=Math.min(H-1,Math.floor((y1-miny)/c-.5+1e-7));
+ for(let j=j0;j<=j1;j++){const yc=miny+(j+.5)*c,xs=[];for(let i=0,k=poly.length-1;i<poly.length;k=i++){const[xa,ya]=poly[k],[xb,yb]=poly[i];if((ya>yc)!==(yb>yc))xs.push(xa+(yc-ya)*(xb-xa)/(yb-ya))}
+  xs.sort((a,b)=>a-b);for(let q=0;q+1<xs.length;q+=2){const i0=Math.max(0,Math.ceil((xs[q]-minx)/c-.5-1e-7)),i1=Math.min(W-1,Math.floor((xs[q+1]-minx)/c-.5+1e-7)),row=j*W;for(let i=i0;i<=i1;i++)cb(row+i)}}}
+function bereken(v){const R=v.ruimtes.map((r,i)=>({r,g:geo(syncW(r)),i}));const nul=()=>({wonen:0,oir:0});
+ const res={v,ruimtes:R.map(({r,g})=>({id:r.id,naam:r.naam,cat:r.cat,opp:g.A,maat:r.vorm!=='poly'?`${f2(num(r.b))} × ${f2(num(r.d))}`:'vrije vorm'})),
+  netto:nul(),wand:nul(),laag:nul(),vide:nul(),schacht:nul(),go:nul(),ggb:0,eb:0,bvo:0,inhoud:0,overlap:0,aftrekEls:[]};
+ R.forEach(({r,g})=>{if(r.cat==='buiten')res.ggb+=g.A;if(r.cat==='extern')res.eb+=g.A});
+ const B=R.filter(x=>['wonen','oir','nvt'].includes(x.r.cat));
+ if(B.length){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;const inc=P=>P.forEach(([x,y])=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)});
+  B.forEach(({r,g})=>inc(offs(g,r.w.map(wt))));let c=.01;let W=Math.ceil((x1-x0)/c)+6,H=Math.ceil((y1-y0)/c)+6;if(W*H>9e6){c=.02;W=Math.ceil((x1-x0)/c)+6;H=Math.ceil((y1-y0)/c)+6}
+  const G={minx:Math.floor(x0/c)*c-3*c,miny:Math.floor(y0/c)*c-3*c,c,W,H};const N=W*H,cat=new Uint8Array(N),rid=new Uint16Array(N),bvo=new Uint8Array(N);const c2=c*c;
+  const tel=()=>{let a=0,b=0;for(let i=0;i<N;i++){if(cat[i]===2)b++;else if(cat[i]===1)a++}return{wonen:b*c2,oir:a*c2}};
+  // BVO: gevels volledig, woningscheidend tot hart, binnenwanden half (de buurruimte vult de andere helft)
+  B.forEach(({r,g})=>scan(offs(g,r.w.map(w=>w.s==='buiten'?wt(w):w.s==='open'?0:wt(w)/2)),G,k=>{bvo[k]=1}));let nb=0;for(let i=0;i<N;i++)nb+=bvo[i];res.bvo=nb*c2;
+  // stap 1: vloeren van de ruimtes
+  let som=0;B.forEach(({r,g,i})=>{som+=g.A;const cv=r.cat==='wonen'?2:r.cat==='oir'?1:0;scan(g.P,G,k=>{rid[k]=i+1;cat[k]=cv})});
+  const n0=tel();res.netto=n0;res.overlap=Math.max(0,som-B.reduce((s2,x)=>s2,0)-(()=>{let a=0;for(let i=0;i<N;i++)if(rid[i])a++;return a*c2})());
+  // binnenwanden tellen mee (incl. dragend). Wand tussen wonen en overige inpandige ruimte telt als wonen.
+  B.filter(x=>x.r.cat==='oir').forEach(({r,g})=>scan(offs(g,r.w.map(w=>w.s==='binnen'?wt(w)/2:0)),G,k=>{if(!rid[k]&&cat[k]===0)cat[k]=1}));
+  B.filter(x=>x.r.cat==='wonen').forEach(({r,g})=>scan(offs(g,r.w.map(w=>w.s==='binnen'?wt(w):0)),G,k=>{if(!rid[k])cat[k]=2}));
+  const n1=tel();res.wand={wonen:n1.wonen-n0.wonen,oir:n1.oir-n0.oir};
+  // delen lager dan 1,5 m
+  B.forEach(({r,g,i})=>g.E.forEach((e,j)=>{const lw=num(r.w[j]?.laag);if(!lw)return;scan([e.a,e.b,add(e.b,mul(e.n,-lw)),add(e.a,mul(e.n,-lw))],G,k=>{if(rid[k]===i+1)cat[k]=0})}));
+  const n2=tel();res.laag={wonen:n1.wonen-n2.wonen,oir:n1.oir-n2.oir};
+  // trapgat / vide >= 4 m²
+  v.els.filter(e=>e.soort==='vide').forEach(e=>{const P=elPoly(e),A=areaP(P);if(Math.round(A*100)/100>=4){res.aftrekEls.push({soort:e.label||'Vide / trapgat',A});scan(P,G,k=>{cat[k]=0})}});
+  const n3=tel();res.vide={wonen:n2.wonen-n3.wonen,oir:n2.oir-n3.oir};
+  // schacht, inspringend of vrijstaand bouwdeel >= 0,5 m²
+  v.els.filter(e=>e.soort==='schacht'||e.soort==='kolom').forEach(e=>{const P=elPoly(e),A=areaP(P);if(Math.round(A*100)/100>=.5){res.aftrekEls.push({soort:e.soort==='schacht'?'Schacht':'Kolom / bouwdeel',A});scan(P,G,k=>{cat[k]=0})}});
+  const n4=tel();res.schacht={wonen:n3.wonen-n4.wonen,oir:n3.oir-n4.oir};res.go=n4}
+ // bruto inhoud (meetinstructie bruto inhoud woningen)
+ const h=num(v.hoogte)||0,gem=((num(v.hLaag)||0)+(num(v.hHoog)||0))/2;
+ if(v.kap==='kap')res.inhoud=res.bvo*gem;else if(v.kap==='deels'){const ok=Math.min(res.bvo,num(v.oppKap)||0);res.inhoud=(res.bvo-ok)*h+ok*gem}else res.inhoud=res.bvo*h;
+ res.inhoud+=num(v.corr)||0;return res}
+function berekenAlles(){const L=cur.verdiepingen.map(bereken);const tot={wonen:0,oir:0,ggb:0,eb:0,inhoud:0,bvo:0,vloer:0};
+ L.forEach(r=>{tot.wonen+=r.go.wonen;tot.oir+=r.go.oir;tot.ggb+=r.ggb;tot.eb+=r.eb;tot.inhoud+=r.inhoud;tot.bvo+=r.bvo});
+ if(cur.woningtype==='eengezins'){const met=L.filter(r=>r.bvo>0);if(met.length){const laagste=met.reduce((a,b)=>(+b.v.laag<+a.v.laag?b:a));tot.vloer=laagste.bvo*.4;tot.vloerVan=laagste.v.naam;tot.inhoud+=tot.vloer}}
+ return{L,tot}}
+
+// =====================================================================
+//  SCHERMEN
+// =====================================================================
+const STAPPEN=[['object','Object'],['tekenen','Tekenen'],['meetstaat','Meetstaat'],['export','Export']];
+function render(){$('#steps').innerHTML=scherm==='lijst'?'':STAPPEN.map(([k,l])=>`<span data-go="${k}" class="${k===scherm?'on':''}">${l}</span>`).join('');
+ $('#titel').textContent=cur?.adres?.naam||'Plattegrond NEN 2580';({lijst,object,tekenen,meetstaat,export:exportScherm})[scherm]()}
+function bar(h){$('#bar').innerHTML=h}
+function lijst(){cur=null;
+ $('#app').innerHTML=`<div class="card"><h2>Plattegronden NEN 2580</h2><p class="note">Meet de woning per ruimte in. De app rekent de gebruiksoppervlakte en bruto inhoud volgens de Meetinstructies (juli 2019, gebaseerd op NEN 2580) en maakt een plattegrond voor Funda, een meetrapport (PDF) en een FML-bestand voor Floorplanner.</p></div>`+
+ (store.projecten.length?store.projecten.slice().reverse().map(p=>`<div class="card"><div class="ihead"><span>${esc(p.adres?.naam||'Zonder adres')}</span></div><div class="note">${new Date(p.datum).toLocaleDateString('nl-NL')} · ${p.verdiepingen.length} bouwla${p.verdiepingen.length===1?'ag':'gen'} · ${p.verdiepingen.reduce((s,v)=>s+v.ruimtes.length,0)} ruimtes</div>
+ <div class="row" style="margin-top:10px"><button class="small" data-open="${p.id}">Openen</button><button class="small ghost" data-kopie="${p.id}">Kopie</button><button class="small del" data-wis="${p.id}">Verwijderen</button></div></div>`).join(''):'<p class="note">Nog geen plattegronden.</p>')+
+ `<p class="note" style="text-align:center;margin-top:20px">Versie ${APPVERSIE}</p>`;
+ bar(`<button class="ghost" onclick="location.href='opname.html'">Opnames</button><button data-act="nieuw">+ Nieuwe plattegrond</button>`)}
+function openProject(p){cur=p;if(!cur.instel)cur.instel=nieuwProject().instel;vi=0;sel=null;selEdge=-1;UNDO=[];scherm=cur.verdiepingen.some(v=>v.ruimtes.length)?'tekenen':'object';render()}
+
+// ---------- object ----------
+function opnames(){try{return(JSON.parse(localStorage.getItem(OKEY))||{opnames:[]}).opnames||[]}catch(e){return[]}}
+function koppelOpname(o){cur.opnameId=o.id;if(o.adres)cur.adres=o.adres;if(o.bag)cur.bag=o.bag;if(o.orient)cur.voorAz=o.orient.voorAz;if(o.type?.wtype)cur.woningtype=o.type.wtype==='appartement'?'appartement':'eengezins';
+ const n=Math.max(1,+o.type?.lagen||1);if(cur.verdiepingen.length===1&&!cur.verdiepingen[0].ruimtes.length&&n>1){for(let i=1;i<n;i++)cur.verdiepingen.push(nieuweVerd(i+'e verdieping',i+1))}save()}
+function object(){const o=opnames();const ch=(k,v,l)=>`<button class="${cur[k]===v?'on':''}" data-set="${k}" data-v="${v}">${l}</button>`;const b=cur.bag;
+ $('#app').innerHTML=`<div class="card"><h2>Object</h2>${o.length?`<label>Koppelen aan opname (adres, BAG en voorgevel worden overgenomen)</label><select id="koppel"><option value="">– geen –</option>${o.slice().reverse().map(x=>`<option value="${x.id}" ${x.id===cur.opnameId?'selected':''}>${esc(x.adres?.naam||'Zonder adres')}</option>`).join('')}</select>`:''}
+ <label>Adres</label><input id="q" placeholder="Begin te typen, bijv. 2941 BA 11" value="${esc(cur.adres?.naam||'')}" autocomplete="off"><div id="res"></div>
+ ${b?`<div class="kv" style="margin-top:10px"><b>Bouwjaar</b><span>${esc(b.bouwjaar??'–')}</span><b>BAG-oppervlakte</b><span>${b.oppervlakte!=null?esc(b.oppervlakte)+' m²':'–'}</span><b>Gebruiksdoel</b><span>${esc(b.gebruiksdoel??'–')}</span></div>`:''}
+ <label>Woningtype</label><div class="choice">${ch('woningtype','eengezins','Eengezinswoning')}${ch('woningtype','appartement','Appartement')}</div>
+ <p class="note">Bij een eengezinswoning telt de onderste vloer mee in de bruto inhoud (40 cm × BVO onderste bouwlaag). Bij een appartement niet.</p>
+ <div class="grid2"><div><label>Opnemer</label><input data-p="opnemer" value="${esc(cur.opnemer)}"></div><div><label>Meetdatum</label><input type="date" data-p="odatum" value="${esc(cur.odatum)}"></div></div></div>
+ <div class="card"><h3>Noordpijl</h3><label>Waar ligt de voorgevel op de tekening?</label><div class="choice">${['onder','boven','links','rechts'].map(z=>`<button class="${cur.voorZijde===z?'on':''}" data-set="voorZijde" data-v="${z}">${z[0].toUpperCase()+z.slice(1)}</button>`).join('')}</div>
+ <p class="note">${cur.voorAz!=null?`Voorgevel uit de opname: ${cur.voorAz}° (kompasrichting). Noordpijl: ${noordHoek()}° rechtsom vanaf boven.`:'Nog geen voorgevelrichting. Koppel een opname of vul de hoek hieronder in.'}</p>
+ <label>Of zelf de noordpijl (graden rechtsom vanaf boven, leeg = automatisch)</label><input data-p="noordHand" inputmode="decimal" value="${esc(cur.noordHand)}"></div>
+ <div class="card"><h3>Bouwlagen</h3>${cur.verdiepingen.map((v,i)=>`<div class="row" style="margin-bottom:6px;align-items:center"><span style="flex:3">${esc(v.naam)} <small class="note">bouwlaag ${esc(v.laag)} · ${v.ruimtes.length} ruimtes</small></span><button class="small ghost" style="flex:0 0 auto" data-vi="${i}" data-go2="tekenen">Tekenen</button></div>`).join('')}
+ <button class="small ghost" data-act="vadd" style="margin-top:6px">+ Bouwlaag</button></div>`;
+ bar(`<button class="ghost" data-act="lijst">Alle plattegronden</button><button data-go="tekenen">Tekenen →</button>`);
+ let tm;$('#q').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(zoekAdres,250)});
+ $('#koppel')?.addEventListener('change',e=>{const x=o.find(y=>y.id===e.target.value);if(x){koppelOpname(x);toast('Gegevens uit de opname overgenomen')}else{cur.opnameId=null;save()}object()})}
+const LS='https://api.pdok.nl/bzk/locatieserver/search/v3_1/';let zoekRes=[],zoekNr=0;
+async function zoekAdres(){const q=$('#q').value.trim();if(q.length<3){$('#res').innerHTML='';return}const nr=++zoekNr;
+ try{const j=await fetch(LS+'suggest?fq=type:adres&rows=8&q='+encodeURIComponent(q)).then(r=>r.json());if(nr!==zoekNr)return;zoekRes=j.response.docs;
+  $('#res').innerHTML=zoekRes.length?'<div class="sug">'+zoekRes.map((d,i)=>`<div class="res" data-adr="${i}">${esc(d.weergavenaam)}</div>`).join('')+'</div>':'<p class="note">Geen adres gevonden.</p>'}catch(e){$('#res').innerHTML='<p class="err">Geen verbinding met PDOK.</p>'}}
+async function kiesAdres(d){try{const j=await fetch(LS+'lookup?fl=*&id='+encodeURIComponent(d.id)).then(r=>r.json());const doc=j.response.docs[0];
+ cur.adres={naam:doc.weergavenaam,straat:doc.straatnaam,huisnummer:doc.huisnummer,toevoeging:(doc.huisletter||'')+(doc.huisnummertoevoeging||''),postcode:doc.postcode,plaats:doc.woonplaatsnaam,vboId:doc.adresseerbaarobject_id};
+ const m=/POINT\(([\d.]+) ([\d.]+)\)/.exec(doc.centroide_rd||'');if(m){const x=+m[1],y=+m[2];const base='https://service.pdok.nl/lv/bag/wfs/v2_0?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:28992&bbox='+[x-1,y-1,x+1,y+1].join(',')+',EPSG:28992&typeNames=';
+  const[vr,pr]=await Promise.all([fetch(base+'bag:verblijfsobject').then(r=>r.json()),fetch(base+'bag:pand').then(r=>r.json())]);
+  const vbo=(vr.features||[]).find(f=>String(f.properties.identificatie)===String(doc.adresseerbaarobject_id))||(vr.features||[])[0];const vp=vbo?.properties||{},pp=(pr.features||[])[0]?.properties||{};
+  cur.bag={bouwjaar:pp.bouwjaar??vp.bouwjaar,oppervlakte:vp.oppervlakte,gebruiksdoel:vp.gebruiksdoel,pandId:pp.identificatie,vboId:vp.identificatie}}
+ save();toast('Adres opgeslagen')}catch(e){cur.adres={naam:d.weergavenaam};save();toast('Adres opgeslagen (BAG niet bereikbaar)')}object()}
+
+// ---------- tekenen ----------
+let VB=null;
+function tekenen(){if(vi>=cur.verdiepingen.length)vi=0;const v=V();
+ $('#app').innerHTML=`<div class="vtabs">${cur.verdiepingen.map((x,i)=>`<button class="${i===vi?'on':''}" data-vi="${i}">${esc(x.naam)}</button>`).join('')}<button class="ghost" data-act="vadd">+ Bouwlaag</button></div>
+ <div id="cvwrap"><svg id="cv" xmlns="http://www.w3.org/2000/svg"></svg><div class="cvk"><button class="ghost" data-act="fit" title="Passend maken">⤢</button><button class="ghost" data-act="zin" title="Inzoomen">+</button><button class="ghost" data-act="zuit" title="Uitzoomen">−</button><button class="ghost" data-act="undo" title="Ongedaan maken">↶</button></div><div class="tot" id="tot"></div></div>
+ <div class="tools"><button data-act="radd">+ Ruimte</button><button class="ghost" data-act="eadd" data-s="trap">+ Trap</button><button class="ghost" data-act="eadd" data-s="vide">+ Vide / trapgat</button><button class="ghost" data-act="eadd" data-s="schacht">+ Schacht / kolom</button></div>
+ <div id="panel"></div>`;
+ bar(`<button class="ghost" data-go="object">Object</button><button data-go="meetstaat">Meetstaat →</button>`);
+ initCv();VB=null;fit();teken();panel();totaal()}
+function cvMaat(){const c=$('#cv');return{w:c.clientWidth||300,h:c.clientHeight||300}}
+function fit(){const bb=bboxVerd(V(),.8)||{x0:-1,y0:-1,x1:9,y1:7};const{w,h}=cvMaat();let vw=bb.x1-bb.x0,vh=bb.y1-bb.y0;if(vw/vh<w/h)vw=vh*w/h;else vh=vw*h/w;
+ VB={x:(bb.x0+bb.x1)/2-vw/2,y:(bb.y0+bb.y1)/2-vh/2,w:vw,h:vh};zetVB()}
+function zetVB(){const c=$('#cv');if(c&&VB)c.setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`)}
+function zoom(f,cx,cy){if(cx==null){cx=VB.x+VB.w/2;cy=VB.y+VB.h/2}const nw=Math.max(1,Math.min(200,VB.w*f));const k=nw/VB.w;VB={x:cx-(cx-VB.x)*k,y:cy-(cy-VB.y)*k,w:nw,h:VB.h*k};zetVB()}
+function raster(){const{w}=cvMaat();const m=VB.w/w;const st=[.1,.25,.5,1,2,5].find(s=>s/m>=18)||5;let s='';const x0=Math.floor(VB.x/st)*st,y0=Math.floor(VB.y/st)*st;
+ for(let x=x0;x<VB.x+VB.w;x+=st)s+=`<line x1="${x}" y1="${VB.y}" x2="${x}" y2="${VB.y+VB.h}" stroke="${Math.abs(x%1)<1e-6?'#dfe5e3':'#eef2f1'}" stroke-width="${m*.8}"/>`;
+ for(let y=y0;y<VB.y+VB.h;y+=st)s+=`<line x1="${VB.x}" y1="${y}" x2="${VB.x+VB.w}" y2="${y}" stroke="${Math.abs(y%1)<1e-6?'#dfe5e3':'#eef2f1'}" stroke-width="${m*.8}"/>`;return`<g pointer-events="none">${s}</g>`}
+function teken(){const c=$('#cv');if(!c)return;c.innerHTML=raster()+tekenVerd(V(),{editor:true});if(!V().ruimtes.length&&!V().els.length)c.innerHTML+=`<text x="${VB.x+VB.w/2}" y="${VB.y+VB.h/2}" font-size="${VB.w/26}" text-anchor="middle" fill="#8a9893" font-family="Arial">Tik op “+ Ruimte” om te beginnen</text>`}
+let totT;function totaal(){clearTimeout(totT);totT=setTimeout(()=>{const e=$('#tot');if(!e)return;const r=bereken(V());e.innerHTML=`<b>${esc(V().naam)}</b> · GO wonen <b>${f2(r.go.wonen)}</b> m²${r.go.oir?` · overig <b>${f2(r.go.oir)}</b>`:''}${r.ggb?` · buiten ${f2(r.ggb)}`:''}${r.eb?` · ext. berging ${f2(r.eb)}`:''}`},250)}
+function opnieuw(){save();teken();totaal()}
+
+// ---- aanwijzen / slepen / pannen / knijpen ----
+const PT=new Map();let drag=null,pinch=null;
+function naarM(ev){const c=$('#cv'),r=c.getBoundingClientRect();return[VB.x+(ev.clientX-r.left)*VB.w/r.width,VB.y+(ev.clientY-r.top)*VB.h/r.height]}
+function initCv(){const c=$('#cv');
+ c.addEventListener('pointerdown',ev=>{c.setPointerCapture(ev.pointerId);PT.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+  if(PT.size===2){const[a,b]=[...PT.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),VB:{...VB}};drag=null;return}
+  const t=ev.target,rId=t.getAttribute&&t.getAttribute('data-r'),eId=t.getAttribute&&t.getAttribute('data-e'),edg=t.getAttribute&&t.getAttribute('data-edge');
+  const hit=edg!=null?{edge:+edg}:rId?{t:'r',id:rId}:eId?{t:'e',id:eId}:null;
+  const isSel=hit&&!hit.edge&&sel&&sel.t===hit.t&&sel.id===hit.id;
+  drag={sx:ev.clientX,sy:ev.clientY,m:naarM(ev),hit,isSel,moved:false,VB:{...VB}};
+  if(isSel){const o=hit.t==='r'?vindR(hit.id):vindE(hit.id);drag.ox=+o.x||0;drag.oy=+o.y||0;drag.snap=JSON.stringify(cur.verdiepingen)}});
+ c.addEventListener('pointermove',ev=>{if(!PT.has(ev.pointerId))return;PT.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+  if(pinch&&PT.size===2){const[a,b]=[...PT.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<5)return;const f=pinch.d/d;const r=c.getBoundingClientRect();const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+   const P=pinch.VB;const cx=P.x+(mx-r.left)*P.w/r.width,cy=P.y+(my-r.top)*P.h/r.height;const nw=Math.max(1,Math.min(200,P.w*f)),k=nw/P.w;VB={x:cx-(cx-P.x)*k,y:cy-(cy-P.y)*k,w:nw,h:P.h*k};zetVB();teken();return}
+  if(!drag)return;const dxp=ev.clientX-drag.sx,dyp=ev.clientY-drag.sy;if(!drag.moved&&Math.hypot(dxp,dyp)<7)return;drag.moved=true;
+  const r=c.getBoundingClientRect(),k=VB.w/r.width;
+  if(drag.isSel){const o=drag.hit.t==='r'?vindR(drag.hit.id):vindE(drag.hit.id);let dx=dxp*drag.VB.w/r.width,dy=dyp*drag.VB.h/r.height;[dx,dy]=snap(o,drag.ox,drag.oy,dx,dy,12*k);
+   o.x=Math.round((drag.ox+dx)*100)/100;o.y=Math.round((drag.oy+dy)*100)/100;teken()}
+  else{VB.x=drag.VB.x-dxp*drag.VB.w/r.width;VB.y=drag.VB.y-dyp*drag.VB.h/r.height;zetVB();teken()}});
+ const eind=ev=>{PT.delete(ev.pointerId);if(PT.size<2)pinch=null;if(!drag)return;const d=drag;drag=null;
+  if(d.isSel&&d.moved){UNDO.push(JSON.stringify({vi,v:JSON.parse(d.snap)}));save();panel();totaal();return}
+  if(!d.moved){if(d.hit&&d.hit.edge!=null){selEdge=d.hit.edge;teken();panel();setTimeout(()=>document.getElementById('wr'+selEdge)?.scrollIntoView({block:'center',behavior:'smooth'}),50);return}
+   if(d.hit){if(!(sel&&sel.t===d.hit.t&&sel.id===d.hit.id)){sel={t:d.hit.t,id:d.hit.id};selEdge=-1}else if(d.hit.t==='r'){const r=vindR(d.hit.id),g=geo(r);let bi=-1,bd=.35;g.E.forEach((e,i)=>{const dd=dSeg(d.m,e.a,e.b);if(dd<bd){bd=dd;bi=i}});if(bi>=0)selEdge=bi}}
+   else{sel=null;selEdge=-1}teken();panel()}};
+ c.addEventListener('pointerup',eind);c.addEventListener('pointercancel',eind);
+ c.addEventListener('wheel',ev=>{ev.preventDefault();const[mx,my]=naarM(ev);zoom(ev.deltaY>0?1.15:1/1.15,mx,my);teken()},{passive:false})}
+// snappen: wanden tegen elkaar (met wanddikte ertussen) of vlakken uitlijnen
+function randen(o,dx=0,dy=0){if(o.soort){const P=elPoly(o).map(p=>[p[0]+dx,p[1]+dy]);const out=[];for(let i=0;i<4;i++){const a=P[i],b=P[(i+1)%4];out.push(rand(a,b,P,0))}return out.filter(Boolean)}
+ const g=geo(syncW(o));return g.E.map((e,i)=>{const a=[e.a[0]+dx,e.a[1]+dy],b=[e.b[0]+dx,e.b[1]+dy];const x=rand(a,b,null,wt(o.w[i]),e.n);return x}).filter(Boolean)}
+function rand(a,b,P,t,n){const dx=b[0]-a[0],dy=b[1]-a[1];if(Math.abs(dx)<1e-6){if(!n){const cx=P.reduce((s,p)=>s+p[0],0)/P.length;n=[a[0]>cx?1:-1,0]}return{ax:'v',c:a[0],lo:Math.min(a[1],b[1]),hi:Math.max(a[1],b[1]),s:Math.sign(n[0]),t}}
+ if(Math.abs(dy)<1e-6){if(!n){const cy=P.reduce((s,p)=>s+p[1],0)/P.length;n=[0,a[1]>cy?1:-1]}return{ax:'h',c:a[1],lo:Math.min(a[0],b[0]),hi:Math.max(a[0],b[0]),s:Math.sign(n[1]),t}}return null}
+function snap(o,ox,oy,dx,dy,tol){const isEl=!!o.soort;const v=V();const ik=randen(o,ox-(+o.x||0),oy-(+o.y||0));const ander=[];v.ruimtes.forEach(r=>{if(r!==o)ander.push(...randen(r).map(x=>({...x,room:true})))});if(!isEl)v.els.forEach(e=>{});
+ const best={v:{d:tol,val:dx},h:{d:tol,val:dy}};
+ ik.forEach(a=>{const D=a.ax==='v'?dx:dy,Do=a.ax==='v'?dy:dx;ander.forEach(b=>{if(b.ax!==a.ax)return;const cand=[];
+  const ovl=Math.min(a.hi+Do,b.hi)-Math.max(a.lo+Do,b.lo);
+  if(isEl){if(a.s===b.s)cand.push(b.c-a.c)}
+  else{if(a.s===-b.s&&ovl>-.3){const gap=Math.max(a.t||0,b.t||0);cand.push(b.c+b.s*gap-a.c)}
+   if(a.s===b.s){cand.push(b.c-a.c);cand.push(b.c+b.s*(b.t||0)-(a.c+a.s*(a.t||0)))}}
+  cand.forEach(c=>{const d=Math.abs(c-D),k=a.ax==='v'?'v':'h';if(d<best[k].d){best[k]={d,val:c}}})})});
+ return[best.v.val,best.h.val]}
+
+// ---- paneel ----
+function selR(){return sel&&sel.t==='r'?vindR(sel.id):null}
+function selE(){return sel&&sel.t==='e'?vindE(sel.id):null}
+function panel(){const p=$('#panel');if(!p)return;const r=selR(),e=selE();p.innerHTML=r?ruimtePanel(r):e?elPanel(e):verdPanel(V())}
+function verdPanel(v){return`<div class="card"><div class="ihead"><span>Bouwlaag: ${esc(v.naam)}</span><span><button class="small ghost" data-act="vdup">Dupliceren</button> <button class="small del" data-act="vdel">Verwijderen</button></span></div>
+ <div class="grid2"><div><label>Naam</label><input data-v="naam" value="${esc(v.naam)}"></div><div><label>Bouwlaag nr. <small>(0 = kelder, 1 = bg)</small></label><input data-v="laag" inputmode="numeric" value="${esc(v.laag)}"></div></div>
+ <label>Bruto hoogte (bovenkant vloer → bovenkant vloer erboven, m)</label><input data-v="hoogte" inputmode="decimal" value="${esc(v.hoogte)}"><p class="note">Bovenste bouwlaag met plat dak: dakconstructie meetellen (onbekend = 30 cm). Onbekende vloerdikte = 30 cm.</p>
+ <label>Kap (schuin plafond)</label><div class="choice">${[['geen','Geen kap'],['kap','Hele laag onder kap'],['deels','Deels onder kap']].map(([k,l])=>`<button class="${v.kap===k?'on':''}" data-act="kap" data-v="${k}">${l}</button>`).join('')}</div>
+ ${v.kap!=='geen'?`<div class="grid3"><div><label>Laagste hoogte (m)</label><input data-v="hLaag" inputmode="decimal" value="${esc(v.hLaag)}"></div><div><label>Hoogste (tot nokbalk +30 cm)</label><input data-v="hHoog" inputmode="decimal" value="${esc(v.hHoog)}"></div>${v.kap==='deels'?`<div><label>Opp. onder kap (m²)</label><input data-v="oppKap" inputmode="decimal" value="${esc(v.oppKap)}"></div>`:''}</div><p class="note">Inhoud onder de kap = BVO × gemiddelde van laagste en hoogste hoogte.</p>`:''}
+ <div class="grid2"><div><label>Correctie inhoud (m³, ±)</label><input data-v="corr" inputmode="decimal" value="${esc(v.corr)}"></div><div><label>Omschrijving correctie</label><input data-v="corrTxt" placeholder="bijv. dakkapel voorzijde" value="${esc(v.corrTxt)}"></div></div></div>
+ <div class="card note"><b>Werkwijze</b><br>1. Tik “+ Ruimte”, vul naam en binnenmaten in. 2. Zet per zijde het soort wand en de dikte (gevel, woningscheidend, binnenwand). 3. Sleep de ruimte op zijn plek: hij klikt vast tegen de buurruimte met de wanddikte ertussen. Of gebruik “Plaats naast”. 4. Voeg deuren en ramen toe. Tik eerst op een ruimte om hem te kiezen, sleep hem dan pas.</div>`}
+function ruimtePanel(r){const g=geo(syncW(r));const n=g.E.length;const res=hoogteAdvies(r);
+ const zt=i=>`${i+1} · ${zijde(g.E[i])} · ${f2(g.E[i].L)} m`;
+ let segs='';if(r.vorm==='poly'){segs=`<table class="t wt"><tr><th>Wand</th><th>Lengte (m)</th><th>Daarna</th></tr>${r.segs.map((s,i)=>`<tr><td>${i+1}</td><td><input data-seg="${i}:l" inputmode="decimal" value="${esc(s.l)}"></td><td><select data-seg="${i}:a">${[[90,'Rechtsaf 90°'],[-90,'Linksaf 90°'],[45,'Rechtsaf 45°'],[-45,'Linksaf 45°'],[135,'Rechtsaf 135°'],[-135,'Linksaf 135°'],[0,'Rechtdoor']].map(([a,l])=>`<option value="${a}" ${(num(s.a)??90)==a?'selected':''}>${l}</option>`).join('')}</select></td></tr>`).join('')}
+  <tr><td>${r.segs.length+1}</td><td colspan="2" class="note">Sluitwand: ${f2(g.E[n-1]?.L)} m ${(()=>{const e=g.E[n-1];return e&&zijde(e)==='schuin'?'<b style="color:var(--warn)">loopt schuin, controleer de maten</b>':''})()}</td></tr></table>
+  <div class="row" style="margin-top:6px"><button class="small ghost" data-act="segadd">+ Wand</button><button class="small ghost" data-act="segdel">− Laatste wand</button></div>
+  <p class="note">Begin linksboven en loop met de klok mee: wand 1 gaat naar rechts.</p>`}
+ const others=V().ruimtes.filter(x=>x!==r);
+ return`<div class="card"><div class="ihead"><span><span class="chip" style="background:${CAT[r.cat].c}">${CAT[r.cat].k}</span> ${esc(r.naam)}</span><span style="white-space:nowrap"><button class="small ghost" data-act="rdup">Kopie</button> <button class="small del" data-act="rdel">✕</button></span></div>
+ <label>Naam</label><input data-f="naam" list="namen" value="${esc(r.naam)}" autocomplete="off">
+ <label>Telt als</label><div class="choice">${Object.keys(CAT).map(k=>`<button class="${r.cat===k?'on':''}" data-act="cat" data-v="${k}">${CAT[k].l}</button>`).join('')}</div><p class="note">${CATUITLEG[r.cat]}</p>
+ <label>Vorm</label><div class="choice"><button class="${r.vorm!=='poly'?'on':''}" data-act="vorm" data-v="rect">Rechthoek</button><button class="${r.vorm==='poly'?'on':''}" data-act="vorm" data-v="poly">Vrije vorm (wand voor wand)</button></div>
+ ${r.vorm!=='poly'?`<div class="grid2"><div><label>Breedte ↔ (binnenmaat, m)</label><input data-f="b" inputmode="decimal" value="${inV(r.b)}"></div><div><label>Diepte ↕ (binnenmaat, m)</label><input data-f="d" inputmode="decimal" value="${inV(r.d)}"></div></div>`:segs}
+ <div class="ok">Netto vloeroppervlak ruimte: <b>${f2(g.A)} m²</b></div>
+ <div class="grid3" style="align-items:end"><div><label>X (m)</label><input data-f="x" inputmode="decimal" value="${inV(r.x)}"></div><div><label>Y (m)</label><input data-f="y" inputmode="decimal" value="${inV(r.y)}"></div><div><button class="ghost" data-act="draai" style="width:100%">⟳ 90°</button></div></div>
+ ${others.length?`<details style="margin-top:10px"><summary class="note" style="cursor:pointer"><b>Plaats naast een andere ruimte</b></summary><div class="grid3"><div><label>Ruimte</label><select id="pnR">${others.map(x=>`<option value="${x.id}">${esc(x.naam)}</option>`).join('')}</select></div>
+  <div><label>Kant</label><select id="pnK"><option value="r">rechts ervan</option><option value="l">links ervan</option><option value="o">eronder</option><option value="b">erboven</option></select></div><div><label>Uitlijnen</label><select id="pnU"><option value="0">begin (links/boven)</option><option value="1">eind (rechts/onder)</option></select></div></div>
+  <button class="small" data-act="plaats" style="margin-top:8px;width:100%">Plaatsen (met wanddikte ertussen)</button></details>`:''}
+ </div>
+ <div class="card"><div class="ihead"><span>Wanden</span><span class="note" style="font-weight:400">tik een nummer in de tekening</span></div>
+ <div class="row" style="margin:6px 0"><button class="small ghost" data-act="allew" data-v="binnen">Alles binnenwand</button><button class="small ghost" data-act="allew" data-v="buiten">Alles gevel</button></div>
+ <table class="t wt"><tr><th>Zijde</th><th>Soort</th><th>Dikte</th><th title="Strook met netto hoogte lager dan 1,5 m">&lt;1,5 m</th></tr>
+ ${r.w.map((w,i)=>`<tr id="wr${i}" style="${i===selEdge?'background:#fff1e6':''}"><td style="white-space:nowrap"><a href="#" data-edgesel="${i}" style="color:var(--hi);font-weight:700;text-decoration:none">${i+1}</a> <small>${zijde(g.E[i])}<br>${f2(g.E[i].L)}</small></td>
+ <td><select data-w="${i}:s">${Object.entries(WS).map(([k,l])=>`<option value="${k}" ${w.s===k?'selected':''}>${l}</option>`).join('')}</select></td>
+ <td><input data-w="${i}:t" inputmode="decimal" value="${w.s==='open'?'':esc(w.t)}" ${w.s==='open'?'disabled':''} style="width:64px"></td><td><input data-w="${i}:laag" inputmode="decimal" placeholder="–" value="${esc(w.laag)}" style="width:58px"></td></tr>`).join('')}</table>
+ <p class="note">Dikte in m. Woningscheidende wand onbekend: 0,30 (meten tot het hart). “&lt;1,5 m”: breedte van de strook langs die wand waar de netto hoogte lager is dan 1,5 m (schuin dak).</p></div>
+ <div class="card"><div class="ihead"><span>Deuren en ramen</span></div>
+ ${(r.ops||[]).map(op=>{const e=g.E[op.z];const fl=e&&flip(e),L=e?e.L:0,b=num(op.b)||0,disp=fl?L-(num(op.p)||0)-b:(num(op.p)||0);const ref=e?refTxt(e):'begin';
+  return`<div class="op"><div class="grid3"><div><label>Soort</label><select data-op="${op.id}:soort">${[['deur','Deur'],['raam','Raam'],['pui','Schuifpui'],['doorgang','Doorgang']].map(([k,l])=>`<option value="${k}" ${op.soort===k?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div><label>Zijde</label><select data-op="${op.id}:z">${r.w.map((w,i)=>`<option value="${i}" ${op.z===i?'selected':''}>${zt(i)}</option>`).join('')}</select></div><div><label>Breedte (m)</label><input data-op="${op.id}:b" inputmode="decimal" value="${esc(op.b)}"></div></div>
+  <div class="grid3"><div><label>Vanaf ${ref} (m)</label><input data-op="${op.id}:pd" inputmode="decimal" value="${inV(Math.round(disp*100)/100)}"></div>
+  ${op.soort==='deur'?`<div><label>Scharnier</label><select data-op="${op.id}:schd"><option value="near" ${(op.sch==='R')===fl?'selected':''}>${ref}</option><option value="far" ${(op.sch==='R')!==fl?'selected':''}>${ref==='links'?'rechts':'onder'}</option></select></div><div><label>Draait</label><select data-op="${op.id}:uit"><option value="0" ${!op.uit?'selected':''}>naar binnen</option><option value="1" ${op.uit?'selected':''}>naar buiten</option></select></div>`:'<div></div><div></div>'}</div>
+  <div style="text-align:right;margin-top:6px"><button class="small del" data-opdel="${op.id}">Verwijderen</button></div></div>`}).join('')||'<p class="note">Nog geen deuren of ramen.</p>'}
+ <div class="row" style="flex-wrap:wrap"><button class="small ghost" data-act="opadd" data-v="deur">+ Deur</button><button class="small ghost" data-act="opadd" data-v="raam">+ Raam</button><button class="small ghost" data-act="opadd" data-v="pui">+ Schuifpui</button><button class="small ghost" data-act="opadd" data-v="doorgang">+ Doorgang</button></div>
+ <p class="note">Nieuwe opening komt op de gekozen wand (oranje), anders op wand 1.</p></div>
+ ${r.cat!=='buiten'&&r.cat!=='extern'?`<div class="card"><h3>Hoogte (voor de indeling wonen / overige inpandige ruimte)</h3><div class="grid2"><div><label>Hoogste punt (netto, m)</label><input data-f="hMax" inputmode="decimal" placeholder="optioneel" value="${esc(r.hMax)}"></div><div><label>Deel hoger dan 2,0 m (m²)</label><input data-f="d2" inputmode="decimal" placeholder="bij schuine kap" value="${esc(r.d2)}"></div></div>${res?`<div class="advies">${res.t}${res.cat&&res.cat!==r.cat?` <button class="small" data-act="cat" data-v="${res.cat}" style="margin-left:6px">Toepassen</button>`:''}</div>`:''}</div>`:''}`}
+function hoogteAdvies(r){const h=num(r.hMax),d2=num(r.d2);if(h==null)return null;
+ if(h<1.5)return{t:'Hoogste punt lager dan 1,5 m: telt niet mee voor de gebruiksoppervlakte.',cat:'nvt'};
+ if(h<=2)return{t:'Hoogste punt tussen 1,5 en 2,0 m: overige inpandige ruimte.',cat:'oir'};
+ if(d2!=null&&d2<4)return{t:'Aaneengesloten deel boven 2,0 m is kleiner dan 4 m²: overige inpandige ruimte.',cat:'oir'};
+ return{t:'Hoogte voldoet voor wonen (tenzij het een bergzolder, garage, kelder of berging is). Strook < 1,5 m langs schuine wanden invullen bij Wanden.',cat:null}}
+function elPanel(e){const A=areaP(elPoly(e));const af=e.soort==='vide'?A>=4:e.soort==='trap'?false:A>=.5;
+ return`<div class="card"><div class="ihead"><span>${{trap:'Trap',vide:'Vide / trapgat',schacht:'Schacht',kolom:'Kolom / bouwdeel'}[e.soort]}</span><span><button class="small ghost" data-act="edup">Kopie</button> <button class="small del" data-act="edel">✕</button></span></div>
+ <div class="choice" style="margin-top:8px">${[['trap','Trap'],['vide','Vide / trapgat'],['schacht','Schacht'],['kolom','Kolom']].map(([k,l])=>`<button class="${e.soort===k?'on':''}" data-act="esoort" data-v="${k}">${l}</button>`).join('')}</div>
+ <div class="grid2"><div><label>Breedte (m)</label><input data-e="b" inputmode="decimal" value="${inV(e.b)}"></div><div><label>Lengte / diepte (m)</label><input data-e="d" inputmode="decimal" value="${inV(e.d)}"></div></div>
+ <div class="grid3" style="align-items:end"><div><label>X (m)</label><input data-e="x" inputmode="decimal" value="${inV(e.x)}"></div><div><label>Y (m)</label><input data-e="y" inputmode="decimal" value="${inV(e.y)}"></div><div><button class="ghost" data-act="edraai" style="width:100%">⟳ 90°</button></div></div>
+ ${e.soort==='trap'?`<label>Aantal optreden</label><input data-e="treden" inputmode="numeric" value="${esc(e.treden)}"><p class="note">De pijl loopt omhoog. Oppervlakte onder de trap telt mee. Een kwartslag: zet twee trapdelen.</p>`:''}
+ ${e.soort==='vide'?`<label>Tekst in tekening</label><input data-e="label" value="${esc(e.label)}" placeholder="Vide / Trapgat"><p class="note">Teken het trapgat op de bovenliggende bouwlaag.</p>`:''}
+ <div class="${af?'advies':'ok'}">Oppervlak ${f2(A)} m²: ${e.soort==='trap'?'telt mee voor de GO.':af?'wordt afgetrokken van de GO':'blijft meetellen (onder de grens van '+(e.soort==='vide'?'4,0':'0,5')+' m²).'}</div></div>`}
+
+// ---------- invoer in paneel ----------
+let focusSnap=null;
+document.addEventListener('focusin',e=>{if(e.target.closest('#panel'))focusSnap=JSON.stringify({vi,v:cur.verdiepingen})});
+document.addEventListener('input',e=>{const t=e.target;if(!cur)return;
+ if(t.dataset.p!=null){cur[t.dataset.p]=t.value;save();return}
+ if(!t.closest('#panel'))return;const r=selR(),el=selE(),v=V();
+ if(t.dataset.v!=null){v[t.dataset.v]=t.dataset.v==='laag'?(parseInt(t.value)||0):t.value;save();totaal();if(t.dataset.v==='naam'){$$('.vtabs button')[vi].textContent=t.value}return}
+ if(t.dataset.f&&r){const k=t.dataset.f;if(['b','d','x','y'].includes(k)){const n=num(t.value);if(n==null)return;r[k]=n}else r[k]=t.value;if(k==='naam'&&!r.catHand)r.cat=catVoorNaam(t.value);opnieuw();if(['b','d'].includes(k))zetOpp();return}
+ if(t.dataset.e&&el){const k=t.dataset.e;el[k]=['b','d','x','y'].includes(k)?(num(t.value)??el[k]):t.value;opnieuw();return}
+ if(t.dataset.seg&&r){const[i,k]=t.dataset.seg.split(':');r.segs[+i][k]=t.value;syncW(r);opnieuw();return}
+ if(t.dataset.w&&r){const[i,k]=t.dataset.w.split(':');r.w[+i][k]=t.value;opnieuw();return}
+ if(t.dataset.op&&r){const[id,k]=t.dataset.op.split(':');const op=r.ops.find(o=>o.id===id);if(!op)return;const g=geo(r),e=g.E[op.z];
+  if(k==='pd'){const d=num(t.value)??0,b=num(op.b)||0;op.p=e&&flip(e)?e.L-d-b:d}
+  else if(k==='b'){const nb=num(t.value);if(nb==null)return;if(e&&flip(e)){const d=e.L-(num(op.p)||0)-(num(op.b)||0);op.b=t.value;op.p=e.L-d-nb}else op.b=t.value}
+  else return;opnieuw()}});
+function zetOpp(){const r=selR();if(!r)return;const x=$('#panel .ok b');if(x)x.textContent=f2(geo(r).A)+' m²'}
+document.addEventListener('change',e=>{const t=e.target;if(!cur||!t.closest('#panel'))return;
+ if(focusSnap&&focusSnap!==JSON.stringify({vi,v:cur.verdiepingen}))UNDO.push(focusSnap);focusSnap=JSON.stringify({vi,v:cur.verdiepingen});
+ const r=selR();
+ if(t.dataset.w&&r){const[i,k]=t.dataset.w.split(':');if(k==='s'){r.w[+i].s=t.value;r.w[+i].t=t.value==='open'?'':inV(WT[t.value])}opnieuw();panel();return}
+ if(t.dataset.seg&&r){const[i,k]=t.dataset.seg.split(':');r.segs[+i][k]=t.value;syncW(r);opnieuw();panel();return}
+ if(t.dataset.op&&r){const[id,k]=t.dataset.op.split(':');const op=r.ops.find(o=>o.id===id);if(!op)return;const e=geo(r).E[op.z];
+  if(k==='soort')op.soort=t.value;else if(k==='z'){op.z=+t.value;const e2=geo(r).E[op.z];op.p=Math.max(0,Math.min(num(op.p)||0,e2.L-(num(op.b)||0)))}
+  else if(k==='schd'){const fl=e&&flip(e);op.sch=(t.value==='near')!==fl?'L':'R'}else if(k==='uit')op.uit=t.value==='1';opnieuw();panel();return}
+ if(t.dataset.f==='naam'&&r){opnieuw();panel();return}
+ if(t.dataset.f||t.dataset.e||t.dataset.v){opnieuw();panel()}});
+
+// ---------- acties ----------
+function nieuwePlek(r){const v=V();const s=selR();if(s&&s!==r){const g=geo(s),bb=bb2(offs(g,s.w.map(wt)));r.x=Math.round((bb.x1+0.0)*100)/100;r.y=Math.round(Math.min(...g.P.map(p=>p[1]))*100)/100;
+  // tussenwand: inner face naast de buitenkant van de geselecteerde wand
+  return}
+ const bb=bboxVerd(v);if(bb){r.x=Math.round((bb.x1+.5)*100)/100;r.y=Math.round(bb.y0*100)/100}}
+function bb2(P){return{x0:Math.min(...P.map(p=>p[0])),x1:Math.max(...P.map(p=>p[0])),y0:Math.min(...P.map(p=>p[1])),y1:Math.max(...P.map(p=>p[1]))}}
+function plaatsNaast(r,doel,kant,uitl){const gd=geo(syncW(doel)),gr=geo(syncW(r));const bd=bb2(gd.P),br=bb2(gr.P);
+ const wandT=(g,rr,zijdeN)=>{let t=0;g.E.forEach((e,i)=>{if(zijde(e)===zijdeN)t=Math.max(t,wt(rr.w[i]))});return t};
+ let dx=0,dy=0;
+ if(kant==='r'||kant==='l'){const t=Math.max(wandT(gd,doel,kant==='r'?'rechts':'links'),wandT(gr,r,kant==='r'?'links':'rechts'));dx=kant==='r'?bd.x1+t-br.x0:bd.x0-t-br.x1;dy=uitl==='1'?bd.y1-br.y1:bd.y0-br.y0}
+ else{const t=Math.max(wandT(gd,doel,kant==='o'?'onder':'boven'),wandT(gr,r,kant==='o'?'boven':'onder'));dy=kant==='o'?bd.y1+t-br.y0:bd.y0-t-br.y1;dx=uitl==='1'?bd.x1-br.x1:bd.x0-br.x0}
+ r.x=Math.round(((+r.x||0)+dx)*100)/100;r.y=Math.round(((+r.y||0)+dy)*100)/100}
+document.addEventListener('click',async ev=>{const a=ev.target.closest('[data-act],[data-go],[data-go2],[data-vi],[data-open],[data-wis],[data-kopie],[data-set],[data-adr],[data-opdel],[data-edgesel]');if(!a)return;
+ if(a.tagName==='A')ev.preventDefault();const act=a.dataset.act;
+ if(a.dataset.open){openProject(store.projecten.find(p=>p.id===a.dataset.open));return}
+ if(a.dataset.kopie){const p=JSON.parse(JSON.stringify(store.projecten.find(p=>p.id===a.dataset.kopie)));p.id=uid();p.datum=new Date().toISOString();p.adres={...(p.adres||{}),naam:(p.adres?.naam||'Zonder adres')+' (kopie)'};store.projecten.push(p);save();lijst();return}
+ if(a.dataset.wis){if(await vraag('Deze plattegrond verwijderen?','Verwijderen','Annuleren')){store.projecten=store.projecten.filter(p=>p.id!==a.dataset.wis);save();lijst()}return}
+ if(a.dataset.adr!=null){kiesAdres(zoekRes[+a.dataset.adr]);return}
+ if(a.dataset.vi!=null){vi=+a.dataset.vi;sel=null;selEdge=-1;scherm=a.dataset.go2||'tekenen';render();return}
+ if(a.dataset.go){if(!cur)return;scherm=a.dataset.go;render();window.scrollTo(0,0);return}
+ if(a.dataset.set){cur[a.dataset.set]=a.dataset.v;save();object();return}
+ if(a.dataset.edgesel!=null){selEdge=+a.dataset.edgesel;teken();panel();return}
+ const r=selR(),el=selE();
+ if(a.dataset.opdel&&r){pushUndo();r.ops=r.ops.filter(o=>o.id!==a.dataset.opdel);opnieuw();panel();return}
+ switch(act){
+ case'nieuw':{const p=nieuwProject();const id=new URLSearchParams(location.search).get('opname');store.projecten.push(p);save();openProject(p);break}
+ case'lijst':scherm='lijst';render();break;
+ case'fit':fit();teken();break;case'zin':zoom(1/1.3);teken();break;case'zuit':zoom(1.3);teken();break;case'undo':undo();break;
+ case'vadd':{pushUndo();const n=cur.verdiepingen.length;const max=Math.max(...cur.verdiepingen.map(v=>+v.laag||0));const keuze=await kies('Welke bouwlaag?',['Verdieping erboven ('+(max)+'e verdieping)','Zolder','Kelder / souterrain','Eigen naam (later aanpassen)']);if(keuze==null)return;
+  const v=keuze===1?nieuweVerd('Zolder',max+1):keuze===2?nieuweVerd('Kelder',0):keuze===0?nieuweVerd(max+'e verdieping',max+1):nieuweVerd('Bouwlaag '+(n+1),max+1);if(keuze===1){v.kap='kap'}
+  cur.verdiepingen.push(v);cur.verdiepingen.sort((x,y)=>(+x.laag)-(+y.laag));vi=cur.verdiepingen.indexOf(v);sel=null;save();scherm='tekenen';render();break}
+ case'vdel':{if(cur.verdiepingen.length<2){toast('Er moet minstens één bouwlaag blijven');return}if(!await vraag(`Bouwlaag “${V().naam}” verwijderen?`,'Verwijderen','Annuleren'))return;pushUndo();cur.verdiepingen.splice(vi,1);vi=0;sel=null;save();render();break}
+ case'vdup':{pushUndo();const k=await kies('Wat overnemen naar de nieuwe bouwlaag?',['Alles (ruimtes, deuren, ramen)','Alleen de buitenmuren (één ruimte met de omtrek)']);if(k==null)return;const v=JSON.parse(JSON.stringify(V()));v.id=uid();v.laag=Math.max(...cur.verdiepingen.map(x=>+x.laag||0))+1;v.naam=v.laag-1+'e verdieping';v.els=[];
+  v.ruimtes.forEach(r=>{r.id=uid();(r.ops||[]).forEach(o=>o.id=uid())});if(k===1){const bb=bboxMuren(V());const rr=nieuweRuimte('Ruimte',0,0);const t=.3;rr.b=Math.round((bb.x1-bb.x0-2*t)*100)/100;rr.d=Math.round((bb.y1-bb.y0-2*t)*100)/100;rr.x=Math.round((bb.x0+t)*100)/100;rr.y=Math.round((bb.y0+t)*100)/100;syncW(rr);rr.w.forEach(w=>{w.s='buiten';w.t='0,30'});v.ruimtes=[rr]}
+  cur.verdiepingen.push(v);cur.verdiepingen.sort((x,y)=>(+x.laag)-(+y.laag));vi=cur.verdiepingen.indexOf(v);sel=null;save();render();toast('Bouwlaag gekopieerd: pas naam en indeling aan');break}
+ case'kap':pushUndo();V().kap=a.dataset.v;save();panel();totaal();break;
+ case'radd':{pushUndo();const nr=nieuweRuimte('Ruimte',3,3);syncW(nr);const s=selR();if(s){plaatsNaast(nr,s,'r','0')}else if(!V().ruimtes.length){nr.w.forEach(w=>{w.s='buiten';w.t='0,30'})}else nieuwePlek(nr);
+  V().ruimtes.push(nr);sel={t:'r',id:nr.id};selEdge=-1;opnieuw();panel();const bb=bboxVerd(V());if(bb&&(bb.x1>VB.x+VB.w||bb.y1>VB.y+VB.h||bb.x0<VB.x||bb.y0<VB.y)){fit();teken()}setTimeout(()=>{const i=$('#panel [data-f=naam]');i?.focus();i?.select()},60);break}
+ case'eadd':{pushUndo();const e=nieuwEl(a.dataset.s);const s=selR();if(s){const g=geo(s),bb=bb2(g.P);e.x=Math.round((bb.x0+.1)*100)/100;e.y=Math.round((bb.y0+.1)*100)/100}else{const bb=bboxVerd(V());if(bb){e.x=Math.round(((bb.x0+bb.x1)/2)*100)/100;e.y=Math.round(((bb.y0+bb.y1)/2)*100)/100}}
+  V().els.push(e);sel={t:'e',id:e.id};opnieuw();panel();break}
+ case'cat':if(r){pushUndo();r.cat=a.dataset.v;r.catHand=true;if(r.cat==='buiten')r.w.forEach(w=>{if(w.s==='binnen'){w.s='open';w.t=''}});opnieuw();panel()}break;
+ case'vorm':if(r&&r.vorm!==a.dataset.v){pushUndo();if(a.dataset.v==='poly'){const b=num(r.b)||3,d=num(r.d)||3;r.segs=[{l:inV(b),a:90},{l:inV(d),a:90},{l:inV(b),a:90}]}else{const bb=bb2(lokaal(r));r.b=Math.round((bb.x1-bb.x0)*100)/100;r.d=Math.round((bb.y1-bb.y0)*100)/100}r.vorm=a.dataset.v;syncW(r);opnieuw();panel()}break;
+ case'segadd':if(r){pushUndo();r.segs.push({l:'1',a:90});syncW(r);opnieuw();panel()}break;
+ case'segdel':if(r&&r.segs.length>2){pushUndo();r.segs.pop();syncW(r);opnieuw();panel()}break;
+ case'draai':if(r){pushUndo();const c1=labelPt(geo(r).P);r.rot=((r.rot||0)+90)%360;const g2=geo(r),c2=labelPt(g2.P);const bbo=bb2(g2.P);r.x=Math.round(((+r.x||0)+(c1[0]-c2[0]))*100)/100;r.y=Math.round(((+r.y||0)+(c1[1]-c2[1]))*100)/100;opnieuw();panel()}break;
+ case'plaats':if(r){pushUndo();plaatsNaast(r,vindR($('#pnR').value),$('#pnK').value,$('#pnU').value);opnieuw();panel()}break;
+ case'allew':if(r){pushUndo();r.w.forEach(w=>{w.s=a.dataset.v;w.t=inV(WT[a.dataset.v])});opnieuw();panel()}break;
+ case'opadd':if(r){pushUndo();const z=selEdge>=0?selEdge:0;const e=geo(r).E[z];const b=a.dataset.v==='deur'?.83:a.dataset.v==='raam'?1.2:a.dataset.v==='pui'?2.4:.9;const bw=Math.min(b,Math.max(.3,e.L-.2));
+  r.ops.push({id:uid(),soort:a.dataset.v,z,p:Math.round(Math.max(0,(e.L-bw)/2)*100)/100,b:inV(bw),sch:'L',uit:false});opnieuw();panel()}break;
+ case'rdel':if(r){pushUndo();V().ruimtes=V().ruimtes.filter(x=>x!==r);sel=null;opnieuw();panel()}break;
+ case'rdup':if(r){pushUndo();const k=JSON.parse(JSON.stringify(r));k.id=uid();k.ops.forEach(o=>o.id=uid());plaatsNaast(k,r,'r','0');V().ruimtes.push(k);sel={t:'r',id:k.id};opnieuw();panel()}break;
+ case'edel':if(el){pushUndo();V().els=V().els.filter(x=>x!==el);sel=null;opnieuw();panel()}break;
+ case'edup':if(el){pushUndo();const k={...el,id:uid(),x:Math.round(((+el.x||0)+(num(el.b)||0)+.1)*100)/100};V().els.push(k);sel={t:'e',id:k.id};opnieuw();panel()}break;
+ case'esoort':if(el){pushUndo();const d=nieuwEl(a.dataset.v);Object.assign(el,{soort:a.dataset.v,b:d.b,d:d.d,label:d.label,treden:d.treden});opnieuw();panel()}break;
+ case'edraai':if(el){pushUndo();el.rot=((el.rot||0)+90)%360;opnieuw();panel()}break;
+ case'pdf':maakPdf();break;case'jpg':deelAfbeeldingen(a.dataset.v||'jpg');break;case'fml':downloadFML();break;
+ case'opt':cur.instel[a.dataset.v]=!cur.instel[a.dataset.v];save();exportScherm();break;
+ case'stijl':cur.instel.stijl=a.dataset.v;save();exportScherm();break;
+ case'refidlees':$('#fmlIn').click();break;
+ }});
+window.addEventListener('resize',()=>{if(scherm==='tekenen'&&VB){const{w,h}=cvMaat();VB.h=VB.w*h/w;zetVB();teken()}});
+
+// ---------- meetstaat ----------
+function meetstaat(){const{L,tot}=berekenAlles();const bagO=num(cur.bag?.oppervlakte);const go=tot.wonen+tot.oir;
+ const rij=(k,v,cls='')=>`<tr class="${cls}"><td>${k}</td><td class="r">${v}</td></tr>`;
+ $('#app').innerHTML=`<div class="card"><h2>Meetstaat</h2><div class="sumgrid">
+ <div><small>GO wonen</small><span class="big">${fi(tot.wonen)} m²</span><small>${f2(tot.wonen)}</small></div>
+ <div><small>Overige inpandige ruimte</small><span class="big">${fi(tot.oir)} m²</span><small>${f2(tot.oir)}</small></div>
+ <div><small>Gebouwgebonden buitenruimte</small><span class="big">${fi(tot.ggb)} m²</span><small>${f2(tot.ggb)}</small></div>
+ <div><small>Externe bergruimte</small><span class="big">${fi(tot.eb)} m²</span><small>${f2(tot.eb)}</small></div>
+ <div><small>Bruto inhoud</small><span class="big">${fi(tot.inhoud)} m³</span><small>${f2(tot.inhoud)}</small></div></div>
+ ${bagO?`<p class="note" style="margin-top:10px">BAG-oppervlakte ${bagO} m² · gemeten GO (wonen + overig) ${f2(go)} m² · verschil ${f1((go-bagO)/bagO*100)}%</p>`:''}
+ <p class="note">Volgens de Meetinstructie gebruiksoppervlakte woningen en de Meetinstructie bruto inhoud woningen (versie juli 2019), gebaseerd op NEN 2580. Funda toont afgeronde hele m² en m³.</p></div>`+
+ L.map(r=>{const v=r.v;const rr=r.ruimtes.slice().sort((a,b)=>['wonen','oir','nvt','buiten','extern'].indexOf(a.cat)-['wonen','oir','nvt','buiten','extern'].indexOf(b.cat));
+  return`<div class="card"><h3>${esc(v.naam)} <small class="note">bouwlaag ${esc(v.laag)}</small></h3><table class="t"><tr><th>Ruimte</th><th>Telt als</th><th class="r">Maat (m)</th><th class="r">m²</th></tr>
+  ${rr.map(x=>`<tr><td>${esc(x.naam)}</td><td><span class="chip" style="background:${CAT[x.cat].c}">${CAT[x.cat].k}</span></td><td class="r">${x.maat}</td><td class="r">${f2(x.opp)}</td></tr>`).join('')||'<tr><td colspan="4" class="note">Geen ruimtes</td></tr>'}</table>
+  <table class="t" style="margin-top:10px">
+  ${rij('Netto vloeroppervlak ruimtes (wonen)',f2(r.netto.wonen))}${rij('+ Binnenwanden (dragend en niet-dragend)',f2(r.wand.wonen),'min')}${r.laag.wonen?rij('− Netto hoogte lager dan 1,5 m','−'+f2(r.laag.wonen),'min'):''}${r.vide.wonen?rij('− Trapgat / vide ≥ 4 m²','−'+f2(r.vide.wonen),'min'):''}${r.schacht.wonen?rij('− Schacht / bouwdeel ≥ 0,5 m²','−'+f2(r.schacht.wonen),'min'):''}
+  ${rij('<b>GO wonen</b>','<b>'+f2(r.go.wonen)+'</b>','sub')}
+  ${r.netto.oir||r.go.oir?rij('Netto vloeroppervlak (overige inpandige ruimte)',f2(r.netto.oir))+rij('+ Binnenwanden',f2(r.wand.oir),'min')+(r.laag.oir?rij('− Lager dan 1,5 m','−'+f2(r.laag.oir),'min'):'')+(r.vide.oir?rij('− Trapgat / vide','−'+f2(r.vide.oir),'min'):'')+(r.schacht.oir?rij('− Schacht / bouwdeel','−'+f2(r.schacht.oir),'min'):'')+rij('<b>Overige inpandige ruimte</b>','<b>'+f2(r.go.oir)+'</b>','sub'):''}
+  ${r.ggb?rij('Gebouwgebonden buitenruimte',f2(r.ggb)):''}${r.eb?rij('Externe bergruimte',f2(r.eb)):''}
+  ${rij('Bruto vloeroppervlak (buitenwerks, woningscheidend tot hart)',f2(r.bvo))}
+  ${rij('Bruto inhoud '+(v.kap==='geen'?`(BVO × ${esc(v.hoogte)} m)`:v.kap==='kap'?`(BVO × gem. hoogte ${f2(((num(v.hLaag)||0)+(num(v.hHoog)||0))/2)} m)`:'(deels onder kap)')+(num(v.corr)?` incl. correctie ${esc(v.corr)} m³ ${esc(v.corrTxt)}`:''),f2(r.inhoud)+' m³')}
+  </table>${r.overlap>0.05?`<p class="err">Let op: ruimtes overlappen elkaar (${f2(r.overlap)} m²). Controleer de plaatsing.</p>`:''}</div>`}).join('')+
+ (tot.vloer?`<div class="card"><table class="t">${rij('Onderste vloer eengezinswoning (BVO '+esc(tot.vloerVan)+' × 0,40 m)',f2(tot.vloer)+' m³')}${rij('<b>Totale bruto inhoud</b>','<b>'+f2(tot.inhoud)+' m³</b>','sub')}</table></div>`:'');
+ bar(`<button class="ghost" data-go="tekenen">Tekenen</button><button data-go="export">Export →</button>`)}
+
+// ---------- export ----------
+function exportScherm(){const ins=cur.instel;const opt=(k,l)=>`<button class="${ins[k]?'on':''}" data-act="opt" data-v="${k}">${l}</button>`;
+ $('#app').innerHTML=`<div class="card"><h2>Export</h2>
+ <label>Tekening</label><div class="choice">${opt('m2','m² per ruimte')}${opt('maten','Maten per ruimte')}${opt('buitenmaten','Buitenmaten')}${opt('noord','Noordpijl')}${opt('schaal','Schaalbalk')}${opt('adres','Adres in titel')}</div>
+ <label>Stijl</label><div class="choice"><button class="${(ins.stijl||THEMA_STD)==='premium'?'on':''}" data-act="stijl" data-v="premium">Premium (hout, tegels, schaduw)</button><button class="${ins.stijl==='funda'?'on':''}" data-act="stijl" data-v="funda">Strak (wit / antraciet)</button><button class="${ins.stijl==='warm'?'on':''}" data-act="stijl" data-v="warm">Warm (vloertint)</button></div>
+ <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+ <button data-act="pdf">📄 Meetrapport met plattegronden (PDF)</button>
+ <button data-act="jpg" data-v="jpg">🖼 Plattegronden als JPG (Funda)</button>
+ <button class="ghost" data-act="jpg" data-v="png">🖼 Plattegronden als PNG</button>
+ <button class="ghost" data-act="fml">🏠 FML-bestand voor Floorplanner</button></div>
+ <p class="note">De afbeeldingen worden op de telefoon in één keer gedeeld (bijv. naar mail, WhatsApp of Drive); op de computer worden ze gedownload.</p></div>`+
+ cur.verdiepingen.map(v=>{const x=exportSvg(v);return`<div class="card"><h3>${esc(v.naam)}</h3>${x?`<div class="prev">${x.svg.replace(/ width="\d+" height="\d+"/,'')}</div>`:'<p class="note">Nog leeg.</p>'}</div>`}).join('')+
+ `<details class="card"><summary>Floorplanner: deuren en ramen in het FML-bestand</summary><p class="note">Floorplanner koppelt deuren en ramen aan een bibliotheekonderdeel (refid). Lees ze één keer in uit een FML-export van een eigen Floorplanner-project met één deur en één raam, of plak ze hieronder. Zonder refid komen muren, ruimtes, trappen en vides wel in het bestand, en zitten op de plek van deuren en ramen gaten in de muur.</p>
+ <div class="grid2"><div><label>refid deur</label><input id="rfDeur" value="${esc(store.instel.fmlDeur||'')}"></div><div><label>refid raam</label><input id="rfRaam" value="${esc(store.instel.fmlRaam||'')}"></div></div>
+ <button class="small ghost" data-act="refidlees" style="margin-top:8px">Lees uit FML-bestand…</button><input type="file" id="fmlIn" accept=".fml,.json,application/json" hidden></details>`;
+ bar(`<button class="ghost" data-go="meetstaat">Meetstaat</button><button class="ghost" data-act="lijst">Alle plattegronden</button>`);
+ ['rfDeur','rfRaam'].forEach(id=>$('#'+id).addEventListener('change',e=>{store.instel[id==='rfDeur'?'fmlDeur':'fmlRaam']=e.target.value.trim();save()}));
+ $('#fmlIn').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());let d=null,r=null;const walk=o=>{if(!o||typeof o!=='object')return;if(Array.isArray(o)){o.forEach(walk);return}
+  if(o.type==='door'&&o.refid&&!d)d=o.refid;if(o.type==='window'&&o.refid&&!r)r=o.refid;Object.values(o).forEach(walk)};walk(j);
+  if(d)store.instel.fmlDeur=d;if(r)store.instel.fmlRaam=r;save();toast(d||r?'Gevonden: '+(d?'deur ':'')+(r?'raam':''):'Geen deur of raam gevonden');exportScherm()}catch(x){toast('Kon het bestand niet lezen')}})}
+function bestandsnaam(){return(cur.adres?.naam||'plattegrond').replace(/[^\w\- ,]+/g,'').replace(/\s+/g,' ').trim()}
+async function svgNaarCanvas(x){const img=new Image();const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(x.svg);await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url});
+ const cv=document.createElement('canvas');cv.width=x.w;cv.height=x.h;const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,x.w,x.h);c.drawImage(img,0,0,x.w,x.h);return cv}
+async function deelAfbeeldingen(fmt){toast('Afbeeldingen maken…');const files=[];
+ for(const v of cur.verdiepingen){const x=exportSvg(v);if(!x)continue;const cv=await svgNaarCanvas(x);const blob=await new Promise(r=>cv.toBlob(r,fmt==='png'?'image/png':'image/jpeg',.92));files.push(new File([blob],`${bestandsnaam()} - ${v.naam}.${fmt}`,{type:blob.type}))}
+ if(!files.length){toast('Nog niets getekend');return}
+ if(navigator.canShare&&navigator.canShare({files})&&/Android|iPhone|iPad/i.test(navigator.userAgent)){try{await navigator.share({files,title:'Plattegronden '+bestandsnaam()});return}catch(e){if(e.name==='AbortError')return}}
+ for(const f of files){const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();await new Promise(r=>setTimeout(r,350))}toast(files.length+' bestand(en) gedownload')}
+
+// ---------- FML (Floorplanner Markup Language v3, JSON, centimeters) ----------
+function maakFML(){const cm=v=>Math.round(v*1000)/10;const P=p=>({x:cm(p[0]),y:cm(p[1])});let wid=1;
+ const floors=cur.verdiepingen.map((v,fi)=>{const H=Math.round(Math.max(2.2,(num(v.hoogte)||2.9)-.3)*100);const R=v.ruimtes.map(r=>({r,g:geo(syncW(r))}));
+  // 1. wandsegmenten per ruimtezijde (hartlijn), gedeelde binnenwanden één keer
+  const E=[];R.forEach(({r,g},ri)=>{if(r.cat==='buiten')return;const Q=offs(g,r.w.map(w=>wt(w)/2));g.E.forEach((e,i)=>{const w=r.w[i];if(!w||w.s==='open')return;const t=wt(w);if(t<=0)return;E.push({ri,i,e,t,s:w.s,Q0:Q[i],Q1:Q[(i+1)%Q.length],iv:[[0,e.L]],shared:[]})})});
+  E.forEach((a,ai)=>E.forEach((b,bi)=>{if(bi<=ai||a.ri===b.ri)return;const dot=a.e.u[0]*b.e.u[0]+a.e.u[1]*b.e.u[1];if(dot>-.999)return;
+   const d=(b.e.a[0]-a.e.a[0])*a.e.n[0]+(b.e.a[1]-a.e.a[1])*a.e.n[1];const tt=Math.max(a.t,b.t);if(d<.01||Math.abs(d-tt)>.04)return;
+   const pr=p=>(p[0]-a.e.a[0])*a.e.u[0]+(p[1]-a.e.a[1])*a.e.u[1];const s0=Math.max(0,Math.min(pr(b.e.a),pr(b.e.b))),s1=Math.min(a.e.L,Math.max(pr(b.e.a),pr(b.e.b)));if(s1-s0<.05)return;
+   a.shared.push({s0,s1,d});const pb=p=>(p[0]-b.e.a[0])*b.e.u[0]+(p[1]-b.e.a[1])*b.e.u[1];const q=[pb(add(a.e.a,mul(a.e.u,s0))),pb(add(a.e.a,mul(a.e.u,s1)))];b.iv=minIv(b.iv,Math.min(...q),Math.max(...q))}));
+  const walls=[];const mk=(A,B,t)=>{if(Math.hypot(B[0]-A[0],B[1]-A[1])<.04)return;walls.push({a:P(A),b:P(B),az:{z:0,h:H},bz:{z:0,h:H},thickness:Math.round(t*100),balance:.5,openings:[],decor:{left:null,right:null},_A:A,_B:B,_t:t})};
+  E.forEach(x=>{let iv=x.iv;x.shared.forEach(s=>{iv=minIv(iv,s.s0,s.s1);const A=add(add(x.e.a,mul(x.e.u,s.s0)),mul(x.e.n,s.d/2)),B=add(add(x.e.a,mul(x.e.u,s.s1)),mul(x.e.n,s.d/2));mk(A,B,s.d)});
+   iv.forEach(([s0,s1])=>{const A=s0<.001?x.Q0:add(add(x.e.a,mul(x.e.u,s0)),mul(x.e.n,x.t/2)),B=s1>x.e.L-.001?x.Q1:add(add(x.e.a,mul(x.e.u,s1)),mul(x.e.n,x.t/2));mk(A,B,x.t)})});
+  // 2. openingen op de juiste muur (doorgang = gat in de muur)
+  R.forEach(({r,g})=>(r.ops||[]).forEach(op=>{const w=r.w[op.z];if(!w)return;const o=opGeo(g,w,op);if(!o||o.w<=0)return;const c=add(add(o.a,mul(o.e.u,o.w/2)),mul(o.e.n,o.t/2));
+   const wi=walls.findIndex(W=>{const L=Math.hypot(W._B[0]-W._A[0],W._B[1]-W._A[1]);return dSeg(c,W._A,W._B)<W._t/2+.03&&L>o.w});if(wi<0)return;const W=walls[wi];const L=Math.hypot(W._B[0]-W._A[0],W._B[1]-W._A[1]),u=mul(sub(W._B,W._A),1/L),s=(c[0]-W._A[0])*u[0]+(c[1]-W._A[1])*u[1];
+   const ref=op.soort==='raam'?store.instel.fmlRaam:op.soort==='pui'?(store.instel.fmlPui||store.instel.fmlDeur):store.instel.fmlDeur;
+   if(op.soort==='doorgang'||!ref){const s0=s-o.w/2,s1=s+o.w/2;walls.splice(wi,1);const W1={...W,openings:[]},W2={...W,openings:[]};W1._B=add(W._A,mul(u,s0));W1.b=P(W1._B);W2._A=add(W._A,mul(u,s1));W2.a=P(W2._A);[W1,W2].forEach(x=>{if(Math.hypot(x._B[0]-x._A[0],x._B[1]-x._A[1])>.04)walls.push(x)});return}
+   const deur=op.soort!=='raam';W.openings.push({type:deur?'door':'window',refid:ref,width:Math.round(o.w*100),z:deur?0:90,z_height:deur?(op.soort==='pui'?230:211):130,t:Math.round(s/L*1e4)/1e4,...(deur?{mirrored:[op.sch==='R'?1:0,op.uit?1:0]}:{})})}));
+  walls.forEach(W=>{delete W._A;delete W._B;delete W._t});
+  // 3. ruimtes, buitenruimtes, trappen en vides
+  const areas=R.map(({r,g})=>({poly:g.P.map(P),color:r.cat==='buiten'?'#e6eee0':NAT.test(r.naam)?'#eaf0f4':'#ffffff',showAreaLabel:true,showSurfaceArea:!!cur.instel.m2,customName:r.naam,name:r.naam}));
+  const lines=[];const ln=(a,b,type='solid_line')=>lines.push({a:P(a),b:P(b),type,color:'#555555',thickness:1});
+  v.els.forEach(e=>{const Pp=elPoly(e);if(e.soort==='trap'){for(let i=0;i<4;i++)ln(Pp[i],Pp[(i+1)%4]);const n=Math.max(2,Math.round(num(e.treden)||14)),b=num(e.b)||0,d=num(e.d)||0;for(let i=1;i<n;i++){const y=d*i/n;ln(add(rot([0,y],e.rot||0),[+e.x,+e.y]),add(rot([b,y],e.rot||0),[+e.x,+e.y]))}}
+   else if(e.soort==='vide'){for(let i=0;i<4;i++)ln(Pp[i],Pp[(i+1)%4],'dashed_line');ln(Pp[0],Pp[2],'dashed_line');ln(Pp[1],Pp[3],'dashed_line')}else{for(let i=0;i<4;i++)ln(Pp[i],Pp[(i+1)%4])}});
+  R.forEach(({r,g})=>g.E.forEach((e,i)=>{const lw=num(r.w[i]?.laag);if(lw)ln(add(e.a,mul(e.n,-lw)),add(e.b,mul(e.n,-lw)),'dashed_line')}));
+  const labels=v.els.filter(e=>e.soort==='vide'&&e.label).map(e=>{const c=labelPt(elPoly(e));return{x:cm(c[0]),y:cm(c[1]),text:e.label,fontFamily:'Arial',fontSize:12,letterSpacing:0,fontColor:'#555555',backgroundColor:'#ffffff',backgroundAlpha:0,align:'center',rotation:0}});
+  return{id:fi+1,name:v.naam,level:(+v.laag||1)-1,height:H,designs:[{id:100+fi,name:v.naam,walls,areas,surfaces:[],dimensions:[],items:[],labels,lines}],cameras:[]}});
+ return{id:1,name:cur.adres?.naam||'Plattegrond',public:false,floors}}
+function minIv(iv,a,b){const out=[];iv.forEach(([x,y])=>{if(b<=x||a>=y){out.push([x,y]);return}if(a>x)out.push([x,a]);if(b<y)out.push([b,y])});return out.filter(([x,y])=>y-x>.02)}
+function downloadFML(){const j=maakFML();const blob=new Blob([JSON.stringify(j)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=bestandsnaam()+'.fml';document.body.appendChild(a);a.click();a.remove();
+ toast(store.instel.fmlDeur?'FML-bestand gedownload':'FML gedownload (deuren/ramen als gat; stel de refids in voor echte deuren)')}
+
+// ---------- PDF meetrapport (huisstijl dashboard) ----------
+const BP_LOGO='data:image/jpeg;base64,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',BP_WM='data:image/jpeg;base64,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';
+function laadScript(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`)&&window.jspdf){res();return}const e=document.createElement('script');e.src=src;e.onload=res;e.onerror=()=>rej(new Error('kan '+src+' niet laden'));document.head.appendChild(e)})}
+const pdfT=t=>String(t??'').replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/→/g,'->').replace(/−/g,'-').replace(/–/g,'-').replace(/↔|↕/g,'').replace(/<\/?b>/g,'');
+function elnBlad(doc){const W=doc.internal.pageSize.getWidth();try{doc.addImage(BP_LOGO,'JPEG',W-20-28.9,15.9,28.9,28.9,undefined,'FAST')}catch(e){}}
+function elnTitel(doc,ml,title,sub){const W=doc.internal.pageSize.getWidth();let y=56;doc.setFont('helvetica','bold');doc.setFontSize(17);doc.setTextColor(45,96,66);const tl=doc.splitTextToSize(pdfT(title),W-2*ml);doc.text(tl,ml,y);y+=tl.length*7-2;
+ doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(110);if(sub){const sl=doc.splitTextToSize(pdfT(sub),W-2*ml);doc.text(sl,ml,y+2);y+=sl.length*4.4+2}doc.setTextColor(23,37,28);return y+8}
+function elnKop(doc,ml,t,y){doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(45,96,66);doc.text(pdfT(t),ml,y);doc.setTextColor(23,37,28)}
+function elnRaster(doc,o,rows){const H=doc.internal.pageSize.getHeight();let y=o.y-3.2;doc.setLineWidth(.2);doc.setDrawColor(205,222,210);doc.setFontSize(9);
+ rows.forEach(([k,v,b])=>{const ki=/^\s+/.test(k)?3:0,kl=doc.splitTextToSize(pdfT(String(k).trim()),o.col-3-ki),vl=doc.splitTextToSize(pdfT(String(v)),o.CW-o.col-3),h=Math.max(kl.length,vl.length)*3.9+3;
+  if(y+h>H-22){y=o.np()-3.2;doc.setLineWidth(.2);doc.setDrawColor(205,222,210);doc.setFontSize(9)}
+  doc.setFillColor(b?226:243,b?240:248,b?230:244);doc.rect(o.ML,y,o.col,h,'FD');if(b){doc.setFillColor(236,245,239);doc.rect(o.ML+o.col,y,o.CW-o.col,h,'FD')}else doc.rect(o.ML+o.col,y,o.CW-o.col,h,'S');
+  doc.setTextColor(23,37,28);doc.setFont('helvetica','bold');doc.text(kl,o.ML+1.6+ki,y+4.2);doc.setFont('helvetica',b?'bold':'normal');doc.text(vl,o.ML+o.col+1.6,y+4.2);y+=h});return y+6}
+function elnVoet(doc,label){const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(110);doc.text(pdfT(label),14,H-13);doc.text('Pagina '+i+' van '+n,W-14,H-13,{align:'right'})}doc.setTextColor(23,37,28)}
+async function maakPdf(){try{toast('PDF maken…');await laadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
+ const ML=14,CW=210-2*ML,HP=297;const np=()=>{doc.addPage();elnBlad(doc);return 56};const o={ML,CW,col:118,np};const{L,tot}=berekenAlles();const a=cur.adres||{};
+ elnBlad(doc);let y=elnTitel(doc,ML,'Meetrapport gebruiksoppervlakte en bruto inhoud',`${a.naam||''}\nGemeten volgens de Meetinstructie gebruiksoppervlakte woningen en de Meetinstructie bruto inhoud woningen (versie juli 2019), gebaseerd op NEN 2580.`);
+ elnKop(doc,ML,'Samenvatting',y);y+=6;
+ y=elnRaster(doc,{...o,y},[['Gebruiksoppervlakte wonen',fi(tot.wonen)+' m²   ('+f2(tot.wonen)+')',true],['Overige inpandige ruimte',fi(tot.oir)+' m²   ('+f2(tot.oir)+')'],['Gebouwgebonden buitenruimte',fi(tot.ggb)+' m²   ('+f2(tot.ggb)+')'],['Externe bergruimte',fi(tot.eb)+' m²   ('+f2(tot.eb)+')'],['Bruto inhoud',fi(tot.inhoud)+' m³   ('+f2(tot.inhoud)+')',true]]);
+ elnKop(doc,ML,'Object',y);y+=6;const b=cur.bag||{};
+ y=elnRaster(doc,{...o,y},[['Adres',a.naam||'-'],['Woningtype',cur.woningtype==='appartement'?'Appartement':'Eengezinswoning'],['Bouwjaar (BAG)',b.bouwjaar??'-'],['Gebruiksoppervlakte BAG',b.oppervlakte!=null?b.oppervlakte+' m²':'-'],['Meetdatum',cur.odatum?new Date(cur.odatum).toLocaleDateString('nl-NL'):'-'],['Opnemer',cur.opnemer||'-'],['Bouwlagen',cur.verdiepingen.map(v=>v.naam).join(', ')]]);
+ elnKop(doc,ML,'Toelichting',y);y+=5;doc.setFont('helvetica','normal');doc.setFontSize(8.6);doc.setTextColor(60);
+ const tl=['Gebruiksoppervlakte: gemeten op vloerniveau binnen de buitenste en woningscheidende wanden, inclusief dragende en niet-dragende binnenwanden. Niet meegeteld: delen met een netto hoogte lager dan 1,5 m (behalve onder een trap), trapgaten en vides van 4 m² of meer, schachten en bouwdelen van 0,5 m² of meer, en niet-toegankelijke ruimten.',
+  'Overige inpandige ruimte: hoogste punt tussen 1,5 en 2,0 m, of aaneengesloten deel boven 2,0 m kleiner dan 4 m², of bouwkundig alleen geschikt als bergruimte (kelder, garage, berging, bergzolder). De wand tussen wonen en overige inpandige ruimte telt als wonen.',
+  'Bruto inhoud: bruto vloeroppervlak per bouwlaag (buitenwerks, woningscheidende wanden tot het hart) maal de bruto hoogte van bovenkant vloer tot bovenkant vloer of dak; onder een kap de gemiddelde hoogte. '+(cur.woningtype==='eengezins'?'Bij een eengezinswoning is de onderste vloer meegeteld met 40 cm.':'Bij een appartement telt de onderste vloer niet mee.'),
+  'De oppervlakten zijn berekend uit de ingemeten binnenmaten en wanddikten. Funda toont afgeronde hele vierkante en kubieke meters.'];
+ tl.forEach(t=>{const s=doc.splitTextToSize(pdfT(t),CW);if(y+s.length*3.8>HP-24)y=np();doc.text(s,ML,y);y+=s.length*3.8+2.5});doc.setTextColor(23,37,28);
+ for(const r of L){const v=r.v;y=np();elnKop(doc,ML,v.naam+'  (bouwlaag '+v.laag+')',y);y+=4;const x=exportSvg(v,{adres:false});
+  if(x){const cv=await svgNaarCanvas(x);const img=cv.toDataURL('image/jpeg',.9);let w=CW,h=w*x.h/x.w;if(h>130){h=130;w=h*x.w/x.h}doc.addImage(img,'JPEG',ML+(CW-w)/2,y,w,h,undefined,'FAST');y+=h+8}
+  const rows=r.ruimtes.map(z=>['  '+z.naam+'  ('+CAT[z.cat].k+(z.maat!=='vrije vorm'?', '+z.maat+' m':'')+')',f2(z.opp)+' m²']);
+  rows.push(['Netto ruimtes wonen',f2(r.netto.wonen)+' m²'],['+ binnenwanden',f2(r.wand.wonen)+' m²']);if(r.laag.wonen)rows.push(['- netto hoogte < 1,5 m','-'+f2(r.laag.wonen)+' m²']);if(r.vide.wonen)rows.push(['- trapgat / vide >= 4 m²','-'+f2(r.vide.wonen)+' m²']);if(r.schacht.wonen)rows.push(['- schacht / bouwdeel >= 0,5 m²','-'+f2(r.schacht.wonen)+' m²']);
+  rows.push(['GO wonen',f2(r.go.wonen)+' m²',true]);if(r.go.oir||r.netto.oir){rows.push(['Overige inpandige ruimte (incl. '+f2(r.wand.oir)+' m² wanden'+(r.laag.oir?', -'+f2(r.laag.oir)+' < 1,5 m':'')+')',f2(r.go.oir)+' m²',true])}
+  if(r.ggb)rows.push(['Gebouwgebonden buitenruimte',f2(r.ggb)+' m²',true]);if(r.eb)rows.push(['Externe bergruimte',f2(r.eb)+' m²',true]);
+  const gem=((num(v.hLaag)||0)+(num(v.hHoog)||0))/2;rows.push(['Bruto vloeroppervlak',f2(r.bvo)+' m²'],['Bruto inhoud ('+(v.kap==='geen'?'BVO x '+v.hoogte+' m':v.kap==='kap'?'BVO x gem. hoogte '+f2(gem)+' m':'deels onder kap, gem. '+f2(gem)+' m')+(num(v.corr)?', correctie '+v.corr+' m³ '+(v.corrTxt||''):'')+')',f2(r.inhoud)+' m³',true]);
+  y=elnRaster(doc,{...o,y:y+3},rows)}
+ if(tot.vloer){if(y>HP-50)y=np();y=elnRaster(doc,{...o,y:y+2},[['Onderste vloer (BVO '+tot.vloerVan+' x 0,40 m)',f2(tot.vloer)+' m³'],['Totale bruto inhoud',f2(tot.inhoud)+' m³',true]])}
+ elnVoet(doc,'Meetrapport NEN 2580 · '+(a.naam||''));doc.save('Meetrapport '+bestandsnaam()+'.pdf');toast('PDF gemaakt')}catch(e){console.error(e);toast('PDF maken mislukte: '+e.message)}}
+
+// ---------- start ----------
+(function start(){const id=new URLSearchParams(location.search).get('opname');
+ if(id){let p=store.projecten.find(x=>x.opnameId===id);if(!p){const o=opnames().find(x=>x.id===id);p=nieuwProject();store.projecten.push(p);cur=p;if(o)koppelOpname(o);save()}history.replaceState(null,'',location.pathname);openProject(p);return}
+ render()})();
+</script>
+</body>
+</html>

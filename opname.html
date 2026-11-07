@@ -372,6 +372,7 @@ function lijst(){
  store.opnames.slice().reverse().map(o=>`<div class="card"><div class="ihead"><span>${esc(o.adres?.naam||'Zonder adres')}</span></div>
  <div class="note">${new Date(o.datum).toLocaleString('nl-NL')}</div><div class="row" style="margin-top:10px"><button class="small" data-open="${o.id}">Openen</button><button class="small del" data-wis="${o.id}">Verwijderen</button></div></div>`).join('');
  $('#app').insertAdjacentHTML('beforeend',`<p class="note" style="text-align:center;margin-top:24px">App-versie ${APPVERSIE}</p>`);
+ $('#app').insertAdjacentHTML('beforeend',`<p style="text-align:center;margin-top:6px"><a href="plattegrond.html" style="color:var(--acc);font-weight:600">🏠 Plattegronden NEN 2580 (Funda)</a></p>`);
  bar(`<button class="ghost" data-act="driehoek">📐 Driehoek</button><button data-act="nieuw">+ Nieuwe opname</button>`)}
 
 function adres(){
@@ -528,6 +529,7 @@ function exp(){
  <b>Methode</b><span>${cur.type?.methode==='U'?'EP-U (ISSO 75.1)':'EP-W (ISSO 82.1)'}</span><b>Voorgevel</b><span>${cur.orient?cur.orient.voor:'–'}</span><b>Onderdelen</b><span>${n}</span></div>
  <p class="note" style="margin-top:12px">Dit is een voorlopige XML-structuur. Zodra je een voorbeeld-XML uit Vabi hebt, wordt de export daar precies op afgestemd.</p>
  <div class="row" style="margin-top:8px"><button data-act="download">Download XML</button>${navigator.share?'<button class="ghost" data-act="deel">Delen</button>':''}</div></div>
+ <div class="card"><h3>🏠 Plattegrond NEN 2580</h3><p class="note">Ruimtes inmeten → plattegrond voor Funda, meetrapport (GO en inhoud volgens de meetinstructie) en FML voor Floorplanner. Adres, BAG en voorgevel worden overgenomen.</p><a class="knop" href="plattegrond.html?opname=${encodeURIComponent(cur.id)}" style="display:block;text-align:center;padding:11px 14px;border-radius:8px;background:var(--acc);color:#fff;text-decoration:none;margin-top:8px">Plattegrond maken</a></div>
  <details class="card"><summary>Voorbeeld XML</summary><pre style="white-space:pre-wrap;font-size:12px">${esc(maakXML())}</pre></details>`;
  bar(`<button class="ghost" data-go="inst">Installaties</button><button class="ghost" data-act="lijst">Alle opnames</button>`)}
 function maakXML(){const a=o=>Object.entries(o).filter(([,v])=>v!=null&&v!=='').map(([k,v])=>` ${k}="${esc(v)}"`).join('');
