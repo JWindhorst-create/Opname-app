@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#1f6f5c">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Opname Energielabel</title>
+<title>Opname app energielabels</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -136,7 +136,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 </style>
 </head>
 <body>
-<header><div class="kop"><h1 id="titel">Opname Energielabel</h1><a class="homeknop" href="./" title="Naar het dashboard" aria-label="Naar het dashboard"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-6h3v6h5V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Dashboard</span></a></div><div class="steps" id="steps"></div></header>
+<header><div class="kop"><h1 id="titel">Opname app energielabels</h1><a class="homeknop" href="./" title="Naar het dashboard" aria-label="Naar het dashboard"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-6h3v6h5V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Dashboard</span></a></div><div class="steps" id="steps"></div></header>
 <main id="app"></main>
 <div class="bar" id="bar"></div>
 <div id="toast"></div>
@@ -360,7 +360,7 @@ async function hoogte3DBAG(pid){try{const j=await fetch('https://api.3dbag.nl/co
 const STAPPEN=[['adres','Object'],['kaart','Voorgevel'],['opname','Geometrie'],['inst','Installaties'],['export','Export']];let geoV=-1;
 function render(){
  $('#steps').innerHTML=scherm==='lijst'?'':STAPPEN.map(([k,l])=>`<span data-go="${k}" class="${k===(scherm==='type'?'adres':scherm)?'on':''}">${l}</span>`).join('');
- $('#titel').textContent=cur?.adres?.naam||'Opname Energielabel';
+ $('#titel').textContent=cur?.adres?.naam||'Opname app energielabels';
  if(map){map.remove();map=null}
  if(scherm==='type')scherm='adres';if(cur&&scherm!=='lijst'&&(!cur.verdiepingen||cur.verdiepingen.length!==1||cur.verdiepingen[0].naam!=='Woning'))syncVerd();geoV=-1;
  ({lijst,adres,kaart,opname,inst,export:exp})[scherm]();

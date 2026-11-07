@@ -131,7 +131,7 @@ body.dhonly #app,body.dhonly header,body.dhonly #bar{display:none!important}body
 </style>
 </head>
 <body>
-<header><h1 id="titel">Opname Energielabel</h1><div class="steps" id="steps"></div></header>
+<header><h1 id="titel">Opname app energielabels</h1><div class="steps" id="steps"></div></header>
 <main id="app"></main>
 <div class="bar" id="bar"></div>
 <div id="toast"></div>
@@ -350,7 +350,7 @@ async function hoogte3DBAG(pid){try{const j=await fetch('https://api.3dbag.nl/co
 const STAPPEN=[['adres','Object'],['kaart','Voorgevel'],['opname','Geometrie'],['inst','Installaties'],['export','Export']];let geoV=-1;
 function render(){
  $('#steps').innerHTML=scherm==='lijst'?'':STAPPEN.map(([k,l])=>`<span data-go="${k}" class="${k===(scherm==='type'?'adres':scherm)?'on':''}">${l}</span>`).join('');
- $('#titel').textContent=cur?.adres?.naam||'Opname Energielabel';
+ $('#titel').textContent=cur?.adres?.naam||'Opname app energielabels';
  if(map){map.remove();map=null}
  if(scherm==='type')scherm='adres';if(cur&&scherm!=='lijst'&&(!cur.verdiepingen||cur.verdiepingen.length!==1||cur.verdiepingen[0].naam!=='Woning'))syncVerd();geoV=-1;
  ({lijst,adres,kaart,opname,inst,export:exp})[scherm]();
