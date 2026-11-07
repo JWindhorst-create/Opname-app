@@ -194,17 +194,28 @@ function bboxVerd(v,marge=0){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infini
 function bboxMuren(v){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;v.ruimtes.filter(r=>r.cat!=='buiten'&&r.cat!=='extern').forEach(r=>{const g=geo(syncW(r));offs(g,r.w.map(wt)).forEach(([x,y])=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)})});return x0===Infinity?null:{x0,y0,x1,y1}}
 function opGeo(g,w,op){const e=g.E[op.z];if(!e)return null;const t=wt(w),p=num(op.p)||0,b=num(op.b)||0,a=add(e.a,mul(e.u,p)),bb=add(a,mul(e.u,b));
  return{e,t,a,b:bb,w:b,poly:[add(a,mul(e.n,-.004)),add(bb,mul(e.n,-.004)),add(bb,mul(e.n,t+.004)),add(a,mul(e.n,t+.004))]}}
-function tekenOpening(r,g,op,T,vloer){const w=r.w[op.z];if(!w)return'';const o=opGeo(g,w,op);if(!o||o.w<=0)return'';const{e,t,a,b}=o;const ln=(p,q,c,sw,da)=>`<line x1="${p[0].toFixed(4)}" y1="${p[1].toFixed(4)}" x2="${q[0].toFixed(4)}" y2="${q[1].toFixed(4)}" stroke="${c}" stroke-width="${sw}"${da?` stroke-dasharray="${da}"`:''}/>`;
- let s='';const soort=op.soort||'deur';
- if(soort==='raam'||soort==='pui'){s+=`<polygon points="${pts(o.poly)}" fill="#fff"/><polygon points="${pts([add(a,mul(e.n,t*.3)),add(b,mul(e.n,t*.3)),add(b,mul(e.n,t*.7)),add(a,mul(e.n,t*.7))])}" fill="${T.glas||'#fff'}"/>`;const at=k=>[add(a,mul(e.n,t*k)),add(b,mul(e.n,t*k))];
-  s+=ln(...at(0),T.lijn,.012)+ln(...at(1),T.lijn,.012)+ln(a,add(a,mul(e.n,t)),T.lijn,.012)+ln(b,add(b,mul(e.n,t)),T.lijn,.012);
-  if(soort==='raam'){s+=ln(...at(.5),T.lijn,.018)}else{const m1=add(a,mul(e.u,o.w*.55)),m2=add(a,mul(e.u,o.w*.45));s+=ln(add(a,mul(e.n,t*.38)),add(m1,mul(e.n,t*.38)),T.lijn,.02)+ln(add(m2,mul(e.n,t*.62)),add(b,mul(e.n,t*.62)),T.lijn,.02)}
+function tekenOpening(r,g,op,T,vloer){const w=r.w[op.z];if(!w)return'';const o=opGeo(g,w,op);if(!o||o.w<=0)return'';const{e,t,a}=o;
+ const F=v=>v.toFixed(4),ln=(p,q,c,sw,da)=>`<line x1="${F(p[0])}" y1="${F(p[1])}" x2="${F(q[0])}" y2="${F(q[1])}" stroke="${c}" stroke-width="${sw}"${da?` stroke-dasharray="${da}"`:''}/>`,
+  pg=(P,f,st,sw)=>`<polygon points="${pts(P)}" fill="${f}"${st?` stroke="${st}" stroke-width="${sw}" stroke-linejoin="miter"`:''}/>`,
+  at=(s0,k)=>add(add(a,mul(e.u,s0)),mul(e.n,t*k));
+ let s='';const soort=op.soort||'deur',W=o.w,kz=Math.min(.06,W*.08);
+ if(soort==='raam'||soort==='pui'){
+  // kozijn (stijlen), binnen- en buitenlijn, glas met dubbele lijn
+  s+=pg(o.poly,'#fff')+pg([at(0,.12),at(kz,.12),at(kz,.88),at(0,.88)],T.lijn)+pg([at(W-kz,.12),at(W,.12),at(W,.88),at(W-kz,.88)],T.lijn);
+  s+=ln(at(0,0),at(W,0),T.lijn,.012)+ln(at(0,1),at(W,1),T.lijn,.012)+ln(at(0,.12),at(W,.12),T.lijn,.007)+ln(at(0,.88),at(W,.88),T.lijn,.007);
+  if(soort==='raam')s+=pg([at(kz,.44),at(W-kz,.44),at(W-kz,.56),at(kz,.56)],T.glas||'#fff',T.lijn,.007);
+  else{const h=(W-2*kz)/2;s+=pg([at(kz,.3),at(kz+h*1.06,.3),at(kz+h*1.06,.45),at(kz,.45)],T.glas||'#fff',T.lijn,.008)+pg([at(W-kz-h*1.06,.55),at(W-kz,.55),at(W-kz,.7),at(W-kz-h*1.06,.7)],T.glas||'#fff',T.lijn,.008);
+   const m=W/2,pl=Math.min(.35,h*.5);s+=ln(at(m-pl,-.6),at(m+pl,-.6),T.lijn,.008)+ln(at(m+pl,-.6),add(at(m+pl,-.6),add(mul(e.u,-.07),mul(e.n,-.035))),T.lijn,.008)+ln(at(m+pl,-.6),add(at(m+pl,-.6),add(mul(e.u,-.07),mul(e.n,.035))),T.lijn,.008)}
   return s}
- s+=`<polygon points="${pts(o.poly)}" fill="${vloer}"/>`;
- if(soort==='doorgang')return s;
- const uit=!!op.uit,hS=op.sch==='R'?b:a,oS=op.sch==='R'?a:b,H=uit?add(hS,mul(e.n,t)):hS,O=uit?add(oS,mul(e.n,t)):oS,sw=uit?e.n:mul(e.n,-1),L=o.w,E2=add(H,mul(sw,L));
- const v2=sub(O,H),cr=sw[0]*v2[1]-sw[1]*v2[0],sweep=cr>0?1:0;
- s+=`<path d="M${H[0].toFixed(4)},${H[1].toFixed(4)} L${E2[0].toFixed(4)},${E2[1].toFixed(4)} A${L.toFixed(4)},${L.toFixed(4)} 0 0 ${sweep} ${O[0].toFixed(4)},${O[1].toFixed(4)} Z" fill="rgba(255,255,255,.35)" stroke="none"/>`+`<path d="M${E2[0].toFixed(4)},${E2[1].toFixed(4)} A${L.toFixed(4)},${L.toFixed(4)} 0 0 ${sweep} ${O[0].toFixed(4)},${O[1].toFixed(4)}" fill="none" stroke="${T.lijn}" stroke-width=".01" stroke-dasharray=".05 .03"/>`+ln(H,E2,T.muur,.045);
+ s+=pg(o.poly,vloer);
+ // doorgang: opening zonder deur, bovenlijn gestreept (tekentechnisch: onderdoorgang)
+ if(soort==='doorgang')return s+ln(at(0,0),at(W,0),T.lijn,.008,'.06 .04')+ln(at(0,1),at(W,1),T.lijn,.008,'.06 .04');
+ // deur: kozijnstijlen in de muur, deurblad met dikte, draairichting als dunne kwartcirkel
+ s+=pg([at(0,0),at(kz,0),at(kz,1),at(0,1)],T.muur)+pg([at(W-kz,0),at(W,0),at(W,1),at(W-kz,1)],T.muur);
+ const uit=!!op.uit,R=op.sch==='R',f=uit?1:0,H=R?at(W-kz,f):at(kz,f),O=R?at(kz,f):at(W-kz,f),sw=uit?e.n:mul(e.n,-1),L=W-2*kz,E2=add(H,mul(sw,L));
+ const v2=sub(O,H),cr=sw[0]*v2[1]-sw[1]*v2[0],sweep=cr>0?1:0,uv=mul(v2,1/(Math.hypot(v2[0],v2[1])||1)),dik=.04;
+ if((cur?.instel?.deur||'boog')!=='streep')s+=`<path d="M${F(E2[0])},${F(E2[1])} A${F(L)},${F(L)} 0 0 ${sweep} ${F(O[0])},${F(O[1])}" fill="none" stroke="${T.lijn}" stroke-width=".009"/>`;
+ s+=pg([H,E2,add(E2,mul(uv,dik)),add(H,mul(uv,dik))],'#fff',T.muur,.012);
  return s}
 function tekenEl(e,T,editor){const P=elPoly(e),b=num(e.b)||0,d=num(e.d)||0,L=(p)=>add(rot(p,e.rot||0),[+e.x||0,+e.y||0]);const da=editor?` data-e="${e.id}"`:'';let s='';
  const ln=(p,q,c,sw,dash)=>{p=L(p);q=L(q);return`<line x1="${p[0].toFixed(4)}" y1="${p[1].toFixed(4)}" x2="${q[0].toFixed(4)}" y2="${q[1].toFixed(4)}" stroke="${c}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''} pointer-events="none"/>`};
@@ -227,6 +238,9 @@ function tekenVerd(v,o={}){const T=THEMA[o.stijl||cur.instel.stijl]||THEMA[THEMA
  s+=`<g pointer-events="none"${!ed&&T.schaduw?' filter="url(#fS)"':''}>`;bin.forEach(({r,g})=>{const O=offs(g,r.w.map(wt));s+=`<path d="M${pts(O)}Z M${pts(g.P.slice().reverse())}Z" fill="${T.muur}" fill-rule="evenodd"/>`});s+='</g>';
  R.forEach(({r,g})=>(r.ops||[]).forEach(op=>{s+=tekenOpening(r,g,op,T,vulling(r,T))}));
  v.els.forEach(e=>s+=tekenEl(e,T,ed));
+ if(ed)R.forEach(({r,g})=>(r.ops||[]).forEach(op=>{const x=opGeo(g,r.w[op.z],op);if(!x)return;const k=o.k||.02,ex=Math.max(.12,10*k),sel2=selOp&&selOp===op.id;
+  const P=[add(x.a,mul(x.e.n,-ex)),add(x.b,mul(x.e.n,-ex)),add(x.b,mul(x.e.n,x.t+ex)),add(x.a,mul(x.e.n,x.t+ex))];
+  s+=`<polygon points="${pts(P)}" fill="${sel2?'rgba(255,122,26,.18)':'transparent'}" stroke="${sel2?'#ff7a1a':'none'}" stroke-width="${2.5*k}" data-op="${r.id}:${op.id}" style="cursor:ew-resize"/>`}));
  // lage delen (< 1,5 m)
  R.forEach(({r,g})=>g.E.forEach((e,i)=>{const lw=num(r.w[i]?.laag);if(!lw)return;const p=add(e.a,mul(e.n,-lw)),q=add(e.b,mul(e.n,-lw));
   s+=`<line x1="${p[0].toFixed(4)}" y1="${p[1].toFixed(4)}" x2="${q[0].toFixed(4)}" y2="${q[1].toFixed(4)}" stroke="${T.lijn}" stroke-width=".015" stroke-dasharray=".12 .07" pointer-events="none"/>`;
@@ -244,7 +258,11 @@ function tekenVerd(v,o={}){const T=THEMA[o.stijl||cur.instel.stijl]||THEMA[THEMA
  // selectie (editor)
  if(ed&&sel){if(sel.t==='r'){const x=R.find(q=>q.r.id===sel.id);if(x){const{g}=x;s+=`<polygon points="${pts(g.P)}" fill="rgba(255,122,26,.08)" stroke="#ff7a1a" stroke-width=".04" pointer-events="none"/>`;
    g.E.forEach((e,i)=>{if(i===selEdge)s+=`<line x1="${e.a[0]}" y1="${e.a[1]}" x2="${e.b[0]}" y2="${e.b[1]}" stroke="#ff7a1a" stroke-width=".12" stroke-linecap="round" pointer-events="none"/>`;
-    const m=add(add(e.a,mul(e.u,e.L/2)),mul(e.n,-.24));s+=`<circle cx="${m[0].toFixed(4)}" cy="${m[1].toFixed(4)}" r=".15" fill="${i===selEdge?'#ff7a1a':'#fff'}" stroke="#ff7a1a" stroke-width=".02" data-edge="${i}"/><text x="${m[0].toFixed(4)}" y="${(m[1]+.065).toFixed(4)}" font-size=".18" font-weight="700" text-anchor="middle" fill="${i===selEdge?'#fff':'#ff7a1a'}" font-family="Arial" pointer-events="none">${i+1}</text>`})}}
+    const m=add(add(e.a,mul(e.u,e.L/2)),mul(e.n,-Math.max(.24,26*(o.k||.02))));s+=`<circle cx="${m[0].toFixed(4)}" cy="${m[1].toFixed(4)}" r=".15" fill="${i===selEdge?'#ff7a1a':'#fff'}" stroke="#ff7a1a" stroke-width=".02" data-edge="${i}"/><text x="${m[0].toFixed(4)}" y="${(m[1]+.065).toFixed(4)}" font-size=".18" font-weight="700" text-anchor="middle" fill="${i===selEdge?'#fff':'#ff7a1a'}" font-family="Arial" pointer-events="none">${i+1}</text>`;
+    if(e.L>.6){const lp=add(add(e.a,mul(e.u,e.L/2)),mul(e.n,-Math.max(.52,48*(o.k||.02)))),an=Math.atan2(e.u[1],e.u[0])*180/Math.PI,a2=an>90||an<-90?an+180:an;s+=`<text x="${lp[0].toFixed(4)}" y="${lp[1].toFixed(4)}" font-size=".17" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#c2560f" font-family="Arial" paint-order="stroke" stroke="#fff" stroke-width=".05" transform="rotate(${a2.toFixed(2)} ${lp[0].toFixed(4)} ${lp[1].toFixed(4)})" pointer-events="none">${f2(e.L)}</text>`}});
+   const k=o.k||.02,hr=8*k;g.E.forEach((e,i)=>{const m=add(e.a,mul(e.u,e.L/2)),an=Math.atan2(e.u[1],e.u[0])*180/Math.PI;if(e.L<hr*3.5)return;
+    s+=`<rect x="${(m[0]-hr*1.5).toFixed(4)}" y="${(m[1]-hr*.6).toFixed(4)}" width="${(hr*3).toFixed(4)}" height="${(hr*1.2).toFixed(4)}" rx="${(hr*.6).toFixed(4)}" fill="#fff" stroke="#ff7a1a" stroke-width="${(2.5*k).toFixed(4)}" transform="rotate(${an.toFixed(2)} ${m[0].toFixed(4)} ${m[1].toFixed(4)})" data-h="e${i}" style="cursor:move"/>`});
+   g.P.forEach((q,i)=>{s+=`<circle cx="${q[0].toFixed(4)}" cy="${q[1].toFixed(4)}" r="${(hr*.75).toFixed(4)}" fill="#ff7a1a" stroke="#fff" stroke-width="${(2.5*k).toFixed(4)}" data-h="v${i}" style="cursor:move"/>`})}}
   else{const e=V().els.find(q=>q.id===sel.id);if(e)s+=`<polygon points="${pts(elPoly(e))}" fill="rgba(255,122,26,.1)" stroke="#ff7a1a" stroke-width=".04" pointer-events="none"/>`}}
  return s}
 // volledige exporttekening met titel, noordpijl, schaalbalk en buitenmaten
@@ -362,10 +380,11 @@ async function kiesAdres(d){try{const j=await fetch(LS+'lookup?fl=*&id='+encodeU
 
 // ---------- tekenen ----------
 let VB=null;
-function tekenen(){if(vi>=cur.verdiepingen.length)vi=0;const v=V();
+function tekenen(){if(vi>=cur.verdiepingen.length)vi=0;if(TM)TM.pts=[];const v=V();
  $('#app').innerHTML=`<div class="vtabs">${cur.verdiepingen.map((x,i)=>`<button class="${i===vi?'on':''}" data-vi="${i}">${esc(x.naam)}</button>`).join('')}<button class="ghost" data-act="vadd">+ Bouwlaag</button></div>
  <div id="cvwrap"><svg id="cv" xmlns="http://www.w3.org/2000/svg"></svg><div class="cvk"><button class="ghost" data-act="fit" title="Passend maken">⤢</button><button class="ghost" data-act="zin" title="Inzoomen">+</button><button class="ghost" data-act="zuit" title="Uitzoomen">−</button><button class="ghost" data-act="undo" title="Ongedaan maken">↶</button></div><div class="tot" id="tot"></div></div>
- <div class="tools"><button data-act="radd">+ Ruimte</button><button class="ghost" data-act="eadd" data-s="trap">+ Trap</button><button class="ghost" data-act="eadd" data-s="vide">+ Vide / trapgat</button><button class="ghost" data-act="eadd" data-s="schacht">+ Schacht / kolom</button></div>
+ <div class="tools"><button class="${TM?'':'ghost'}" data-act="tekenmodus" id="tmKnop">✏️ ${TM?'Tekenen aan':'Tekenen'}</button><button data-act="radd">+ Ruimte</button><button class="ghost" data-act="eadd" data-s="trap">+ Trap</button><button class="ghost" data-act="eadd" data-s="vide">+ Vide / trapgat</button><button class="ghost" data-act="eadd" data-s="schacht">+ Schacht / kolom</button></div>
+ <style>#pmBar button{flex:1 1 0;font-size:13px;padding:8px 4px;white-space:nowrap}</style><div class="tools" id="pmBar" style="margin-top:-2px;flex-wrap:nowrap"><span class="note" style="align-self:center;flex:0 0 auto;font-size:12px">Op muur:</span>${[['deur','🚪 Deur'],['raam','🪟 Raam'],['pui','Schuifpui'],['doorgang','Doorgang']].map(([k,l])=>`<button class="${PM===k?'':'ghost'}" data-act="pm" data-v="${k}">${l}</button>`).join('')}</div>
  <div id="panel"></div>`;
  bar(`<button class="ghost" data-go="object">Object</button><button data-go="meetstaat">Meetstaat →</button>`);
  initCv();VB=null;fit();teken();panel();totaal()}
@@ -377,7 +396,7 @@ function zoom(f,cx,cy){if(cx==null){cx=VB.x+VB.w/2;cy=VB.y+VB.h/2}const nw=Math.
 function raster(){const{w}=cvMaat();const m=VB.w/w;const st=[.1,.25,.5,1,2,5].find(s=>s/m>=18)||5;let s='';const x0=Math.floor(VB.x/st)*st,y0=Math.floor(VB.y/st)*st;
  for(let x=x0;x<VB.x+VB.w;x+=st)s+=`<line x1="${x}" y1="${VB.y}" x2="${x}" y2="${VB.y+VB.h}" stroke="${Math.abs(x%1)<1e-6?'#dfe5e3':'#eef2f1'}" stroke-width="${m*.8}"/>`;
  for(let y=y0;y<VB.y+VB.h;y+=st)s+=`<line x1="${VB.x}" y1="${y}" x2="${VB.x+VB.w}" y2="${y}" stroke="${Math.abs(y%1)<1e-6?'#dfe5e3':'#eef2f1'}" stroke-width="${m*.8}"/>`;return`<g pointer-events="none">${s}</g>`}
-function teken(){const c=$('#cv');if(!c)return;c.innerHTML=raster()+tekenVerd(V(),{editor:true});if(!V().ruimtes.length&&!V().els.length)c.innerHTML+=`<text x="${VB.x+VB.w/2}" y="${VB.y+VB.h/2}" font-size="${VB.w/26}" text-anchor="middle" fill="#8a9893" font-family="Arial">Tik op “+ Ruimte” om te beginnen</text>`}
+function teken(){const c=$('#cv');if(!c)return;const k=VB.w/cvMaat().w;c.innerHTML=raster()+tekenVerd(V(),{editor:true,k})+tmPreview(k);if(!V().ruimtes.length&&!V().els.length)c.innerHTML+=`<text x="${VB.x+VB.w/2}" y="${VB.y+VB.h/2}" font-size="${VB.w/26}" text-anchor="middle" fill="#8a9893" font-family="Arial">Tik op “+ Ruimte” om te beginnen</text>`}
 let totT;function totaal(){clearTimeout(totT);totT=setTimeout(()=>{const e=$('#tot');if(!e)return;const r=bereken(V());e.innerHTML=`<b>${esc(V().naam)}</b> · GO wonen <b>${f2(r.go.wonen)}</b> m²${r.go.oir?` · overig <b>${f2(r.go.oir)}</b>`:''}${r.ggb?` · buiten ${f2(r.ggb)}`:''}${r.eb?` · ext. berging ${f2(r.eb)}`:''}`},250)}
 function opnieuw(){save();teken();totaal()}
 
@@ -386,7 +405,12 @@ const PT=new Map();let drag=null,pinch=null;
 function naarM(ev){const c=$('#cv'),r=c.getBoundingClientRect();return[VB.x+(ev.clientX-r.left)*VB.w/r.width,VB.y+(ev.clientY-r.top)*VB.h/r.height]}
 function initCv(){const c=$('#cv');
  c.addEventListener('pointerdown',ev=>{c.setPointerCapture(ev.pointerId);PT.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-  if(PT.size===2){const[a,b]=[...PT.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),VB:{...VB}};drag=null;return}
+  if(PT.size===2){const[a,b]=[...PT.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),VB:{...VB}};if(drag&&drag.handle&&drag.moved){cur.verdiepingen=JSON.parse(drag.snap)}drag=null;if(TM)TM.down=null;return}
+  if(TM){tmDown(ev);return}
+  const tOp=ev.target.getAttribute&&ev.target.getAttribute('data-op');
+  if(PM&&!tOp){drag={pm:true,sx:ev.clientX,sy:ev.clientY,m:naarM(ev),moved:false,VB:{...VB}};return}
+  if(tOp){const[rid,oid]=tOp.split(':');const r=vindR(rid),op=r&&r.ops.find(x=>x.id===oid);if(op){drag={op,r,sx:ev.clientX,sy:ev.clientY,moved:false,snap:JSON.stringify(cur.verdiepingen),VB:{...VB}};return}}
+  const t0=ev.target,hh=t0.getAttribute&&t0.getAttribute('data-h');if(hh&&selR()){const r=selR();drag={handle:hh,sx:ev.clientX,sy:ev.clientY,m0:naarM(ev),moved:false,snap:JSON.stringify(cur.verdiepingen),P0:geo(syncW(r)).P.map(q=>q.slice()),r0:JSON.parse(JSON.stringify(r)),VB:{...VB}};return}
   const t=ev.target,rId=t.getAttribute&&t.getAttribute('data-r'),eId=t.getAttribute&&t.getAttribute('data-e'),edg=t.getAttribute&&t.getAttribute('data-edge');
   const hit=edg!=null?{edge:+edg}:rId?{t:'r',id:rId}:eId?{t:'e',id:eId}:null;
   const isSel=hit&&!hit.edge&&sel&&sel.t===hit.t&&sel.id===hit.id;
@@ -395,18 +419,90 @@ function initCv(){const c=$('#cv');
  c.addEventListener('pointermove',ev=>{if(!PT.has(ev.pointerId))return;PT.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
   if(pinch&&PT.size===2){const[a,b]=[...PT.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<5)return;const f=pinch.d/d;const r=c.getBoundingClientRect();const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
    const P=pinch.VB;const cx=P.x+(mx-r.left)*P.w/r.width,cy=P.y+(my-r.top)*P.h/r.height;const nw=Math.max(1,Math.min(200,P.w*f)),k=nw/P.w;VB={x:cx-(cx-P.x)*k,y:cy-(cy-P.y)*k,w:nw,h:P.h*k};zetVB();teken();return}
-  if(!drag)return;const dxp=ev.clientX-drag.sx,dyp=ev.clientY-drag.sy;if(!drag.moved&&Math.hypot(dxp,dyp)<7)return;drag.moved=true;
+  if(TM&&!pinch){tmMove(ev);return}
+  if(!drag)return;const dxp=ev.clientX-drag.sx,dyp=ev.clientY-drag.sy;if(!drag.moved&&Math.hypot(dxp,dyp)<5)return;drag.moved=true;
+  if(drag.handle){grepSlepen(ev);return}
+  if(drag.op){opSlepen(ev);return}
+  if(drag.pm){VB.x=drag.VB.x-dxp*drag.VB.w/(c.getBoundingClientRect().width);VB.y=drag.VB.y-dyp*drag.VB.h/(c.getBoundingClientRect().height);zetVB();teken();return}
   const r=c.getBoundingClientRect(),k=VB.w/r.width;
   if(drag.isSel){const o=drag.hit.t==='r'?vindR(drag.hit.id):vindE(drag.hit.id);let dx=dxp*drag.VB.w/r.width,dy=dyp*drag.VB.h/r.height;[dx,dy]=snap(o,drag.ox,drag.oy,dx,dy,12*k);
    o.x=Math.round((drag.ox+dx)*100)/100;o.y=Math.round((drag.oy+dy)*100)/100;teken()}
   else{VB.x=drag.VB.x-dxp*drag.VB.w/r.width;VB.y=drag.VB.y-dyp*drag.VB.h/r.height;zetVB();teken()}});
- const eind=ev=>{PT.delete(ev.pointerId);if(PT.size<2)pinch=null;if(!drag)return;const d=drag;drag=null;
+ const eind=ev=>{const wasPinch=!!pinch;PT.delete(ev.pointerId);if(PT.size<2)pinch=null;if(TM){if(!wasPinch)tmUp(ev);return}if(!drag)return;const d=drag;drag=null;
+  if(d.pm){if(!d.moved)plaatsOpening(d.m);return}
+  if(d.op){if(d.moved){UNDO.push(JSON.stringify({vi,v:JSON.parse(d.snap)}));save()}sel={t:'r',id:d.r.id};selEdge=d.op.z;selOp=d.op.id;teken();panel();setTimeout(()=>document.getElementById('op_'+d.op.id)?.scrollIntoView({block:'center',behavior:'smooth'}),60);return}
+  if(d.handle){if(d.moved){UNDO.push(JSON.stringify({vi,v:JSON.parse(d.snap)}));save();panel();totaal()}else if(d.handle[0]==='e'){selEdge=+d.handle.slice(1);teken();panel()}return}
   if(d.isSel&&d.moved){UNDO.push(JSON.stringify({vi,v:JSON.parse(d.snap)}));save();panel();totaal();return}
   if(!d.moved){if(d.hit&&d.hit.edge!=null){selEdge=d.hit.edge;teken();panel();setTimeout(()=>document.getElementById('wr'+selEdge)?.scrollIntoView({block:'center',behavior:'smooth'}),50);return}
    if(d.hit){if(!(sel&&sel.t===d.hit.t&&sel.id===d.hit.id)){sel={t:d.hit.t,id:d.hit.id};selEdge=-1}else if(d.hit.t==='r'){const r=vindR(d.hit.id),g=geo(r);let bi=-1,bd=.35;g.E.forEach((e,i)=>{const dd=dSeg(d.m,e.a,e.b);if(dd<bd){bd=dd;bi=i}});if(bi>=0)selEdge=bi}}
-   else{sel=null;selEdge=-1}teken();panel()}};
+   else{sel=null;selEdge=-1}selOp=null;teken();panel()}};
  c.addEventListener('pointerup',eind);c.addEventListener('pointercancel',eind);
  c.addEventListener('wheel',ev=>{ev.preventDefault();const[mx,my]=naarM(ev);zoom(ev.deltaY>0?1.15:1/1.15,mx,my);teken()},{passive:false})}
+// ---- deuren en kozijnen plaatsen / verschuiven ----
+const OPB={deur:.83,raam:1.2,pui:2.4,doorgang:.9};
+function dichtsteWand(m,maxD){let best=null;V().ruimtes.forEach(r=>{const g=geo(syncW(r));g.E.forEach((e,i)=>{const w=r.w[i];const t=wt(w);
+  // afstand tot de wand (binnenvlak tot buitenvlak)
+  const s=(m[0]-e.a[0])*e.u[0]+(m[1]-e.a[1])*e.u[1],d=(m[0]-e.a[0])*e.n[0]+(m[1]-e.a[1])*e.n[1];if(s<0||s>e.L)return;const dd=d<0?-d:(d>t?d-t:0);
+  const score=dd+(w.s==='open'?.5:0);if(score<maxD&&(!best||score<best.score))best={r,i,e,s,score}})});return best}
+function plaatsOpening(m){const k=VB.w/cvMaat().w,x=dichtsteWand(m,Math.max(.35,28*k));if(!x){toast('Tik dichter bij een muur');return}const{r,i,e}=x;
+ const b=Math.min(OPB[PM],Math.max(.3,e.L-.1));let p=Math.round((x.s-b/2)*20)/20;p=Math.max(0,Math.min(e.L-b,p));pushUndo();
+ const op={id:uid(),soort:PM,z:i,p:Math.round(p*100)/100,b:inV(b),sch:'L',uit:r.w[i].s==='buiten'&&PM==='deur'?false:false};r.ops.push(op);sel={t:'r',id:r.id};selEdge=i;selOp=op.id;opnieuw();panel();
+ toast({deur:'Deur',raam:'Raam',pui:'Schuifpui',doorgang:'Doorgang'}[PM]+' geplaatst: sleep hem langs de muur')}
+function opSlepen(ev){const d=drag,r=d.r,op=d.op,g=geo(r),e=g.E[op.z];if(!e)return;const m=naarM(ev),b=num(op.b)||0;let p=(m[0]-e.a[0])*e.u[0]+(m[1]-e.a[1])*e.u[1]-b/2;
+ const k=VB.w/cvMaat().w,tol=10*k;[0,e.L-b,(e.L-b)/2].forEach(c=>{if(Math.abs(p-c)<tol)p=c});p=Math.round(p*100)/100;op.p=Math.max(0,Math.min(e.L-b,p));teken()}
+// ---- vrij tekenen en grepen ----
+let TM=null,PM=null,selOp=null;
+function zetPunten(r,P){const n=P.length,hd=(a,b)=>Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;r.vorm='poly';r.x=Math.round(P[0][0]*1000)/1000;r.y=Math.round(P[0][1]*1000)/1000;r.rot=Math.round(hd(P[0],P[1])*1000)/1000;
+ r.segs=[];for(let i=0;i<n-1;i++){const l=Math.hypot(P[i+1][0]-P[i][0],P[i+1][1]-P[i][1]);let a=hd(P[i+1],P[(i+2)%n])-hd(P[i],P[i+1]);a=((a+540)%360)-180;r.segs.push({l:inV(Math.round(l*1000)/1000),a:Math.round(a*1000)/1000})}syncW(r)}
+function isRechthoek(P){if(P.length!==4)return false;for(let i=0;i<4;i++){const a=P[i],b=P[(i+1)%4];if(Math.abs(a[0]-b[0])>1e-6&&Math.abs(a[1]-b[1])>1e-6)return false}return true}
+function opruimen(P,min=.08){let Q=P.slice();let ch=true;while(ch&&Q.length>3){ch=false;for(let i=0;i<Q.length;i++){const a=Q[(i-1+Q.length)%Q.length],b=Q[i],c=Q[(i+1)%Q.length];const cr=(b[0]-a[0])*(c[1]-b[1])-(b[1]-a[1])*(c[0]-b[0]);
+  if(Math.hypot(b[0]-a[0],b[1]-a[1])<min||Math.abs(cr)<1e-6){Q.splice(i,1);ch=true;break}}}return Q}
+const g5=v=>Math.round(v*20)/20;
+function lijnen(){const xs=[],ys=[],hk=[];V().ruimtes.forEach(r=>{const g=geo(syncW(r));const O=r.cat==='buiten'?[]:offs(g,r.w.map(wt));[...g.P,...O].forEach(q=>{hk.push(q);xs.push(q[0]);ys.push(q[1])})});return{xs,ys,hk}}
+function snapPunt(m,eersteVrij){const k=VB.w/cvMaat().w,tol=14*k;let p=[g5(m[0]),g5(m[1])];const L=lijnen();
+ let bh=null,bd=tol;L.hk.forEach(q=>{const d=Math.hypot(q[0]-m[0],q[1]-m[1]);if(d<bd){bd=d;bh=q}});if(bh)return[bh[0],bh[1]];
+ let dx=tol,dy=tol;L.xs.forEach(x=>{if(Math.abs(x-m[0])<dx){dx=Math.abs(x-m[0]);p[0]=x}});L.ys.forEach(y=>{if(Math.abs(y-m[1])<dy){dy=Math.abs(y-m[1]);p[1]=y}});
+ const pts=TM?.pts||[];if(pts.length&&!eersteVrij){const v=pts[pts.length-1],ddx=p[0]-v[0],ddy=p[1]-v[1];if(Math.abs(ddy)<Math.abs(ddx)*.2)p[1]=v[1];else if(Math.abs(ddx)<Math.abs(ddy)*.2)p[0]=v[0]}
+ if(pts.length>=2){const f=pts[0];if(Math.abs(p[0]-f[0])<tol)p[0]=f[0];if(Math.abs(p[1]-f[1])<tol)p[1]=f[1]}return p}
+function rdp(P,eps){if(P.length<3)return P;const a=P[0],b=P[P.length-1];let md=0,mi=0;for(let i=1;i<P.length-1;i++){const d=dSeg(P[i],a,b);if(d>md){md=d;mi=i}}if(md>eps){const l=rdp(P.slice(0,mi+1),eps),r=rdp(P.slice(mi),eps);return l.slice(0,-1).concat(r)}return[a,b]}
+function strokeNaarPunten(raw){const k=VB.w/cvMaat().w;let P=rdp(raw,Math.max(.12,9*k));if(P.length>2&&Math.hypot(P[0][0]-P[P.length-1][0],P[0][1]-P[P.length-1][1])<Math.max(.6,40*k))P.pop();if(P.length<3)return null;
+ const Q=[P[0].slice()];for(let i=1;i<P.length;i++){const v=Q[Q.length-1];let q=P[i].slice();const dx=q[0]-v[0],dy=q[1]-v[1];if(Math.abs(dy)<Math.abs(dx)*.4)q[1]=v[1];else if(Math.abs(dx)<Math.abs(dy)*.4)q[0]=v[0];Q.push(q)}
+ const f=Q[0],l=Q[Q.length-1],dx=f[0]-l[0],dy=f[1]-l[1];if(Math.abs(dy)<Math.abs(dx)*.4){l[1]=f[1];if(Q.length>2&&Math.abs(Q[Q.length-2][0]-l[0])<1e-9){}}else if(Math.abs(dx)<Math.abs(dy)*.4)l[0]=f[0];
+ // als de laatste wand niet meer haaks is: zet het voorlaatste punt recht
+ for(let i=1;i<Q.length;i++){const a=Q[i-1],b=Q[i];if(Math.abs(a[0]-b[0])<.25&&Math.abs(a[1]-b[1])>.25)b[0]=a[0];else if(Math.abs(a[1]-b[1])<.25&&Math.abs(a[0]-b[0])>.25)b[1]=a[1]}
+ const T0=TM;TM={pts:[]};let R=Q.map(q=>snapPunt(q,true));TM=T0;R=R.map(q=>[Math.round(q[0]*100)/100,Math.round(q[1]*100)/100]);R=opruimen(R,.15);return R.length>=3?R:null}
+function maakKamer(P){P=opruimen(P);if(P.length<3||areaP(P)<.25){toast('Te klein om een ruimte van te maken');return}pushUndo();const r=nieuweRuimte('Ruimte',3,3);
+ if(isRechthoek(P)){const b=bb2(P);r.vorm='rect';r.x=Math.round(b.x0*100)/100;r.y=Math.round(b.y0*100)/100;r.b=Math.round((b.x1-b.x0)*100)/100;r.d=Math.round((b.y1-b.y0)*100)/100;r.rot=0;syncW(r)}else zetPunten(r,P);
+ if(!V().ruimtes.length)r.w.forEach(w=>{w.s='buiten';w.t='0,30'});V().ruimtes.push(r);TM=null;sel={t:'r',id:r.id};selEdge=-1;opnieuw();tekenUI();panel();toast('Ruimte getekend: geef hem hieronder een naam en controleer de maten')}
+function tmDown(ev){TM.down={sx:ev.clientX,sy:ev.clientY,raw:[naarM(ev)],stroke:false,len:0};TM.hover=snapPunt(naarM(ev));teken()}
+function tmMove(ev){const m=naarM(ev);if(TM.down){const d=TM.down,l=d.raw[d.raw.length-1];d.len+=Math.hypot(m[0]-l[0],m[1]-l[1]);d.raw.push(m);if(!d.stroke&&!TM.pts.length&&d.len>Math.max(.8,60*VB.w/cvMaat().w))d.stroke=true}
+ TM.hover=TM.down&&TM.down.stroke?null:snapPunt(m);teken()}
+function tmUp(ev){const d=TM.down;if(!d)return;TM.down=null;if(d.stroke){const P=strokeNaarPunten(d.raw);if(P)maakKamer(P);else{toast('Niet herkend: tik de hoeken aan of trek een duidelijkere omtrek');teken()}return}
+ const p=snapPunt(naarM(ev)),k=VB.w/cvMaat().w;if(TM.pts.length>=3&&Math.hypot(p[0]-TM.pts[0][0],p[1]-TM.pts[0][1])<22*k){maakKamer(TM.pts);return}
+ const l=TM.pts[TM.pts.length-1];if(!l||Math.hypot(p[0]-l[0],p[1]-l[1])>.04)TM.pts.push(p);TM.hover=null;teken();tekenUI()}
+function tmPreview(k){if(!TM)return'';let s='';const C='#1f6f5c',P=TM.pts.slice();if(TM.down&&TM.down.stroke)return`<polyline points="${pts(TM.down.raw)}" fill="none" stroke="${C}" stroke-width="${3*k}" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`;
+ const Q=TM.hover?P.concat([TM.hover]):P;if(Q.length>1){s+=`<polyline points="${pts(Q)}" fill="${Q.length>2?'rgba(31,111,92,.08)':'none'}" stroke="${C}" stroke-width="${3*k}" stroke-linejoin="round"/>`;
+  for(let i=1;i<Q.length;i++){const a=Q[i-1],b=Q[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<.2)continue;const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];s+=`<text x="${m[0]}" y="${m[1]-6*k}" font-size="${13*k}" font-weight="700" text-anchor="middle" fill="${C}" font-family="Arial" paint-order="stroke" stroke="#fff" stroke-width="${4*k}">${f2(L)}</text>`}}
+ Q.forEach((q,i)=>s+=`<circle cx="${q[0]}" cy="${q[1]}" r="${(i===0&&P.length>=3?9:5)*k}" fill="${i===0&&P.length>=3?'#fff':C}" stroke="${C}" stroke-width="${2.5*k}"/>`);
+ if(TM.hover&&P.length)s+=`<line x1="${TM.hover[0]}" y1="${VB.y}" x2="${TM.hover[0]}" y2="${VB.y+VB.h}" stroke="${C}" stroke-width="${k}" stroke-dasharray="${4*k} ${4*k}" opacity=".4"/><line x1="${VB.x}" y1="${TM.hover[1]}" x2="${VB.x+VB.w}" y2="${TM.hover[1]}" stroke="${C}" stroke-width="${k}" stroke-dasharray="${4*k} ${4*k}" opacity=".4"/>`;
+ return`<g pointer-events="none">${s}</g>`}
+function tekenUI(){const b=$('#tmKnop');if(b){b.className=TM?'':'ghost';b.textContent=TM?'✏️ Tekenen aan':'✏️ Tekenen'}if(TM)panel()}
+function tmPanel(){return`<div class="card" style="border-color:#1f6f5c"><div class="ihead"><span>✏️ Ruimte tekenen</span></div>
+ <p class="note" style="margin:6px 0">Tik de hoeken aan (de lijn springt haaks en klikt vast aan bestaande muren), of trek met je vinger of pen in één keer de omtrek. Tik op het eerste punt om de ruimte te sluiten. Twee vingers: zoomen en schuiven. De maten pas je daarna exact aan.</p>
+ <div class="row"><button class="ghost" data-act="tmterug" ${TM.pts.length?'':'disabled'}>↶ Laatste punt</button><button data-act="tmklaar" ${TM.pts.length>=3?'':'disabled'}>Sluiten (${TM.pts.length} punten)</button></div>
+ <button class="ghost" data-act="tekenmodus" style="width:100%;margin-top:8px">Stoppen met tekenen</button></div>`}
+function grepSlepen(ev){const d=drag,r=selR();if(!r)return;const m=naarM(ev),k=VB.w/cvMaat().w,tol=12*k;Object.assign(r,JSON.parse(JSON.stringify(d.r0)));const g0=geo(syncW(r));const t=d.handle[0],i=+d.handle.slice(1);
+ if(t==='e'){const e=g0.E[i];let dl=(m[0]-d.m0[0])*e.n[0]+(m[1]-d.m0[1])*e.n[1];
+  const ax=Math.abs(e.n[0])>.999?0:Math.abs(e.n[1])>.999?1:-1;if(ax>=0){const s=Math.sign(e.n[ax]),c0=e.a[ax],c=c0+s*dl,tw=wt(r.w[i]);let best=null,bd=tol;
+   V().ruimtes.forEach(o=>{if(o===r)return;randen(o).forEach(b=>{if((b.ax==='v')!==(ax===0))return;const cand=b.s===-s?[b.c+b.s*Math.max(tw,b.t||0)-s*0]:[b.c,b.c+b.s*(b.t||0)-s*tw];
+    if(b.s===-s)cand[0]=b.c+b.s*Math.max(tw,b.t||0);cand.forEach(x=>{if(Math.abs(x-c)<bd){bd=Math.abs(x-c);best=x}})})});if(best!=null)dl=(best-c0)*s}
+  dl=Math.round(dl*100)/100;
+  if(r.vorm!=='poly'&&((r.rot||0)%90===0)){const b=num(r.b)||0,dd=num(r.d)||0;const o=(v)=>{const q=rot(v,r.rot||0);r.x=Math.round(((+r.x||0)+q[0])*1000)/1000;r.y=Math.round(((+r.y||0)+q[1])*1000)/1000};
+   if(i===1)r.b=Math.max(.2,Math.round((b+dl)*100)/100);else if(i===2)r.d=Math.max(.2,Math.round((dd+dl)*100)/100);else if(i===0){const nd=Math.max(.2,Math.round((dd+dl)*100)/100);o([0,-(nd-dd)]);r.d=nd}else{const nb=Math.max(.2,Math.round((b+dl)*100)/100);o([-(nb-b),0]);r.b=nb}}
+  else{const P=d.P0.map(q=>q.slice()),n=P.length;[i,(i+1)%n].forEach(j=>{P[j]=[P[j][0]+e.n[0]*dl,P[j][1]+e.n[1]*dl]});zetPunten(r,P)}}
+ else{if(r.vorm!=='poly'){const b=num(r.b)||0,dd=num(r.d)||0;r.vorm='poly';r.segs=[{l:inV(b),a:90},{l:inV(dd),a:90},{l:inV(b),a:90}]}
+  const P=d.P0.map(q=>q.slice()),n=P.length;let p=[Math.round(m[0]*100)/100,Math.round(m[1]*100)/100];[P[(i-1+n)%n],P[(i+1)%n]].forEach(q=>{if(Math.abs(p[0]-q[0])<tol)p[0]=q[0];if(Math.abs(p[1]-q[1])<tol)p[1]=q[1]});P[i]=p;zetPunten(r,P)}
+ teken()}
 // snappen: wanden tegen elkaar (met wanddikte ertussen) of vlakken uitlijnen
 function randen(o,dx=0,dy=0){if(o.soort){const P=elPoly(o).map(p=>[p[0]+dx,p[1]+dy]);const out=[];for(let i=0;i<4;i++){const a=P[i],b=P[(i+1)%4];out.push(rand(a,b,P,0))}return out.filter(Boolean)}
  const g=geo(syncW(o));return g.E.map((e,i)=>{const a=[e.a[0]+dx,e.a[1]+dy],b=[e.b[0]+dx,e.b[1]+dy];const x=rand(a,b,null,wt(o.w[i]),e.n);return x}).filter(Boolean)}
@@ -425,14 +521,15 @@ function snap(o,ox,oy,dx,dy,tol){const isEl=!!o.soort;const v=V();const ik=rande
 // ---- paneel ----
 function selR(){return sel&&sel.t==='r'?vindR(sel.id):null}
 function selE(){return sel&&sel.t==='e'?vindE(sel.id):null}
-function panel(){const p=$('#panel');if(!p)return;const r=selR(),e=selE();p.innerHTML=r?ruimtePanel(r):e?elPanel(e):verdPanel(V())}
+function panel(){const p=$('#panel');if(!p)return;if(TM){p.innerHTML=tmPanel();return}const r=selR(),e=selE();p.innerHTML=r?ruimtePanel(r):e?elPanel(e):verdPanel(V())}
 function verdPanel(v){return`<div class="card"><div class="ihead"><span>Bouwlaag: ${esc(v.naam)}</span><span><button class="small ghost" data-act="vdup">Dupliceren</button> <button class="small del" data-act="vdel">Verwijderen</button></span></div>
  <div class="grid2"><div><label>Naam</label><input data-v="naam" value="${esc(v.naam)}"></div><div><label>Bouwlaag nr. <small>(0 = kelder, 1 = bg)</small></label><input data-v="laag" inputmode="numeric" value="${esc(v.laag)}"></div></div>
  <label>Bruto hoogte (bovenkant vloer → bovenkant vloer erboven, m)</label><input data-v="hoogte" inputmode="decimal" value="${esc(v.hoogte)}"><p class="note">Bovenste bouwlaag met plat dak: dakconstructie meetellen (onbekend = 30 cm). Onbekende vloerdikte = 30 cm.</p>
  <label>Kap (schuin plafond)</label><div class="choice">${[['geen','Geen kap'],['kap','Hele laag onder kap'],['deels','Deels onder kap']].map(([k,l])=>`<button class="${v.kap===k?'on':''}" data-act="kap" data-v="${k}">${l}</button>`).join('')}</div>
  ${v.kap!=='geen'?`<div class="grid3"><div><label>Laagste hoogte (m)</label><input data-v="hLaag" inputmode="decimal" value="${esc(v.hLaag)}"></div><div><label>Hoogste (tot nokbalk +30 cm)</label><input data-v="hHoog" inputmode="decimal" value="${esc(v.hHoog)}"></div>${v.kap==='deels'?`<div><label>Opp. onder kap (m²)</label><input data-v="oppKap" inputmode="decimal" value="${esc(v.oppKap)}"></div>`:''}</div><p class="note">Inhoud onder de kap = BVO × gemiddelde van laagste en hoogste hoogte.</p>`:''}
  <div class="grid2"><div><label>Correctie inhoud (m³, ±)</label><input data-v="corr" inputmode="decimal" value="${esc(v.corr)}"></div><div><label>Omschrijving correctie</label><input data-v="corrTxt" placeholder="bijv. dakkapel voorzijde" value="${esc(v.corrTxt)}"></div></div></div>
- <div class="card note"><b>Werkwijze</b><br>1. Tik “+ Ruimte”, vul naam en binnenmaten in. 2. Zet per zijde het soort wand en de dikte (gevel, woningscheidend, binnenwand). 3. Sleep de ruimte op zijn plek: hij klikt vast tegen de buurruimte met de wanddikte ertussen. Of gebruik “Plaats naast”. 4. Voeg deuren en ramen toe. Tik eerst op een ruimte om hem te kiezen, sleep hem dan pas.</div>`}
+ <div class="card note"><b>Snel tekenen</b><br>✏️ <b>Tekenen</b>: tik de hoeken aan of trek met vinger of pen de omtrek; lijnen springen haaks en klikken vast aan bestaande muren. Kies een ruimte en sleep de <b>witte grepen</b> om een muur te verschuiven, of de <b>oranje bolletjes</b> om een hoek te verplaatsen. <b>Op muur: Deur / Raam / Schuifpui / Doorgang</b> en tik op de muur; sleep hem daarna langs de muur. Met twee vingers zoomen en schuiven.</div>
+ <div class="card note"><b>Werkwijze met maten</b><br>1. Tik “+ Ruimte”, vul naam en binnenmaten in. 2. Zet per zijde het soort wand en de dikte (gevel, woningscheidend, binnenwand). 3. Sleep de ruimte op zijn plek: hij klikt vast tegen de buurruimte met de wanddikte ertussen. Of gebruik “Plaats naast”. 4. Voeg deuren en ramen toe. Tik eerst op een ruimte om hem te kiezen, sleep hem dan pas.</div>`}
 function ruimtePanel(r){const g=geo(syncW(r));const n=g.E.length;const res=hoogteAdvies(r);
  const zt=i=>`${i+1} · ${zijde(g.E[i])} · ${f2(g.E[i].L)} m`;
  let segs='';if(r.vorm==='poly'){segs=`<table class="t wt"><tr><th>Wand</th><th>Lengte (m)</th><th>Daarna</th></tr>${r.segs.map((s,i)=>`<tr><td>${i+1}</td><td><input data-seg="${i}:l" inputmode="decimal" value="${esc(s.l)}"></td><td><select data-seg="${i}:a">${[[90,'Rechtsaf 90°'],[-90,'Linksaf 90°'],[45,'Rechtsaf 45°'],[-45,'Linksaf 45°'],[135,'Rechtsaf 135°'],[-135,'Linksaf 135°'],[0,'Rechtdoor']].map(([a,l])=>`<option value="${a}" ${(num(s.a)??90)==a?'selected':''}>${l}</option>`).join('')}</select></td></tr>`).join('')}
@@ -460,13 +557,13 @@ function ruimtePanel(r){const g=geo(syncW(r));const n=g.E.length;const res=hoogt
  <p class="note">Dikte in m. Woningscheidende wand onbekend: 0,30 (meten tot het hart). “&lt;1,5 m”: breedte van de strook langs die wand waar de netto hoogte lager is dan 1,5 m (schuin dak).</p></div>
  <div class="card"><div class="ihead"><span>Deuren en ramen</span></div>
  ${(r.ops||[]).map(op=>{const e=g.E[op.z];const fl=e&&flip(e),L=e?e.L:0,b=num(op.b)||0,disp=fl?L-(num(op.p)||0)-b:(num(op.p)||0);const ref=e?refTxt(e):'begin';
-  return`<div class="op"><div class="grid3"><div><label>Soort</label><select data-op="${op.id}:soort">${[['deur','Deur'],['raam','Raam'],['pui','Schuifpui'],['doorgang','Doorgang']].map(([k,l])=>`<option value="${k}" ${op.soort===k?'selected':''}>${l}</option>`).join('')}</select></div>
+  return`<div class="op" id="op_${op.id}" style="${op.id===selOp?'border-color:#ff7a1a;box-shadow:0 0 0 2px rgba(255,122,26,.25)':''}">${op.soort==='deur'?`<div class="row" style="margin-bottom:4px"><button class="small ghost" data-act="opflip" data-v="${op.id}">⇄ Scharnier</button><button class="small ghost" data-act="opdraai" data-v="${op.id}">⇅ Naar binnen/buiten</button><button class="small ghost" data-act="deurstijl" data-v="${(cur.instel.deur||'boog')==='boog'?'streep':'boog'}">${(cur.instel.deur||'boog')==='boog'?'— Streep':'◜ Boog'}</button></div>`:''}<div class="grid3"><div><label>Soort</label><select data-op="${op.id}:soort">${[['deur','Deur'],['raam','Raam'],['pui','Schuifpui'],['doorgang','Doorgang']].map(([k,l])=>`<option value="${k}" ${op.soort===k?'selected':''}>${l}</option>`).join('')}</select></div>
   <div><label>Zijde</label><select data-op="${op.id}:z">${r.w.map((w,i)=>`<option value="${i}" ${op.z===i?'selected':''}>${zt(i)}</option>`).join('')}</select></div><div><label>Breedte (m)</label><input data-op="${op.id}:b" inputmode="decimal" value="${esc(op.b)}"></div></div>
   <div class="grid3"><div><label>Vanaf ${ref} (m)</label><input data-op="${op.id}:pd" inputmode="decimal" value="${inV(Math.round(disp*100)/100)}"></div>
   ${op.soort==='deur'?`<div><label>Scharnier</label><select data-op="${op.id}:schd"><option value="near" ${(op.sch==='R')===fl?'selected':''}>${ref}</option><option value="far" ${(op.sch==='R')!==fl?'selected':''}>${ref==='links'?'rechts':'onder'}</option></select></div><div><label>Draait</label><select data-op="${op.id}:uit"><option value="0" ${!op.uit?'selected':''}>naar binnen</option><option value="1" ${op.uit?'selected':''}>naar buiten</option></select></div>`:'<div></div><div></div>'}</div>
   <div style="text-align:right;margin-top:6px"><button class="small del" data-opdel="${op.id}">Verwijderen</button></div></div>`}).join('')||'<p class="note">Nog geen deuren of ramen.</p>'}
  <div class="row" style="flex-wrap:wrap"><button class="small ghost" data-act="opadd" data-v="deur">+ Deur</button><button class="small ghost" data-act="opadd" data-v="raam">+ Raam</button><button class="small ghost" data-act="opadd" data-v="pui">+ Schuifpui</button><button class="small ghost" data-act="opadd" data-v="doorgang">+ Doorgang</button></div>
- <p class="note">Nieuwe opening komt op de gekozen wand (oranje), anders op wand 1.</p></div>
+ <p class="note">Makkelijker: kies boven de tekening Deur / Raam / Schuifpui / Doorgang en tik op de muur. Sleep een deur of raam in de tekening om hem te verschuiven (hij klikt vast in het midden en tegen de hoeken).</p></div>
  ${r.cat!=='buiten'&&r.cat!=='extern'?`<div class="card"><h3>Hoogte (voor de indeling wonen / overige inpandige ruimte)</h3><div class="grid2"><div><label>Hoogste punt (netto, m)</label><input data-f="hMax" inputmode="decimal" placeholder="optioneel" value="${esc(r.hMax)}"></div><div><label>Deel hoger dan 2,0 m (m²)</label><input data-f="d2" inputmode="decimal" placeholder="bij schuine kap" value="${esc(r.d2)}"></div></div>${res?`<div class="advies">${res.t}${res.cat&&res.cat!==r.cat?` <button class="small" data-act="cat" data-v="${res.cat}" style="margin-left:6px">Toepassen</button>`:''}</div>`:''}</div>`:''}`}
 function hoogteAdvies(r){const h=num(r.hMax),d2=num(r.d2);if(h==null)return null;
  if(h<1.5)return{t:'Hoogste punt lager dan 1,5 m: telt niet mee voor de gebruiksoppervlakte.',cat:'nvt'};
@@ -537,6 +634,10 @@ document.addEventListener('click',async ev=>{const a=ev.target.closest('[data-ac
  switch(act){
  case'nieuw':{const p=nieuwProject();const id=new URLSearchParams(location.search).get('opname');store.projecten.push(p);save();openProject(p);break}
  case'lijst':scherm='lijst';render();break;
+ case'tekenmodus':TM=TM?null:{pts:[],hover:null,down:null};if(TM&&PM){PM=null;$$('#pmBar [data-act=pm]').forEach(b=>b.className='ghost')}if(TM){sel=null;selEdge=-1}teken();tekenUI();panel();if(TM)toast('Tekenen: tik hoeken aan of trek de omtrek');break;
+ case'pm':PM=PM===a.dataset.v?null:a.dataset.v;if(PM&&TM){TM=null;tekenUI()}$$('#pmBar [data-act=pm]').forEach(b=>b.className=b.dataset.v===PM?'':'ghost');if(PM)toast('Tik op een muur om '+({deur:'een deur',raam:'een raam',pui:'een schuifpui',doorgang:'een doorgang'}[PM])+' te plaatsen');panel();break;
+ case'opflip':case'opdraai':case'opzijde':if(r){const op=r.ops.find(o=>o.id===a.dataset.v);if(op){pushUndo();if(act==='opflip')op.sch=op.sch==='R'?'L':'R';else if(act==='opdraai')op.uit=!op.uit;opnieuw();panel()}}break;
+ case'tmterug':if(TM){TM.pts.pop();teken();panel()}break;case'tmklaar':if(TM&&TM.pts.length>=3)maakKamer(TM.pts);break;
  case'fit':fit();teken();break;case'zin':zoom(1/1.3);teken();break;case'zuit':zoom(1.3);teken();break;case'undo':undo();break;
  case'vadd':{pushUndo();const n=cur.verdiepingen.length;const max=Math.max(...cur.verdiepingen.map(v=>+v.laag||0));const keuze=await kies('Welke bouwlaag?',['Verdieping erboven ('+(max)+'e verdieping)','Zolder','Kelder / souterrain','Eigen naam (later aanpassen)']);if(keuze==null)return;
   const v=keuze===1?nieuweVerd('Zolder',max+1):keuze===2?nieuweVerd('Kelder',0):keuze===0?nieuweVerd(max+'e verdieping',max+1):nieuweVerd('Bouwlaag '+(n+1),max+1);if(keuze===1){v.kap='kap'}
@@ -567,7 +668,7 @@ document.addEventListener('click',async ev=>{const a=ev.target.closest('[data-ac
  case'edraai':if(el){pushUndo();el.rot=((el.rot||0)+90)%360;opnieuw();panel()}break;
  case'pdf':maakPdf();break;case'jpg':deelAfbeeldingen(a.dataset.v||'jpg');break;case'fml':downloadFML();break;
  case'opt':cur.instel[a.dataset.v]=!cur.instel[a.dataset.v];save();exportScherm();break;
- case'stijl':cur.instel.stijl=a.dataset.v;save();exportScherm();break;
+ case'stijl':cur.instel.stijl=a.dataset.v;save();exportScherm();break;case'deurstijl':cur.instel.deur=a.dataset.v;save();if(scherm==='export')exportScherm();else{teken();panel()}break;
  case'refidlees':$('#fmlIn').click();break;
  }});
 window.addEventListener('resize',()=>{if(scherm==='tekenen'&&VB){const{w,h}=cvMaat();VB.h=VB.w*h/w;zetVB();teken()}});
@@ -602,6 +703,7 @@ function meetstaat(){const{L,tot}=berekenAlles();const bagO=num(cur.bag?.oppervl
 function exportScherm(){const ins=cur.instel;const opt=(k,l)=>`<button class="${ins[k]?'on':''}" data-act="opt" data-v="${k}">${l}</button>`;
  $('#app').innerHTML=`<div class="card"><h2>Export</h2>
  <label>Tekening</label><div class="choice">${opt('m2','m² per ruimte')}${opt('maten','Maten per ruimte')}${opt('buitenmaten','Buitenmaten')}${opt('noord','Noordpijl')}${opt('schaal','Schaalbalk')}${opt('adres','Adres in titel')}${opt('oppTitel','m² onder titel')}${opt('bron','Bronvermelding')}</div>
+ <label>Deursymbool</label><div class="choice"><button class="${(ins.deur||'boog')==='boog'?'on':''}" data-act="deurstijl" data-v="boog">Draairichting (blad + boog)</button><button class="${ins.deur==='streep'?'on':''}" data-act="deurstijl" data-v="streep">Streep (alleen deurblad)</button></div>
  <label>Stijl</label><div class="choice"><button class="${(ins.stijl||THEMA_STD)==='premium'?'on':''}" data-act="stijl" data-v="premium">Premium (hout, tegels, schaduw)</button><button class="${ins.stijl==='funda'?'on':''}" data-act="stijl" data-v="funda">Strak (wit / antraciet)</button><button class="${ins.stijl==='warm'?'on':''}" data-act="stijl" data-v="warm">Warm (vloertint)</button></div>
  <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
  <button data-act="pdf">📄 Meetrapport met plattegronden (PDF)</button>
