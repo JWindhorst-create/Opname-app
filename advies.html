@@ -323,7 +323,7 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .rpt .s2-boog{position:absolute;top:0;left:0;width:210mm;height:297mm}
 .rpt .s2-spruit{position:absolute;left:122.2mm;top:62.4mm;width:82.5mm;height:288.9mm;opacity:.95}
 .rpt .s2-txt{position:absolute;top:182.6mm;left:16.9mm;width:104mm;color:#fff;display:flex;flex-direction:column;gap:2.6mm}
-.rpt .s2-txt .k{font-size:9pt;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:#C8E4D0}
+.rpt .s2-txt .k{font-size:9pt;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:#C8E4D0;display:flex;align-items:center;flex-wrap:nowrap;white-space:nowrap;gap:3mm}.rpt .s2-cb{display:inline-block;background:#FFB81C;color:#3a2600;font-size:9.5pt;font-weight:800;letter-spacing:2.4px;padding:1.3mm 3.6mm;border-radius:1.2mm;box-shadow:0 0 0 .6mm rgba(255,184,28,.35)}
 .rpt .s2-txt h1{margin:0;font-size:32pt;line-height:1.04;font-weight:800;color:#fff;text-wrap:balance}
 .rpt .s2-txt .s{font-size:13pt;color:#E3F1E7;line-height:1.35}
 .rpt .s2-meta{position:absolute;top:236mm;left:16.9mm;width:104mm;display:grid;grid-template-columns:1fr 1fr;gap:3.2mm 4.2mm;color:#fff;border-top:.75pt solid rgba(255,255,255,.35);padding-top:3.7mm;font-size:10pt}
@@ -807,10 +807,9 @@ async function prepS2Logo(){const src=bpLogo();if(S2_WL&&S2_WLsrc===src)return S
 function s2Cover(o){const st=S.settings;return`
  <div class="s2-foto" style="${o.foto?`background-image:url(${o.foto})`:''}">${o.foto?'':ico('camera',16)}</div>
  <div class="s2-shade"></div><img class="s2-logo${S2_WL?' wl':''}" src="${S2_WL||bpLogo()}" alt="">
- ${o.concept?'<div class="s2-concept">CONCEPT</div>':''}
  <svg class="s2-boog" viewBox="0 0 794 1123" preserveAspectRatio="none" aria-hidden="true"><path d="M0 632 C 360 632, 600 586, 794 470 L 794 1123 L 0 1123 Z" fill="${st.kleur||'#2D6042'}"/></svg>
  <svg class="s2-spruit" viewBox="0 0 120 420" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M60 70 C 40 55, 40 25, 60 8 C 80 25, 80 55, 60 70 Z"/><path d="M60 70 V420"/><path d="M36 420 V108 C 36 90, 24 82, 10 82 C 8 98, 18 108, 36 108"/><path d="M84 420 V108 C 84 90, 96 82, 110 82 C 112 98, 102 108, 84 108"/></svg>
- <div class="s2-txt"><div class="k">${o.kick}</div><h1>${o.titel}</h1><div class="s">${o.sub}</div></div>
+ <div class="s2-txt"><div class="k">${o.kick}${o.concept?'<span class="s2-cb">Concept</span>':''}</div><h1>${o.titel}</h1><div class="s">${o.sub}</div></div>
  <div class="s2-meta">${o.meta.map(([l,v])=>`<div><span>${l}</span><b>${v||'–'}</b></div>`).join('')}</div>
  <div class="s2-co">${[st.adres,st.tel,st.email,st.web,st.kvk?'KvK '+st.kvk:''].filter(Boolean).map(esc).join(' · ')}</div>`}
 /* ---------- rapport: secties ---------- */
