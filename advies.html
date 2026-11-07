@@ -807,7 +807,7 @@ async function prepS2Logo(){const src=bpLogo();if(S2_WL&&S2_WLsrc===src)return S
 function s2Cover(o){const st=S.settings;return`
  <div class="s2-foto" style="${o.foto?`background-image:url(${o.foto})`:''}">${o.foto?'':ico('camera',16)}</div>
  <div class="s2-shade"></div><img class="s2-logo${S2_WL?' wl':''}" src="${S2_WL||bpLogo()}" alt="">
- <svg class="s2-boog" viewBox="0 0 794 1123" preserveAspectRatio="none" aria-hidden="true"><path d="M0 632 C 360 632, 600 586, 794 470 L 794 1123 L 0 1123 Z" fill="${st.kleur||'#2D6042'}"/></svg>
+ <svg class="s2-boog" viewBox="0 0 794 1123" preserveAspectRatio="none" aria-hidden="true"><path d="M0 632 C 360 632, 600 586, 794 470 L 794 1123 L 0 1123 Z" fill="${st.kleur||'#2D6042'}"/><path d="M-4 632 C 360 632, 600 586, 798 468" fill="none" stroke="#A8D5B5" stroke-width="7"/></svg>
  <svg class="s2-spruit" viewBox="0 0 120 420" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M60 70 C 40 55, 40 25, 60 8 C 80 25, 80 55, 60 70 Z"/><path d="M60 70 V420"/><path d="M36 420 V108 C 36 90, 24 82, 10 82 C 8 98, 18 108, 36 108"/><path d="M84 420 V108 C 84 90, 96 82, 110 82 C 112 98, 102 108, 84 108"/></svg>
  <div class="s2-txt"><div class="k">${o.kick}${o.concept?'<span class="s2-cb">Concept</span>':''}</div><h1>${o.titel}</h1><div class="s">${o.sub}</div></div>
  <div class="s2-meta">${o.meta.map(([l,v])=>`<div><span>${l}</span><b>${v||'–'}</b></div>`).join('')}</div>
