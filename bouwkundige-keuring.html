@@ -1324,8 +1324,8 @@ function buildSections(){
     <div class="cv-photo" style="${o.voorgevel?`background-image:url(${o.voorgevel})`:''}">${o.voorgevel?'':ico('camera',14)}</div>
     <div class="cv-kpi">
       <div>${ico('euro',10)}<div><span>Totale herstelkosten</span><b>${eur(T.tot)}</b></div></div>
-      <div>${ico('gauge',10)}<div><span>Gemiddelde conditie</span><b>${T.avg?T.avg.toFixed(1)+' <small style="font-size:8.5pt;font-weight:400;color:#6E6E6E">'+COND[Math.round(T.avg)].l.toLowerCase()+'</small>':'–'}</b></div></div>
-      <div>${ico('clip',10)}<div><span>Bevindingen</span><b>${B.length}${T.pct!=null?` <small style="font-size:8.5pt;font-weight:400;color:#6E6E6E">· staat ${T.pct.toFixed(1)}%</small>`:''}</b></div></div></div>
+      <div>${ico('gauge',10)}<div><span>Gemiddelde conditie</span><b>${T.avg?T.avg.toFixed(1).replace('.',',')+' <small style="font-size:8.5pt;font-weight:400;color:#6E6E6E">'+COND[Math.round(T.avg)].l.toLowerCase()+'</small>':'–'}</b></div></div>
+      <div>${ico('clip',10)}<div><span>Bevindingen</span><b>${B.length}${T.pct!=null?` <small style="font-size:8.5pt;font-weight:400;color:#6E6E6E">· ${T.pct.toFixed(1).replace('.',',')}% v.d. herbouwwaarde</small>`:''}</b></div></div></div>
     <div class="cv-meta">
       <div><span>Rapportnummer</span>${esc(k.rapportnr)}</div><div><span>Versie / status</span>${esc(k.versie||'1.0')} <span class="status ${concept?'concept':'def'}">${concept?'CONCEPT':'DEFINITIEF'}</span></div><div><span>Inspectiedatum</span>${fmtDate(o.datum)}${o.tijd?', '+esc(o.tijd)+' uur':''}</div>
       <div><span>Opdrachtgever</span>${esc(o.opdrachtgever||'–')}</div><div><span>Bouwkundig inspecteur</span>${esc(o.inspecteur||'–')}</div><div><span>Registratienummer</span>${esc(o.registratie||'–')}</div></div>
