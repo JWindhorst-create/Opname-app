@@ -1081,6 +1081,7 @@ function verbruikFactor(a,H){const g=num(a.obj.verbruikGas);if(!(g>0)||!(H.r.gas
 /* ---------- OBJECT ---------- */
 function vObject(){const o=S.cur.obj;
  $('#view').innerHTML=`
+ <div class="card"><h2>Foto voorgevel</h2><p class="muted" style="margin:-4px 0 10px">Liggende foto van de voorgevel; deze komt groot op het voorblad van het rapport.</p><div class="photos" id="vgPh"></div></div>
  <div class="card"><h2>A · Opdracht</h2>
   <label>Soort advies</label><div class="seg" data-seg="obj.soort" data-rerender="1">${Object.entries(SOORT).map(([k,v])=>`<button data-v="${k}">${esc(v.l.replace(' (BRL 9500-MWA)',''))}</button>`).join('')}</div>
   <p class="muted" style="margin:6px 0 0">${o.soort==='maatwerk'?'<b>Maatwerkadvies:</b> gecertificeerd volgens BRL 9500-MWA (ISSO 82.2 woningen / 75.2 utiliteit). Gebruik dit advies om de pakketten samen te stellen; reken de pakketten in Vabi (maatwerkadvies) door, vul het EP2 uit Vabi per pakket in en registreer het advies in EP-Online.':o.soort==='dumava'?'<b>DUMAVA:</b> energieadvies voor losse maatregelen of maatwerkadvies (BRL 9500-MWA-U, geregistreerd in EP-Online) voor een integraal project: minimaal 3 labelstappen tot minimaal label B. De maatregelen worden getoetst aan de technische eisen van de maatregelenlijst 2026.':'<b>Verbeteradvies:</b> advies op basis van de opname met maatregelenpakketten naar het gekozen doellabel, materialen en kwaliteitsverklaringen.'}</p>
@@ -1097,7 +1098,6 @@ function vObject(){const o=S.cur.obj;
   ${F('obj.label','Huidig energielabel')}${F('obj.ep2Label','EP2 huidig label (kWh/m²·jr)','number','','uit het label / Vabi')}
   ${F('obj.labelInfo','Herkomst energielabel','text','full')}</div>
   <p class="muted" style="margin:6px 0 0">Het <b>EP2</b> van de huidige situatie (uit het geregistreerde label of de Vabi-berekening van de opname) is de basis voor de kalibratie: alle maatregelen worden ten opzichte daarvan doorgerekend.</p>
-  <label>Foto voorgevel (voorblad)</label><div class="photos" id="vgPh"></div>
   <p class="muted" id="bagMsg"></p></div>
  <div class="card"><h2>C · Intake en werkelijk verbruik</h2><div class="grid">
   ${TA('obj.wensen','Wensen en uitgangspunten opdrachtgever (intake: comfort, budget, planning, gasloos, monument…)')}

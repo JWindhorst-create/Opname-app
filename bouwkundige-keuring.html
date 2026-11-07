@@ -525,6 +525,8 @@ function hbUitleg(k){const a=hbAuto(k),inh=num(k.obj.inhoud),eigen=num(k.herbouw
 function vObject(){
   const o=S.cur.obj;
   $('#view').innerHTML=`
+  <div class="card"><h2>Foto voorgevel</h2><p class="muted" style="margin:-4px 0 10px">Liggende foto van de voorgevel; deze komt groot op het voorblad van het rapport.</p>
+    <div class="photos" id="vgPh"></div></div>
   <div class="card"><h2>A · Opdracht</h2><div class="grid">
     ${SEL('obj.doel','Soort keuring',['Aankoopkeuring','Verkoopkeuring','Opleveringskeuring','Onderhoudsinspectie'])}
     <div><label>NHG-kostensamenvatting opnemen</label><div class="seg" data-seg="obj.nhg"><button data-v="ja">Ja</button><button data-v="nee">Nee</button></div></div>
@@ -547,8 +549,6 @@ function vObject(){
     ${F('obj.label','Energielabel (EP-Online)')}${F('obj.labelInfo','Herkomst energielabel')}${F('obj.verwarming','Verwarming (bijv. HR-ketel, warmtepomp)')}
     ${F('obj.ketel','Bouwjaar / merk ketel')}${F('obj.weer','Weersomstandigheden')}
     </div>
-    <label>Foto voorgevel (voorblad)</label>
-    <div class="photos" id="vgPh"></div>
     <p class="muted" id="bagMsg"></p><p class="muted src-leg"><span class="src">BAG</span> <span class="src">3D BAG</span> <span class="src">EP-Online</span> <span class="src">BRO/RVO</span> = automatisch opgehaald uit openbare registraties; <span class="src gew">aangepast</span> = daarna door de inspecteur gewijzigd.</p>
   </div>
   <div class="card"><h2>Herbouwwaarde (voor bouwtechnische staat)</h2><div class="grid">
