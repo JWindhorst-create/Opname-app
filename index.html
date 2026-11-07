@@ -74,6 +74,20 @@ body.in-view .topbar .back{display:inline-flex}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .tile-group{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--g700);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--g200)}
 .tile-group:first-child{margin-top:0}
+.hg-grid[hidden],.hg-panel[hidden]{display:none!important}
+.hg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.hg-kaart{display:grid;grid-template-columns:52px 1fr;grid-template-rows:1fr auto;column-gap:14px;text-align:left;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;font:inherit;color:inherit;transition:box-shadow .15s,transform .15s,border-color .15s}
+.hg-kaart:hover{box-shadow:0 6px 18px rgba(45,96,66,.14);transform:translateY(-1px);border-color:#B0CEBA}
+.hg-ic{grid-row:1/3;width:52px;height:52px;border-radius:12px;background:#E3EFE7;color:#2D6042;display:flex;align-items:center;justify-content:center}
+.hg-tekst h2{font-size:17px;margin:2px 0 4px;color:#1d3a2a;display:flex;align-items:center;gap:8px}
+.hg-n{font-size:12px;font-weight:700;background:#2D6042;color:#fff;border-radius:99px;padding:1px 8px}
+.hg-tekst p{margin:0 0 6px;font-size:14px;color:var(--g700)}
+.hg-tekst small{display:block;font-size:12px;color:#6b7c73;line-height:1.45}
+.hg-kaart .go{grid-column:2;font-size:13px;font-weight:600;color:#2D6042;margin-top:8px}
+.hg-kop{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.hg-terug{border:1px solid #B0CEBA;background:#fff;color:#2D6042;border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;cursor:pointer}
+@media (max-width:640px){.hg-grid{grid-template-columns:1fr}.hg-kaart{padding:14px}}
+
 .tile{display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto 1fr;column-gap:12px;row-gap:3px;align-items:start;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-height:0;color:inherit;transition:transform .12s,box-shadow .12s,border-color .12s}
 .tile:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(36,92,69,.12);border-color:var(--g300)}
 .tile .ic{grid-row:1/3;width:38px;height:38px;border-radius:9px;background:var(--g100);display:flex;align-items:center;justify-content:center;color:var(--g800)}
@@ -744,18 +758,46 @@ body.v-opname{background-image:none!important}
 
 <!-- ===== HOME ===== -->
 <main class="view" id="view-home">
- <h2 class="tile-group">Dossiervorming en opname</h2>
- <div class="tiles">
+ <div class="hg-grid" id="hg-grid">
+  <button class="hg-kaart" type="button" data-hg="energie">
+   <div class="hg-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-5h6v5"/></svg></div>
+   <div class="hg-tekst"><h2>Energielabels: opname en dossier <span class="hg-n">7</span></h2><p>Opname op locatie, objectdossier, complexen, onderbouwing en advies.</p><small>Opname app energielabels · Objectdossier · Complexgegevens · Uitvoerlijst woningen · Vooropname documenten · Onderbouwing · Verbeter- en maatwerkadvies</small></div>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="hg-kaart" type="button" data-hg="reken">
+   <div class="hg-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
+   <div class="hg-tekst"><h2>Rekenhulpen NTA 8800 / ISSO <span class="hg-n">4</span></h2><p>Rc, zonering, beslisschema’s en kleine rekenhulpen.</p><small>Rc-berekening constructies · Zonering utiliteit · Beslisschema’s · Kleine rekenhulpen</small></div>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="hg-kaart" type="button" data-hg="bouw">
+   <div class="hg-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 12h7v9M14 3v7h7"/></svg></div>
+   <div class="hg-tekst"><h2>Bouwkundig en meten <span class="hg-n">3</span></h2><p>Bouwkundige keuring, plattegrond NEN 2580 en funderingsdossier.</p><small>Bouwkundige keuring · Plattegrond NEN 2580 · Funderingsdossier</small></div>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="hg-kaart" type="button" data-hg="admin">
+   <div class="hg-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+   <div class="hg-tekst"><h2>Administratie en dossiers <span class="hg-n">3</span></h2><p>Projectmappen, foto’s sorteren en bestanden naar het dossier.</p><small>Projectmappen aanmaken · Foto's sorteren · Bestanden naar dossier</small></div>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="hg-kaart" type="button" data-hg="bronnen-grp">
+   <div class="hg-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+   <div class="hg-tekst"><h2>Bronnen en naslag</h2><p>Geldende normen en documenten: NTA 8800, ISSO, BRL 9500, KEGO, NEN 2580, NTA 8060.</p><small>Bronnen</small></div>
+   <span class="go">Openen →</span>
+  </button>
+ </div>
+ <div class="hg-panel" id="hg-energie" hidden>
+  <div class="hg-kop"><button type="button" class="hg-terug" data-hgterug>← Alle groepen</button><h2 class="tile-group" style="margin:0;border:0;padding:0">Energielabels: opname en dossier</h2></div>
+  <div class="tiles">
+  <button class="tile" type="button" id="tile-opname-app" data-pagina="opname.html" title="Opname app energielabels openen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/><path d="M11 19h2"/></svg></div>
+   <h2>Opname app energielabels <span class="badge">in onderhoud</span></h2>
+   <p>Op locatie op de telefoon de opname invoeren: BAG-gegevens, voorgevel aanklikken, dak met driehoeksberekening, gevels en installaties in Vabi-volgorde.</p>
+   <span class="go">Openen →</span>
+  </button>
   <button class="tile" type="button" data-open="gevel">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/><circle cx="18.5" cy="4.5" r="0"/></svg></div>
    <h2>Objectdossier</h2>
    <p>BAG en gevels, met opnameformulier, Vabi-bestand en Bijlage 4.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" data-open="uitvoer">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h10v16H5V8z"/><path d="M9 4v4H5"/><path d="M9 12l1.5 1.5L13 11M9 17l1.5 1.5L13 16M15 12h1M15 17h1"/></svg></div>
-   <h2>Uitvoerlijst woningen</h2>
-   <p>Printscreen met adressen inlezen, aanvinken wat nog opgevraagd moet worden (CV, MV, TP, PV, isolatie) en de lijst als PDF.</p>
    <span class="go">Openen →</span>
   </button>
   <button class="tile" type="button" data-open="schetsen">
@@ -764,9 +806,35 @@ body.v-opname{background-image:none!important}
    <p>Complexen met hun referentiewoningen: adres, voorgevel op de BAG-kaart, foto’s van de opname uitlezen en een modeltekening op schaal. Uitvoer als PDF en Vabi-bestand (.epa).</p>
    <span class="go">Openen →</span>
   </button>
+  <button class="tile" type="button" data-open="uitvoer">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h10v16H5V8z"/><path d="M9 4v4H5"/><path d="M9 12l1.5 1.5L13 11M9 17l1.5 1.5L13 16M15 12h1M15 17h1"/></svg></div>
+   <h2>Uitvoerlijst woningen</h2>
+   <p>Printscreen met adressen inlezen, aanvinken wat nog opgevraagd moet worden (CV, MV, TP, PV, isolatie) en de lijst als PDF.</p>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="tile" type="button" data-open="projectdossier">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 11h6M9 15h6M9 7h6"/></svg></div>
+   <h2>Vooropname documenten <span class="badge">in onderhoud</span></h2>
+   <p>Aangeleverde documenten inlezen: constructies en installaties met bron, vóór de opname.</p>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="tile" type="button" data-open="onderbouwing">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5"/><path d="M14 2v6h6v3"/><path d="M8 13h5M8 17h3"/><path d="M18.4 13.6a1.9 1.9 0 0 1 2.7 2.7L16 21.4l-3.4.9.9-3.4z"/></svg></div>
+   <h2>Onderbouwing <span class="badge">in onderhoud</span></h2>
+   <p>Al pratend je waarnemingen inspreken; per onderdeel een onderbouwing met ISSO 82.1 / 75.1 en NTA 8800, als PDF op briefpapier.</p>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="tile" type="button" id="tile-advies" data-pagina="advies.html" title="Verbeter- en maatwerkadvies openen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 16v-4M10 16V9M14 16v-6M18 16V5"/><path d="m15 5 3-3 3 3"/></svg></div>
+   <h2>Verbeter- en maatwerkadvies <span class="badge">in onderhoud</span></h2>
+   <p>Vanuit de opname automatisch maatregelenpakketten naar het doellabel (bijv. 5 pakketten naar A en A+): materialen, BCRG-verklaringen, gewijzigde GO en warmtecapaciteit, Vabi-invoer per pakket, DUMAVA-toets en rapport.</p>
+   <span class="go">Openen →</span>
+  </button>
+  </div>
  </div>
- <h2 class="tile-group">Rekenhulpen NTA 8800 / ISSO 82.1 en 75.1</h2>
- <div class="tiles">
+ <div class="hg-panel" id="hg-reken" hidden>
+  <div class="hg-kop"><button type="button" class="hg-terug" data-hgterug>← Alle groepen</button><h2 class="tile-group" style="margin:0;border:0;padding:0">Rekenhulpen NTA 8800 / ISSO</h2></div>
+  <div class="tiles">
   <button class="tile" type="button" data-open="rc">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v18M9 3v18M15 3v18M20 3v18"/><path d="M9 7h6M9 11h6M9 15h6"/></svg></div>
    <h2>Rc-berekening constructies</h2>
@@ -791,18 +859,34 @@ body.v-opname{background-image:none!important}
    <p>Driehoekmeter, gevelkompas, interpoleren, dakvlakken uit 3D BAG, ramen en deuren, glas in deur, PV verdeler, EP2-bandbreedte en kWh/MJ omrekenen.</p>
    <span class="go">Openen →</span>
   </button>
+  </div>
  </div>
- <h2 class="tile-group">Bouwkundig</h2>
- <div class="tiles">
+ <div class="hg-panel" id="hg-bouw" hidden>
+  <div class="hg-kop"><button type="button" class="hg-terug" data-hgterug>← Alle groepen</button><h2 class="tile-group" style="margin:0;border:0;padding:0">Bouwkundig en meten</h2></div>
+  <div class="tiles">
+  <button class="tile" type="button" id="tile-bouwkundige-keuring" data-pagina="bouwkundige-keuring.html" title="Bouwkundige keuring openen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="m9 15 2 2 4-4"/></svg></div>
+   <h2>Bouwkundige keuring <span class="badge">in onderhoud</span></h2>
+   <p>Bouwkundige keuring bij aan- of verkoop volgens NTA 8060 en NHG: opname op locatie, direct een rapport op briefpapier.</p>
+   <span class="go">Openen →</span>
+  </button>
+  <button class="tile" type="button" id="tile-plattegrond" data-pagina="plattegrond.html" title="Plattegrond NEN 2580 openen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 12h7v9M14 3v7h7M14 14h2"/></svg></div>
+   <h2>Plattegrond NEN 2580 <span class="badge">nieuw</span></h2>
+   <p>Woning per ruimte inmeten: GO en bruto inhoud volgens de meetinstructie, plattegrond voor Funda, meetrapport en FML voor Floorplanner.</p>
+   <span class="go">Openen →</span>
+  </button>
   <button class="tile" type="button" data-open="fundering">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 5l8 6"/><path d="M6 10v6h12v-6"/><path d="M3 16h18"/><path d="M6 16v5M10 16v5M14 16v5M18 16v5"/></svg></div>
    <h2>Funderingsdossier</h2>
    <p>Fundering bij koop en verkoop: funderingsviewer (RVO/KCAF) op de kaart, BAG, bronnen voor de bureaustudie, waarnemingen en PDF.</p>
    <span class="go">Openen →</span>
   </button>
+  </div>
  </div>
- <h2 class="tile-group">Administratie en dossiers</h2>
- <div class="tiles">
+ <div class="hg-panel" id="hg-admin" hidden>
+  <div class="hg-kop"><button type="button" class="hg-terug" data-hgterug>← Alle groepen</button><h2 class="tile-group" style="margin:0;border:0;padding:0">Administratie en dossiers</h2></div>
+  <div class="tiles">
   <button class="tile" type="button" data-open="mappen">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v5M9.5 13.5h5"/></svg></div>
    <h2>Projectmappen aanmaken</h2>
@@ -815,57 +899,24 @@ body.v-opname{background-image:none!important}
    <p>Map met opnamefoto's kiezen: het dashboard herkent CV-ketel, MV-box, ventielen, kozijnen, gevel, vloer enz. en verdeelt ze in mappen.</p>
    <span class="go">Openen →</span>
   </button>
-    <button class="tile" type="button" data-open="bronnen">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg></div>
-   <h2>Bronnen</h2>
-   <p>Geldende NTA 8800, ISSO 75.1 / 82.1, BRL 9500, errata, wijzigingsdocumenten en KEGO, plus NEN 2580 / meetinstructie (NVM) en NTA 8060 / NHG – met links en je eigen KEGO-vragen en antwoorden.</p>
-   <span class="go">Openen →</span>
-  </button>
- </div>
- <h2 class="tile-group">In onderhoud</h2>
- <div class="tiles">
-  <button class="tile" type="button" id="tile-opname-app" data-pagina="opname.html" title="Opname app energielabels openen">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/><path d="M11 19h2"/></svg></div>
-   <h2>Opname app energielabels <span class="badge">in onderhoud</span></h2>
-   <p>Op locatie op de telefoon de opname invoeren: BAG-gegevens, voorgevel aanklikken, dak met driehoeksberekening, gevels en installaties in Vabi-volgorde.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" id="tile-plattegrond" data-pagina="plattegrond.html" title="Plattegrond NEN 2580 openen">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 12h7v9M14 3v7h7M14 14h2"/></svg></div>
-   <h2>Plattegrond NEN 2580 <span class="badge">nieuw</span></h2>
-   <p>Woning per ruimte inmeten: GO en bruto inhoud volgens de meetinstructie, plattegrond voor Funda, meetrapport en FML voor Floorplanner.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" id="tile-bouwkundige-keuring" data-pagina="bouwkundige-keuring.html" title="Bouwkundige keuring openen">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="m9 15 2 2 4-4"/></svg></div>
-   <h2>Bouwkundige keuring <span class="badge">in onderhoud</span></h2>
-   <p>Bouwkundige keuring bij aan- of verkoop volgens NTA 8060 en NHG: opname op locatie, direct een rapport op briefpapier.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" id="tile-advies" data-pagina="advies.html" title="Verbeter- en maatwerkadvies openen">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 16v-4M10 16V9M14 16v-6M18 16V5"/><path d="m15 5 3-3 3 3"/></svg></div>
-   <h2>Verbeter- en maatwerkadvies <span class="badge">in onderhoud</span></h2>
-   <p>Vanuit de opname automatisch maatregelenpakketten naar het doellabel (bijv. 5 pakketten naar A en A+): materialen, BCRG-verklaringen, gewijzigde GO en warmtecapaciteit, Vabi-invoer per pakket, DUMAVA-toets en rapport.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" data-open="onderbouwing">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5"/><path d="M14 2v6h6v3"/><path d="M8 13h5M8 17h3"/><path d="M18.4 13.6a1.9 1.9 0 0 1 2.7 2.7L16 21.4l-3.4.9.9-3.4z"/></svg></div>
-   <h2>Onderbouwing <span class="badge">in onderhoud</span></h2>
-   <p>Al pratend je waarnemingen inspreken; per onderdeel een onderbouwing met ISSO 82.1 / 75.1 en NTA 8800, als PDF op briefpapier.</p>
-   <span class="go">Openen →</span>
-  </button>
-  <button class="tile" type="button" data-open="projectdossier">
-   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 11h6M9 15h6M9 7h6"/></svg></div>
-   <h2>Vooropname documenten <span class="badge">in onderhoud</span></h2>
-   <p>Aangeleverde documenten inlezen: constructies en installaties met bron, vóór de opname.</p>
-   <span class="go">Openen →</span>
-  </button>
   <button class="tile" type="button" data-open="sorteren">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14h6M13 11.5 15.5 14 13 16.5"/></svg></div>
    <h2>Bestanden naar dossier <span class="badge">in onderhoud</span></h2>
    <p>Excel-rapportage, EPA-bestand, monitorbestand en energielabel automatisch in de juiste dossiermap zetten.</p>
    <span class="go">Openen →</span>
   </button>
+  </div>
+ </div>
+ <div class="hg-panel" id="hg-bronnen-grp" hidden>
+  <div class="hg-kop"><button type="button" class="hg-terug" data-hgterug>← Alle groepen</button><h2 class="tile-group" style="margin:0;border:0;padding:0">Bronnen en naslag</h2></div>
+  <div class="tiles">
+  <button class="tile" type="button" data-open="bronnen">
+   <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg></div>
+   <h2>Bronnen</h2>
+   <p>Geldende NTA 8800, ISSO 75.1 / 82.1, BRL 9500, errata, wijzigingsdocumenten en KEGO, plus NEN 2580 / meetinstructie (NVM) en NTA 8060 / NHG – met links en je eigen KEGO-vragen en antwoorden.</p>
+   <span class="go">Openen →</span>
+  </button>
+  </div>
  </div>
 </main>
 
@@ -2118,7 +2169,7 @@ const HELP={
  klein:[
   {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Driehoekmeter</b> – Driehoek &amp; dak: dakvlak, hellingshoek, GO en dakvormen.</li><li><b>Gevelkompas</b> – oriëntatie van een gevel meten met je telefoon.</li><li><b>Dakvlakken uit 3D BAG</b> – 3D-model met alle schuine en platte dakvlakken (m², helling, oriëntatie), voor als het dak niet bereikbaar is.</li><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li></ul>Dakvormen staan bij de <b>Driehoekmeter</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
  home:[
-  {at:'.tile',t:'Het dashboard',b:'Elke tegel opent een hulpmiddel. Op elke pagina staat bovenin <b>← Dashboard</b> om terug te gaan en een <b>?</b> met de uitleg van díe pagina, met pijlen langs de knoppen.'},
+  {at:'.hg-kaart',t:'Het dashboard',b:'De hulpmiddelen staan in <b>hoofdgroepen</b>. Tik op een groep om de tegels te zien; met <b>← Alle groepen</b> ga je terug. Elke tegel opent een hulpmiddel. Op elke pagina staat bovenin <b>← Dashboard</b> om terug te gaan en een <b>?</b> met de uitleg van díe pagina, met pijlen langs de knoppen.'},
   {at:'#spMic',t:'Inspreken met de microfoon',b:'Tik in een invulveld en daarna op de groene microfoon rechtsonder, en zeg de waarde (bijv. <i>drie komma vijf</i> of <i>veertig graden</i>). Zeg <b>volgende</b> om naar het volgende veld te gaan of <b>wissen</b> om het veld leeg te maken. Zonder veld gekozen kun je een pagina of knop noemen, bijv. <i>driehoekmeter</i>, <i>dakvormen</i>, <i>beslisschema’s</i> of <i>terug</i>. Werkt in Chrome op de telefoon (internet nodig).'},{t:'Waar staat je werk?',b:'Wat je invoert wordt in deze browser bewaard (niet online). Op een andere computer of telefoon zie je het dus niet, tenzij je een back-up of export meeneemt.<br><br>Open je het dashboard opnieuw, dan zijn de adresvelden leeg; je bewaarde werk blijft gewoon staan.'}],
  gevel:[
   {at:'gevel-frame|#search-card',t:'1. Adres zoeken',b:'Typ een adres of postcode + huisnummer en klik op <b>Zoek adres</b>. De BAG-gegevens (bouwjaar, oppervlakte, pand) en het 3DBAG-model worden opgehaald.'},
@@ -7090,6 +7141,12 @@ ensureViewer();window.addEventListener('hashchange',()=>setTimeout(()=>{markAll(
 (function(){const i=document.getElementById('bron-up');if(i)i.addEventListener('change',()=>{if(i.files&&i.files.length)bronUpload(i.files);i.value=''})})();window.elnBronMark=markAll;
 })();
 </script>
+<script>(function(){const grid=document.getElementById('hg-grid');if(!grid)return;
+ const toon=g=>{const ok=g&&document.getElementById('hg-'+g);grid.hidden=!!ok;document.querySelectorAll('.hg-panel').forEach(x=>x.hidden=!ok||x.id!=='hg-'+g);try{ok?sessionStorage.setItem('eln-hg',g):sessionStorage.removeItem('eln-hg')}catch(e){}if(ok)window.scrollTo(0,0)};
+ document.querySelectorAll('[data-hg]').forEach(b=>b.addEventListener('click',()=>{const t=document.querySelectorAll('#hg-'+b.dataset.hg+' .tile');if(t.length===1){t[0].click();return}toon(b.dataset.hg)}));
+ document.querySelectorAll('[data-hgterug]').forEach(b=>b.addEventListener('click',()=>toon(null)));
+ const hl=document.getElementById('home-link');if(hl)hl.addEventListener('click',()=>toon(null));
+ window.elnHoofdgroep=toon;try{const g=sessionStorage.getItem('eln-hg');if(g)toon(g)}catch(e){}})();</script>
 <script>(function(){document.querySelectorAll('[data-pagina]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.pagina;location.href=/^https?:/.test(location.protocol)?p:'https://dashboard-eln.pages.dev/'+p}))})();</script>
 </body>
 </html>
