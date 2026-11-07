@@ -106,6 +106,13 @@ function kies(tekst,lijst){return new Promise(res=>{const m=$('#modal'),k=$('#mk
  k.onclick=e=>{const b=e.target.closest('[data-kz]');if(b)klaar(+b.dataset.kz)};$('#mnee').onclick=()=>klaar(null)})}
 
 // ---------- definities ----------
+const NORM={bbmi:{k:'Meetinstructie (NVM / BBMI)',l:'Meetinstructie gebruiksoppervlakte en bruto inhoud woningen (juli 2019), gebaseerd op NEN 2580',kort:'Gemeten volgens de meetinstructie (NVM/BBMI, juli 2019), gebaseerd op NEN 2580'},
+ nen2580:{k:'NEN 2580 (strikt)',l:'NEN 2580:2007+C1:2008 Oppervlakten en inhouden van gebouwen',kort:'Gemeten volgens NEN 2580:2007+C1:2008'}};
+const norm=()=>cur.norm==='nen2580'?'nen2580':'bbmi';
+const BRONNEN=[['NVM – Meetinstructie (branchebreed, Funda)','https://www.nvm.nl/wonen/verkopen/meetinstructie/'],['Meetinstructie gebruiksoppervlakte woningen (juli 2019)','https://www.nvm.nl/media/bqnjrtdg/meetinstructie-gebruiksoppervlakte-woningen-juli-2019.pdf'],
+ ['Meetinstructie bruto inhoud woningen (juli 2019)','https://repository.officiele-overheidspublicaties.nl/externebijlagen/exb-2022-2138/currentitem'],['Waarderingskamer – meetinstructies en lijst met vragen','https://www.waarderingskamer.nl/hulpmiddelen-gemeenten/meetinstructies-gebruiksoppervlakte-inhoud/'],
+ ['NEN 2580:2007 Oppervlakten en inhouden van gebouwen','https://www.nen.nl/nen-2580-2007-nl-113982'],['NEN 2580 correctieblad C1:2008','https://www.nen.nl/nen-2580-2007-c1-2008-nl-129082'],['NTA 2581 meetrapporten volgens NEN 2580','https://www.nen.nl/bouw/beheer-en-onderhoud/oppervlaktebepaling'],
+ ['Floorplanner FML v3.0-specificatie','https://floorplanner.readme.io/reference/v30-specification']];
 const CAT={wonen:{l:'Wonen',k:'GO wonen',c:'#1f6f5c'},oir:{l:'Overige inpandige ruimte',k:'Overige inpandige ruimte',c:'#b7791f'},buiten:{l:'Gebouwgebonden buitenruimte',k:'Buitenruimte',c:'#4f8a3a'},extern:{l:'Externe bergruimte',k:'Externe berging',c:'#6b5b95'},nvt:{l:'Telt niet mee',k:'Niet meetellen',c:'#8a8a8a'}};
 const CATUITLEG={wonen:'Alles wat niet onder de andere criteria valt (ook keuken, hal, badkamer, toilet, meterkast, trapkast, bijkeuken). Bij twijfel: wonen.',
  oir:'Hoogste punt tussen 1,5 en 2,0 m; of deel boven 2,0 m kleiner dan 4 m²; bouwkundig alleen bergruimte (kelder, garage, fietsenstalling, inpandige berging); bergzolder (geen vaste trap of raam < 0,5 m²).',
@@ -136,7 +143,7 @@ const NAT=/badkamer|toilet|douche|wasruimte|bijkeuken|wc\b/i;
 // ---------- project ----------
 function nieuweVerd(naam,laag){return{id:uid(),naam,laag,hoogte:'2,90',kap:'geen',hLaag:'',hHoog:'',oppKap:'',corr:'',corrTxt:'',ruimtes:[],els:[]}}
 function nieuwProject(){return{id:uid(),datum:new Date().toISOString(),adres:null,bag:null,opnameId:null,woningtype:'eengezins',opnemer:'',odatum:new Date().toISOString().slice(0,10),
- voorZijde:'onder',voorAz:null,noordHand:'',instel:{m2:true,maten:true,buitenmaten:true,noord:true,schaal:true,adres:false,stijl:'premium'},verdiepingen:[nieuweVerd('Begane grond',1)]}}
+ voorZijde:'onder',voorAz:null,noordHand:'',instel:{m2:true,maten:true,buitenmaten:true,noord:true,schaal:true,adres:false,stijl:'premium',bron:true,oppTitel:true},verdiepingen:[nieuweVerd('Begane grond',1)]}}
 function nieuweRuimte(naam='Ruimte',b=3,d=3){return{id:uid(),naam,cat:catVoorNaam(naam),vorm:'rect',b,d,segs:[{l:'4',a:90},{l:'3',a:90},{l:'2',a:-90},{l:'2',a:90},{l:'2',a:90}],x:0,y:0,rot:0,w:[],ops:[],hMax:'',d2:''}}
 function nieuwEl(s){const m={trap:{b:0.9,d:3.6,label:'',treden:14},vide:{b:2.5,d:2,label:'Vide'},schacht:{b:0.6,d:0.6,label:''},kolom:{b:0.3,d:0.3,label:''}}[s];return{id:uid(),soort:s,x:0,y:0,rot:0,...m}}
 
@@ -242,19 +249,21 @@ function tekenVerd(v,o={}){const T=THEMA[o.stijl||cur.instel.stijl]||THEMA[THEMA
  return s}
 // volledige exporttekening met titel, noordpijl, schaalbalk en buitenmaten
 function noordHoek(){if(num(cur.noordHand)!=null)return num(cur.noordHand);const az=cur.voorAz;if(az==null)return null;const U={onder:az+180,boven:az,links:az+90,rechts:az-90}[cur.voorZijde||'onder'];return((-U)%360+360)%360}
-function projSchaal(ins){let m=1;cur.verdiepingen.forEach(v=>{const bb=bboxVerd(v);if(!bb)return;const w=bb.x1-bb.x0+1.6+(ins.buitenmaten?.55:0),h=bb.y1-bb.y0+2.5+(ins.buitenmaten?.55:0);m=Math.max(m,w,h*1.2)});return Math.max(70,Math.min(240,2600/m))}
+function projSchaal(ins){let m=1;cur.verdiepingen.forEach(v=>{const bb=bboxVerd(v);if(!bb)return;const w=bb.x1-bb.x0+1.6+(ins.buitenmaten?.55:0),h=bb.y1-bb.y0+3.1+(ins.buitenmaten?.55:0);m=Math.max(m,w,h*1.2)});return Math.max(70,Math.min(240,2600/m))}
 function exportSvg(v,o={}){const ins={...cur.instel,...o};const T=THEMA[ins.stijl]||THEMA[THEMA_STD];const bb=bboxVerd(v);if(!bb)return null;
- const mz=bboxMuren(v)||bb;const top=1.25+(ins.buitenmaten?.55:0),left=.8+(ins.buitenmaten?.55:0),right=.8,bot=1.25;
+ const mz=bboxMuren(v)||bb;const r0=(ins.oppTitel||ins.bron)?bereken(v):null;const top=1.25+(ins.oppTitel?.25:0)+(ins.buitenmaten?.55:0),left=.8+(ins.buitenmaten?.55:0),right=.8,bot=1.25+(ins.bron?.35:0);
  const x0=bb.x0-left,y0=bb.y0-top,w=bb.x1-bb.x0+left+right,h=bb.y1-bb.y0+top+bot;const pxm=o.pxm||projSchaal(ins);
  let s=`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#fff"/>`+tekenVerd(v,{instel:ins,stijl:ins.stijl});
  const F='font-family="Arial, Helvetica, sans-serif"';
  s+=`<text x="${(x0+.5).toFixed(3)}" y="${(y0+.62).toFixed(3)}" font-size=".38" font-weight="700" fill="${T.txt}" ${F}>${esc(v.naam)}</text>`;
- if(ins.adres&&cur.adres?.naam)s+=`<text x="${(x0+.5).toFixed(3)}" y="${(y0+.95).toFixed(3)}" font-size=".2" fill="${T.sub}" ${F}>${esc(cur.adres.naam)}</text>`;
+ let ty=y0+.95;if(ins.adres&&cur.adres?.naam){s+=`<text x="${(x0+.5).toFixed(3)}" y="${ty.toFixed(3)}" font-size=".2" fill="${T.sub}" ${F}>${esc(cur.adres.naam)}</text>`;ty+=.28}
+ if(ins.oppTitel&&r0){const nen=norm()==='nen2580',d=[];const go=r0.go.wonen+r0.go.oir;if(go>0)d.push(nen?`GO ${f1(go)} m²`:`Wonen ${f1(r0.go.wonen)} m²`);if(!nen&&r0.go.oir>0)d.push(`Overige inpandige ruimte ${f1(r0.go.oir)} m²`);if(r0.ggb>0)d.push(`Buitenruimte ${f1(r0.ggb)} m²`);if(r0.eb>0)d.push(`Externe berging ${f1(r0.eb)} m²`);
+  if(d.length)s+=`<text x="${(x0+.5).toFixed(3)}" y="${ty.toFixed(3)}" font-size=".2" fill="${T.sub}" ${F}>${esc(d.join('  ·  '))}</text>`}
  if(ins.buitenmaten&&mz){const dl=(a,b,txt,vert)=>{const t=.09;let r='';const L=(p,q)=>`<line x1="${p[0].toFixed(3)}" y1="${p[1].toFixed(3)}" x2="${q[0].toFixed(3)}" y2="${q[1].toFixed(3)}" stroke="${T.lijn}" stroke-width=".012"/>`;
    r+=L(a,b);const n=vert?[1,0]:[0,1];r+=L(add(a,mul(n,-t)),add(a,mul(n,t)))+L(add(b,mul(n,-t)),add(b,mul(n,t)));const m=mul(add(a,b),.5);
    r+=vert?`<text x="${(m[0]-.1).toFixed(3)}" y="${m[1].toFixed(3)}" font-size=".19" text-anchor="middle" fill="${T.sub}" ${F} transform="rotate(-90 ${(m[0]-.1).toFixed(3)} ${m[1].toFixed(3)})">${txt}</text>`:`<text x="${m[0].toFixed(3)}" y="${(m[1]-.1).toFixed(3)}" font-size=".19" text-anchor="middle" fill="${T.sub}" ${F}>${txt}</text>`;return r};
   s+=dl([mz.x0,bb.y0-.45],[mz.x1,bb.y0-.45],f2(mz.x1-mz.x0)+' m',false)+dl([bb.x0-.45,mz.y0],[bb.x0-.45,mz.y1],f2(mz.y1-mz.y0)+' m',true)}
- const yb=bb.y1+.75;if(ins.schaal){let sx=x0+.5;s+=`<g ${F}>`;for(let i=0;i<4;i++)s+=`<rect x="${(sx+i*.5).toFixed(3)}" y="${yb.toFixed(3)}" width=".5" height=".08" fill="${i%2?'#fff':T.kader}" stroke="${T.kader}" stroke-width=".01"/>`;
+ const yb=bb.y1+.75;if(ins.bron)s+=`<text x="${(x0+.5).toFixed(3)}" y="${(yb+.68).toFixed(3)}" font-size=".14" text-anchor="start" fill="${T.sub}" ${F}>${esc(NORM[norm()].kort)}</text>`;if(ins.schaal){let sx=x0+.5;s+=`<g ${F}>`;for(let i=0;i<4;i++)s+=`<rect x="${(sx+i*.5).toFixed(3)}" y="${yb.toFixed(3)}" width=".5" height=".08" fill="${i%2?'#fff':T.kader}" stroke="${T.kader}" stroke-width=".01"/>`;
   s+=`<text x="${sx.toFixed(3)}" y="${(yb+.3).toFixed(3)}" font-size=".16" fill="${T.sub}">0</text><text x="${(sx+1).toFixed(3)}" y="${(yb+.3).toFixed(3)}" font-size=".16" text-anchor="middle" fill="${T.sub}">1</text><text x="${(sx+2).toFixed(3)}" y="${(yb+.3).toFixed(3)}" font-size=".16" text-anchor="middle" fill="${T.sub}">2 m</text></g>`}
  const nh=noordHoek();if(ins.noord&&nh!=null){const cx=x0+w-.75,cy=y0+.75;s+=`<g transform="rotate(${nh} ${cx} ${cy})"><circle cx="${cx}" cy="${cy}" r=".42" fill="#fff" stroke="${T.kader}" stroke-width=".02"/><path d="M${cx},${cy-.36} L${cx+.14},${cy+.16} L${cx},${cy+.06} L${cx-.14},${cy+.16} Z" fill="${T.kader}"/><text x="${cx}" y="${cy-.45}" font-size=".2" font-weight="700" text-anchor="middle" fill="${T.kader}" ${F}>N</text></g>`}
  return{svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0.toFixed(3)} ${y0.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}" width="${Math.round(w*pxm)}" height="${Math.round(h*pxm)}">${s}</svg>`,w:Math.round(w*pxm),h:Math.round(h*pxm)}}
@@ -281,8 +290,9 @@ function bereken(v){const R=v.ruimtes.map((r,i)=>({r,g:geo(syncW(r)),i}));const 
   let som=0;B.forEach(({r,g,i})=>{som+=g.A;const cv=r.cat==='wonen'?2:r.cat==='oir'?1:0;scan(g.P,G,k=>{rid[k]=i+1;cat[k]=cv})});
   const n0=tel();res.netto=n0;res.overlap=Math.max(0,som-B.reduce((s2,x)=>s2,0)-(()=>{let a=0;for(let i=0;i<N;i++)if(rid[i])a++;return a*c2})());
   // binnenwanden tellen mee (incl. dragend). Wand tussen wonen en overige inpandige ruimte telt als wonen.
-  B.filter(x=>x.r.cat==='oir').forEach(({r,g})=>scan(offs(g,r.w.map(w=>w.s==='binnen'?wt(w)/2:0)),G,k=>{if(!rid[k]&&cat[k]===0)cat[k]=1}));
-  B.filter(x=>x.r.cat==='wonen').forEach(({r,g})=>scan(offs(g,r.w.map(w=>w.s==='binnen'?wt(w):0)),G,k=>{if(!rid[k])cat[k]=2}));
+  const nen=norm()==='nen2580',bw=(w,f)=>w.s==='binnen'&&!(nen&&w.dragend)?wt(w)*f:0;
+  B.filter(x=>x.r.cat==='oir').forEach(({r,g})=>scan(offs(g,r.w.map(w=>bw(w,.5))),G,k=>{if(!rid[k]&&cat[k]===0)cat[k]=1}));
+  B.filter(x=>x.r.cat==='wonen').forEach(({r,g})=>scan(offs(g,r.w.map(w=>bw(w,nen?.5:1))),G,k=>{if(!rid[k])cat[k]=2}));
   const n1=tel();res.wand={wonen:n1.wonen-n0.wonen,oir:n1.oir-n0.oir};
   // delen lager dan 1,5 m
   B.forEach(({r,g,i})=>g.E.forEach((e,j)=>{const lw=num(r.w[j]?.laag);if(!lw)return;scan([e.a,e.b,add(e.b,mul(e.n,-lw)),add(e.a,mul(e.n,-lw))],G,k=>{if(rid[k]===i+1)cat[k]=0})}));
@@ -299,7 +309,7 @@ function bereken(v){const R=v.ruimtes.map((r,i)=>({r,g:geo(syncW(r)),i}));const 
  res.inhoud+=num(v.corr)||0;return res}
 function berekenAlles(){const L=cur.verdiepingen.map(bereken);const tot={wonen:0,oir:0,ggb:0,eb:0,inhoud:0,bvo:0,vloer:0};
  L.forEach(r=>{tot.wonen+=r.go.wonen;tot.oir+=r.go.oir;tot.ggb+=r.ggb;tot.eb+=r.eb;tot.inhoud+=r.inhoud;tot.bvo+=r.bvo});
- if(cur.woningtype==='eengezins'){const met=L.filter(r=>r.bvo>0);if(met.length){const laagste=met.reduce((a,b)=>(+b.v.laag<+a.v.laag?b:a));tot.vloer=laagste.bvo*.4;tot.vloerVan=laagste.v.naam;tot.inhoud+=tot.vloer}}
+ if(cur.woningtype==='eengezins'||norm()==='nen2580'){const met=L.filter(r=>r.bvo>0);if(met.length){const laagste=met.reduce((a,b)=>(+b.v.laag<+a.v.laag?b:a));tot.vloer=laagste.bvo*.4;tot.vloerVan=laagste.v.naam;tot.inhoud+=tot.vloer}}
  return{L,tot}}
 
 // =====================================================================
@@ -325,6 +335,8 @@ function object(){const o=opnames();const ch=(k,v,l)=>`<button class="${cur[k]==
  $('#app').innerHTML=`<div class="card"><h2>Object</h2>${o.length?`<label>Koppelen aan opname (adres, BAG en voorgevel worden overgenomen)</label><select id="koppel"><option value="">– geen –</option>${o.slice().reverse().map(x=>`<option value="${x.id}" ${x.id===cur.opnameId?'selected':''}>${esc(x.adres?.naam||'Zonder adres')}</option>`).join('')}</select>`:''}
  <label>Adres</label><input id="q" placeholder="Begin te typen, bijv. 2941 BA 11" value="${esc(cur.adres?.naam||'')}" autocomplete="off"><div id="res"></div>
  ${b?`<div class="kv" style="margin-top:10px"><b>Bouwjaar</b><span>${esc(b.bouwjaar??'–')}</span><b>BAG-oppervlakte</b><span>${b.oppervlakte!=null?esc(b.oppervlakte)+' m²':'–'}</span><b>Gebruiksdoel</b><span>${esc(b.gebruiksdoel??'–')}</span></div>`:''}
+ <label>Rekenbasis</label><div class="choice"><button class="${norm()==='bbmi'?'on':''}" data-set="norm" data-v="bbmi">Meetinstructie NVM / BBMI<br><small>Funda · wonen / overig · incl. dragende wanden</small></button><button class="${norm()==='nen2580'?'on':''}" data-set="norm" data-v="nen2580">NEN 2580 strikt<br><small>excl. dragende binnenwanden</small></button></div>
+ <p class="note">${esc(NORM[norm()].l)}.</p>
  <label>Woningtype</label><div class="choice">${ch('woningtype','eengezins','Eengezinswoning')}${ch('woningtype','appartement','Appartement')}</div>
  <p class="note">Bij een eengezinswoning telt de onderste vloer mee in de bruto inhoud (40 cm × BVO onderste bouwlaag). Bij een appartement niet.</p>
  <div class="grid2"><div><label>Opnemer</label><input data-p="opnemer" value="${esc(cur.opnemer)}"></div><div><label>Meetdatum</label><input type="date" data-p="odatum" value="${esc(cur.odatum)}"></div></div></div>
@@ -441,10 +453,10 @@ function ruimtePanel(r){const g=geo(syncW(r));const n=g.E.length;const res=hoogt
  </div>
  <div class="card"><div class="ihead"><span>Wanden</span><span class="note" style="font-weight:400">tik een nummer in de tekening</span></div>
  <div class="row" style="margin:6px 0"><button class="small ghost" data-act="allew" data-v="binnen">Alles binnenwand</button><button class="small ghost" data-act="allew" data-v="buiten">Alles gevel</button></div>
- <table class="t wt"><tr><th>Zijde</th><th>Soort</th><th>Dikte</th><th title="Strook met netto hoogte lager dan 1,5 m">&lt;1,5 m</th></tr>
+ <table class="t wt"><tr><th>Zijde</th><th>Soort</th><th>Dikte</th><th title="Strook met netto hoogte lager dan 1,5 m">&lt;1,5 m</th>${norm()==='nen2580'?'<th title="Dragende binnenwand: telt bij NEN 2580 niet mee in de GO">Drag.</th>':''}</tr>
  ${r.w.map((w,i)=>`<tr id="wr${i}" style="${i===selEdge?'background:#fff1e6':''}"><td style="white-space:nowrap"><a href="#" data-edgesel="${i}" style="color:var(--hi);font-weight:700;text-decoration:none">${i+1}</a> <small>${zijde(g.E[i])}<br>${f2(g.E[i].L)}</small></td>
  <td><select data-w="${i}:s">${Object.entries(WS).map(([k,l])=>`<option value="${k}" ${w.s===k?'selected':''}>${l}</option>`).join('')}</select></td>
- <td><input data-w="${i}:t" inputmode="decimal" value="${w.s==='open'?'':esc(w.t)}" ${w.s==='open'?'disabled':''} style="width:64px"></td><td><input data-w="${i}:laag" inputmode="decimal" placeholder="–" value="${esc(w.laag)}" style="width:58px"></td></tr>`).join('')}</table>
+ <td><input data-w="${i}:t" inputmode="decimal" value="${w.s==='open'?'':esc(w.t)}" ${w.s==='open'?'disabled':''} style="width:64px"></td><td><input data-w="${i}:laag" inputmode="decimal" placeholder="–" value="${esc(w.laag)}" style="width:58px"></td>${norm()==='nen2580'?`<td>${w.s==='binnen'?`<input type="checkbox" data-wd="${i}" ${w.dragend?'checked':''} style="width:20px;height:20px">`:''}</td>`:''}</tr>`).join('')}</table>
  <p class="note">Dikte in m. Woningscheidende wand onbekend: 0,30 (meten tot het hart). “&lt;1,5 m”: breedte van de strook langs die wand waar de netto hoogte lager is dan 1,5 m (schuin dak).</p></div>
  <div class="card"><div class="ihead"><span>Deuren en ramen</span></div>
  ${(r.ops||[]).map(op=>{const e=g.E[op.z];const fl=e&&flip(e),L=e?e.L:0,b=num(op.b)||0,disp=fl?L-(num(op.p)||0)-b:(num(op.p)||0);const ref=e?refTxt(e):'begin';
@@ -487,6 +499,7 @@ document.addEventListener('input',e=>{const t=e.target;if(!cur)return;
   else return;opnieuw()}});
 function zetOpp(){const r=selR();if(!r)return;const x=$('#panel .ok b');if(x)x.textContent=f2(geo(r).A)+' m²'}
 document.addEventListener('change',e=>{const t=e.target;if(!cur||!t.closest('#panel'))return;
+ if(t.dataset.wd!=null){const r0=selR();if(r0){pushUndo();const i=+t.dataset.wd;r0.w[i].dragend=t.checked;const n=overkant(r0,i).length;opnieuw();if(n)toast('Ook aan de overkant ('+n+'×) '+(t.checked?'als dragend gemarkeerd':'niet meer dragend'))}return}
  if(focusSnap&&focusSnap!==JSON.stringify({vi,v:cur.verdiepingen}))UNDO.push(focusSnap);focusSnap=JSON.stringify({vi,v:cur.verdiepingen});
  const r=selR();
  if(t.dataset.w&&r){const[i,k]=t.dataset.w.split(':');if(k==='s'){r.w[+i].s=t.value;r.w[+i].t=t.value==='open'?'':inV(WT[t.value])}opnieuw();panel();return}
@@ -569,7 +582,8 @@ function meetstaat(){const{L,tot}=berekenAlles();const bagO=num(cur.bag?.oppervl
  <div><small>Externe bergruimte</small><span class="big">${fi(tot.eb)} m²</span><small>${f2(tot.eb)}</small></div>
  <div><small>Bruto inhoud</small><span class="big">${fi(tot.inhoud)} m³</span><small>${f2(tot.inhoud)}</small></div></div>
  ${bagO?`<p class="note" style="margin-top:10px">BAG-oppervlakte ${bagO} m² · gemeten GO (wonen + overig) ${f2(go)} m² · verschil ${f1((go-bagO)/bagO*100)}%</p>`:''}
- <p class="note">Volgens de Meetinstructie gebruiksoppervlakte woningen en de Meetinstructie bruto inhoud woningen (versie juli 2019), gebaseerd op NEN 2580. Funda toont afgeronde hele m² en m³.</p></div>`+
+ <p class="note"><b>Rekenbasis:</b> ${esc(NORM[norm()].l)}${norm()==='nen2580'?'. NEN 2580 kent geen splitsing wonen / overige inpandige ruimte: de GO is de som; dragende binnenwanden (aangevinkt bij Wanden) tellen niet mee.':'. Funda toont afgeronde hele m² en m³.'}</p>
+ ${norm()==='nen2580'?`<div class="ok">Gebruiksoppervlakte (NEN 2580): <b>${f2(go)} m²</b></div>`:''}</div>`+
  L.map(r=>{const v=r.v;const rr=r.ruimtes.slice().sort((a,b)=>['wonen','oir','nvt','buiten','extern'].indexOf(a.cat)-['wonen','oir','nvt','buiten','extern'].indexOf(b.cat));
   return`<div class="card"><h3>${esc(v.naam)} <small class="note">bouwlaag ${esc(v.laag)}</small></h3><table class="t"><tr><th>Ruimte</th><th>Telt als</th><th class="r">Maat (m)</th><th class="r">m²</th></tr>
   ${rr.map(x=>`<tr><td>${esc(x.naam)}</td><td><span class="chip" style="background:${CAT[x.cat].c}">${CAT[x.cat].k}</span></td><td class="r">${x.maat}</td><td class="r">${f2(x.opp)}</td></tr>`).join('')||'<tr><td colspan="4" class="note">Geen ruimtes</td></tr>'}</table>
@@ -587,16 +601,18 @@ function meetstaat(){const{L,tot}=berekenAlles();const bagO=num(cur.bag?.oppervl
 // ---------- export ----------
 function exportScherm(){const ins=cur.instel;const opt=(k,l)=>`<button class="${ins[k]?'on':''}" data-act="opt" data-v="${k}">${l}</button>`;
  $('#app').innerHTML=`<div class="card"><h2>Export</h2>
- <label>Tekening</label><div class="choice">${opt('m2','m² per ruimte')}${opt('maten','Maten per ruimte')}${opt('buitenmaten','Buitenmaten')}${opt('noord','Noordpijl')}${opt('schaal','Schaalbalk')}${opt('adres','Adres in titel')}</div>
+ <label>Tekening</label><div class="choice">${opt('m2','m² per ruimte')}${opt('maten','Maten per ruimte')}${opt('buitenmaten','Buitenmaten')}${opt('noord','Noordpijl')}${opt('schaal','Schaalbalk')}${opt('adres','Adres in titel')}${opt('oppTitel','m² onder titel')}${opt('bron','Bronvermelding')}</div>
  <label>Stijl</label><div class="choice"><button class="${(ins.stijl||THEMA_STD)==='premium'?'on':''}" data-act="stijl" data-v="premium">Premium (hout, tegels, schaduw)</button><button class="${ins.stijl==='funda'?'on':''}" data-act="stijl" data-v="funda">Strak (wit / antraciet)</button><button class="${ins.stijl==='warm'?'on':''}" data-act="stijl" data-v="warm">Warm (vloertint)</button></div>
  <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
  <button data-act="pdf">📄 Meetrapport met plattegronden (PDF)</button>
  <button data-act="jpg" data-v="jpg">🖼 Plattegronden als JPG (Funda)</button>
  <button class="ghost" data-act="jpg" data-v="png">🖼 Plattegronden als PNG</button>
  <button class="ghost" data-act="fml">🏠 FML-bestand voor Floorplanner</button></div>
+ <p class="note">Rekenbasis: <b>${esc(NORM[norm()].k)}</b> (wijzigen bij Object). Met “Bronvermelding” staat de norm onder elke tekening.</p>
  <p class="note">De afbeeldingen worden op de telefoon in één keer gedeeld (bijv. naar mail, WhatsApp of Drive); op de computer worden ze gedownload.</p></div>`+
  cur.verdiepingen.map(v=>{const x=exportSvg(v);return`<div class="card"><h3>${esc(v.naam)}</h3>${x?`<div class="prev">${x.svg.replace(/ width="\d+" height="\d+"/,'')}</div>`:'<p class="note">Nog leeg.</p>'}</div>`}).join('')+
- `<details class="card"><summary>Floorplanner: deuren en ramen in het FML-bestand</summary><p class="note">Floorplanner koppelt deuren en ramen aan een bibliotheekonderdeel (refid). Lees ze één keer in uit een FML-export van een eigen Floorplanner-project met één deur en één raam, of plak ze hieronder. Zonder refid komen muren, ruimtes, trappen en vides wel in het bestand, en zitten op de plek van deuren en ramen gaten in de muur.</p>
+ `<details class="card"><summary>Bronnen</summary><ul style="margin:8px 0 0;padding-left:18px;font-size:14px;line-height:1.6">${BRONNEN.map(([t,u])=>`<li><a href="${u}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(t)}</a></li>`).join('')}</ul></details>
+ <details class="card"><summary>Floorplanner: deuren en ramen in het FML-bestand</summary><p class="note">Floorplanner koppelt deuren en ramen aan een bibliotheekonderdeel (refid). Lees ze één keer in uit een FML-export van een eigen Floorplanner-project met één deur en één raam, of plak ze hieronder. Zonder refid komen muren, ruimtes, trappen en vides wel in het bestand, en zitten op de plek van deuren en ramen gaten in de muur.</p>
  <div class="grid2"><div><label>refid deur</label><input id="rfDeur" value="${esc(store.instel.fmlDeur||'')}"></div><div><label>refid raam</label><input id="rfRaam" value="${esc(store.instel.fmlRaam||'')}"></div></div>
  <button class="small ghost" data-act="refidlees" style="margin-top:8px">Lees uit FML-bestand…</button><input type="file" id="fmlIn" accept=".fml,.json,application/json" hidden></details>`;
  bar(`<button class="ghost" data-go="meetstaat">Meetstaat</button><button class="ghost" data-act="lijst">Alle plattegronden</button>`);
@@ -641,6 +657,10 @@ function maakFML(){const cm=v=>Math.round(v*1000)/10;const P=p=>({x:cm(p[0]),y:c
   const labels=v.els.filter(e=>e.soort==='vide'&&e.label).map(e=>{const c=labelPt(elPoly(e));return{x:cm(c[0]),y:cm(c[1]),text:e.label,fontFamily:'Arial',fontSize:12,letterSpacing:0,fontColor:'#555555',backgroundColor:'#ffffff',backgroundAlpha:0,align:'center',rotation:0}});
   return{id:fi+1,name:v.naam,level:(+v.laag||1)-1,height:H,designs:[{id:100+fi,name:v.naam,walls,areas,surfaces:[],dimensions:[],items:[],labels,lines}],cameras:[]}});
  return{id:1,name:cur.adres?.naam||'Plattegrond',public:false,floors}}
+// zijde(n) van andere ruimtes tegenover deze wand (zelfde wand, andere kant) – neemt 'dragend' over
+function overkant(r,i){const g=geo(syncW(r)),e=g.E[i],t=wt(r.w[i]),out=[];V().ruimtes.forEach(o=>{if(o===r)return;const go=geo(syncW(o));go.E.forEach((f,j)=>{if(e.u[0]*f.u[0]+e.u[1]*f.u[1]>-.999)return;
+ const d=(f.a[0]-e.a[0])*e.n[0]+(f.a[1]-e.a[1])*e.n[1];if(d<.01||Math.abs(d-Math.max(t,wt(o.w[j])))>.04)return;const pr=q=>(q[0]-e.a[0])*e.u[0]+(q[1]-e.a[1])*e.u[1];
+ if(Math.min(e.L,Math.max(pr(f.a),pr(f.b)))-Math.max(0,Math.min(pr(f.a),pr(f.b)))<.05)return;o.w[j].dragend=r.w[i].dragend;out.push([o,j])})});return out}
 function minIv(iv,a,b){const out=[];iv.forEach(([x,y])=>{if(b<=x||a>=y){out.push([x,y]);return}if(a>x)out.push([x,a]);if(b<y)out.push([b,y])});return out.filter(([x,y])=>y-x>.02)}
 function downloadFML(){const j=maakFML();const blob=new Blob([JSON.stringify(j)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=bestandsnaam()+'.fml';document.body.appendChild(a);a.click();a.remove();
  toast(store.instel.fmlDeur?'FML-bestand gedownload':'FML gedownload (deuren/ramen als gat; stel de refids in voor echte deuren)')}
@@ -661,16 +681,18 @@ function elnRaster(doc,o,rows){const H=doc.internal.pageSize.getHeight();let y=o
 function elnVoet(doc,label){const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(110);doc.text(pdfT(label),14,H-13);doc.text('Pagina '+i+' van '+n,W-14,H-13,{align:'right'})}doc.setTextColor(23,37,28)}
 async function maakPdf(){try{toast('PDF maken…');await laadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
  const ML=14,CW=210-2*ML,HP=297;const np=()=>{doc.addPage();elnBlad(doc);return 56};const o={ML,CW,col:118,np};const{L,tot}=berekenAlles();const a=cur.adres||{};
- elnBlad(doc);let y=elnTitel(doc,ML,'Meetrapport gebruiksoppervlakte en bruto inhoud',`${a.naam||''}\nGemeten volgens de Meetinstructie gebruiksoppervlakte woningen en de Meetinstructie bruto inhoud woningen (versie juli 2019), gebaseerd op NEN 2580.`);
+ elnBlad(doc);const nen=norm()==='nen2580';let y=elnTitel(doc,ML,'Meetrapport gebruiksoppervlakte en bruto inhoud',`${a.naam||''}\n${nen?'Gemeten volgens NEN 2580:2007 inclusief correctieblad C1:2008 (Oppervlakten en inhouden van gebouwen).':'Gemeten volgens de Meetinstructie gebruiksoppervlakte woningen en de Meetinstructie bruto inhoud woningen (versie juli 2019, NVM/BBMI), gebaseerd op NEN 2580:2007+C1:2008.'}`);
  elnKop(doc,ML,'Samenvatting',y);y+=6;
- y=elnRaster(doc,{...o,y},[['Gebruiksoppervlakte wonen',fi(tot.wonen)+' m²   ('+f2(tot.wonen)+')',true],['Overige inpandige ruimte',fi(tot.oir)+' m²   ('+f2(tot.oir)+')'],['Gebouwgebonden buitenruimte',fi(tot.ggb)+' m²   ('+f2(tot.ggb)+')'],['Externe bergruimte',fi(tot.eb)+' m²   ('+f2(tot.eb)+')'],['Bruto inhoud',fi(tot.inhoud)+' m³   ('+f2(tot.inhoud)+')',true]]);
+ y=elnRaster(doc,{...o,y},[...(nen?[['Gebruiksoppervlakte (NEN 2580)',fi(tot.wonen+tot.oir)+' m²   ('+f2(tot.wonen+tot.oir)+')',true]]:[['Gebruiksoppervlakte wonen',fi(tot.wonen)+' m²   ('+f2(tot.wonen)+')',true],['Overige inpandige ruimte',fi(tot.oir)+' m²   ('+f2(tot.oir)+')']]),['Gebouwgebonden buitenruimte',fi(tot.ggb)+' m²   ('+f2(tot.ggb)+')'],['Externe bergruimte',fi(tot.eb)+' m²   ('+f2(tot.eb)+')'],['Bruto inhoud',fi(tot.inhoud)+' m³   ('+f2(tot.inhoud)+')',true]]);
  elnKop(doc,ML,'Object',y);y+=6;const b=cur.bag||{};
- y=elnRaster(doc,{...o,y},[['Adres',a.naam||'-'],['Woningtype',cur.woningtype==='appartement'?'Appartement':'Eengezinswoning'],['Bouwjaar (BAG)',b.bouwjaar??'-'],['Gebruiksoppervlakte BAG',b.oppervlakte!=null?b.oppervlakte+' m²':'-'],['Meetdatum',cur.odatum?new Date(cur.odatum).toLocaleDateString('nl-NL'):'-'],['Opnemer',cur.opnemer||'-'],['Bouwlagen',cur.verdiepingen.map(v=>v.naam).join(', ')]]);
+ y=elnRaster(doc,{...o,y},[['Adres',a.naam||'-'],['Woningtype',cur.woningtype==='appartement'?'Appartement':'Eengezinswoning'],['Bouwjaar (BAG)',b.bouwjaar??'-'],['Gebruiksoppervlakte BAG',b.oppervlakte!=null?b.oppervlakte+' m²':'-'],['Meetdatum',cur.odatum?new Date(cur.odatum).toLocaleDateString('nl-NL'):'-'],['Opnemer',cur.opnemer||'-'],['Bouwlagen',cur.verdiepingen.map(v=>v.naam).join(', ')],['Rekenbasis',NORM[norm()].l]]);
  elnKop(doc,ML,'Toelichting',y);y+=5;doc.setFont('helvetica','normal');doc.setFontSize(8.6);doc.setTextColor(60);
- const tl=['Gebruiksoppervlakte: gemeten op vloerniveau binnen de buitenste en woningscheidende wanden, inclusief dragende en niet-dragende binnenwanden. Niet meegeteld: delen met een netto hoogte lager dan 1,5 m (behalve onder een trap), trapgaten en vides van 4 m² of meer, schachten en bouwdelen van 0,5 m² of meer, en niet-toegankelijke ruimten.',
+ const tl=[nen?'Gebruiksoppervlakte volgens NEN 2580: gemeten op vloerniveau binnen de buitenste en woningscheidende wanden, exclusief dragende binnenwanden; NEN 2580 kent geen splitsing in wonen en overige inpandige ruimte (de splitsing hieronder is alleen ter informatie).':'Gebruiksoppervlakte: gemeten op vloerniveau binnen de buitenste en woningscheidende wanden, inclusief dragende en niet-dragende binnenwanden. ',
+  'Niet meegeteld: delen met een netto hoogte lager dan 1,5 m (behalve onder een trap), trapgaten en vides van 4 m² of meer, schachten en bouwdelen van 0,5 m² of meer, en niet-toegankelijke ruimten.',
   'Overige inpandige ruimte: hoogste punt tussen 1,5 en 2,0 m, of aaneengesloten deel boven 2,0 m kleiner dan 4 m², of bouwkundig alleen geschikt als bergruimte (kelder, garage, berging, bergzolder). De wand tussen wonen en overige inpandige ruimte telt als wonen.',
-  'Bruto inhoud: bruto vloeroppervlak per bouwlaag (buitenwerks, woningscheidende wanden tot het hart) maal de bruto hoogte van bovenkant vloer tot bovenkant vloer of dak; onder een kap de gemiddelde hoogte. '+(cur.woningtype==='eengezins'?'Bij een eengezinswoning is de onderste vloer meegeteld met 40 cm.':'Bij een appartement telt de onderste vloer niet mee.'),
-  'De oppervlakten zijn berekend uit de ingemeten binnenmaten en wanddikten. Funda toont afgeronde hele vierkante en kubieke meters.'];
+  'Bruto inhoud: bruto vloeroppervlak per bouwlaag (buitenwerks, woningscheidende wanden tot het hart) maal de bruto hoogte van bovenkant vloer tot bovenkant vloer of dak; onder een kap de gemiddelde hoogte. '+(nen?'Volgens NEN 2580 is de onderste vloer meegeteld (aangenomen 40 cm).':cur.woningtype==='eengezins'?'Bij een eengezinswoning is de onderste vloer meegeteld met 40 cm.':'Bij een appartement telt de onderste vloer niet mee.'),
+  'De oppervlakten zijn berekend uit de ingemeten binnenmaten en wanddikten. Funda toont afgeronde hele vierkante en kubieke meters.',
+  'Bronnen: '+BRONNEN.slice(0,7).map(b=>b[0]).join('; ')+'.'];
  tl.forEach(t=>{const s=doc.splitTextToSize(pdfT(t),CW);if(y+s.length*3.8>HP-24)y=np();doc.text(s,ML,y);y+=s.length*3.8+2.5});doc.setTextColor(23,37,28);
  for(const r of L){const v=r.v;y=np();elnKop(doc,ML,v.naam+'  (bouwlaag '+v.laag+')',y);y+=4;const x=exportSvg(v,{adres:false});
   if(x){const cv=await svgNaarCanvas(x);const img=cv.toDataURL('image/jpeg',.9);let w=CW,h=w*x.h/x.w;if(h>130){h=130;w=h*x.w/x.h}doc.addImage(img,'JPEG',ML+(CW-w)/2,y,w,h,undefined,'FAST');y+=h+8}

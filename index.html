@@ -818,7 +818,7 @@ body.v-opname{background-image:none!important}
     <button class="tile" type="button" data-open="bronnen">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></svg></div>
    <h2>Bronnen</h2>
-   <p>Geldende NTA 8800, ISSO 75.1 / 82.1, BRL 9500, errata, wijzigingsdocumenten en KEGO – met links en je eigen KEGO-vragen en antwoorden.</p>
+   <p>Geldende NTA 8800, ISSO 75.1 / 82.1, BRL 9500, errata, wijzigingsdocumenten en KEGO, plus NEN 2580 / meetinstructie (NVM) en NTA 8060 / NHG – met links en je eigen KEGO-vragen en antwoorden.</p>
    <span class="go">Openen →</span>
   </button>
  </div>
@@ -1266,6 +1266,30 @@ body.v-opname{background-image:none!important}
    </tbody>
   </table>
   <div id="bron-extra" class="bron-extra" hidden><div class="be-kop"><label class="be-knop"><input type="file" id="bron-up" accept="application/pdf,.pdf" multiple hidden>＋ PDF's toevoegen voor iedereen</label><span class="be-st"></span></div><div class="be-lijst"></div></div>
+ </div>
+<div class="card" style="margin-top:12px" id="bron-meten">
+  <h3>Bronnen meten (NEN 2580) en bouwkundige keuring (NTA 8060) (stand 07-11-2026)</h3>
+  <p class="hint" style="margin-top:0">Grondslag van de Plattegrond NEN 2580-module en de Bouwkundige keuring. Funda toont de m² volgens de branchebrede meetinstructie (NVM, VBO, VastgoedPRO, VNG, Waarderingskamer); waar die en de lijst met vragen geen antwoord geven, geldt NEN 2580.</p>
+  <table class="src-tab">
+   <thead><tr><th>Document</th><th>Versie / datum</th><th>Status</th><th>Opmerking</th></tr></thead>
+   <tbody>
+    <tr class="grp"><td colspan="4">Meten en plattegrond (NEN 2580 · meetinstructie · Funda)</td></tr>
+    <tr><td><a href="https://www.nvm.nl/wonen/verkopen/meetinstructie/" target="_blank" rel="noopener">NVM – Meetinstructie: het bepalen van de gebruiksoppervlakte</a></td><td>actueel</td><td class="ok">geldend</td><td>Branchebrede meetinstructie (BBMI), verplicht voor NVM-makelaars en -taxateurs; dit zijn de m² op Funda. Met downloads en infographic.</td></tr>
+    <tr><td><a href="https://www.nvm.nl/media/bqnjrtdg/meetinstructie-gebruiksoppervlakte-woningen-juli-2019.pdf" target="_blank" rel="noopener">Meetinstructie gebruiksoppervlakte woningen</a></td><td>versie juli 2019</td><td class="ok">geldend</td><td>Vastgesteld door NVM, VBO, VastgoedPRO, VNG en Waarderingskamer. GO wonen, overige inpandige ruimte, gebouwgebonden buitenruimte, externe bergruimte. Rekenbasis van de Plattegrond NEN 2580-module.</td></tr>
+    <tr><td><a href="https://repository.officiele-overheidspublicaties.nl/externebijlagen/exb-2022-2138/currentitem" target="_blank" rel="noopener">Meetinstructie bruto inhoud woningen</a></td><td>versie juli 2019</td><td class="ok">geldend</td><td>Buitenwerks, woningscheidend tot hart (onbekend 30 cm); onder kap gemiddelde hoogte; eengezinswoning + onderste vloer 40 cm.</td></tr>
+    <tr><td><a href="https://www.waarderingskamer.nl/hulpmiddelen-gemeenten/meetinstructies-gebruiksoppervlakte-inhoud/" target="_blank" rel="noopener">Waarderingskamer – meetinstructies en lijst met vragen en antwoorden</a></td><td>VGV-lijst januari 2023</td><td class="ok">geldend</td><td>Voor bijzondere situaties eerst de VGV-lijst, daarna NEN 2580. BAG-oppervlakte = GO wonen + overige inpandige ruimte.</td></tr>
+    <tr><td><a href="https://www.nen.nl/nen-2580-2007-nl-113982" target="_blank" rel="noopener">NEN 2580 Oppervlakten en inhouden van gebouwen</a> · <a href="https://www.nen.nl/nen-2580-2007-c1-2008-nl-129082" target="_blank" rel="noopener">correctieblad C1</a></td><td>NEN 2580:2007+C1:2008</td><td class="ok">geldend</td><td>Aangewezen in het Bbl, vrij in te zien via NEN Connect. Wijkt af van de meetinstructie: GO exclusief dragende binnenwanden, geen splitsing wonen/overig.</td></tr>
+    <tr><td><a href="https://www.nen.nl/bouw/beheer-en-onderhoud/oppervlaktebepaling" target="_blank" rel="noopener">NTA 2581 Opstellen van meetrapporten volgens NEN 2580</a></td><td>NTA 2581:2011</td><td class="ok">geldend</td><td>Eisen aan een NEN 2580-meetrapport. Een meetrapport volgens de meetinstructie is geen NEN 2580-meetrapport.</td></tr>
+    <tr><td><a href="https://floorplanner.readme.io/reference/v30-specification" target="_blank" rel="noopener">Floorplanner FML v3.0-specificatie</a> · <a href="https://floorplanner.readme.io/reference/getting-started-2" target="_blank" rel="noopener">API voor Funda-mediapartners</a></td><td>actueel</td><td>naslag</td><td>Bestandsformaat (JSON, cm) van de FML-export voor Floorplanner/Funda. Koppeling met een Funda-advertentie via de API vraagt mediapartner-rechten.</td></tr>
+    <tr class="grp"><td colspan="4">Bouwkundige keuring (NTA 8060 · NHG)</td></tr>
+    <tr><td><a href="https://www.nen.nl/nta-8060-2021-nl-286312" target="_blank" rel="noopener">NTA 8060 Keuring bouwtechnische staat van een woning – Methodiek en opnamelijst</a></td><td>NTA 8060:2021 (1 okt 2021)</td><td class="ok">geldend</td><td>Visuele basiskeuring met verplichte minimale opnamelijst en kostenindicatie; vervangt Ontwerp NTA 8060:2010. Rekenbasis van de keuringstool.</td></tr>
+    <tr><td><a href="https://www.nen.nl/nieuws/actueel/herziening-nta-8060-moet-bouwtechnische-woningkeuring-duidelijker-maken/" target="_blank" rel="noopener">Herziening NTA 8060 (NEN)</a></td><td>in voorbereiding</td><td class="warn">nog niet gepubliceerd</td><td>Scherpere afbakening basiskeuring en optionele modules (o.a. fundering, kruipruimte, asbest, installaties). Volgen.</td></tr>
+    <tr><td><a href="https://www.nen.nl/nieuws/bouw/norm-voor-keuring-bouwtechnische-staat-van-een-woning-geupdatet-en-gepubliceerd/" target="_blank" rel="noopener">NEN-toelichting bij NTA 8060:2021</a></td><td>2021</td><td>naslag</td><td>Advies: in het voorlopig koopcontract bij het bouwkundig voorbehoud naar NTA 8060 verwijzen; dekt ook het bouwkundig deel voor taxatie en NHG.</td></tr>
+    <tr><td><a href="https://www.nhg.nl/media/gtaickpv/vn-nhg-2026.pdf" target="_blank" rel="noopener">NHG Voorwaarden en normen 2026-1</a></td><td>2026-1</td><td class="ok">geldend in 2026</td><td>Voorwaarden bouwkundig rapport bij een lening met NHG. V&amp;N 2027 verschijnen eind oktober 2026 en gelden vanaf 1-1-2027: controleren.</td></tr>
+    <tr><td><a href="https://nhg.nl/media/gcylef0y/vn-nhg-2025-bijlage-3-model-bouwkundig-rapport.pdf" target="_blank" rel="noopener">NHG Model bouwkundig rapport (bijlage 3)</a></td><td>V&amp;N 2025-1</td><td class="warn">controleer nieuwste bijlage</td><td>Verplicht model als het rapport niet door gemeente of VEH wordt opgesteld: elementen A.0 e.v., direct en op termijn noodzakelijke kosten.</td></tr>
+    <tr><td><a href="https://www.nen.nl/bouw/beheer-en-onderhoud" target="_blank" rel="noopener">NEN 2767-1 Conditiemeting – Deel 1: Methodiek</a></td><td>NEN 2767-1+C1:2019</td><td class="ok">geldend</td><td>Conditiescores 1–6 die de keuringstool gebruikt. Deel 2 (gebrekenlijsten): NEN 2767-2:2008.</td></tr>
+   </tbody>
+  </table>
  </div>
 <div class="card" style="margin-top:12px" id="kb-card">
   <h3>KEGO-kennisbank (openbaar)</h3>
