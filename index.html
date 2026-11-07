@@ -871,7 +871,7 @@ body.v-opname{background-image:none!important}
   <button class="tile" type="button" data-open="klein">
    <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
    <h2>Kleine rekenhulpen</h2>
-   <p>Driehoekmeter, gevelkompas, interpoleren, dakvlakken uit 3D BAG, ramen en deuren, glas in deur, PV verdeler, EP2-bandbreedte en kWh/MJ omrekenen.</p>
+   <p>Driehoekmeter, interpoleren, dakvlakken uit 3D BAG, ramen en deuren, glas in deur, PV verdeler, EP2-bandbreedte en kWh/MJ omrekenen.</p>
    <span class="go">Openen →</span>
   </button>
   </div>
@@ -1449,44 +1449,7 @@ body.v-opname{background-image:none!important}
  <div id="ob-resultaat" hidden><div id="ob-secties"></div></div>
  <div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sec" type="button" id="ob-prev">👁 Voorbeeld bekijken</button><button class="btn" type="button" id="ob-pdf">📄 PDF opslaan</button><button class="btn sec" type="button" id="ob-nieuw">Nieuwe onderbouwing</button></div><div class="msg" id="ob-msg"></div></div>
 </section>
-<section class="view" id="view-kompas" hidden>
- <div class="card">
-  <h3>Gevelkompas</h3>
-  <p class="hint" style="margin:0 0 8px">Ga met je rug tegen de gevel staan (stap een meter naar voren, weg van kozijnen en warmtepomp). Houd de telefoon plat, bovenkant recht van de gevel af. Gemeten op een Redmi Note 10 Pro in Chrome; werkt ook op andere Android-telefoons.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-   <button class="btn" type="button" id="kp-start">Kompas starten</button>
-   <label class="check" style="margin:0"><input type="checkbox" id="kp-decl" checked><span>Ware noorden (+2,5° declinatie NL)</span></label>
-  </div>
-  <div class="msg" id="kp-msg"></div>
- </div>
- <div class="card" style="text-align:center">
-  <svg id="kp-rose" viewBox="-110 -110 220 220" width="230" height="230" style="max-width:70vw">
-   <circle r="100" fill="none" stroke="#1F3A5F" stroke-width="3"/>
-   <g id="kp-dial">
 
-    <g stroke="#9aa5b1" stroke-width="1.5">
-     <line y1="-100" y2="-90" transform="rotate(22.5)"/><line y1="-100" y2="-90" transform="rotate(67.5)"/><line y1="-100" y2="-90" transform="rotate(112.5)"/><line y1="-100" y2="-90" transform="rotate(157.5)"/>
-     <line y1="-100" y2="-90" transform="rotate(202.5)"/><line y1="-100" y2="-90" transform="rotate(247.5)"/><line y1="-100" y2="-90" transform="rotate(292.5)"/><line y1="-100" y2="-90" transform="rotate(337.5)"/>
-    </g>
-   </g>
-   <g id="kp-lbls" font-weight="700" text-anchor="middle" dominant-baseline="central"></g>
-   <path d="M0 -70 L10 -40 L-10 -40 Z" fill="#C0392B"/><line y1="-40" y2="40" stroke="#C0392B" stroke-width="3"/>
-  </svg>
-  <div class="hint" style="margin:0">rode pijl = bovenkant telefoon = richting van de gevel</div>
-  <div id="kp-deg" style="font-size:54px;font-weight:700;line-height:1.1">–</div>
-  <div id="kp-sec" style="font-size:26px;font-weight:700;color:#1F3A5F">–</div>
-  <div id="kp-warn" style="min-height:22px;color:#C0392B;font-weight:600"></div>
- </div>
- <div class="card">
-  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-   <input type="text" id="kp-lbl" placeholder="Bijv. C06 voorgevel" style="flex:1;min-width:180px">
-   <button class="btn" type="button" id="kp-save" disabled>Meting vastleggen</button>
-   <button class="btn sec mini" type="button" id="kp-copy">Kopiëren</button>
-   <button class="btn sec mini" type="button" id="kp-clear">Wissen</button>
-  </div>
-  <div id="kp-list" style="margin-top:10px"></div>
- </div>
-</section>
 <section class="view" id="view-interp" hidden>
  <div class="card cmp">
   <div class="sp-obj" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
@@ -1528,7 +1491,6 @@ body.v-opname{background-image:none!important}
 </style>
 <div class="kr-menu" id="kr-menu">
  <button type="button" data-open="driehoek"><b>Driehoekmeter</b><small>Dakvlak, hellingshoek, GO en dakvormen (opent Driehoek &amp; dak)</small></button>
- <button type="button" data-open="kompas"><b>Gevelkompas</b><small>Oriëntatie van een gevel meten met je telefoon</small></button>
  <button type="button" data-open="interp"><b>Interpoleren</b><small>Tussenliggende waarde lineair bepalen (handmatig, BCRG-databank of BCRG-verklaring), met PDF</small></button>
  <button type="button" data-krgo="kr-3ddak"><b>Dakvlakken uit 3D BAG</b><small>3D-model met alle dakvlakken (schuin en plat): m², helling en oriëntatie</small></button>
  <button type="button" data-krgo="kr-ramen"><b>Ramen en deuren</b><small>Oppervlakte van openingen met afwijkende vorm, met tekening</small></button>
@@ -1676,7 +1638,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector('script[src="'+src+'"]'))return res();const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Kon '+src.split('/').pop()+' niet laden (internet?)'));document.head.appendChild(s)})}
 
 /* ========== Navigatie ========== */
-const TITLES={home:'Dashboard',onderbouwing:'Onderbouwing',klein:'Kleine rekenhulpen',bronnen:'Bronnen',uitvoer:'Uitvoerlijst woningen',gevel:'Objectdossier',mappen:'Projectmappen aanmaken',sorteren:'Bestanden naar dossier',projectdossier:'Vooropname documenten',rc:'Rc-berekening constructies',opname:'Opnameformulier',stappen:'Zonering utiliteit',beslis:'Beslisschema’s',interp:'Interpoleren',driehoek:'Driehoek & dak',schetsen:'Complexgegevens',kompas:'Gevelkompas',fundering:'Funderingsdossier',dossier:'Dossierbundel',fotos:'Foto\'s sorteren'};
+const TITLES={home:'Dashboard',onderbouwing:'Onderbouwing',klein:'Kleine rekenhulpen',bronnen:'Bronnen',uitvoer:'Uitvoerlijst woningen',gevel:'Objectdossier',mappen:'Projectmappen aanmaken',sorteren:'Bestanden naar dossier',projectdossier:'Vooropname documenten',rc:'Rc-berekening constructies',opname:'Opnameformulier',stappen:'Zonering utiliteit',beslis:'Beslisschema’s',interp:'Interpoleren',driehoek:'Driehoek & dak',schetsen:'Complexgegevens',fundering:'Funderingsdossier',dossier:'Dossierbundel',fotos:'Foto\'s sorteren'};
 // laatst gebruikte adres meenemen naar de andere onderdelen
 const VIEW_ADDR={projectdossier:'pd-addr',rc:'rc-addr',opname:'of-addr',stappen:'sp-addr',beslis:'bs-addr',interp:'ip-addr'},VIEW_ADDR_BTN={projectdossier:'pd-addr-btn',rc:'rc-addr-btn',stappen:'sp-addr-btn'};
 let curView='home';
@@ -1685,53 +1647,9 @@ const lastAddrSet=v=>{v=String(v||'').trim();if(v.length>4)try{localStorage.setI
 function addrCarry(view){const inp=VIEW_ADDR[view]&&$(VIEW_ADDR[view]),last=lastAddrGet();if(!inp||inp.value.trim()||!last)return;
  inp.value=last;inp.dispatchEvent(new Event('input',{bubbles:true}));
  const b=VIEW_ADDR_BTN[view]&&$(VIEW_ADDR_BTN[view]);if(b&&!b.disabled)setTimeout(()=>b.click(),50)}
-/* ========== Gevelkompas (telefoon) ========== */
-(function(){
- const SECT=['N','NO','O','ZO','Z','ZW','W','NW'],NAAM={N:'Noord',NO:'Noordoost',O:'Oost',ZO:'Zuidoost',Z:'Zuid',ZW:'Zuidwest',W:'West',NW:'Noordwest'};
- const nrm=d=>(d%360+360)%360,sec=d=>SECT[Math.floor(nrm(d+22.5)/45)%8],grens=d=>{const r=nrm(d-22.5)%45;return Math.min(r,45-r)};
- const KEY='eln-kompas-metingen';let buf=[],cur=null,on=false,tilt=0,lastT=0;
- const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}},store=a=>{try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}};
- const cavg=a=>{let x=0,y=0;a.forEach(d=>{x+=Math.cos(d*Math.PI/180);y+=Math.sin(d*Math.PI/180)});return nrm(Math.atan2(y,x)*180/Math.PI)};
- const decl=()=>$('kp-decl')&&$('kp-decl').checked?2.5:0;
- function handle(e){let h=null;
-  if(typeof e.webkitCompassHeading==='number')h=e.webkitCompassHeading;
-  else if(e.absolute!==false&&e.alpha!=null)h=360-e.alpha;
-  if(h==null)return;
-  const so=(screen.orientation&&screen.orientation.angle)||window.orientation||0;h=nrm(h+so+decl());
-  tilt=Math.max(Math.abs(e.beta||0),Math.abs(e.gamma||0));lastT=Date.now();
-  buf.push(h);if(buf.length>25)buf.shift();cur=cavg(buf);paint()}
- function paint(){if(cur==null)return;const d=Math.round(cur),s=sec(cur),g=grens(cur);
-  $('kp-deg').textContent=d+'°';$('kp-sec').textContent=NAAM[s]+' ('+s+')';
-  $('kp-dial').setAttribute('transform','rotate('+(-cur)+')');
-  $('kp-lbls').innerHTML=SECT.map((k,i)=>{const a=(i*45-cur)*Math.PI/180,r=k.length>1?66:80;return '<text x="'+(Math.sin(a)*r).toFixed(1)+'" y="'+(-Math.cos(a)*r).toFixed(1)+'" font-size="'+(k.length>1?11:16)+'" fill="'+(k==='N'?'#C0392B':'#333')+'">'+k+'</text>'}).join('');
-  $('kp-warn').textContent=tilt>25?'Houd de telefoon vlakker':g<5?'Let op: '+g.toFixed(0)+'° van de grens met de volgende richting – meet nog een keer':'';
-  $('kp-save').disabled=false}
- function start(){if(on)return;
-  const go=()=>{const ev='ondeviceorientationabsolute' in window?'deviceorientationabsolute':'deviceorientation';
-   window.addEventListener(ev,handle,true);on=true;msg('kp-msg','Kompas loopt. Beweeg de telefoon eerst een paar keer in een liggende 8 om te kalibreren.','ok');
-   setTimeout(()=>{if(!lastT)msg('kp-msg','Geen kompasgegevens ontvangen. Open het dashboard via https (online versie) of in Chrome, en controleer of de telefoon bewegingssensoren toestaat.','err')},3000);
-   try{navigator.wakeLock&&navigator.wakeLock.request('screen')}catch(e){}};
-  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function')
-   DeviceOrientationEvent.requestPermission().then(go,go);
-  else go()}
- function list(){const a=load(),el=$('kp-list');if(!a.length){el.innerHTML='<p class="hint" style="margin:0">Nog geen metingen.</p>';return}
-  const groups={};a.forEach(m=>(groups[m.l]=groups[m.l]||[]).push(m));
-  el.innerHTML=Object.entries(groups).map(([l,ms])=>{const av=cavg(ms.map(m=>m.d)),s=sec(av),vg=av;
-   const r=x=>Math.round(nrm(x))+'° '+sec(x);
-   return '<div style="border:1px solid #d5dbe1;border-radius:8px;padding:8px;margin-bottom:8px"><b>'+esc(l)+'</b> – gemiddeld <b>'+Math.round(av)+'° '+NAAM[s]+'</b> ('+ms.length+'×: '+ms.map(m=>m.d+'°').join(', ')+')'+
-    '<div class="hint" style="margin-top:4px">Als dit de voorgevel is: VG '+r(vg)+' · AG '+r(vg+180)+' · ZGL '+r(vg+90)+' · ZGR '+r(vg-90)+(grens(av)<5?' · <span style="color:#C0392B">dicht bij sectorgrens</span>':'')+'</div></div>'}).join('')}
- document.addEventListener('click',e=>{const id=e.target.id;
-  if(id==='kp-start')start();
-  if(id==='kp-save'&&cur!=null){const l=($('kp-lbl').value||'Meting').trim(),a=load();a.push({l,d:Math.round(cur),t:Date.now()});store(a);list()}
-  if(id==='kp-clear'){if(confirm('Alle kompasmetingen wissen?')){store([]);list()}}
-  if(id==='kp-copy'){const t=$('kp-list').innerText;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>msg('kp-msg','Gekopieerd.','ok'))}});
- document.addEventListener('change',e=>{if(e.target.id==='kp-decl')buf=[]});
- list();
-})();
-
 function show(view,push=true){
  if(!TITLES[view])view='home';
- {const bb=$('back-btn');if(bb)bb.textContent=(view==='driehoek'||view==='kompas'||view==='interp')?'← Rekenhulpen':'← Dashboard'}
+ {const bb=$('back-btn');if(bb)bb.textContent=(view==='driehoek'||view==='interp')?'← Rekenhulpen':'← Dashboard'}
  {const prev=VIEW_ADDR[curView]&&$(VIEW_ADDR[curView]);if(prev)lastAddrSet(prev.value);curView=view}
  document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='view-'+view);
  document.body.classList.toggle('in-view',view!=='home');
@@ -1753,7 +1671,7 @@ window.addEventListener('pagehide',()=>{const el=VIEW_ADDR[curView]&&$(VIEW_ADDR
 const ELN_NIEUW=(()=>{try{if(sessionStorage.getItem('eln-sessie'))return false;sessionStorage.setItem('eln-sessie','1');return true}catch(e){return false}})();
 if(ELN_NIEUW){try{['eln-last-addr','dhLosAdres'].forEach(k=>localStorage.removeItem(k))}catch(e){}
  const leeg=()=>Object.values(VIEW_ADDR).forEach(id=>{const el=$(id);if(el)el.value=''});leeg();setTimeout(leeg,0);setTimeout(leeg,600);window.addEventListener('load',()=>setTimeout(leeg,50))}
-$('back-btn').addEventListener('click',()=>show((curView==='driehoek'||curView==='kompas'||curView==='interp')?'klein':'home'));
+$('back-btn').addEventListener('click',()=>show((curView==='driehoek'||curView==='interp')?'klein':'home'));
 window.addEventListener('popstate',()=>show(location.hash.slice(1)||'home',false));
 window.addEventListener('hashchange',()=>show(location.hash.slice(1)||'home',false));
 $('home-link').addEventListener('click',()=>show('home'));
@@ -2184,7 +2102,7 @@ const HELP={
   {at:'#ob-secties',t:'3. Controleren',b:'Per onderdeel zie je je waarnemingen (tik erop om te verbeteren, of verplaats ze met de keuzelijst) en de automatische <b>onderbouwing</b>: bijv. de Rc volgens de basismethode bij een isolatiedikte, de glassoort, het ventilatiesysteem of het bewijs, met de paragraaf uit het opnameprotocol.'},
   {at:'#ob-objbtn',t:'Objectdossier',b:'<b>📍 Ophalen</b> laadt het objectdossier van het adres op de achtergrond: BAG-gegevens, kadasterkaart, 3DBAG-model, luchtfoto, hoogte en dakvlakken. Kies daarna welke gevel de voorgevel is; dan komen ook de gevelrichtingen erin. Alles komt in de PDF (hoofdstuk Objectgegevens en bijlage 1).'},{at:'#ob-docdrop',t:'Documenten',b:'Met <b>📎 Toevoegen</b> voeg je tekeningen, bestek, productbladen, facturen of foto’s toe. De app leest ze (ook scans), stelt de gevonden gegevens voor en zet ze met <b>Gegevens toevoegen</b> onder het juiste onderdeel, met de bron erbij. Vink <b>als bijlage</b> aan om het document in de PDF op te nemen.'},{at:'#ob-prev',t:'4. Voorbeeld en PDF',b:'Met <b>Voorbeeld bekijken</b> lees je de PDF eerst door; daarna <b>Opslaan (concept)</b> of <b>Opslaan als definitief</b>, of terug om aan te passen. <b>PDF opslaan</b> slaat direct op. Is het objectdossier van hetzelfde adres open (voorgevel aangeklikt), dan komen oriëntatie, dakvlakken, hoogte en de gevelkaart er vanzelf in. De PDF: op briefpapier, met objectgegevens en per onderdeel Waarneming, Onderbouwing en Bron. Met <b>Nieuwe onderbouwing</b> begin je opnieuw.'}],
  klein:[
-  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Driehoekmeter</b> – Driehoek &amp; dak: dakvlak, hellingshoek, GO en dakvormen.</li><li><b>Gevelkompas</b> – oriëntatie van een gevel meten met je telefoon.</li><li><b>Dakvlakken uit 3D BAG</b> – 3D-model met alle schuine en platte dakvlakken (m², helling, oriëntatie), voor als het dak niet bereikbaar is.</li><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li></ul>Dakvormen staan bij de <b>Driehoekmeter</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
+  {at:'#kr-menu',t:'Kies een rekenhulp',b:'Tik op een knop om die rekenhulp te openen:<ul><li><b>Driehoekmeter</b> – Driehoek &amp; dak: dakvlak, hellingshoek, GO en dakvormen.</li><li><b>Dakvlakken uit 3D BAG</b> – 3D-model met alle schuine en platte dakvlakken (m², helling, oriëntatie), voor als het dak niet bereikbaar is.</li><li><b>Ramen en deuren</b> – m² van openingen met een afwijkende vorm, met tekening op maat.</li><li><b>Glas in deur</b> – percentage glas en het dichte deel.</li><li><b>PV verdeler</b> – gedeelde zonnepanelen naar rato van Ag.</li><li><b>EP2-bandbreedte</b> – labelgrenzen en welk label bij een EP2 hoort.</li><li><b>kWh, MJ en GJ</b> – omrekenen.</li></ul>Dakvormen staan bij de <b>Driehoekmeter</b>. Open je een rekenhulp en tik je dan op <b>?</b>, dan krijg je de uitleg van die rekenhulp.'}],
  home:[
   {at:'.hg-kaart',t:'Het dashboard',b:'De hulpmiddelen staan in <b>hoofdgroepen</b>. Tik op een groep om de tegels te zien; met <b>← Alle groepen</b> ga je terug. Elke tegel opent een hulpmiddel. Op elke pagina staat bovenin <b>← Dashboard</b> om terug te gaan en een <b>?</b> met de uitleg van díe pagina, met pijlen langs de knoppen.'},
   {at:'#spMic',t:'Inspreken met de microfoon',b:'Tik in een invulveld en daarna op de groene microfoon rechtsonder, en zeg de waarde (bijv. <i>drie komma vijf</i> of <i>veertig graden</i>). Zeg <b>volgende</b> om naar het volgende veld te gaan of <b>wissen</b> om het veld leeg te maken. Zonder veld gekozen kun je een pagina of knop noemen, bijv. <i>driehoekmeter</i>, <i>dakvormen</i>, <i>beslisschema’s</i> of <i>terug</i>. Werkt in Chrome op de telefoon (internet nodig).'},{t:'Waar staat je werk?',b:'Wat je invoert wordt in deze browser bewaard (niet online). Op een andere computer of telefoon zie je het dus niet, tenzij je een back-up of export meeneemt.<br><br>Open je het dashboard opnieuw, dan zijn de adresvelden leeg; je bewaarde werk blijft gewoon staan.'}],
@@ -6912,7 +6830,7 @@ if(document.readyState!=='loading')obInit();else document.addEventListener('DOMC
 </script>
 <script>window.SPRAAK_CMD=function(n,t,fase){const nn=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
  if(fase==='eerst'){if(/^(terug|home|dashboard|start|beginscherm|hoofdmenu)$/.test(n)){show('home');return true}return false}
- const syn={onderbouwing:'onderbouwing',driehoekmeter:'driehoek',driehoek:'driehoek',dakvormen:'driehoek',dakvorm:'driehoek',rekenhulpen:'klein',rekenhulp:'klein',rekenhulpjes:'klein',beslisschemas:'beslis',beslisschema:'beslis',objectdossier:'gevel',orientatie:'gevel',bag:'gevel',complexgegevens:'schetsen',referentiewoningen:'schetsen',referentiewoning:'schetsen',uitvoerlijst:'uitvoer',funderingsdossier:'fundering',fundering:'fundering',gevelkompas:'kompas',kompas:'kompas','rc berekening':'rc',rc:'rc',interpoleren:'interp',zonering:'stappen',opnameformulier:'opname',bronnen:'bronnen','fotos sorteren':'fotos',projectmappen:'mappen',mappen:'mappen',dossierbundel:'dossier'};
+ const syn={onderbouwing:'onderbouwing',driehoekmeter:'driehoek',driehoek:'driehoek',dakvormen:'driehoek',dakvorm:'driehoek',rekenhulpen:'klein',rekenhulp:'klein',rekenhulpjes:'klein',beslisschemas:'beslis',beslisschema:'beslis',objectdossier:'gevel',orientatie:'gevel',bag:'gevel',complexgegevens:'schetsen',referentiewoningen:'schetsen',referentiewoning:'schetsen',uitvoerlijst:'uitvoer',funderingsdossier:'fundering',fundering:'fundering','rc berekening':'rc',rc:'rc',interpoleren:'interp',zonering:'stappen',opnameformulier:'opname',bronnen:'bronnen','fotos sorteren':'fotos',projectmappen:'mappen',mappen:'mappen',dossierbundel:'dossier'};
  let v=Object.keys(syn).sort((a,b)=>b.length-a.length).find(k=>(' '+n+' ').includes(' '+k+' ')||n.replace(/ /g,'').includes(k.replace(/ /g,'')));v=v?syn[v]:Object.keys(TITLES).find(k=>k!=='home'&&(nn(TITLES[k]).includes(n)||n.includes(nn(TITLES[k]))));
  if(!v)return false;const tile=document.querySelector('[data-open="'+v+'"]');if(tile)tile.click();else show(v);return true};</script>
 <script id="spraak-js">
