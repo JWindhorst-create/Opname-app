@@ -1031,32 +1031,38 @@ function home(){
  $('#impBtn').onclick=()=>$('#fileImport').click();
  $('#view').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openA(b.dataset.open));
  $('#view').querySelectorAll('[data-dela]').forEach(b=>b.onclick=()=>confirmBox('Dit advies definitief verwijderen?',async()=>{S.index=S.index.filter(x=>x.id!==b.dataset.dela);await DB.del('a:'+b.dataset.dela);await DB.set('index',S.index);home()}));
- $('#view').querySelectorAll('[data-dup]').forEach(b=>b.onclick=async()=>{const k=await DB.get('a:'+b.dataset.dup);if(!k)return;const c=clone(k);c.id=uid();c.rapportnr=nextNr(c.obj.soort);c.obj.adres=(c.obj.adres||'')+' (kopie)';await DB.set('a:'+c.id,c);S.index.push({id:c.id,adres:c.obj.adres,datum:c.obj.datum,soort:c.obj.soort,rapportnr:c.rapportnr,updated:Date.now()});await DB.set('index',S.index);home()});
+ $('#view').querySelectorAll('[data-dup]').forEach(b=>b.onclick=async()=>{const k=await DB.get('a:'+b.dataset.dup);if(!k)return;const c=clone(k);c.id=uid();c.obj.adres=(c.obj.adres||'')+' (kopie)';await DB.set('a:'+c.id,c);S.index.push({id:c.id,adres:c.obj.adres,datum:c.obj.datum,soort:c.obj.soort,rapportnr:c.rapportnr,updated:Date.now()});await DB.set('index',S.index);home()});
 }
 $('#fileImport').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const k=JSON.parse(await f.text());if(!k.obj||!k.h)throw 0;k.id=uid();await DB.set('a:'+k.id,k);S.index.push({id:k.id,adres:k.obj.adres,datum:k.obj.datum,soort:k.obj.soort,rapportnr:k.rapportnr,updated:Date.now()});await DB.set('index',S.index);openA(k.id)}catch(_){toast('Geen geldig adviesbestand')}};
 function nextNr(soort){const y=new Date().getFullYear();const n=(S.settings.teller||0)+1;S.settings.teller=n;save();return`${(SOORT[soort]||SOORT.verbeter).nr}-${y}-${String(n).padStart(3,'0')}`}
 function nieuwH(){return{Ag:'',bj:'',lagen:'',hGevel:'',gevelType:'spouw',spouwB:'60',spouwVol:false,gevels:[],daken:[],vloer:{m2:'',Rc:'',grens:'kruipruimte'},glas:'dubbel',mVl:'zwaar',mWa:'zwaar',
  vent:'C',dc:false,opw:'hr107',scop:'',afg:'HT',trk:true,inregel:false,tap:'combi',dwtw:false,zb:false,pv:'',pvOr:'',kier:false,inf:'',verl:''}}
 async function nieuw(soort){const now=new Date();
- const k={id:uid(),rapportnr:nextNr(soort),created:Date.now(),updated:Date.now(),versie:'1.0',status:'concept',
+ const k={id:uid(),rapportnr:'',created:Date.now(),updated:Date.now(),versie:'1.0',status:'concept',
   obj:{soort,datum:now.toISOString().slice(0,10),rapportdatum:now.toISOString().slice(0,10),adviseur:S.settings.adviseur||'',registratie:S.settings.registratie||'',opdrachtgever:'',ogAdres:'',ogMail:'',ogTel:'',
    adres:'',postcode:'',plaats:'',bouwjaar:'',renovatiejaar:'',gbo:'',fn:'woning',type:'Tussenwoning',bouwlagen:'',hoogte:'',gebruiksdoel:'',label:'',labelInfo:'',ep2Label:'',voorgevel:'',wensen:'',verbruikGas:'',verbruikStroom:'',uitvoerjaar:String(now.getFullYear()+1)},
   h:nieuwH(),P:{pgas:'1,35',pstroom:'0,30',pterug:'0,05',saldering:false,co2el:'0,33',fpNet:'1,0',pwarmte:'0,11'},
   doel:{labels:soort==='dumava'?['B','A']:['A','A+'],routes:['kosten','schil','hybride','allelec','max'],uitsluiten:[],gevelVoorkeur:'voorzet',glasVoorkeur:'hrpp'},prijzen:{},pakketten:[],advies:'',conclusie:''};
  S.index.push({id:k.id,adres:'',datum:k.obj.datum,soort,rapportnr:k.rapportnr,updated:Date.now()});await DB.set('a:'+k.id,k);await DB.set('index',S.index);openA(k.id)}
-async function openA(id){S.cur=await DB.get('a:'+id);if(!S.cur)return home();S.tab='object';shell()}
+/* rapportnummer = postcode-huisnummer (bijv. 2406EB-5) */
+function rnBereken(o,d){const pc=String((d&&d.postcode)||o.postcode||'').replace(/\s+/g,'').toUpperCase();let nr='';
+ if(d&&d.huisnummer){nr=String(d.huisnummer)+String(d.huisletter||'').toUpperCase()+(d.huisnummertoevoeging?'-'+d.huisnummertoevoeging:'')}
+ else{const m=String(o.adres||'').match(/\s(\d+)(?:\s*([a-zA-Z])(?![a-zA-Z]))?(?:\s*-\s*|\s+)?([0-9a-zA-Z]{1,4})?\s*$/);if(m)nr=m[1]+(m[2]||'').toUpperCase()+(m[3]?'-'+m[3]:'')}
+ return pc&&nr?pc+'-'+nr:''}
+function rnZet(d){const k=S.cur;if(!k)return;const r=rnBereken(k.obj,d);if(r&&r!==k.rapportnr){k.rapportnr=r;const i=S.index.find(x=>x.id===k.id);if(i)i.rapportnr=r;save()}}
+async function openA(id){S.cur=await DB.get('a:'+id);if(!S.cur)return home();rnZet();S.tab='object';shell()}
 
 /* ---------- SHELL & TABS ---------- */
 const TICON={object:'home',huidig:'layers',doel:'target',pakket:'package',rapport:'file'};
 function shell(){
- $('#btnBack').hidden=false;$('#tabs').hidden=false;$('#title').textContent=S.cur.obj.adres||S.cur.rapportnr;
+ $('#btnBack').hidden=false;$('#tabs').hidden=false;$('#title').textContent=S.cur.obj.adres||S.cur.rapportnr||'Nieuw advies';
  const T=[['object','Object'],['huidig','Huidig'],['doel','Doel'],['pakket','Pakketten'],['rapport','Rapport']];
  $('#tabs').innerHTML=T.map(([k,t])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${appIco(TICON[k],22)}${t}</button>`).join('');
  $('#tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;shell();scrollTo(0,0)});
  ({object:vObject,huidig:vHuidig,doel:vDoel,pakket:vPakket,rapport:vRapport})[S.tab]()}
 function bindInputs(root,base,after){
  root.querySelectorAll('[data-k]').forEach(el=>{const p=el.dataset.k;const v=getPath(base,p);if(el.type==='checkbox')el.checked=!!v;else if(v!=null)el.value=v;
-  el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',()=>{setPath(base,p,el.type==='checkbox'?el.checked:el.value);save();if(p==='obj.adres')$('#title').textContent=el.value||S.cur.rapportnr;if(el.dataset.rerender)shell();else if(after)after(p,el)})});
+  el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',()=>{setPath(base,p,el.type==='checkbox'?el.checked:el.value);save();if(p==='obj.adres'||p==='obj.postcode')rnZet();if(p==='obj.adres')$('#title').textContent=el.value||S.cur.rapportnr||'Nieuw advies';if(el.dataset.rerender)shell();else if(after)after(p,el)})});
  root.querySelectorAll('[data-seg]').forEach(seg=>{const p=seg.dataset.seg;const v=getPath(base,p);
   seg.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===String(v));b.onclick=()=>{setPath(base,p,b.dataset.v);seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));save();if(seg.dataset.rerender)shell();else if(after)after(p,b)}})});
  root.querySelectorAll('textarea[data-k]').forEach(addMic)}
@@ -1123,7 +1129,7 @@ function forfaitair(a=S.cur,alleenLeeg=true){const o=a.obj,h=a.h,jaar=num(o.reno
  const bj=num(o.bouwjaar);if(!h.glas||!alleenLeeg)h.glas=bj>=2000?'hrpp':bj>=1975?'dubbel':'dubbel';if(!h.vent||!alleenLeeg)h.vent=bj>=1990?'C':'A'}
 async function pickAdres(id){const o=S.cur.obj,h=S.cur.h;$('#adrUl').hidden=true;const msg=()=>$('#bagMsg');let d;
  try{const r=await fetch('https://api.pdok.nl/bzk/locatieserver/search/v3_1/lookup?id='+encodeURIComponent(id));d=(await r.json()).response.docs[0]}catch(_){msg().textContent='Adres zoeken niet bereikbaar (geen internet?). Vul handmatig in.';return}
- o.adres=`${d.straatnaam} ${d.huis_nlt||d.huisnummer}`;o.postcode=d.postcode||'';o.plaats=d.woonplaatsnaam||'';save();vObject();$('#title').textContent=o.adres;msg().textContent='Adres overgenomen; gegevens ophalen uit de BAG en 3D BAG…';
+ o.adres=`${d.straatnaam} ${d.huis_nlt||d.huisnummer}`;o.postcode=d.postcode||'';o.plaats=d.woonplaatsnaam||'';rnZet(d);save();vObject();$('#title').textContent=o.adres;msg().textContent='Adres overgenomen; gegevens ophalen uit de BAG en 3D BAG…';
  try{const m=/POINT\(([\d.]+) ([\d.]+)\)/.exec(d.centroide_rd||'');if(!m)throw new Error('geen coördinaten');const x=+m[1],y=+m[2];
   const base='https://service.pdok.nl/lv/bag/wfs/v2_0?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&srsName=EPSG:28992&bbox='+[x-1,y-1,x+1,y+1].join(',')+',EPSG:28992&typeNames=';
   const [vr,pr0]=await Promise.all([fetch(base+'bag:verblijfsobject').then(r=>r.json()),fetch(base+'bag:pand').then(r=>r.json())]);
