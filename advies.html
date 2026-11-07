@@ -315,6 +315,20 @@ nav.tabs button.on{color:var(--brand2);font-weight:700}
 .rpt table.mat td{font-size:8pt}.rpt table.mat a{color:var(--g)}
 .rpt .uit{font-size:8.4pt}
 
+.rpt .pg.cover.s2{background:#fff}
+.rpt .s2-foto{position:absolute;top:0;left:0;width:210mm;height:169.3mm;background:var(--g0) 50% 40%/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--g)}
+.rpt .s2-shade{position:absolute;top:0;left:0;width:95.3mm;height:68.8mm;background:radial-gradient(ellipse at 0% 0%,rgba(20,40,30,.38) 0%,rgba(20,40,30,0) 70%)}
+.rpt .s2-logo{position:absolute;top:10.6mm;left:12.7mm;width:29.6mm;height:34.7mm;object-fit:contain;object-position:left top;opacity:.9;background:rgba(255,255,255,.85);border-radius:2mm;padding:2mm}.rpt .s2-logo.wl{background:none;padding:0}
+.rpt .s2-concept{position:absolute;top:12mm;right:12mm;background:#fff;color:#9a5b00;font-weight:800;font-size:8.5pt;letter-spacing:1.5px;padding:1.4mm 3.5mm;border-radius:99px}
+.rpt .s2-boog{position:absolute;top:0;left:0;width:210mm;height:297mm}
+.rpt .s2-spruit{position:absolute;left:122.2mm;top:62.4mm;width:82.5mm;height:288.9mm;opacity:.95}
+.rpt .s2-txt{position:absolute;top:182.6mm;left:16.9mm;width:104mm;color:#fff;display:flex;flex-direction:column;gap:2.6mm}
+.rpt .s2-txt .k{font-size:9pt;font-weight:700;letter-spacing:2.6px;text-transform:uppercase;color:#C8E4D0}
+.rpt .s2-txt h1{margin:0;font-size:32pt;line-height:1.04;font-weight:800;color:#fff;text-wrap:balance}
+.rpt .s2-txt .s{font-size:13pt;color:#E3F1E7;line-height:1.35}
+.rpt .s2-meta{position:absolute;top:236mm;left:16.9mm;width:104mm;display:grid;grid-template-columns:1fr 1fr;gap:3.2mm 4.2mm;color:#fff;border-top:.75pt solid rgba(255,255,255,.35);padding-top:3.7mm;font-size:10pt}
+.rpt .s2-meta span{display:block;font-size:8pt;color:#C8E4D0;margin-bottom:.4mm}.rpt .s2-meta b{font-weight:700}
+.rpt .s2-co{position:absolute;bottom:9mm;left:16.9mm;width:104mm;font-size:7.4pt;color:#C8E4D0}
 </style>
 </head>
 <body>
@@ -784,6 +798,21 @@ function schaalHTML(fn,marks){const won=fn==='woning';const L=won?['A++++','A+++
  const w=L.length;return`<div class="lsch">${L.map((l,j)=>{const ms=marks.filter(m=>m.l===l);return`<div class="lr"><div class="lb" style="width:${30+(j/(w-1))*55}%;background:${LKLR[l]};color:${lblInk(l)}"><b>${l}</b><span>${rng(l,j)}</span></div><div class="lm">${ms.map(m=>`<span class="mk${m.cur?' cur':''}">◄ ${esc(m.t)}</span>`).join('')}</div></div>`}).join('')}</div>
  <p class="note">EP2 in kWh/m²·jr (primair fossiel energiegebruik) volgens de Regeling energieprestatie gebouwen${won?', bijlage I (woningen)':', bijlage Ia ('+esc((UTF[fn]||['utiliteit'])[0].toLowerCase())+')'}.</p>`}
 
+let S2_WL=null,S2_WLsrc='';
+async function prepS2Logo(){const src=bpLogo();if(S2_WL&&S2_WLsrc===src)return S2_WL;S2_WLsrc=src;
+ try{const im=new Image();await new Promise((r,j)=>{im.onload=r;im.onerror=j;im.src=src});const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data;for(let i=0;i<p.length;i+=4){const a=Math.min(255,(255-Math.min(p[i],p[i+1],p[i+2]))*1.7)*(p[i+3]/255);p[i]=p[i+1]=p[i+2]=255;p[i+3]=a}
+  x.putImageData(d,0,0);S2_WL=c.toDataURL('image/png')}catch(e){S2_WL=null}return S2_WL}
+/* ---------- voorblad S2 · spruit groeit uit de boog ---------- */
+function s2Cover(o){const st=S.settings;return`
+ <div class="s2-foto" style="${o.foto?`background-image:url(${o.foto})`:''}">${o.foto?'':ico('camera',16)}</div>
+ <div class="s2-shade"></div><img class="s2-logo${S2_WL?' wl':''}" src="${S2_WL||bpLogo()}" alt="">
+ ${o.concept?'<div class="s2-concept">CONCEPT</div>':''}
+ <svg class="s2-boog" viewBox="0 0 794 1123" preserveAspectRatio="none" aria-hidden="true"><path d="M0 632 C 360 632, 600 586, 794 470 L 794 1123 L 0 1123 Z" fill="${st.kleur||'#2D6042'}"/></svg>
+ <svg class="s2-spruit" viewBox="0 0 120 420" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M60 70 C 40 55, 40 25, 60 8 C 80 25, 80 55, 60 70 Z"/><path d="M60 70 V420"/><path d="M36 420 V108 C 36 90, 24 82, 10 82 C 8 98, 18 108, 36 108"/><path d="M84 420 V108 C 84 90, 96 82, 110 82 C 112 98, 102 108, 84 108"/></svg>
+ <div class="s2-txt"><div class="k">${o.kick}</div><h1>${o.titel}</h1><div class="s">${o.sub}</div></div>
+ <div class="s2-meta">${o.meta.map(([l,v])=>`<div><span>${l}</span><b>${v||'–'}</b></div>`).join('')}</div>
+ <div class="s2-co">${[st.adres,st.tel,st.email,st.web,st.kvk?'KvK '+st.kvk:''].filter(Boolean).map(esc).join(' · ')}</div>`}
 /* ---------- rapport: secties ---------- */
 function buildSections(){
  const a=S.cur,o=a.obj,st=S.settings,H=huidig(a),RS=a.pakketten.map(p=>pakRes(p,a)),sd=SOORT[o.soort]||SOORT.verbeter;
@@ -793,19 +822,9 @@ function buildSections(){
  const doelen=[...new Set(a.pakketten.map(p=>p.doel))].sort((x,y)=>ORDE.indexOf(x)-ORDE.indexOf(y));
  const S2=[];
  /* voorblad */
- S2.push({cover:true,html:`
-  <div class="cv-head"><div class="kick">${esc(sd.kick)}</div><h1>${esc(o.adres||'Adres object')}</h1><div class="sub">${esc([o.postcode,o.plaats].filter(Boolean).join('  '))}</div>
-   <div class="sub" style="color:#6E6E6E;margin-top:1mm">${[o.type,o.bouwjaar?'bouwjaar '+o.bouwjaar:'',num(H.s.Ag)?f0(H.s.Ag)+' m² gebruiksoppervlakte':''].filter(Boolean).map(esc).join(' · ')}</div>
-   <div class="doel">Van label ${esc(H.label)} naar ${doelen.length?doelen.map(esc).join(' / '):'een beter label'}</div></div>
-  <div class="cv-photo" style="${o.voorgevel?`background-image:url(${o.voorgevel})`:''}">${o.voorgevel?'':ico('camera',14)}</div>
-  <div class="cv-kpi">
-   <div>${rLbl(H.label,9)}<div><span>Huidig energielabel</span><b>EP2 ${fx(ep2H,0)}</b></div></div>
-   <div>${RR?rLbl(RR.label,9):ico('target',10)}<div><span>Aanbevolen pakket</span><b>${RR?'EP2 '+fx(RR.ep2,0):'–'}</b></div></div>
-   <div>${ico('euro',10)}<div><span>Investering aanbevolen pakket</span><b>${RR?eur(RR.inv):'–'}</b></div></div></div>
-  <div class="cv-meta">
-   <div><span>Rapportnummer</span>${esc(a.rapportnr)}</div><div><span>Versie / status</span>${esc(a.versie||'1.0')} <span class="status ${concept?'concept':'def'}">${concept?'CONCEPT':'DEFINITIEF'}</span></div><div><span>Opnamedatum</span>${fmtDate(o.datum)}</div>
-   <div><span>Opdrachtgever</span>${esc(o.opdrachtgever||'–')}</div><div><span>EP-adviseur</span>${esc(o.adviseur||'–')}</div><div><span>Certificaatnummer</span>${esc(o.registratie||'–')}</div></div>
-  <div class="cv-co"><b>${esc(st.bedrijf||'')}</b>${st.adres?' · '+esc(st.adres):''}<br>${[st.tel,st.email,st.web,st.kvk?'KvK '+st.kvk:''].filter(Boolean).map(esc).join(' · ')}</div>`});
+ S2.push({cover:true,html:s2Cover({foto:o.voorgevel,concept,kick:esc(sd.kick),titel:esc(o.adres||'Adres object'),
+  sub:[esc([o.postcode,o.plaats].filter(Boolean).join('  ')),'Van label '+esc(H.label)+' naar '+(doelen.length?doelen.map(esc).join(' / '):'een beter label'),[o.type,o.bouwjaar?'bouwjaar '+o.bouwjaar:''].filter(Boolean).map(esc).join(' · ')].filter(Boolean).join('<br>'),
+  meta:[['Rapportnummer',esc(a.rapportnr)],['Opnamedatum',fmtDate(o.datum)],['EP-adviseur',esc(o.adviseur||st.adviseur||'')],['Adviesbureau',esc(st.bedrijf||'')],['Huidig label',esc(H.label)+' · EP2 '+fx(ep2H,0)],['Aanbevolen pakket',RR?esc(RR.label)+' · '+eur(RR.inv):'–']]})});
 
  const chapters=[['01','Samenvatting','clip'],['02','Uitgangspunten','info'],['03','Huidige situatie','home'],['04','Maatregelen','tool'],['05','Maatregelenpakketten','package'],['06','Materialen en kwaliteitsverklaringen','shield'],['07','Subsidies en regelingen','euro'],['08','Verantwoording en ondertekening','pen'],['B1','Bijlage: invoer Vabi per pakket','cpu']];
  const CH=Object.fromEntries(chapters.map(c=>[c[0],c]));
@@ -900,7 +919,7 @@ function buildSections(){
  return S2}
 
 const mmPx=mm=>mm*96/25.4;
-async function renderPages(){
+async function renderPages(){ await prepS2Logo();
  const a=S.cur,o=a.obj,st=S.settings;const secs=buildSections();
  try{if(document.fonts)await document.fonts.ready}catch(_){}
  const meas=document.createElement('div');meas.className='rpt';meas.style.cssText='position:absolute;left:-10000px;top:0;visibility:hidden;width:178mm';document.body.appendChild(meas);
@@ -912,7 +931,7 @@ async function renderPages(){
  meas.remove();
  const N=pages.length,concept=(a.status||'concept')==='concept';const wm=bpWm(),logo=bpLogo(),adres=[o.adres,o.plaats].filter(Boolean).join(', ');const sd=SOORT[o.soort]||SOORT.verbeter;
  const base=`${wm?`<img class="bp-wm" src="${wm}">`:''}<img class="bp-logo" src="${logo}">${concept?'<div class="wmk">CONCEPT</div>':''}`;
- return pages.map((p,i)=>{if(p.cover)return`<div class="pg cover">${base}${p.html}</div>`;
+ return pages.map((p,i)=>{if(p.cover)return`<div class="pg cover s2">${p.html}</div>`;
   const html=p.blocks.map(b=>`<div class="blk">${b}</div>`).join('').replace(/\{\{p:(\w+)\}\}/g,(_,x)=>startOf[x]||'');
   return`<div class="pg">${base}<div class="ph"><div class="t1">${esc(st.bedrijf?st.bedrijf+' · ':'')}${esc(sd.kick)}</div><div class="t2">${esc(adres||'')}</div><div class="t3">${p.sec.no?esc(p.sec.no)+' · ':''}${esc(p.sec.title)}${p.cont?' (vervolg)':''}</div></div>
    <div class="pc">${html}</div><div class="pf"><span>Rapport ${esc(a.rapportnr)} · versie ${esc(a.versie||'1.0')} · ${fmtDate(o.rapportdatum||o.datum)}</span><span>Pagina ${i+1} van ${N}</span></div></div>`}).join('')}
