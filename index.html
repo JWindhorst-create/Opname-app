@@ -1543,13 +1543,14 @@ body.v-opname{background-image:none!important}
  </div>
  <div class="kr-card" id="kr-glas">
   <h3>Glas in deur</h3>
-  <p class="kr-sub">Vul het oppervlak van de deur en van het glas in. De meter toont direct het percentage glas: groen tot 65%, rood daarboven.</p>
+  <p class="kr-sub">Vul het oppervlak van de deur en van het glas in. De balk loopt mee met de naald: groen tot 65%, daarboven rood.</p>
   <div class="kr-row"><div>Deur (m²)<input id="kg-dm" inputmode="decimal" placeholder="bijv. 2,15"></div><div>Glas (m²)<input id="kg-gm" inputmode="decimal" placeholder="bijv. 0,60"></div></div>
   <div class="kg-schijf"><svg viewBox="0 0 220 160" width="100%" style="max-width:340px;display:block;margin:6px auto 0">
-   <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#3f9a5f" stroke-width="20" pathLength="100" stroke-dasharray="65 100"/>
-   <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#c8462e" stroke-width="20" pathLength="100" stroke-dasharray="0 65 35 100"/>
-   <g id="kg-ticks"></g>
-   <g id="kg-naald" style="transform-origin:110px 115px;transform:rotate(-90deg);transition:transform .5s cubic-bezier(.3,1.35,.5,1)"><line x1="110" y1="125" x2="110" y2="30" stroke="#1d2b24" stroke-width="2.5" stroke-linecap="round"/></g>
+   <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#e3ece6" stroke-width="18"/>
+   <path id="kg-groen" d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#3f9a5f" stroke-width="18" pathLength="100" stroke-dasharray="0 100" style="transition:stroke-dasharray .5s ease"/>
+   <path id="kg-rood" d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#c8462e" stroke-width="18" pathLength="100" stroke-dasharray="0 65 0 100" style="transition:stroke-dasharray .5s ease"/>
+   <g id="kg-m65"></g>
+   <g id="kg-naald" style="transform-origin:110px 115px;transform:rotate(-90deg);transition:transform .5s ease"><line x1="110" y1="115" x2="110" y2="34" stroke="#1d2b24" stroke-width="2.5" stroke-linecap="round"/></g>
    <circle cx="110" cy="115" r="6" fill="#1d2b24"/>
    <text id="kg-pct" x="110" y="155" font-size="24" font-weight="700" fill="#24503a" text-anchor="middle">–</text></svg></div>
   <div class="kr-res" id="kg-uit">Vul de m² van deur en glas in.</div>
@@ -2187,7 +2188,7 @@ const HELP_KR={
   {at:'#kr-velden',t:'2. Maten',b:'Vul de maten in meters in, eventueel een omschrijving en het aantal. De tekening eronder wordt op deze maten getekend.'},
   {at:'#kr-uit',t:'3. Uitkomst',b:'De oppervlakte met de gebruikte formule. Met <b>+ Op de lijst</b> zet je de opening op de lijst.'},
   {at:'#kr-lijst',t:'4. Lijst en totaal',b:'Alle openingen met het totaal in m². Met het kruisje haal je een regel weg.'}],
- 'kr-glas':[{at:'#kg-dm',t:'1. Deur en glas',b:'Vul de m² van de deur en de m² glas in. De snelheidsmeter toont het percentage glas: groen tot 65% (deur), rood daarboven (invoeren als raam).'},
+ 'kr-glas':[{at:'#kg-dm',t:'1. Deur en glas',b:'Vul de m² van de deur en de m² glas in. De balk loopt mee met de naald: groen tot 65% (deur), daarboven rood (invoeren als raam).'},
   {at:'#kg-uit',t:'2. Uitkomst',b:'Het percentage glas en het oppervlak van het dichte deel. Gebruik dit bij de keuze voor de U-waarde (beslisschema U-waarde deuren).'}],
  'kr-pv':[{at:'#pv-n',t:'1. Gedeelde panelen',b:'Vul het aantal panelen in dat op de hoofdmeter of een collectieve installatie zit. Wp en m² per paneel zijn optioneel. Staan niet alle aangesloten woningen in de lijst, vul dan de totale Ag in.'},
   {at:'#pv-rows',t:'2. Woningen',b:'Zet per woning het adres en de Ag erin met <b>+ Woning</b>, of plak een lijst (adres + Ag) met <b>Lijst plakken</b>.'},
@@ -6325,12 +6326,9 @@ ${B?`<div class="d3-meth">${E(B.info.join(' '))}${B.ok?'':' <b>Vul een binnenmaa
  if(st.x)ids.forEach(i=>{if(st.x[i]!=null&&st.x[i]!=='')g(i).value=st.x[i]});
  function dakf(){const a=nm(g('kd-a').value),al=nm(g('kd-al').value);if(!(a>0&&al!=null&&al>=0&&al<90)){g('kd-uit').innerHTML='Vul oppervlak en hellingshoek in.';return}const f=1/Math.cos(al*R);
   g('kd-uit').innerHTML='Dakoppervlak: <b>'+F(a*f)+' m²</b><div class="kr-f">Dakfactor 1 / cos '+F(al,1)+'° = '+F(f,3)+' · '+F(a)+' × '+F(f,3)+'</div>'}
- function glas(){const D=nm(g('kg-dm').value),G=nm(g('kg-gm').value),naald=g('kg-naald'),pc=g('kg-pct'),tk=g('kg-ticks');
-  if(!tk.childNodes.length){let h='';for(let v=0;v<=100;v+=5){const a=Math.PI*(1-v/100),lang=v%10===0,r1=lang?70:74,c=Math.cos(a),s=Math.sin(a);
-    h+=`<line x1="${110+c*r1}" y1="${115-s*r1}" x2="${110+c*80}" y2="${115-s*80}" stroke="#4a5a52" stroke-width="${lang?1.6:.9}"/>`;
-    if(v%20===0||v===65)h+=`<text x="${110+c*(v===65?104:60)}" y="${115-s*(v===65?104:60)+3.5}" font-size="${v===65?10:9}" font-weight="${v===65?700:400}" fill="${v===65?'#c8462e':'#4a5a52'}" text-anchor="middle">${v}${v===65?'%':''}</text>`}
-   h+=`<line x1="${110+Math.cos(Math.PI*.35)*64}" y1="${115-Math.sin(Math.PI*.35)*64}" x2="${110+Math.cos(Math.PI*.35)*101}" y2="${115-Math.sin(Math.PI*.35)*101}" stroke="#c8462e" stroke-width="2.5"/>`;tk.innerHTML=h}
-  const zet=v=>{const q=Math.max(0,Math.min(100,v));naald.style.transform='rotate('+(-90+q*1.8)+'deg)';pc.setAttribute('fill',q>65?'#c8462e':'#24503a')};
+ function glas(){const D=nm(g('kg-dm').value),G=nm(g('kg-gm').value),naald=g('kg-naald'),pc=g('kg-pct'),mk=g('kg-m65');
+  if(!mk.childNodes.length){const a=Math.PI*.35,c=Math.cos(a),s=Math.sin(a);mk.innerHTML=`<line x1="${110+c*78}" y1="${115-s*78}" x2="${110+c*102}" y2="${115-s*102}" stroke="#c8462e" stroke-width="2.5"/><text x="${110+c*113}" y="${115-s*113+3.5}" font-size="10.5" font-weight="700" fill="#c8462e" text-anchor="middle">65%</text>`}
+  const zet=v=>{const q=Math.max(0,Math.min(100,v));naald.style.transform='rotate('+(-90+q*1.8)+'deg)';g('kg-groen').setAttribute('stroke-dasharray',Math.min(q,65)+' 100');g('kg-rood').setAttribute('stroke-dasharray','0 65 '+Math.max(0,q-65)+' 100');pc.setAttribute('fill',q>65?'#c8462e':'#24503a')};
   if(!(D>0&&G!=null&&G>=0)){zet(0);pc.textContent='–';g('kg-uit').innerHTML='Vul de m² van deur en glas in.';return}
   if(G>D){zet(100);pc.textContent='> 100%';g('kg-uit').innerHTML='<span class="kr-err">Er is meer glas dan deur. Controleer de m².</span>';return}
   const v=G/D*100;zet(v);pc.textContent=F(v,1)+'%';
