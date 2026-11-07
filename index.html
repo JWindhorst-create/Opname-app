@@ -369,6 +369,21 @@ body.v-rc .topbar-in{max-width:1480px}
 .rc-big small{color:var(--muted);font-size:13px}
 .rc-trace{margin:8px 0 0;padding-left:20px;font-size:12.5px;line-height:1.55;color:var(--ink)}
 .rc-drop{margin:4px 0 6px}
+
+.bt-nav{position:sticky;top:64px;z-index:5;display:flex;flex-direction:column;gap:10px;padding:12px 14px}
+.bt-tabs{display:flex;gap:6px;flex-wrap:wrap}.bt-tabs button{border:1px solid #B0CEBA;background:#fff;color:#2D6042;border-radius:999px;padding:7px 13px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.bt-tabs button.on{background:#2D6042;color:#fff;border-color:#2D6042}
+#bt-q{width:100%;padding:9px 12px;border:1px solid #B0CEBA;border-radius:10px;font:inherit;font-size:15px}
+.src-tab tr.grp td{cursor:pointer;user-select:none;font-weight:700;color:#2D6042;background:#EEF5F0}
+.src-tab tr.grp td:before{content:'▾ ';display:inline-block;width:14px}.src-tab tr.grp.dicht td:before{content:'▸ '}
+.src-tab tr.bt-verborgen,[data-bt-tab][hidden]{display:none!important}
+.bt-leeg{padding:10px;color:#6b7c73;font-size:14px}
+@media (max-width:760px){.bt-nav{top:56px}.bt-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}.bt-tabs button{white-space:nowrap}
+ .src-tab thead{display:none}.src-tab,.src-tab tbody,.src-tab tr,.src-tab td{display:block;width:100%}
+ .src-tab tr:not(.grp){border:1px solid var(--g200,#dfe9e2);border-radius:10px;margin:8px 0;padding:6px 8px;background:#fff}
+ .src-tab tr:not(.grp) td{border:0;padding:2px 0}.src-tab tr:not(.grp) td:first-child{font-weight:600}
+ .src-tab tr:not(.grp) td:nth-child(2):before{content:'Versie: ';color:#6b7c73}.src-tab tr:not(.grp) td:nth-child(3):before{content:'Status: ';color:#6b7c73}
+ .src-tab tr:not(.grp) td:nth-child(4){font-size:12.5px;color:#4a5a52}.src-tab tr.grp td{border-radius:8px;margin-top:10px}}
 .src-tab{width:100%;border-collapse:collapse;font-size:13px}.src-tab th,.src-tab td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--g100,#e6efe9);vertical-align:top}.src-tab th{background:var(--g50,#f3f8f4);color:var(--g800,#245c45)!important;font-weight:700}.src-tab tr.grp td{background:var(--g50,#f3f8f4);font-weight:700;color:var(--g800,#245c45)}.src-tab .ok{color:#2f7d4f;font-weight:600}.src-tab .warn{color:#9a6b00;font-weight:600}.src-tab .old{color:#888}.kego-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;margin-top:8px}.kego-form .wide{grid-column:1/-1}.kego-form textarea{width:100%;font:inherit}.kg-item{border:1px solid var(--g100,#e6efe9);border-radius:10px;padding:10px 12px;margin:8px 0;background:#fff}.kg-head{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.kg-tag{font-size:11px;background:var(--g50,#f3f8f4);border:1px solid var(--g300,#c5d9ca);border-radius:20px;padding:1px 8px}.kg-tag.st{background:#fff8e1;border-color:#f2c94c}.kg-q,.kg-a{margin-top:6px;font-size:13px;line-height:1.5}.kg-a{background:var(--g50,#f3f8f4);padding:6px 8px;border-radius:8px}.kego-tip{margin-top:10px;border:1px solid #f2c94c;background:#fffbea;border-radius:10px;padding:8px 12px}.kego-tip summary{cursor:pointer;font-weight:600;color:#6b5000}.kego-tip ul,.kb-list ul{margin:6px 0 4px 18px;padding:0;line-height:1.5}.kb-s{font-size:12.5px;color:#4a5a50;margin:1px 0 4px}.kb-grp{margin:8px 0}.kb-list{max-height:520px;overflow:auto;border:1px solid var(--g100,#e6efe9);border-radius:10px;padding:4px 12px}.kego-wrap{margin-top:12px}.src-list{margin:6px 0 0 18px;padding:0;line-height:1.55}
 .rc-imp{border:1px solid var(--g300);border-radius:10px;padding:10px 12px;margin-top:10px;background:#fff}.rc-imp-r{padding:6px 0;border-top:1px solid var(--g100,#e8f1ea)}.rc-imp-r select{margin:0 4px;padding:3px 6px}.rc-imp-r .sub{margin:3px 0 0 26px;font-size:12px}
 .rc-src{font-size:12px;color:var(--muted);margin:2px 0 6px}
@@ -1272,8 +1287,12 @@ body.v-opname{background-image:none!important}
 
 
 <section class="view" id="view-bronnen" hidden>
- <div class="card wt-card" id="watch-card"></div>
- <div class="card">
+ <div class="card bt-nav" id="bt-nav">
+  <div class="bt-tabs" role="tablist"><button type="button" data-bt="ep" class="on">⚡ Energieprestatie</button><button type="button" data-bt="meten">📐 Meten en keuring</button><button type="button" data-bt="kego">💬 KEGO</button><button type="button" data-bt="verwerkt">✔ Verwerkt in dashboard</button><button type="button" data-bt="updates">🔔 Updates</button></div>
+  <input type="search" id="bt-q" placeholder="Zoek in alle bronnen, bijv. erratum, 82.1, meetinstructie, NHG…">
+ </div>
+ <div class="card wt-card" id="watch-card" data-bt-tab="updates"></div>
+ <div class="card" data-bt-tab="ep">
   <h3>Geldende bronnen energieprestatie (stand 30-10-2026)</h3>
   <p class="hint" style="margin-top:0">Per 29 mei 2026 aangewezen in de Omgevingsregeling: NTA 8800:2025+C1:2026, BRL 9500-U/-W:2026 en de ISSO-opnameprotocollen 75.1 en 82.1, 7e druk. Klik op een bron om die te openen; documenten met 📄 staan als PDF in de map <b>Bronnen</b> naast dit dashboard en werken ook zonder internet. In de online versie staan deze PDF’s gedeeld klaar voor iedereen met toegang; ontbreekt er een, tik hem aan of gebruik <b>PDF’s toevoegen voor iedereen</b> onder de tabel. Nieuwe KEGO-antwoorden, ISSO-nieuws (errata, wijzigingsdocumenten) en BRL-documenten worden op de achtergrond gecontroleerd (elke 4 uur) en hierboven alleen gemeld als er iets nieuws is.</p>
   <table class="src-tab">
@@ -1283,9 +1302,7 @@ body.v-opname{background-image:none!important}
     <tr><td><a href="Bronnen/NTA_8800_2025_C1_2026.pdf" target="_blank" rel="noopener">📄 NTA 8800 Energieprestatie van gebouwen – bepalingsmethode</a></td><td>NTA 8800:2025+C1:2026</td><td class="ok">geldend sinds 29-05-2026</td><td>Eigen exemplaar (PDF in de map Bronnen, onder licentie NEN). Nieuw o.a.: opslag (batterij/warmte), GACS, nieuwe labelindicatoren, aangepaste λ voor riet en biobased; bijlage E omrekenfactoren λD → λcalc.</td></tr>
     <tr><td><a href="https://www.nen.nl/nieuws/actueel/correctieblad-nta-8800-verduidelijkt-regels-voor-kwaliteitsverklaringen-en-biedt-meer-ruimte-aan-energiebedrijven/" target="_blank" rel="noopener">Correctieblad C1 bij NTA 8800:2025</a></td><td>maart 2026</td><td class="ok">verwerkt in NTA 8800:2025+C1:2026</td><td>Bijlage P (kwaliteitsverklaringen) aangevuld.</td></tr>
     <tr><td><a href="https://zoek.officielebekendmakingen.nl/stcrt-2026-18113.html" target="_blank" rel="noopener">Wijziging Omgevingsregeling (aanwijzing nieuwe versies)</a></td><td>Staatscourant 2026, 18113</td><td class="ok">in werking 29-05-2026</td><td>Wijst NTA 8800, BRL 9500-U, BRL 9500-W en BRL 9501 aan.</td></tr>
-    <tr class="grp"><td colspan="4">Productdocumentatie (map Bronnen)</td></tr>
-    <tr><td><a href="Bronnen/RWDOPBNL-236-001-03_nederlands.pdf" target="_blank" rel="noopener">📄 DoP RWDOPBNL-236-001-03 – Rockwool Bouwplaat 236</a></td><td>01-03-2025</td><td class="ok">prestatieverklaring (CE)</td><td>EN 13162: λD 0,037; RD per dikte (120 mm = 3,20). Gebruikt in de materialendatabase.</td></tr>
-    <tr><td><a href="Bronnen/RWDOPBNL-201-001-04_nederlands.pdf" target="_blank" rel="noopener">📄 DoP RWDOPBNL-201-001-04 – Rockwool Rocksono Base Vario</a></td><td>03-07-2024</td><td class="ok">prestatieverklaring (CE)</td><td>EN 13162: λD 0,037; RD per dikte (70 mm = 1,85). Gebruikt in de materialendatabase.</td></tr>
+    <tr class="grp"><td colspan="4">Productdocumentatie</td></tr>
     <tr><td><a href="Bronnen/Promisol_S_productblad_ArcelorMittal_Onnaing.pdf" target="_blank" rel="noopener">📄 Promisol S – productblad ArcelorMittal (Onnaing)</a></td><td>fiche NL</td><td>fabrikantopgave</td><td>Rc-opgave (60 mm: 2,66) is geen gedeclareerde waarde of kwaliteitsverklaring – niet overnemen in een detailopname.</td></tr>
     <tr><td><a href="Bronnen/ACERMI_16-193-1154-7_Promisol_S_uittreksel.pdf" target="_blank" rel="noopener">📄 ACERMI-certificaat 16/193/1154/7 – Promisol S (uittreksel)</a> · <a href="https://www.acermi.com/fr/isolants-certifies/certificat/16-193-1154-7/" target="_blank" rel="noopener">origineel</a></td><td>16-05-2025</td><td class="ok">geldig (lijst 29-10-2026)</td><td>λD 0,023; R 50 mm 2,10 · 60 mm 2,55 · 80 mm 3,40 · 100 mm 4,30 · 120 mm 5,15. Gebruikt in de materialendatabase.</td></tr>
     <tr class="grp"><td colspan="4">Opnameprotocollen ISSO</td></tr>
@@ -1318,7 +1335,7 @@ body.v-opname{background-image:none!important}
   </table>
   <div id="bron-extra" class="bron-extra" hidden><div class="be-kop"><label class="be-knop"><input type="file" id="bron-up" accept="application/pdf,.pdf" multiple hidden>＋ PDF's toevoegen voor iedereen</label><span class="be-st"></span></div><div class="be-lijst"></div></div>
  </div>
-<div class="card" style="margin-top:12px" id="bron-meten">
+<div class="card" style="margin-top:12px" id="bron-meten" data-bt-tab="meten">
   <h3>Bronnen meten (NEN 2580) en bouwkundige keuring (NTA 8060) (stand 07-11-2026)</h3>
   <p class="hint" style="margin-top:0">Grondslag van de Plattegrond NEN 2580-module en de Bouwkundige keuring. Funda toont de m² volgens de branchebrede meetinstructie (NVM, VBO, VastgoedPRO, VNG, Waarderingskamer); waar die en de lijst met vragen geen antwoord geven, geldt NEN 2580.</p>
   <table class="src-tab">
@@ -1342,13 +1359,13 @@ body.v-opname{background-image:none!important}
    </tbody>
   </table>
  </div>
-<div class="card" style="margin-top:12px" id="kb-card">
+<div class="card" style="margin-top:12px" id="kb-card" data-bt-tab="kego">
   <h3>KEGO-kennisbank (openbaar)</h3>
   <p class="hint" style="margin-top:0">Alle artikelen uit de <a href="https://portaal.stichtingkego.nl/support/solutions" target="_blank" rel="noopener">KEGO-kennisbank</a> (206 artikelen, stand 30-10-2026), gegroepeerd per hoofdstuk van het opnameprotocol. Artikelen die invloed hebben op de rekenregels hebben een korte samenvatting. Dezelfde artikelen verschijnen als tip bij de Rc-berekening, zonering, beslisschema’s, interpolatie en het opnameformulier.</p>
   <div class="row-btns" style="margin-bottom:6px"><input type="text" id="kb-q" placeholder="Zoeken, bijv. spouw, garage, warmtepomp…" style="flex:1;min-width:220px"><select id="kb-f"><option value="">alle hoofdstukken</option></select><span class="sub" id="kb-count"></span></div>
   <div id="kb-list" class="kb-list"></div>
  </div>
-  <div class="card" style="margin-top:12px" id="kego-card">
+  <div class="card" style="margin-top:12px" id="kego-card" data-bt-tab="kego">
   <h3>KEGO – vragen en antwoorden</h3>
   <p class="hint" style="margin-top:0">Stichting KEGO is het loket voor vragen over de opnameprotocollen. Het voorlopige antwoord van het expertteam mag je als definitief antwoord voor het energielabel gebruiken, mits het antwoord in het dossier zit. Projectspecifieke antwoorden staan meestal niet in de kennisbank – bewaar ze daarom hier.</p>
   <div class="row-btns" style="margin-bottom:8px">
@@ -1373,7 +1390,7 @@ body.v-opname{background-image:none!important}
   <div class="msg" id="kg-msg"></div>
   <div id="kg-list"></div>
  </div>
- <div class="card" style="margin-top:12px">
+ <div class="card" style="margin-top:12px" data-bt-tab="verwerkt">
   <h3>Verwerkt in de rekenhulpen van dit dashboard</h3>
   <ul class="src-list">
    <li><b>10%-regel (§8.7.1.4):</b> geldt voor gedetailleerd én forfaitair bepaalde Rc; bij panelen U + 10% (wijzigingsdocument 2025, correctie 8).</li>
@@ -7141,6 +7158,21 @@ ensureViewer();window.addEventListener('hashchange',()=>setTimeout(()=>{markAll(
 (function(){const i=document.getElementById('bron-up');if(i)i.addEventListener('change',()=>{if(i.files&&i.files.length)bronUpload(i.files);i.value=''})})();window.elnBronMark=markAll;
 })();
 </script>
+<script>(function(){const nav=document.getElementById('bt-nav');if(!nav)return;const sec=document.getElementById('view-bronnen');
+ const kaarten=[...sec.querySelectorAll('[data-bt-tab]')],q=document.getElementById('bt-q');let tab='ep';
+ // groepen in- en uitklappen
+ sec.querySelectorAll('.src-tab tr.grp').forEach(g=>{const rows=[];let n=g.nextElementSibling;while(n&&!n.classList.contains('grp')){rows.push(n);n=n.nextElementSibling}g._rows=rows;
+  if(/Vervallen/i.test(g.textContent)){g.classList.add('dicht');rows.forEach(r=>r.hidden=true)}
+  g.addEventListener('click',()=>{const d=g.classList.toggle('dicht');rows.forEach(r=>r.hidden=d)})});
+ const toon=()=>{const z=(q.value||'').trim().toLowerCase();
+  sec.querySelectorAll('.src-tab tr:not(.grp)').forEach(r=>{if(r.closest('thead'))return;r.classList.toggle('bt-verborgen',!!z&&!r.textContent.toLowerCase().includes(z));if(z)r.hidden=false});
+  sec.querySelectorAll('.src-tab tr.grp').forEach(g=>{if(z){g.classList.toggle('bt-verborgen',!g._rows.some(r=>!r.classList.contains('bt-verborgen')))}else{g.classList.remove('bt-verborgen');g._rows.forEach(r=>r.hidden=g.classList.contains('dicht'))}});
+  const kq=document.getElementById('kb-q');if(kq&&z){kq.value=z;kq.dispatchEvent(new Event('input'))}
+  kaarten.forEach(k=>{if(!z){k.hidden=k.dataset.btTab!==tab;return}const t=k.querySelector('.src-tab');
+   k.hidden=t?![...t.querySelectorAll('tbody tr:not(.grp)')].some(r=>!r.classList.contains('bt-verborgen')):k.id!=='kb-card'});
+  nav.querySelectorAll('[data-bt]').forEach(b=>b.classList.toggle('on',!z&&b.dataset.bt===tab))};
+ nav.querySelectorAll('[data-bt]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.bt;q.value='';const kq=document.getElementById('kb-q');if(kq&&kq.value){kq.value='';kq.dispatchEvent(new Event('input'))}toon();window.scrollTo({top:sec.offsetTop-70})}));
+ q.addEventListener('input',toon);toon();const zt=()=>{const h=document.querySelector('.topbar');if(h)nav.style.top=(h.offsetHeight+4)+'px'};zt();window.addEventListener('resize',zt)})();</script>
 <script>(function(){const grid=document.getElementById('hg-grid');if(!grid)return;
  // tegels 'in onderhoud' onderaan per groep; lijstje op de hoofdkaart in dezelfde volgorde
  const ond=t=>[...t.querySelectorAll('.badge')].some(b=>/onderhoud/i.test(b.textContent));
