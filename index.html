@@ -1543,11 +1543,17 @@ body.v-opname{background-image:none!important}
  </div>
  <div class="kr-card" id="kr-glas">
   <h3>Glas in deur</h3>
-  <p class="kr-sub">Aandeel glas in een deur, met het oppervlak van het dichte deel. Gebruik dit bij de keuze voor de U-waarde (zie het beslisschema U-waarde deuren).</p>
-  <div class="kr-row"><div>Deur breedte (m)<input id="kg-db" inputmode="decimal" placeholder="0,93"></div><div>Deur hoogte (m)<input id="kg-dh" inputmode="decimal" placeholder="2,31"></div>
-  <div>Glas breedte (m)<input id="kg-gb" inputmode="decimal"></div><div>Glas hoogte (m)<input id="kg-gh" inputmode="decimal"></div>
-  <div>Aantal ruiten van deze maat<input id="kg-n" inputmode="numeric" value="1"></div><div>Óf glas totaal (m²)<input id="kg-gm" inputmode="decimal"></div></div>
-  <div class="kr-res" id="kg-uit">Vul de maten in.</div>
+  <p class="kr-sub">Vul het oppervlak van de deur en van het glas in. De schijf toont direct het percentage glas.</p>
+  <div class="kr-row"><div>Deur (m²)<input id="kg-dm" inputmode="decimal" placeholder="bijv. 2,15"></div><div>Glas (m²)<input id="kg-gm" inputmode="decimal" placeholder="bijv. 0,60"></div></div>
+  <div class="kg-schijf"><svg viewBox="0 0 220 160" width="100%" style="max-width:340px;display:block;margin:6px auto 0">
+   <path d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#e3ece6" stroke-width="18" stroke-linecap="round"/>
+   <path id="kg-boog" d="M20 115 A90 90 0 0 1 200 115" fill="none" stroke="#2D6042" stroke-width="18" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" style="transition:stroke-dasharray .45s ease,stroke .3s"/>
+   <g id="kg-m65"><line x1="0" y1="0" x2="0" y2="0" stroke="#b5462e" stroke-width="2.5"/><text font-size="10" fill="#b5462e" text-anchor="middle">65%</text></g>
+   <g id="kg-naald" style="transform-origin:110px 115px;transform:rotate(-90deg);transition:transform .45s cubic-bezier(.3,1.4,.5,1)"><line x1="110" y1="115" x2="110" y2="42" stroke="#24503a" stroke-width="4" stroke-linecap="round"/></g>
+   <circle cx="110" cy="115" r="8" fill="#24503a"/>
+   <text x="20" y="130" font-size="10" fill="#6b7c73" text-anchor="middle">0%</text><text x="200" y="130" font-size="10" fill="#6b7c73" text-anchor="middle">100%</text>
+   <text id="kg-pct" x="110" y="155" font-size="24" font-weight="700" fill="#24503a" text-anchor="middle">–</text></svg></div>
+  <div class="kr-res" id="kg-uit">Vul de m² van deur en glas in.</div>
  </div>
  <div class="kr-card" id="kr-versp">
   <h3>Verspringende woning: vrije zijgevel</h3>
@@ -2182,7 +2188,7 @@ const HELP_KR={
   {at:'#kr-velden',t:'2. Maten',b:'Vul de maten in meters in, eventueel een omschrijving en het aantal. De tekening eronder wordt op deze maten getekend.'},
   {at:'#kr-uit',t:'3. Uitkomst',b:'De oppervlakte met de gebruikte formule. Met <b>+ Op de lijst</b> zet je de opening op de lijst.'},
   {at:'#kr-lijst',t:'4. Lijst en totaal',b:'Alle openingen met het totaal in m². Met het kruisje haal je een regel weg.'}],
- 'kr-glas':[{at:'#kg-db',t:'1. Deur en glas',b:'Vul de breedte en hoogte van de deur in, en van het glas met het aantal ruiten van die maat. Weet je alleen het totale glasoppervlak, vul dan <b>Óf glas totaal (m²)</b> in.'},
+ 'kr-glas':[{at:'#kg-dm',t:'1. Deur en glas',b:'Vul de m² van de deur en de m² glas in. De draaischijf toont het percentage glas; boven 65% kleurt hij rood (invoeren als raam).'},
   {at:'#kg-uit',t:'2. Uitkomst',b:'Het percentage glas en het oppervlak van het dichte deel. Gebruik dit bij de keuze voor de U-waarde (beslisschema U-waarde deuren).'}],
  'kr-pv':[{at:'#pv-n',t:'1. Gedeelde panelen',b:'Vul het aantal panelen in dat op de hoofdmeter of een collectieve installatie zit. Wp en m² per paneel zijn optioneel. Staan niet alle aangesloten woningen in de lijst, vul dan de totale Ag in.'},
   {at:'#pv-rows',t:'2. Woningen',b:'Zet per woning het adres en de Ag erin met <b>+ Woning</b>, of plak een lijst (adres + Ag) met <b>Lijst plakken</b>.'},
@@ -6062,8 +6068,13 @@ ftRender();
    const ctl=(at.b3_opp_dak_schuin!=null||at.b3_opp_dak_plat!=null)?`<div class="kr-f">Controle 3D BAG zelf: schuin ${f1(+at.b3_opp_dak_schuin||0)} m² · plat ${f1(+at.b3_opp_dak_plat||0)} m²</div>`:'';
    const bs=B?R.filter(x=>x.c!=='P').reduce((s,x)=>s+(x.b||0),0):0,bp=B?(R.find(x=>x.c==='P')?.b||0):0;
    return`${panden.length>1?`<h4 class="d3-h">${lt} · ${E(p.naam)}</h4>`:''}<table class="kr-tab d3-tab"><tr class="h"><td>Vlak</td><td>Oriëntatie</td><td>Helling</td><td>m² buiten</td>${B?'<td>m² binnen</td>':'<td>m² horiz.</td>'}</tr>
-${R.map(x=>`<tr data-d3g="${x.k}"${sel===x.k?' class="on"':''}><td><i class="d3-kl" style="background:${x.kl}"></i><b>${x.c}${lt}</b></td><td>${x.o}</td><td>${x.h?gr(x.h)+'°':'–'}</td><td>${f1(x.s)}</td><td>${B?'<b>'+f1(x.b||0)+'</b>':f1(x.hz)}</td></tr>`).join('')}
-<tr class="t"><td>Totaal dak</td><td></td><td></td><td>${f1(tot)}</td><td>${B?f1(bt):f1(hz)}</td></tr></table>${ctl}
+${R.map(x=>{const gp=x.c==='P'?m.plat:m.daken.find(d=>d.code===x.c),fs=gp?gp.faces.filter(f=>f.area>=0.2).sort((a,b)=>b.area-a.area):[],hm=+at.b3_h_maaiveld||0;
+ const sub=fs.length>1?fs.map((f,j)=>{const zs=f.ring.map(q=>q[2]-hm);return`<tr class="d3-sub" data-d3g="${x.k}"><td colspan="3" style="padding-left:28px;color:#5b6b63;font-size:12.5px">deel ${j+1} · hoogte ${f1(Math.min(...zs))}–${f1(Math.max(...zs))} m${x.c!=='P'?' · '+gr(f.slope)+'°':''}</td><td style="color:#5b6b63;font-size:12.5px">${f1(f.area)}</td><td style="color:#5b6b63;font-size:12.5px">${B?'':f1(f.area*Math.cos(f.slope*Math.PI/180))}</td></tr>`}).join(''):'';
+ return`<tr data-d3g="${x.k}"${sel===x.k?' class="on"':''}><td><i class="d3-kl" style="background:${x.kl}"></i><b>${x.c}${lt}</b>${fs.length>1?`<small style="color:#5b6b63"> (${fs.length} delen)</small>`:''}</td><td>${x.o}</td><td>${x.h?gr(x.h)+'°':'–'}</td><td>${f1(x.s)}</td><td>${B?'<b>'+f1(x.b||0)+'</b>':f1(x.hz)}</td></tr>${sub}`}).join('')}
+<tr class="t"><td>Totaal dak</td><td></td><td></td><td>${f1(tot)}</td><td>${B?f1(bt):f1(hz)}</td></tr></table>${ctl}${(()=>{const D=m.daken,ang=(a,b)=>Math.abs(((a-b)%360+540)%360-180),uit=[];
+ D.forEach((a,i)=>D.forEach((b,j)=>{if(j<=i||ang(a.az,b.az)<150)return;const ha=a.area*Math.cos(a.slope*Math.PI/180),hb=b.area*Math.cos(b.slope*Math.PI/180),v=Math.abs(ha-hb)/Math.max(ha,hb);
+  if(v>0.2)uit.push(`${a.code}${lt} (${f1(a.area)} m²) en ${b.code}${lt} (${f1(b.area)} m²) liggen tegenover elkaar maar verschillen ${Math.round(v*100)}% in horizontale oppervlakte. Dat kan kloppen (nok niet in het midden, opbouw, uitbouw of dakkapel), maar controleer het ter plaatse: 3D BAG mist soms een deel van een dakvlak of telt een stuk als plat.`)}));
+ return uit.length?`<div class="kr-f" style="background:#fdf1e6;border:1px solid #f2cfa9;border-radius:8px;padding:8px 10px;margin-top:6px">${uit.join('<br>')}</div>`:''})()}
 ${B?`<div class="d3-meth">${E(B.info.join(' '))}${B.ok?'':' <b>Vul een binnenmaat in.</b>'}</div>`:''}${corrUI(p,B)}
 <div class="kr-row d3-aand"><div>Aandeel van de woning in dit pand (%)<input data-d3a="${E(p.pid)}" inputmode="decimal" value="${gr(a)}"></div><div class="d3-aandres">${a<100?`Aandeel ${gr(a)}%: schuin <b>${f1((B?bs:m.schuin)*f)} m²</b> · plat <b>${f1((B?bp:m.plat.area)*f)} m²</b>${B?' (binnenwerks)':''}`:''}</div></div>`}).join('')}
  g('d3-uit').addEventListener('click',e=>{const mb=e.target.closest('[data-d3m]');if(mb){const c=cor(mb.dataset.pid);c.m=mb.dataset.d3m;st.corr[mb.dataset.pid]=c;bewaar();tabel();return}const tr=e.target.closest('tr[data-d3g]');if(tr)kiesSel(tr.dataset.d3g)});
@@ -6310,15 +6321,18 @@ ${B?`<div class="d3-meth">${E(B.info.join(' '))}${B.ok?'':' <b>Vul een binnenmaa
 
 (function(){const K='eln-klein-x';let st={};try{st=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}const g=document.getElementById.bind(document);if(!g('kr-kwh'))return;
  const nm=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?n:null},F=(x,d=2)=>x.toLocaleString('nl-NL',{minimumFractionDigits:d,maximumFractionDigits:d}),R=Math.PI/180;
- const ids=['kd-a','kd-al','kg-db','kg-dh','kg-gb','kg-gh','kg-n','kg-gm','kv-d','kv-h','kv-w','kv-al','ke-v','ke-u'];
+ const ids=['kd-a','kd-al','kg-dm','kg-gm','kv-d','kv-h','kv-w','kv-al','ke-v','ke-u'];
  const sv=()=>{try{const o=JSON.parse(localStorage.getItem(K)||'{}');o.x={};ids.forEach(i=>o.x[i]=g(i).value);localStorage.setItem(K,JSON.stringify(o))}catch(e){}};
  if(st.x)ids.forEach(i=>{if(st.x[i]!=null&&st.x[i]!=='')g(i).value=st.x[i]});
  function dakf(){const a=nm(g('kd-a').value),al=nm(g('kd-al').value);if(!(a>0&&al!=null&&al>=0&&al<90)){g('kd-uit').innerHTML='Vul oppervlak en hellingshoek in.';return}const f=1/Math.cos(al*R);
   g('kd-uit').innerHTML='Dakoppervlak: <b>'+F(a*f)+' m²</b><div class="kr-f">Dakfactor 1 / cos '+F(al,1)+'° = '+F(f,3)+' · '+F(a)+' × '+F(f,3)+'</div>'}
- function glas(){const db=nm(g('kg-db').value),dh=nm(g('kg-dh').value),gm=nm(g('kg-gm').value),gb=nm(g('kg-gb').value),gh=nm(g('kg-gh').value),n=Math.max(1,Math.round(nm(g('kg-n').value)||1));
-  if(!(db>0&&dh>0)){g('kg-uit').innerHTML='Vul de maten van de deur in.';return}const D=db*dh,G=gm>0?gm:(gb>0&&gh>0?gb*gh*n:0);
-  if(G>D){g('kg-uit').innerHTML='<span class="kr-err">Er is meer glas dan deur. Controleer de maten.</span>';return}
-  g('kg-uit').innerHTML='Glas: <b>'+F(G/D*100,1)+'%</b> van de deur<div class="kr-f">Deur '+F(D)+' m² · glas '+F(G)+' m² · dicht deel '+F(D-G)+' m²</div>'}
+ function glas(){const D=nm(g('kg-dm').value),G=nm(g('kg-gm').value),boog=g('kg-boog'),naald=g('kg-naald'),pc=g('kg-pct');
+  {const a=Math.PI*(1-0.65),x1=110+Math.cos(a)*78,y1=115-Math.sin(a)*78,x2=110+Math.cos(a)*102,y2=115-Math.sin(a)*102,m=g('kg-m65'),l=m.querySelector('line'),t=m.querySelector('text');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);t.setAttribute('x',110+Math.cos(a)*112);t.setAttribute('y',115-Math.sin(a)*112)}
+  const zet=v=>{const q=Math.max(0,Math.min(100,v));boog.setAttribute('stroke-dasharray',q+' 100');boog.setAttribute('stroke',q>65?'#b5462e':'#2D6042');naald.style.transform='rotate('+(-90+q*1.8)+'deg)'};
+  if(!(D>0&&G!=null&&G>=0)){zet(0);pc.textContent='–';g('kg-uit').innerHTML='Vul de m² van deur en glas in.';return}
+  if(G>D){zet(100);pc.textContent='> 100%';g('kg-uit').innerHTML='<span class="kr-err">Er is meer glas dan deur. Controleer de m².</span>';return}
+  const v=G/D*100;zet(v);pc.textContent=F(v,1)+'%';
+  g('kg-uit').innerHTML='Glas: <b>'+F(v,1)+'%</b> van de deur · dicht deel <b>'+F(D-G)+' m²</b>'+(v>65?'<div class="kr-f"><b>Meer dan 65% glas:</b> voer de deur in als raam (Vabi: “deur met raam/glas &gt; 65%”).</div>':'<div class="kr-f">Niet meer dan 65% glas: invoeren als deur (zie het beslisschema U-waarde deuren).</div>')}
  function versp(){const d=nm(g('kv-d').value),h=nm(g('kv-h').value),w=nm(g('kv-w').value),al=nm(g('kv-al').value);if(!(d>0&&h>0)){g('kv-uit').innerHTML='Vul verspringing en hoogte in.';return}
   const A1=d*h;let A2=0,t='';if(al>0&&al<90&&w>0){if(d>=w){A2=w*w/4*Math.tan(al*R);t='verspringing ≥ diepte: hele kopgevel vrij'}else{const A=w*w/4*Math.tan(al*R);A2=A*(1-Math.pow((w-d)/w,2));t='kopgevel '+F(A)+' m² × (1 − ((w − d) / w)²)'}}
   g('kv-uit').innerHTML='Vrije zijgevel: <b>'+F(A1+A2)+' m²</b><div class="kr-f">Tot de goot: '+F(d)+' × '+F(h)+' = '+F(A1)+' m²'+(A2?' · kap: '+F(A2)+' m² ('+t+')':'')+'</div>'}
