@@ -419,7 +419,7 @@ function nextNr(){ const y=new Date().getFullYear(); const n=(S.settings.teller|
 async function newKeuring(){
   const now=new Date();
   const k={ id:uid(), rapportnr:'', created:Date.now(), updated:Date.now(),
-    obj:{ datum:now.toISOString().slice(0,10), tijd:now.toTimeString().slice(0,5), doel:'Aankoopkeuring', nhg:'ja', inspecteur:S.settings.inspecteur||'', registratie:S.settings.registratie||'',
+    obj:{ datum:now.toISOString().slice(0,10), doel:'Aankoopkeuring', nhg:'ja', inspecteur:S.settings.inspecteur||'', registratie:S.settings.registratie||'',
       rapportdatum:now.toISOString().slice(0,10), autorisatie:'', adres:'', postcode:'', plaats:'', type:'Tussenwoning', bouwjaar:'', inhoud:'', gbo:'', bouwlagen:'', bewoning:'Bewoond', weer:'', label:'', verwarming:'', ketel:'', dak:'', fundering:'', opdrachtgever:'', ogAdres:'', ogTel:'', ogMail:'', aanwezig:'', voorgevel:'' },
     versie:'1.0', status:'concept', herbouw:{ m3prijs:'', waarde:'' }, aandacht:{}, bev:[], beperkt:'', conclusie:'', advies:'' };
   S.index.push({id:k.id,adres:'',datum:k.obj.datum,rapportnr:k.rapportnr,updated:Date.now()});
@@ -537,7 +537,7 @@ function vObject(){
   <div class="card"><h2>A · Opdracht</h2><div class="grid">
     ${SEL('obj.doel','Soort keuring',['Aankoopkeuring','Verkoopkeuring','Opleveringskeuring','Onderhoudsinspectie'])}
     <div><label>NHG-kostensamenvatting opnemen</label><div class="seg" data-seg="obj.nhg"><button data-v="ja">Ja</button><button data-v="nee">Nee</button></div></div>
-    ${F('obj.datum','Inspectiedatum','date')}${F('obj.tijd','Tijd','time')}
+    ${F('obj.datum','Inspectiedatum','date')}
     ${F('obj.opdrachtgever','Opdrachtgever')}${F('obj.ogTel','Telefoon opdrachtgever','tel')}
     ${F('obj.ogAdres','Adres opdrachtgever','text','full')}${F('obj.ogMail','E-mail opdrachtgever','email')}
     ${F('obj.aanwezig','Aanwezig bij keuring')}
@@ -1389,7 +1389,7 @@ function buildSections(){
   /* 02 opdracht en object */
   S2.push(sec('02',[
     `<h3>${ico('clip',6)}A · Opdracht</h3><div class="dl">
-      ${kv('Soort keuring',esc(o.doel))}${kv('Inspectiedatum',fmtDate(o.datum)+(o.tijd?', '+esc(o.tijd)+' uur':''))}
+      ${kv('Soort keuring',esc(o.doel))}${kv('Inspectiedatum',fmtDate(o.datum))}
       ${kv('Opdrachtgever',esc(o.opdrachtgever))}${kv('Adres opdrachtgever',esc(o.ogAdres))}
       ${kv('Telefoon',esc(o.ogTel))}${kv('E-mail',esc(o.ogMail))}
       ${kv('Aanwezig bij keuring',esc(o.aanwezig))}${kv('Bouwkundig inspecteur',esc(o.inspecteur)+(o.registratie?' ('+esc(o.registratie)+')':''))}</div>`,
