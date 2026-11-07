@@ -822,7 +822,7 @@ function buildSections(){
  const S2=[];
  /* voorblad */
  S2.push({cover:true,html:s2Cover({foto:o.voorgevel,concept,kick:esc(sd.kick),titel:esc(o.adres||'Adres object'),
-  sub:[esc([o.postcode,o.plaats].filter(Boolean).join('  ')),'Van label '+esc(H.label)+' naar '+(doelen.length?doelen.map(esc).join(' / '):'een beter label'),[o.type,o.bouwjaar?'bouwjaar '+o.bouwjaar:''].filter(Boolean).map(esc).join(' · ')].filter(Boolean).join('<br>'),
+  sub:[esc([o.postcode,o.plaats].filter(Boolean).join('  ')),'Van label '+esc(H.label)+' naar '+(doelen.length?doelen.map(esc).join(' / '):'een beter label'),esc(o.type||'')].filter(Boolean).join('<br>'),
   meta:[['Rapportnummer',esc(a.rapportnr)],['Opnamedatum',fmtDate(o.datum)],['EP-adviseur',esc(o.adviseur||st.adviseur||'')],['Adviesbureau',esc(st.bedrijf||'')],['Huidig label',esc(H.label)+' · EP2 '+fx(ep2H,0)],['Aanbevolen pakket',RR?esc(RR.label)+' · '+eur(RR.inv):'–']]})});
 
  const chapters=[['01','Samenvatting','clip'],['02','Uitgangspunten','info'],['03','Huidige situatie','home'],['04','Maatregelen','tool'],['05','Maatregelenpakketten','package'],['06','Materialen en kwaliteitsverklaringen','shield'],['07','Subsidies en regelingen','euro'],['08','Verantwoording en ondertekening','pen'],['B1','Bijlage: invoer Vabi per pakket','cpu']];

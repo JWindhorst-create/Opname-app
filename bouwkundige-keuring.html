@@ -1352,7 +1352,7 @@ function buildSections(){
 
   /* voorblad */
   S2.push({cover:true, html:s2Cover({foto:o.voorgevel,concept,kick:'Bouwkundig rapport · NTA 8060',titel:esc(o.adres||'Adres object'),
-    sub:[esc([o.postcode,o.plaats].filter(Boolean).join('  ')),esc(o.doel||'Bouwkundige keuring'),[o.type,o.bouwjaar?'bouwjaar '+o.bouwjaar:''].filter(Boolean).map(esc).join(' · ')].filter(Boolean).join('<br>'),
+    sub:[esc([o.postcode,o.plaats].filter(Boolean).join('  ')),esc(o.doel||'Bouwkundige keuring'),esc(o.type||'')].filter(Boolean).join('<br>'),
     meta:[['Rapportnummer',esc(k.rapportnr)],['Inspectiedatum',fmtDate(o.datum)],['Inspecteur',esc(o.inspecteur||st.inspecteur||'')],['Adviesbureau',esc(st.bedrijf||'')],['Opdrachtgever',esc(o.opdrachtgever||'')],['Versie',esc(k.versie||'1.0')+(concept?' · concept':' · definitief')]]})});
 
   const chapters=[['01','Samenvatting','clip'],['02','Opdracht en object','home'],['03','Kostenraming','euro'],['04','Conditiemeting en leeswijzer','gauge'],['05','Bevindingen','search'],['06','Uitgangspunten en ondertekening','pen']].concat(o.nhg==='ja'?[['B1','Bijlage: Bouwkundig rapport NHG','shield'],['B2','Bijlage: Eisen en aanbevelingen bij herstel','list']]:[]);
